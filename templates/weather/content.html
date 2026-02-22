@@ -1,18 +1,8 @@
-
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-
-<div class="row">
-
-  {% if current or forecast %}
-
-    {% include 'weather/data.html' %}
-
-  {% else %}
-
-    {% include 'weather/no-data.html' %}
-
-  {% endif %}
-
-</div>
+    {% if current or forecast %}
+        {% include "weather/data.html" %}
+    {% else %}
+        {% include "weather/no-data.html" %}
+    {% endif %}
 {% endblock content %}
