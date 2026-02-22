@@ -120,6 +120,12 @@
   color: var(--color-primary);
 }
 
+@media (max-width: 767px) {
+  .note-toolbar .toolbar-right a.toolbar-hide-mobile {
+    display: none;
+  }
+}
+
 .note-toolbar .toolbar-left #save-status-btn.active {
   color: var(--urgent);
 }

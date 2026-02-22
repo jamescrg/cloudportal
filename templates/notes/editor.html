@@ -26,12 +26,16 @@
                         <i class="icon-search"></i>
                     </a>
                     <a href="#"
+                       class="toolbar-hide-mobile"
                        hx-get="{% url 'notes:note-import-modal' note.id %}"
                        hx-target="#htmx-modal-container"
                        title="Import from markdown">
                         <i class="icon-upload"></i>
                     </a>
-                    <a href="#" id="export-btn" title="Export to markdown">
+                    <a href="#"
+                       id="export-btn"
+                       class="toolbar-hide-mobile"
+                       title="Export to markdown">
                         <i class="icon-download"></i>
                     </a>
                     <a href="#"
