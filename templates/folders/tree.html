@@ -4,13 +4,21 @@
             <div class="folder-row">
                 <div class="folder-content">
                     <span class="folder-icon">
-                        <i class="icon-folder"></i>
+                        <i class="icon-folders"></i>
                     </span>
                     <a class="folder-link"
                        href="#"
                        hx-get="{% if page == 'favorites' %}{% url 'favorites-all' %}{% elif page == 'tasks' %}{% url 'tasks-all' %}{% else %}{% url 'notes:all' %}{% endif %}"
                        hx-target="#main-content"
-                       hx-swap="innerHTML">All</a>
+                       hx-swap="innerHTML">All
+                        {% if page == 'tasks' %}
+                            Tasks
+                        {% elif page == 'favorites' %}
+                            Favorites
+                        {% elif page == 'notes' %}
+                            Notes
+                        {% endif %}
+                    </a>
                 </div>
             </div>
         </li>
@@ -44,14 +52,14 @@
     <li class="list-group-item folder-item {% if not selected_folder and not favorites_folder_all and not notes_folder_all and not tasks_folder_all %}active-item{% endif %}">
         <div class="folder-row">
             <div class="folder-content">
-                <span class="folder-icon">
-                    <i class="icon-folder"></i>
+                <span class="folder-icon-home">
+                    <i class="icon-folder-x"></i>
                 </span>
                 <a class="folder-link"
                    href="#"
                    hx-get="{% url 'folder-select-htmx' id=0 page=page %}"
                    hx-target="#main-content"
-                   hx-swap="innerHTML">Unsorted</a>
+                   hx-swap="innerHTML">Unsorted Items</a>
             </div>
         </div>
     </li>
