@@ -440,6 +440,7 @@
 }
 
 .notes-list .dropdown-menu {
+  text-align: left;
   z-index: 1050;
 }
 
