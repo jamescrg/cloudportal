@@ -87,4 +87,7 @@
 
   /* Labels */
   --label-gray: var(--gb-dark1);
+
+  /* Tables */
+  --background-table-header: var(--hl-gray);
 }

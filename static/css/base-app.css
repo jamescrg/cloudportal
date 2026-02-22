@@ -155,7 +155,9 @@ strong{
 }
 
 .table th {
+  background: var(--background-table-header, var(--background-control));
   border-top: solid 1px var(--border-medium);
+  vertical-align: middle;
 }
 
 .table th:last-child,
