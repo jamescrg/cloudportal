@@ -49,7 +49,6 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 # trusted origins for CSRF
 CSRF_TRUSTED_ORIGINS = [
     "https://dev.minhome.app",
-    "https://dev.cloudportal.link",
     "https://server-dev.site:8000",
 ]
 
