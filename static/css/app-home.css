@@ -121,6 +121,7 @@
 
 .drop-zone {
   border-radius: var(--radius-sm);
+  min-height: 4rem;
 }
 
 /* Prevent dark background when folders are drop targets */
