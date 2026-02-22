@@ -357,16 +357,34 @@ def tasks_all(request):
 
 @login_required
 def tasks_due(request):
-    """Quick filter: show all pending tasks that are due or past due."""
-    request.session["tasks_all"] = True
-    request.user.tasks_folder = 0
-    request.user.save()
-    request.session["tasks_filter"] = {
-        "filter_label": "due",
-        "status": "Pending",
-        "due_date_max": date.today().strftime("%Y-%m-%d"),
-        "sort": "due_date",
-    }
+    """Toggle quick filter: stash current filter and show due tasks, or restore."""
+    current_filter = request.session.get("tasks_filter", {})
+    stash = request.session.get("tasks_filter_stash")
+
+    if current_filter.get("filter_label") == "due" and stash is not None:
+        # Restore stashed state
+        request.session["tasks_filter"] = stash["tasks_filter"]
+        request.session["tasks_all"] = stash["tasks_all"]
+        request.user.tasks_folder = stash["tasks_folder"]
+        request.user.save()
+        request.session.pop("tasks_filter_stash", None)
+    else:
+        # Stash current state and apply due filter
+        request.session["tasks_filter_stash"] = {
+            "tasks_filter": current_filter,
+            "tasks_all": request.session.get("tasks_all", False),
+            "tasks_folder": request.user.tasks_folder,
+        }
+        request.session["tasks_all"] = True
+        request.user.tasks_folder = 0
+        request.user.save()
+        request.session["tasks_filter"] = {
+            "filter_label": "due",
+            "status": "Pending",
+            "due_date_max": date.today().strftime("%Y-%m-%d"),
+            "sort": "due_date",
+        }
+
     context = _get_task_list_context(request)
     return render(request, "tasks/tasks-with-folders-oob.html", context)
 
@@ -387,6 +405,7 @@ def task_filter(request):
         }
         filter_data["filter_label"] = "custom"
         request.session["tasks_filter"] = filter_data
+        request.session.pop("tasks_filter_stash", None)
         return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
     filter_data = request.session.get("tasks_filter", {})
@@ -417,6 +436,7 @@ def tasks_order_by(request, order):
     filter_data["sort"] = new_sort
     request.session["tasks_filter"] = filter_data
     request.session["tasks_page"] = 1
+    request.session.pop("tasks_filter_stash", None)
     request.session.modified = True
 
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
@@ -426,6 +446,7 @@ def tasks_order_by(request, order):
 def task_filter_default(request):
     """Clear task filter to defaults."""
     request.session.pop("tasks_filter", None)
+    request.session.pop("tasks_filter_stash", None)
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
 
@@ -702,6 +723,7 @@ def filter_priority_htmx(request, priority_value):
     filter_data = request.session.get("tasks_filter", {})
     filter_data["priority"] = "" if priority_value == 0 else priority_value
     request.session["tasks_filter"] = filter_data
+    request.session.pop("tasks_filter_stash", None)
     request.session.modified = True
 
     context = _get_task_list_context(request)
