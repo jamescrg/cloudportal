@@ -26,6 +26,12 @@ class TasksFilter(django_filters.FilterSet):
         lookup_expr="date",
         widget=RangeWidget(attrs={"type": "date"}),
     )
+    priority = django_filters.ChoiceFilter(
+        choices=[(i, f"{i} and above") for i in range(1, 11)],
+        empty_label="All",
+        lookup_expr="lte",
+        label="Priority",
+    )
     recurring = django_filters.ChoiceFilter(
         choices=(("Yes", "Yes"), ("No", "No")),
         empty_label="All",

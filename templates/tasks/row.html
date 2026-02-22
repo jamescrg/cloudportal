@@ -1,0 +1,54 @@
+<tr id="task-{{ task.id }}">
+    <td class="tasks-col-checkbox">
+        <a href="#"
+           onclick="event.preventDefault()"
+           hx-post="{% url 'tasks-status' task.id %}"
+           hx-target="#tasks-container"
+           hx-swap="innerHTML scroll:none">
+            {% if task.status == 1 %}
+                <i class="icon-circle-check-big"></i>
+            {% else %}
+                <i class="icon-circle"></i>
+            {% endif %}
+        </a>
+    </td>
+    <td class="tasks-col-title">
+        <a class="{% if task.status == 1 %}text-completed{% endif %}"
+           href="#"
+           hx-get="{% url 'tasks-form' task.id %}"
+           hx-target="#htmx-modal-container">{{ task.title }}</a>
+        {% if task.completed_date %}
+            <div class="tasks-secondary">Done: {{ task.completed_date|date:"M j" }}</div>
+        {% elif task.parent_task %}
+            <div class="tasks-secondary">
+                <i class="icon-refresh-cw"></i>
+            </div>
+        {% endif %}
+    </td>
+    <td class="tasks-col-priority">
+        <div class="dropdown" x-data="dropdown()">
+            <button class="btn-priority"
+                    type="button"
+                    x-ref="button"
+                    @click="toggle()"
+                    :aria-expanded="open">{{ task.priority }}</button>
+            <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                {% for p in priority_choices %}
+                    <li>
+                        <a class="dropdown-item {% if task.priority == p %}active{% endif %}"
+                           href="#"
+                           hx-get="{% url 'tasks-priority' task.id %}?priority={{ p }}"
+                           hx-target="#task-{{ task.id }}"
+                           hx-swap="outerHTML">{{ p }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </td>
+    <td class="tasks-col-due">
+        {% if task.due_date %}
+            {{ task.due_date|date:"M j" }}
+            {% if task.due_time %}<div class="tasks-secondary">{{ task.due_time|time:"g:i A" }}</div>{% endif %}
+        {% endif %}
+    </td>
+</tr>

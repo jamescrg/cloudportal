@@ -35,10 +35,13 @@
                     <label for="id_sort">Sort By</label>
                     <div>
                         <select name="sort" id="id_sort">
-                            <option value="title"
-                                    {% if sort_value != "-title" and sort_value != "-due_date" and sort_value != "-created_at" %}selected{% endif %}>
-                                Title (A-Z)
+                            <option value="priority"
+                                    {% if sort_value == "priority" or sort_value == "" %}selected{% endif %}>
+                                Priority (Highest)
                             </option>
+                            <option value="-priority"
+                                    {% if sort_value == "-priority" %}selected{% endif %}>Priority (Lowest)</option>
+                            <option value="title" {% if sort_value == "title" %}selected{% endif %}>Title (A-Z)</option>
                             <option value="-title" {% if sort_value == "-title" %}selected{% endif %}>Title (Z-A)</option>
                             <option value="-due_date"
                                     {% if sort_value == "-due_date" %}selected{% endif %}>Date Due (Newest)</option>

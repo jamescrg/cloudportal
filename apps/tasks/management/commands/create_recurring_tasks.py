@@ -89,6 +89,7 @@ class Command(BaseCommand):
             user=template.user,
             folder=template.folder,
             title=template.title,
+            priority=template.priority,
             status=0,
             due_date=today,
             due_time=template.due_time,

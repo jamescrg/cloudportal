@@ -89,7 +89,7 @@ def index(request):
             tasks = Task.objects.filter(
                 folder_id=folder.id, is_recurring=False, archived=False
             ).exclude(status=1)
-            tasks = tasks.order_by("status", "title")
+            tasks = tasks.order_by("status", "priority", "title")
             folder.tasks = tasks
 
     # check whether there are some tasks in any of the folders

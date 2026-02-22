@@ -31,6 +31,12 @@ class TaskForm(forms.ModelForm):
         label="Status",
     )
 
+    priority = forms.IntegerField(
+        widget=forms.Select(choices=[(i, str(i)) for i in range(1, 11)]),
+        initial=5,
+        label="Priority",
+    )
+
     recurrence = forms.ChoiceField(
         choices=RECURRENCE_CHOICES,
         required=False,
@@ -44,6 +50,7 @@ class TaskForm(forms.ModelForm):
             "title",
             "due_date",
             "due_time",
+            "priority",
             "status",
             "archived",
         )

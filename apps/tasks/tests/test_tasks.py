@@ -76,6 +76,9 @@ def test_edit_data(user, client, folder, task):
         "user": user,
         "folder_id": folder.id,
         "title": "Sweep garage",
+        "priority": 5,
+        "status": 0,
+        "archived": False,
     }
     response = client.post(f"/tasks/{task.id}/edit", data)
     assert response.status_code == 302

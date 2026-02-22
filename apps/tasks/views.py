@@ -40,8 +40,17 @@ def _get_task_list_context(request):
         tasks = tasks.filter(archived=False)
 
     # Apply sort — always push completed tasks to the bottom
-    sort = filter_data.get("sort", "title")
-    if sort in ("title", "-title", "due_date", "-due_date", "-created_at"):
+    sort = filter_data.get("sort", "priority")
+    valid_sorts = (
+        "title",
+        "-title",
+        "due_date",
+        "-due_date",
+        "-created_at",
+        "priority",
+        "-priority",
+    )
+    if sort in valid_sorts:
         tasks = tasks.order_by("status", sort)
 
     session_key = "tasks_page"
@@ -61,6 +70,8 @@ def _get_task_list_context(request):
         "filter_label": filter_label,
         "tasks_folder_all": tasks_folder_all,
         "has_completed_tasks": any(t.status == 1 for t in task_list),
+        "priority_choices": range(1, 11),
+        "current_sort": sort,
     }
 
 
@@ -168,6 +179,7 @@ def edit(request, id):
                 task.save()
                 parent_task.folder = task.folder
                 parent_task.title = task.title
+                parent_task.priority = task.priority
                 parent_task.due_time = task.due_time
                 if recurrence:
                     parent_task.recurrence_type = recurrence
@@ -221,6 +233,7 @@ def edit(request, id):
                         user=task.user,
                         folder=task.folder,
                         title=task.title,
+                        priority=task.priority,
                         status=0,
                         due_date=task.due_date,
                         due_time=task.due_time,
@@ -239,6 +252,7 @@ def edit(request, id):
                     if latest_instance:
                         latest_instance.folder = task.folder
                         latest_instance.title = task.title
+                        latest_instance.priority = task.priority
                         latest_instance.due_time = task.due_time
                         latest_instance.save()
 
@@ -381,6 +395,27 @@ def task_filter(request):
 
 
 @login_required
+def tasks_order_by(request, order):
+    """Sort tasks by column header click."""
+    filter_data = request.session.get("tasks_filter", {})
+    current_sort = filter_data.get("sort", "priority")
+
+    if current_sort == order:
+        new_sort = f"-{order}"
+    elif current_sort == f"-{order}":
+        new_sort = order
+    else:
+        new_sort = order
+
+    filter_data["sort"] = new_sort
+    request.session["tasks_filter"] = filter_data
+    request.session["tasks_page"] = 1
+    request.session.modified = True
+
+    return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
+
+
+@login_required
 def task_filter_default(request):
     """Clear task filter to defaults."""
     request.session.pop("tasks_filter", None)
@@ -442,6 +477,7 @@ def task_form(request, id):
                 task.save()
                 parent_task.folder = task.folder
                 parent_task.title = task.title
+                parent_task.priority = task.priority
                 parent_task.due_time = task.due_time
                 if recurrence:
                     parent_task.recurrence_type = recurrence
@@ -489,6 +525,7 @@ def task_form(request, id):
                         user=task.user,
                         folder=task.folder,
                         title=task.title,
+                        priority=task.priority,
                         status=0,
                         due_date=task.due_date,
                         due_time=task.due_time,
@@ -505,6 +542,7 @@ def task_form(request, id):
                     if latest_instance:
                         latest_instance.folder = task.folder
                         latest_instance.title = task.title
+                        latest_instance.priority = task.priority
                         latest_instance.due_time = task.due_time
                         latest_instance.save()
 
@@ -554,6 +592,7 @@ def status_htmx(request, id):
                     user=parent.user,
                     folder=parent.folder,
                     title=parent.title,
+                    priority=parent.priority,
                     status=0,
                     due_date=date.today(),
                     due_time=parent.due_time,
@@ -567,11 +606,56 @@ def status_htmx(request, id):
 
 
 @login_required
+def priority_htmx(request, id):
+    """Update task priority via htmx and return updated row."""
+    task = get_object_or_404(Task, pk=id)
+    priority = request.GET.get("priority")
+    if priority:
+        task.priority = int(priority)
+        task.save(update_fields=["priority"])
+    return render(
+        request,
+        "tasks/row.html",
+        {
+            "task": task,
+            "priority_choices": range(1, 11),
+        },
+    )
+
+
+@login_required
 def delete_htmx(request, id):
     """Delete task via htmx and close modal."""
     task = get_object_or_404(Task, pk=id, user=request.user)
     task.delete()
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
+
+
+@login_required
+def bulk_status_htmx(request):
+    """Set all visible tasks to complete or pending."""
+    new_status = int(request.GET.get("status", 0))
+    tasks_folder_all = request.session.get("tasks_all", False)
+    selected_folder = select_folder(request, "tasks")
+
+    if tasks_folder_all:
+        qs = Task.objects.filter(user=request.user, is_recurring=False, archived=False)
+    elif selected_folder:
+        qs = Task.objects.filter(
+            folder=selected_folder, is_recurring=False, archived=False
+        )
+    else:
+        qs = Task.objects.filter(
+            user=request.user, folder__isnull=True, is_recurring=False, archived=False
+        )
+
+    if new_status == 1:
+        qs.filter(status=0).update(status=1, completed_date=date.today())
+    else:
+        qs.filter(status=1).update(status=0, completed_date=None)
+
+    context = _get_task_list_context(request)
+    return render(request, "tasks/list.html", context)
 
 
 @login_required

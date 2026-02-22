@@ -23,46 +23,69 @@
     </div>
 </div>
 {% include "tasks/taskform.html" %}
-<ul class="list-group tasks-list">
-    {% for task in tasks %}
-        <li class="list-group-item tasks-row">
-            <div class="tasks-checkbox">
-                <a href="#"
-                   onclick="event.preventDefault()"
-                   hx-post="{% url 'tasks-status' task.id %}"
-                   hx-target="#tasks-container"
-                   hx-swap="innerHTML scroll:none">
-                    {% if task.status == 1 %}
-                        <i class="icon-circle-check-big"></i>
-                    {% else %}
+<div class="table-container">
+    <table class="table tasks-table">
+        <tr>
+            <th class="tasks-col-checkbox">
+                <div class="dropdown" x-data="dropdown()">
+                    <button class="btn-icon"
+                            type="button"
+                            x-ref="button"
+                            @click="toggle()"
+                            :aria-expanded="open">
                         <i class="icon-circle"></i>
-                    {% endif %}
-                </a>
-            </div>
-            <div class="tasks-content">
-                <div class="tasks-title">
-                    <a class="{% if task.status == 1 %}text-completed{% endif %}"
-                       href="#"
-                       hx-get="{% url 'tasks-form' task.id %}"
-                       hx-target="#htmx-modal-container">{{ task.title }}</a>
+                    </button>
+                    <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                        <li>
+                            <a class="dropdown-item"
+                               href="#"
+                               hx-post="{% url 'tasks-bulk-status' %}?status=1"
+                               hx-target="#tasks-container"
+                               hx-swap="innerHTML scroll:none">All Complete</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="#"
+                               hx-post="{% url 'tasks-bulk-status' %}?status=0"
+                               hx-target="#tasks-container"
+                               hx-swap="innerHTML scroll:none">All Pending</a>
+                        </li>
+                    </ul>
                 </div>
-                {% if task.due_date %}
-                    <div class="tasks-due">
-                        {{ task.due_date|date:"M j" }}
-                        {% if task.due_time %}{{ task.due_time|time:"g:i A" }}{% endif %}
-                    </div>
-                {% endif %}
-            </div>
-            {% if task.completed_date %}
-                <div class="tasks-completed">Done: {{ task.completed_date|date:"M j" }}</div>
-            {% elif task.parent_task %}
-                <div class="tasks-recurring">
-                    <i class="icon-refresh-cw"></i>
-                </div>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+            </th>
+            <th class="tasks-col-title">
+                Task
+                <button class="btn-sort {% if 'title' in current_sort %}active{% endif %}"
+                        hx-get="{% url 'tasks-order-by' 'title' %}"
+                        hx-target="#tasks-container">
+                    <i class="icon-chevrons-up-down"></i>
+                </button>
+            </th>
+            <th class="tasks-col-priority">
+                <button class="btn-sort {% if 'priority' in current_sort %}active{% endif %}"
+                        hx-get="{% url 'tasks-order-by' 'priority' %}"
+                        hx-target="#tasks-container">
+                    <i class="icon-flag"></i>
+                </button>
+            </th>
+            <th class="tasks-col-due">
+                Due
+                <button class="btn-sort {% if 'due_date' in current_sort %}active{% endif %}"
+                        hx-get="{% url 'tasks-order-by' 'due_date' %}"
+                        hx-target="#tasks-container">
+                    <i class="icon-chevrons-up-down"></i>
+                </button>
+            </th>
+        </tr>
+        {% for task in tasks %}
+            {% include "tasks/row.html" %}
+        {% empty %}
+            <tr>
+                <td colspan="4" class="empty-message">No tasks found.</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
 {% include "pagination.html" %}
 {% if has_completed_tasks %}
     <div class="archive">

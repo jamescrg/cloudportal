@@ -145,6 +145,7 @@ urlpatterns = [
     # tasks htmx
     path("tasks/all/", tasks.tasks_all, name="tasks-all"),
     path("tasks/due/", tasks.tasks_due, name="tasks-due"),
+    path("tasks/order-by/<str:order>/", tasks.tasks_order_by, name="tasks-order-by"),
     path("tasks/filter", tasks.task_filter, name="tasks-filter"),
     path(
         "tasks/filter/default", tasks.task_filter_default, name="tasks-filter-default"
@@ -153,7 +154,9 @@ urlpatterns = [
     path("tasks/add-htmx", tasks.add_htmx, name="tasks-add-htmx"),
     path("tasks/<int:id>/form", tasks.task_form, name="tasks-form"),
     path("tasks/<int:id>/status", tasks.status_htmx, name="tasks-status"),
+    path("tasks/<int:id>/priority", tasks.priority_htmx, name="tasks-priority"),
     path("tasks/<int:id>/delete-htmx", tasks.delete_htmx, name="tasks-delete-htmx"),
+    path("tasks/bulk-status", tasks.bulk_status_htmx, name="tasks-bulk-status"),
     path("tasks/clear-htmx", tasks.clear_htmx, name="tasks-clear-htmx"),
     path(
         "tasks/delete-completed-htmx",
