@@ -1431,15 +1431,15 @@ function showInlinePassphraseDialog(salt) {
     const overlay = document.createElement("div");
     overlay.className = "passphrase-dialog-overlay";
     overlay.innerHTML =
-      '<div class="passphrase-dialog">' +
-        '<div class="passphrase-dialog-header">' +
-          '<h2>Encrypt Note</h2>' +
-          '<button type="button" class="confirm-modal-close dialog-cancel" aria-label="Close">' +
+      '<div class="modal-content passphrase-dialog">' +
+        '<div class="modal-header">' +
+          '<h5 class="modal-title">Encryption</h5>' +
+          '<button type="button" class="dialog-close" aria-label="Close">' +
             '<i class="icon-x"></i>' +
           '</button>' +
         '</div>' +
-        '<div class="passphrase-dialog-body">' +
-          '<p>Enter your passphrase to encrypt this note:</p>' +
+        '<div class="modal-body">' +
+          '<label class="form-label">Enter your passphrase to encrypt this note:</label>' +
           '<div class="password-wrapper">' +
             '<input type="password" class="form-control" placeholder="Passphrase" autocomplete="off">' +
             '<button type="button" class="password-toggle" aria-label="Toggle visibility">' +
@@ -1448,7 +1448,7 @@ function showInlinePassphraseDialog(salt) {
           '</div>' +
           '<p class="unlock-error" id="dialog-error"></p>' +
         '</div>' +
-        '<div class="passphrase-dialog-actions">' +
+        '<div class="modal-footer">' +
           '<button type="button" class="btn btn-secondary dialog-cancel">Cancel</button>' +
           '<button type="button" class="btn btn-primary dialog-confirm">Encrypt</button>' +
         '</div>' +
@@ -1459,6 +1459,7 @@ function showInlinePassphraseDialog(salt) {
     const input = overlay.querySelector("input");
     const confirmBtn = overlay.querySelector(".dialog-confirm");
     const cancelBtn = overlay.querySelector(".dialog-cancel");
+    const closeBtn = overlay.querySelector(".dialog-close");
     const errorEl = overlay.querySelector("#dialog-error");
     const toggle = overlay.querySelector(".password-toggle");
 
@@ -1507,6 +1508,7 @@ function showInlinePassphraseDialog(salt) {
       if (e.key === "Escape") { cleanup(); resolve(null); }
     });
     cancelBtn.addEventListener("click", function() { cleanup(); resolve(null); });
+    closeBtn.addEventListener("click", function() { cleanup(); resolve(null); });
     overlay.addEventListener("click", function(e) {
       if (e.target === overlay) { cleanup(); resolve(null); }
     });
