@@ -129,6 +129,118 @@
       return resp.ok;
     }
 
+    // Intercept clicks on encrypted note links to show unlock modal
+    document.addEventListener("click", async function(e) {
+      const link = e.target.closest('a[href]');
+      if (!link) return;
+
+      const row = link.closest('tr[data-encrypted="true"]');
+      if (!row) return;
+
+      const href = link.getAttribute('href');
+      if (!href || href === '#') return;
+
+      // Have a fresh key — let navigation proceed
+      if (hasFreshKey(KEY_TTL_MS)) {
+        refreshKeyTimestamp();
+        return;
+      }
+
+      const salt = document.getElementById("notes")?.dataset.encryptionSalt;
+      if (!salt) return; // Let editor handle no-salt case
+
+      e.preventDefault();
+
+      const noteId = parseInt(row.dataset.noteId, 10);
+      const unlocked = await showUnlockDialog(salt, noteId);
+      if (unlocked) {
+        window.location.href = href;
+      }
+    });
+
+    async function showUnlockDialog(salt, noteId) {
+      return new Promise(function(resolve) {
+        const overlay = document.createElement("div");
+        overlay.className = "passphrase-dialog-overlay";
+        overlay.innerHTML =
+          '<div class="modal-content passphrase-dialog">' +
+            '<div class="modal-header">' +
+              '<h5 class="modal-title">Encryption</h5>' +
+              '<button type="button" class="dialog-close" aria-label="Close">' +
+                '<i class="icon-x"></i>' +
+              '</button>' +
+            '</div>' +
+            '<div class="modal-body">' +
+              '<label class="form-label">Enter your passphrase to unlock this note:</label>' +
+              '<div class="password-wrapper">' +
+                '<input type="password" class="form-control" placeholder="Passphrase" autocomplete="off">' +
+                '<button type="button" class="password-toggle" tabindex="-1" aria-label="Toggle visibility">' +
+                  '<i class="icon-eye-off"></i>' +
+                '</button>' +
+              '</div>' +
+              '<p class="unlock-error"></p>' +
+            '</div>' +
+            '<div class="modal-footer">' +
+              '<button type="button" class="btn btn-secondary dialog-cancel">Cancel</button>' +
+              '<button type="button" class="btn btn-primary dialog-confirm">Unlock</button>' +
+            '</div>' +
+          '</div>';
+
+        document.body.appendChild(overlay);
+
+        const input = overlay.querySelector("input");
+        const confirmBtn = overlay.querySelector(".dialog-confirm");
+        const cancelBtn = overlay.querySelector(".dialog-cancel");
+        const closeBtn = overlay.querySelector(".dialog-close");
+        const errorEl = overlay.querySelector(".unlock-error");
+        const toggle = overlay.querySelector(".password-toggle");
+
+        if (toggle) {
+          toggle.addEventListener("click", function() {
+            const ico = toggle.querySelector("i");
+            if (input.type === "password") { input.type = "text"; ico.className = "icon-eye"; }
+            else { input.type = "password"; ico.className = "icon-eye-off"; }
+          });
+        }
+
+        function cleanup() { overlay.remove(); }
+
+        async function doUnlock() {
+          const passphrase = input.value;
+          if (!passphrase) { errorEl.textContent = "Please enter a passphrase."; return; }
+          confirmBtn.disabled = true;
+          errorEl.textContent = "";
+          try {
+            const key = await deriveKey(passphrase, salt);
+            // Verify by decrypting the actual note content
+            const note = await fetchNoteContent(noteId);
+            if (note && note.content) {
+              await decrypt(note.content, key);
+            }
+            await storeKey(key);
+            cleanup();
+            resolve(true);
+          } catch (e) {
+            errorEl.textContent = "Wrong passphrase. Please try again.";
+            confirmBtn.disabled = false;
+            input.focus();
+          }
+        }
+
+        confirmBtn.addEventListener("click", doUnlock);
+        input.addEventListener("keydown", function(e) {
+          if (e.key === "Enter") doUnlock();
+          if (e.key === "Escape") { cleanup(); resolve(false); }
+        });
+        cancelBtn.addEventListener("click", function() { cleanup(); resolve(false); });
+        closeBtn.addEventListener("click", function() { cleanup(); resolve(false); });
+        overlay.addEventListener("click", function(e) {
+          if (e.target === overlay) { cleanup(); resolve(false); }
+        });
+        setTimeout(function() { input.focus(); }, 50);
+      });
+    }
+
     document.addEventListener("click", async function(e) {
       const link = e.target.closest(".note-encrypt-toggle");
       if (!link) return;

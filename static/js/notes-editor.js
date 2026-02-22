@@ -1281,39 +1281,66 @@ function showPassphrasePrompt(container) {
     return;
   }
 
-  container.innerHTML =
-    '<div class="locked-placeholder">' +
-      '<i class="icon-lock"></i>' +
-      '<p>This note is encrypted</p>' +
-      '<p>Enter your passphrase to unlock</p>' +
-      '<div class="passphrase-form">' +
+  const overlay = document.createElement("div");
+  overlay.className = "passphrase-dialog-overlay";
+  overlay.innerHTML =
+    '<div class="modal-content passphrase-dialog">' +
+      '<div class="modal-header">' +
+        '<h5 class="modal-title">Encryption</h5>' +
+        '<button type="button" class="dialog-close" aria-label="Close">' +
+          '<i class="icon-x"></i>' +
+        '</button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<label class="form-label">Enter your passphrase to unlock this note:</label>' +
         '<div class="password-wrapper">' +
-          '<input type="password" id="unlock-passphrase" class="form-control" placeholder="Passphrase" autocomplete="off">' +
+          '<input type="password" class="form-control" placeholder="Passphrase" autocomplete="off">' +
           '<button type="button" class="password-toggle" aria-label="Toggle visibility">' +
             '<i class="icon-eye-off"></i>' +
           '</button>' +
         '</div>' +
-        '<button type="button" id="unlock-btn" class="btn btn-primary btn-slim">Unlock</button>' +
+        '<p class="unlock-error" id="dialog-unlock-error"></p>' +
       '</div>' +
-      '<p id="unlock-error" class="unlock-error"></p>' +
+      '<div class="modal-footer">' +
+        '<button type="button" class="btn btn-secondary dialog-cancel">Cancel</button>' +
+        '<button type="button" class="btn btn-primary dialog-confirm">Unlock</button>' +
+      '</div>' +
     '</div>';
 
-  const input = document.getElementById("unlock-passphrase");
-  const btn = document.getElementById("unlock-btn");
-  const errorEl = document.getElementById("unlock-error");
-  const toggle = container.querySelector(".password-toggle");
+  // Hide the detail page so it doesn't flash behind the modal
+  const noteMain = document.querySelector(".note-main");
+  if (noteMain) noteMain.style.visibility = "hidden";
+
+  document.body.appendChild(overlay);
+
+  const input = overlay.querySelector("input");
+  const confirmBtn = overlay.querySelector(".dialog-confirm");
+  const cancelBtn = overlay.querySelector(".dialog-cancel");
+  const closeBtn = overlay.querySelector(".dialog-close");
+  const errorEl = overlay.querySelector("#dialog-unlock-error");
+  const toggle = overlay.querySelector(".password-toggle");
 
   if (toggle) {
     toggle.addEventListener("click", function() {
-      const icon = toggle.querySelector("i");
+      const ico = toggle.querySelector("i");
       if (input.type === "password") {
         input.type = "text";
-        icon.className = "icon-eye";
+        ico.className = "icon-eye";
       } else {
         input.type = "password";
-        icon.className = "icon-eye-off";
+        ico.className = "icon-eye-off";
       }
     });
+  }
+
+  function cleanup() {
+    overlay.remove();
+    if (noteMain) noteMain.style.visibility = "";
+  }
+
+  function goBack() {
+    overlay.remove();
+    history.back();
   }
 
   async function doUnlock() {
@@ -1323,7 +1350,7 @@ function showPassphrasePrompt(container) {
       return;
     }
 
-    btn.disabled = true;
+    confirmBtn.disabled = true;
     errorEl.textContent = "";
 
     try {
@@ -1334,17 +1361,24 @@ function showPassphrasePrompt(container) {
       // Key is correct — store it and load editor
       await storeKey(key);
       encryptionKey = key;
+      cleanup();
       startEditor(container, decrypted);
     } catch (e) {
       errorEl.textContent = "Wrong passphrase. Please try again.";
-      btn.disabled = false;
+      confirmBtn.disabled = false;
       input.focus();
     }
   }
 
-  btn.addEventListener("click", doUnlock);
+  confirmBtn.addEventListener("click", doUnlock);
   input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") doUnlock();
+    if (e.key === "Escape") goBack();
+  });
+  cancelBtn.addEventListener("click", goBack);
+  closeBtn.addEventListener("click", goBack);
+  overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) goBack();
   });
 
   setTimeout(function() { input.focus(); }, 50);
