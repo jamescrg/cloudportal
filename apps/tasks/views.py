@@ -59,6 +59,11 @@ def _get_task_list_context(request):
 
     task_list = pagination.get_object_list()
 
+    priority_value = filter_data.get("priority")
+    priority_value = (
+        int(priority_value) if priority_value not in (None, "", 0) else None
+    )
+
     return {
         "page": "tasks",
         "folders": folders,
@@ -71,6 +76,8 @@ def _get_task_list_context(request):
         "tasks_folder_all": tasks_folder_all,
         "has_completed_tasks": any(t.status == 1 for t in task_list),
         "priority_choices": range(1, 11),
+        "priorities": list(range(1, 11)),
+        "priority_value": priority_value,
         "current_sort": sort,
     }
 
@@ -607,20 +614,15 @@ def status_htmx(request, id):
 
 @login_required
 def priority_htmx(request, id):
-    """Update task priority via htmx and return updated row."""
+    """Update task priority via htmx and return updated list."""
     task = get_object_or_404(Task, pk=id)
     priority = request.GET.get("priority")
     if priority:
         task.priority = int(priority)
         task.save(update_fields=["priority"])
-    return render(
-        request,
-        "tasks/row.html",
-        {
-            "task": task,
-            "priority_choices": range(1, 11),
-        },
-    )
+
+    context = _get_task_list_context(request)
+    return render(request, "tasks/list.html", context)
 
 
 @login_required
@@ -689,6 +691,44 @@ def delete_completed_htmx(request):
         Task.objects.filter(folder=selected_folder, status=1).delete()
     else:
         Task.objects.filter(user=request.user, folder__isnull=True, status=1).delete()
+
+    context = _get_task_list_context(request)
+    return render(request, "tasks/list.html", context)
+
+
+@login_required
+def filter_priority_htmx(request, priority_value):
+    """Filter tasks by priority level via htmx."""
+    filter_data = request.session.get("tasks_filter", {})
+    filter_data["priority"] = "" if priority_value == 0 else priority_value
+    request.session["tasks_filter"] = filter_data
+    request.session.modified = True
+
+    context = _get_task_list_context(request)
+    return render(request, "tasks/list.html", context)
+
+
+@login_required
+def move_folder_htmx(request):
+    """Move completed tasks to a different folder via htmx."""
+    tasks_folder_all = request.session.get("tasks_all", False)
+    selected_folder = select_folder(request, "tasks")
+
+    if tasks_folder_all:
+        qs = Task.objects.filter(user=request.user, status=1, archived=False)
+    elif selected_folder:
+        qs = Task.objects.filter(folder=selected_folder, status=1, archived=False)
+    else:
+        qs = Task.objects.filter(
+            user=request.user, folder__isnull=True, status=1, archived=False
+        )
+
+    folder_id = request.GET.get("folder_id", "")
+    if folder_id:
+        folder = get_object_or_404(Folder, pk=folder_id, user=request.user)
+        qs.update(folder=folder)
+    else:
+        qs.update(folder=None)
 
     context = _get_task_list_context(request)
     return render(request, "tasks/list.html", context)

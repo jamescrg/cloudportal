@@ -9,6 +9,40 @@
         {% endif %}
     </h1>
     <div style="display:flex;gap:0.5rem">
+        <div class="dropdown" x-data="dropdown()">
+            <button type="button"
+                    id="tasks-priority-filter"
+                    class="square-button filter-button {% if priority_value %}toggle-active{% endif %}"
+                    x-ref="button"
+                    @click="toggle()"
+                    :aria-expanded="open">
+                <i class="icon-flag"></i>
+            </button>
+            <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                {% for priority in priorities %}
+                    <li>
+                        <a class="dropdown-item {% if priority == priority_value %}active{% endif %}"
+                           href="#"
+                           hx-post="{% url 'tasks-filter-priority' priority %}"
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">
+                            {% if priority == 1 %}
+                                1 only
+                            {% else %}
+                                {{ priority }} and above
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+                <li>
+                    <a class="dropdown-item {% if not priority_value %}active{% endif %}"
+                       href="#"
+                       hx-post="{% url 'tasks-filter-priority' 0 %}"
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">All Levels</a>
+                </li>
+            </ul>
+        </div>
         <button class="square-button filter-button {% if filter_label == 'due' %}toggle-active{% endif %}"
                 hx-get="{% url 'tasks-due' %}"
                 hx-target="#main-content"
@@ -68,20 +102,12 @@
                     <i class="icon-flag"></i>
                 </button>
             </th>
-            <th class="tasks-col-due">
-                Due
-                <button class="btn-sort {% if 'due_date' in current_sort %}active{% endif %}"
-                        hx-get="{% url 'tasks-order-by' 'due_date' %}"
-                        hx-target="#tasks-container">
-                    <i class="icon-chevrons-up-down"></i>
-                </button>
-            </th>
         </tr>
         {% for task in tasks %}
             {% include "tasks/row.html" %}
         {% empty %}
             <tr>
-                <td colspan="4" class="empty-message">No tasks found.</td>
+                <td colspan="3" class="empty-message">No tasks found.</td>
             </tr>
         {% endfor %}
     </table>
@@ -96,6 +122,33 @@
                     hx-swap="innerHTML">
                 <i class="icon-archive"></i> Archive
             </button>
+            <div class="dropdown" x-data="dropdown()">
+                <button class="btn btn-secondary"
+                        type="button"
+                        x-ref="button"
+                        @click="toggle()"
+                        :aria-expanded="open">
+                    <i class="icon-folder"></i> Move to Folder
+                </button>
+                <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                    <li>
+                        <a class="dropdown-item"
+                           href="#"
+                           hx-post="{% url 'tasks-move-folder-htmx' %}?folder_id="
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">Unsorted</a>
+                    </li>
+                    {% for folder in folders %}
+                        <li>
+                            <a class="dropdown-item"
+                               href="#"
+                               hx-post="{% url 'tasks-move-folder-htmx' %}?folder_id={{ folder.id }}"
+                               hx-target="#tasks-container"
+                               hx-swap="innerHTML scroll:none">{{ folder.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
             <button class="btn btn-secondary"
                     hx-post="{% url 'tasks-delete-completed-htmx' %}"
                     hx-target="#tasks-container"

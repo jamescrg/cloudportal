@@ -20,6 +20,10 @@
                hx-target="#htmx-modal-container">{{ task.title }}</a>
             {% if task.completed_date %}
                 <span class="tasks-secondary">Done: {{ task.completed_date|date:"M j" }}</span>
+            {% elif task.due_date %}
+                <span class="tasks-secondary">Due: {{ task.due_date|date:"M j" }}
+                    {% if task.due_time %}{{ task.due_time|time:"g:i A" }}{% endif %}
+                </span>
             {% elif task.parent_task %}
                 <span class="tasks-secondary">
                     <i class="icon-refresh-cw"></i>
@@ -40,17 +44,11 @@
                         <a class="dropdown-item {% if task.priority == p %}active{% endif %}"
                            href="#"
                            hx-get="{% url 'tasks-priority' task.id %}?priority={{ p }}"
-                           hx-target="#task-{{ task.id }}"
-                           hx-swap="outerHTML">{{ p }}</a>
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">{{ p }}</a>
                     </li>
                 {% endfor %}
             </ul>
         </div>
-    </td>
-    <td class="tasks-col-due">
-        {% if task.due_date %}
-            {{ task.due_date|date:"M j" }}
-            {% if task.due_time %}<div class="tasks-secondary">{{ task.due_time|time:"g:i A" }}</div>{% endif %}
-        {% endif %}
     </td>
 </tr>

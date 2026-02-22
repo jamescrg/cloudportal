@@ -164,6 +164,16 @@ urlpatterns = [
         name="tasks-delete-completed-htmx",
     ),
     path(
+        "tasks/move-folder-htmx",
+        tasks.move_folder_htmx,
+        name="tasks-move-folder-htmx",
+    ),
+    path(
+        "tasks/filter-priority/<int:priority_value>/",
+        tasks.filter_priority_htmx,
+        name="tasks-filter-priority",
+    ),
+    path(
         "tasks/add-editor/<int:folder_id>/<int:user_id>",
         tasks.add_editor,
         name="folder-add-editor",

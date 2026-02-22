@@ -24,7 +24,7 @@
 /* ------------------------------------------------------------------------- */
 
 .tasks-table {
-  min-width: 36rem;
+  min-width: 28rem;
 }
 
 .tasks-col-checkbox {
@@ -45,10 +45,6 @@ td.tasks-col-checkbox a:hover {
 .tasks-col-title {
   overflow-wrap: break-word;
   white-space: normal;
-}
-
-.tasks-col-due {
-  width: 7rem;
 }
 
 .tasks-table .tasks-col-priority {
@@ -74,6 +70,8 @@ td.tasks-col-checkbox a:hover {
 .tasks-secondary {
   color: var(--color-muted);
   font-size: 0.85rem;
+  padding-left: 0.75rem;
+  white-space: nowrap;
 }
 
 .btn-priority {
