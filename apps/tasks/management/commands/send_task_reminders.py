@@ -5,13 +5,14 @@ Run every 15 minutes via cron:
     */15 * * * * cd /home/james/mh && /home/james/.venvs/mh/bin/python manage.py send_task_reminders
 """
 
+from collections import defaultdict
 from datetime import date, datetime
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from apps.tasks.models import Task
-from config.email import send_task_reminder_email
+from config.email import send_past_due_digest_email, send_task_reminder_email
 
 
 class Command(BaseCommand):
@@ -38,11 +39,20 @@ class Command(BaseCommand):
             .select_related("user", "folder")
         )
 
-        # Category 1: Overdue (due_date < today)
+        # Category 1: Overdue (due_date < today) — one digest per user
+        overdue_by_user = defaultdict(list)
         for task in base_qs.filter(due_date__lt=today):
-            sent_count, error_count = self._send(
-                task, "overdue", today, sent_count, error_count
-            )
+            overdue_by_user[task.user].append(task)
+
+        for user, tasks in overdue_by_user.items():
+            result = send_past_due_digest_email(user, tasks)
+            if result["success"]:
+                for task in tasks:
+                    task.reminder_sent_date = today
+                    task.save(update_fields=["reminder_sent_date"])
+                sent_count += 1
+            else:
+                error_count += 1
 
         # Category 2: Due today, no time set
         for task in base_qs.filter(due_date=today, due_time__isnull=True):

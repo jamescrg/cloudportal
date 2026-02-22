@@ -45,6 +45,48 @@ def send_task_reminder_email(user, task, reminder_type):
         return {"success": False, "error": str(e)}
 
 
+def send_past_due_digest_email(user, tasks):
+    """Send a single digest email listing all overdue tasks.
+
+    Args:
+        user: CustomUser instance
+        tasks: iterable of overdue Task instances
+
+    Returns:
+        dict with 'success' boolean and optional 'error'
+    """
+    recipient = user.notification_email or user.email
+    if not recipient:
+        return {"success": False, "error": "User has no email address"}
+
+    tasks = list(tasks)
+    lines = ["You have the following past due tasks:", ""]
+    for task in tasks:
+        parts = [f"- {task.title}"]
+        if task.due_date:
+            parts.append(f"(due {task.due_date.strftime('%B %-d, %Y')})")
+        if task.folder:
+            parts.append(f"[{task.folder.name}]")
+        lines.append(" ".join(parts))
+    lines.append("")
+    lines.append(f"-- {settings.SITE_NAME}")
+    body = "\n".join(lines)
+
+    try:
+        send_mail(
+            "Past Due Tasks",
+            body,
+            settings.SERVER_EMAIL,
+            [recipient],
+            fail_silently=False,
+        )
+        logger.info(f"Past due digest sent to {recipient} ({len(tasks)} tasks)")
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Failed to send past due digest to {recipient}: {e}")
+        return {"success": False, "error": str(e)}
+
+
 def _build_body(task, reminder_type):
     """Build plain text email body."""
     lines = []
