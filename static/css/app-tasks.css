@@ -65,6 +65,12 @@ td.tasks-col-checkbox a:hover {
   white-space: normal;
 }
 
+.tasks-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
 .tasks-secondary {
   color: var(--color-muted);
   font-size: 0.85rem;
