@@ -62,10 +62,9 @@ def get_events(user_id):
             event_simple["summary"] = event["summary"]
 
             today = date.today()
-            soon = today + timedelta(days=3)
             pydate = date.fromisoformat(event_simple["date"])
 
-            if pydate <= soon:
+            if pydate == today:
                 event_simple["soon"] = "soon"
             else:
                 event_simple["soon"] = ""

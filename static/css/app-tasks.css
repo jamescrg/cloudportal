@@ -120,9 +120,26 @@ th.tasks-col-priority .btn-sort.active {
 /* home page task list (uses ul/li layout) */
 /* ------------------------------------------------------------------------- */
 
+.tasks-list + .tasks-list {
+  margin-top: 1.5rem;
+}
+
 .tasks-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+}
+
+.tasks-folder {
+  align-items: center;
+  color: var(--color-muted);
+  display: flex;
+  margin-right: 2rem;
+  white-space: nowrap;
+}
+
+.tasks-folder > i {
+  font-size: 1.15rem;
+  margin-right: 1rem;
 }
 
 .tasks-checkbox {
