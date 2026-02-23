@@ -1,0 +1,6 @@
+{% extends "settings/main.html" %}
+{% block subcontent %}
+    <div hx-get="{% url 'settings-user-list' %}"
+         hx-trigger="userListReload from:body"
+         hx-swap="innerHTML">{% include "settings/users/user-table.html" %}</div>
+{% endblock subcontent %}

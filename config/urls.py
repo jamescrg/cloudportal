@@ -11,6 +11,7 @@ from apps.lab import views as lab
 from apps.management.pagination import change_page
 from apps.search import views as search
 from apps.settings import views as settings
+from apps.settings.users import views as user_settings
 from apps.tasks import views as tasks
 from apps.weather import views as weather
 
@@ -238,6 +239,33 @@ urlpatterns = [
     # search
     path("search/", search.index, name="search"),
     path("search/results", search.results, name="search-results"),
+    # settings — users
+    path("settings/users/", user_settings.users_index, name="settings-users"),
+    path("settings/users/list/", user_settings.user_list, name="settings-user-list"),
+    path(
+        "settings/users/filter/", user_settings.user_filter, name="settings-user-filter"
+    ),
+    path(
+        "settings/users/sort/<str:order>/",
+        user_settings.user_sort,
+        name="settings-user-sort",
+    ),
+    path(
+        "settings/users/change-role/<int:user_id>/<str:role>/",
+        user_settings.change_role,
+        name="settings-change-role",
+    ),
+    path(
+        "settings/users/switch-status/<int:user_id>/",
+        user_settings.switch_status,
+        name="settings-switch-status",
+    ),
+    path("settings/users/add/", user_settings.add_user, name="settings-add-user"),
+    path(
+        "settings/users/edit/<int:user_id>/",
+        user_settings.edit_user,
+        name="settings-edit-user",
+    ),
     # settings
     path("settings/profile/", settings.profile_index, name="settings-profile"),
     path(
