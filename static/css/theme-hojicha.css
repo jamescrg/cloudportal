@@ -45,9 +45,9 @@
   --shadow-color-heavy: rgb(0 0 0 / 40%);
 
   /* Selection */
-  --selected-background: var(--gb-faded-blue);
-  --selected-color: var(--gb-light3);
-  --selected-border: var(--gb-blue);
+  --selected-background: var(--background-control);
+  --selected-color: var(--gb-bright-purple);
+  --selected-border: var(--gb-purple);
 
   /* Highlights */
   --hl-blue: var(--blue-950);

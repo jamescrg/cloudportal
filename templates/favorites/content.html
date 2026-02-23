@@ -42,7 +42,7 @@
             bulkToolbar.style.display = hasSelection ? "" : "none";
 
             var countEl = bulkToolbar.querySelector(".bulk-count");
-            if (countEl) countEl.textContent = selectedFavIds.size + " selected";
+            if (countEl) countEl.innerHTML = selectedFavIds.size + '<span class="bulk-label"> selected</span>';
 
             document.querySelectorAll(".fav-select-checkbox").forEach(function(icon) {
                 setIconChecked(icon, selectedFavIds.has(icon.dataset.value));

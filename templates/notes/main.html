@@ -338,7 +338,7 @@
 
       // Update count label
       const countEl = bulkToolbar.querySelector(".bulk-count");
-      if (countEl) countEl.textContent = selectedNoteIds.size + " selected";
+      if (countEl) countEl.innerHTML = selectedNoteIds.size + '<span class="bulk-label"> selected</span>';
 
       // Sync icons with selection state (after HTMX swaps)
       document.querySelectorAll(".note-select-checkbox").forEach(function(icon) {

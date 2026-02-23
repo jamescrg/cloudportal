@@ -42,7 +42,8 @@
                             x-ref="button"
                             @click="toggle()"
                             :aria-expanded="open">
-                        <span>Move to Folder…</span>
+                        <i class="icon-folder bulk-icon-mobile"></i>
+                        <span class="bulk-label">Move to Folder…</span>
                         <i class="icon-chevron-down"></i>
                     </button>
                     <ul class="dropdown-menu" x-ref="menu" x-show="open">
@@ -61,9 +62,11 @@
                     </ul>
                 </div>
                 <button type="button" id="fav-bulk-delete-btn" class="btn btn-danger">
-                    <i class="icon-trash-2"></i> Delete
+                    <i class="icon-trash-2"></i><span class="bulk-label">Delete</span>
                 </button>
-                <button type="button" id="fav-bulk-cancel-btn" class="btn btn-secondary">Cancel</button>
+                <button type="button" id="fav-bulk-cancel-btn" class="btn btn-secondary">
+                    <i class="icon-x bulk-icon-mobile"></i><span class="bulk-label">Cancel</span>
+                </button>
             </div>
         </div>
     </div>

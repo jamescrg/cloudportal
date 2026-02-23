@@ -501,6 +501,34 @@ li {
   margin-right: 0.5rem;
 }
 
+/* Hidden on desktop, shown on mobile as icon-only replacement for text */
+.bulk-icon-mobile {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .bulk-label {
+    display: none;
+  }
+
+  .bulk-icon-mobile {
+    display: inline;
+  }
+
+  /* Remove margin-right on icons when labels are hidden */
+  .bulk-actions button i {
+    margin-right: 0;
+  }
+
+  .bulk-toolbar .toolbar-left {
+    gap: 0.5rem;
+  }
+
+  .bulk-actions {
+    gap: 0.5rem;
+  }
+}
+
 /*------------------------------------------------
  * filter inputs
  * ------------------------------------------------*/
