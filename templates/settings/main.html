@@ -6,6 +6,11 @@
                 <li {% if subapp == "profile" %}class="active"{% endif %}>
                     <a href="{% url 'settings-profile' %}">Profile</a>
                 </li>
+                {% if user.role == 'ADMIN' %}
+                    <li {% if subapp == "users" %}class="active"{% endif %}>
+                        <a href="{% url 'settings-users' %}">Users</a>
+                    </li>
+                {% endif %}
                 <li {% if subapp == "theme" %}class="active"{% endif %}>
                     <a href="{% url 'settings' %}">Theme</a>
                 </li>
@@ -30,11 +35,6 @@
                 <li {% if subapp == "encryption" %}class="active"{% endif %}>
                     <a href="{% url 'settings-encryption' %}">Encryption</a>
                 </li>
-                {% if user.role == 'ADMIN' %}
-                    <li {% if subapp == "users" %}class="active"{% endif %}>
-                        <a href="{% url 'settings-users' %}">Users</a>
-                    </li>
-                {% endif %}
                 <li {% if subapp == "session" %}class="active"{% endif %}>
                     <a href="{% url 'settings-session' %}">Session</a>
                 </li>
