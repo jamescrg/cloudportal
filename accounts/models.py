@@ -30,3 +30,12 @@ class CustomUser(AbstractUser):
     tasks_folders = models.JSONField(default=list)
     tasks_active_folder = models.IntegerField(default=0)
     encryption_salt = models.CharField(max_length=44, blank=True, default="")
+    task_completion_mode = models.CharField(
+        max_length=10,
+        choices=[
+            ("complete", "Mark complete"),
+            ("archive", "Auto-archive"),
+            ("delete", "Auto-delete"),
+        ],
+        default="complete",
+    )

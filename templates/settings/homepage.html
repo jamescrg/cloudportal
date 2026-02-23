@@ -10,10 +10,10 @@
                 <td class="setting-label">Task Folders:</td>
                 <td class="setting-control">
                     {% if user.home_tasks %}
-                        <a class="btn btn-primary btn-slim"
+                        <a class="btn btn-primary"
                            href="{% url 'settings-home-options' option='tasks' value='disable' %}">Disable</a>
                     {% else %}
-                        <a class="btn btn-primary btn-slim"
+                        <a class="btn btn-primary"
                            href="{% url 'settings-home-options' option='tasks' value='enable' %}">Enable</a>
                     {% endif %}
                 </td>
@@ -22,10 +22,10 @@
                 <td class="setting-label">Due Tasks:</td>
                 <td class="setting-control">
                     {% if user.home_due_tasks %}
-                        <a class="btn btn-primary btn-slim"
+                        <a class="btn btn-primary"
                            href="{% url 'settings-home-options' option='due_tasks' value='disable' %}">Disable</a>
                     {% else %}
-                        <a class="btn btn-primary btn-slim"
+                        <a class="btn btn-primary"
                            href="{% url 'settings-home-options' option='due_tasks' value='enable' %}">Enable</a>
                     {% endif %}
                 </td>
@@ -34,10 +34,10 @@
                 <td class="setting-label">Events:</td>
                 <td class="setting-control">
                     {% if user.home_events %}
-                        <a class="btn btn-primary btn-slim"
+                        <a class="btn btn-primary"
                            href="{% url 'settings-home-options' option='events' value='disable' %}">Disable</a>
                     {% else %}
-                        <a class="btn btn-primary btn-slim"
+                        <a class="btn btn-primary"
                            href="{% url 'settings-home-options' option='events' value='enable' %}">Enable</a>
                     {% endif %}
                 </td>

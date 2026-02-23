@@ -1,0 +1,44 @@
+<h2>General Info</h2>
+<hr />
+<form hx-post="{% url 'personal-profile-action' 'profile' %}"
+      hx-target="#success-msg-profile"
+      role="form"
+      id="profile-form"
+      class="form-compact profile-form">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div>
+                {{ field }}
+                {{ field.errors }}
+            </div>
+        </div>
+    {% endfor %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-success">Update Profile</button>
+        <div class="success-msg" id="success-msg-profile"></div>
+    </div>
+</form>
+<h2>Change Password</h2>
+<hr />
+<form hx-post="{% url 'personal-profile-action' 'password' %}"
+      hx-target="#password-msg"
+      role="form"
+      id="password-form"
+      class="form-compact profile-form">
+    {% csrf_token %}
+    {% for field in change_password_form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div>
+                {{ field }}
+                {{ field.errors }}
+            </div>
+        </div>
+    {% endfor %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-success">Change Password</button>
+        <div id="password-msg"></div>
+    </div>
+</form>

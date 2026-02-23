@@ -1,0 +1,22 @@
+{% extends "settings/main.html" %}
+{% block subcontent %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Task Completion</h1>
+        </div>
+        <p class="card-text">Choose what happens when a task is marked complete.</p>
+        <table class="options">
+            <tr>
+                <td class="setting-label">Completion mode:</td>
+                <td class="setting-control">
+                    <a class="btn {% if user.task_completion_mode == 'complete' %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-tasks-options' option='completion_mode' value='complete' %}">Mark complete</a>
+                    <a class="btn {% if user.task_completion_mode == 'archive' %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-tasks-options' option='completion_mode' value='archive' %}">Auto-archive</a>
+                    <a class="btn {% if user.task_completion_mode == 'delete' %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-tasks-options' option='completion_mode' value='delete' %}">Auto-delete</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+{% endblock subcontent %}

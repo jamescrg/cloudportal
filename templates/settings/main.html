@@ -3,11 +3,17 @@
     <div class="section">
         <nav class="section-nav">
             <ul>
+                <li {% if subapp == "profile" %}class="active"{% endif %}>
+                    <a href="{% url 'settings-profile' %}">Profile</a>
+                </li>
                 <li {% if subapp == "theme" %}class="active"{% endif %}>
                     <a href="{% url 'settings' %}">Theme</a>
                 </li>
                 <li {% if subapp == "homepage" %}class="active"{% endif %}>
-                    <a href="{% url 'settings-homepage' %}">Homepage</a>
+                    <a href="{% url 'settings-homepage' %}">Home</a>
+                </li>
+                <li {% if subapp == "tasks" %}class="active"{% endif %}>
+                    <a href="{% url 'settings-tasks' %}">Tasks</a>
                 </li>
                 <li {% if subapp == "google" %}class="active"{% endif %}>
                     <a href="{% url 'settings-google' %}">Google</a>

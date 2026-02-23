@@ -121,6 +121,32 @@ Section Layout (nav / body)
 
 
 /* ==========================================================================
+Profile Form
+========================================================================== */
+
+.profile-form {
+  margin-bottom: 2rem;
+  max-width: 25rem;
+}
+
+.profile-form input[type="text"],
+.profile-form input[type="email"],
+.profile-form input[type="password"] {
+  width: 100%;
+}
+
+.success-msg {
+  color: var(--success);
+  margin-top: 1rem;
+}
+
+.error-msg {
+  color: var(--urgent);
+  margin-top: 1rem;
+}
+
+
+/* ==========================================================================
  Mobile Responsive
 ========================================================================== */
 

@@ -119,10 +119,17 @@ def status(request, id, origin="tasks"):
     if task.status == 1:
         task.status = 0
         task.completed_date = None
+        task.save()
     else:
         task.status = 1
         task.completed_date = date.today()
-    task.save()
+        mode = request.user.task_completion_mode
+        if mode == "delete":
+            task.delete()
+        else:
+            if mode == "archive":
+                task.archived = True
+            task.save()
     return redirect(origin)
 
 
@@ -609,10 +616,17 @@ def status_htmx(request, id):
     if task.status == 1:
         task.status = 0
         task.completed_date = None
+        task.save()
     else:
         task.status = 1
         task.completed_date = date.today()
-    task.save()
+        mode = request.user.task_completion_mode
+        if mode == "delete":
+            task.delete()
+        else:
+            if mode == "archive":
+                task.archived = True
+            task.save()
 
     # Generate next recurring instance on completion
     if task.status == 1 and task.parent_task:
@@ -681,7 +695,14 @@ def bulk_status_htmx(request):
         )
 
     if new_status == 1:
-        qs.filter(status=0).update(status=1, completed_date=date.today())
+        pending = qs.filter(status=0)
+        mode = request.user.task_completion_mode
+        if mode == "delete":
+            pending.delete()
+        elif mode == "archive":
+            pending.update(status=1, completed_date=date.today(), archived=True)
+        else:
+            pending.update(status=1, completed_date=date.today())
     else:
         qs.filter(status=1).update(status=0, completed_date=None)
 

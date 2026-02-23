@@ -239,6 +239,23 @@ urlpatterns = [
     path("search/", search.index, name="search"),
     path("search/results", search.results, name="search-results"),
     # settings
+    path("settings/profile/", settings.profile_index, name="settings-profile"),
+    path(
+        "settings/profile/personal/",
+        settings.personal_profile,
+        name="personal-profile",
+    ),
+    path(
+        "settings/profile/personal/<str:form_type>/",
+        settings.personal_profile,
+        name="personal-profile-action",
+    ),
+    path("settings/tasks/", settings.tasks_settings_index, name="settings-tasks"),
+    path(
+        "settings/tasks-options/<str:option>/<str:value>",
+        settings.tasks_options,
+        name="settings-tasks-options",
+    ),
     path("settings/", settings.index, name="settings"),
     path("settings/homepage/", settings.homepage_index, name="settings-homepage"),
     path("settings/google/", settings.google_index, name="settings-google"),

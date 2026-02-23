@@ -1,0 +1,7 @@
+{% extends "settings/main.html" %}
+{% block subcontent %}
+    <div id="profile"
+         hx-trigger="load, profileReload from:body"
+         hx-get="{% url 'personal-profile' %}"
+         hx-target="this">{% include "settings/profile/profile.html" %}</div>
+{% endblock subcontent %}
