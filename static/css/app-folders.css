@@ -130,7 +130,11 @@
 }
 
 .folder-count {
-  color: var(--color-muted);
+  color: var(--border-dark);
   font-size: 0.85rem;
   margin-left: auto;
+}
+
+.folder-tree > li:first-child .folder-count {
+  color: var(--color-accent-strong);
 }

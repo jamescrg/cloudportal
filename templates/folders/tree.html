@@ -1,5 +1,5 @@
 <ul class="list-group folder-tree">
-    <li class="list-group-item folder-item {% if not selected_folder and not favorites_folder_all and not notes_folder_all and not tasks_folder_all %}active-item{% endif %}">
+    <li class="list-group-item folder-item {% if not selected_folder and not favorites_folder_all and not notes_folder_all and not tasks_folder_all and not contacts_folder_all %}active-item{% endif %}">
         <div class="folder-row">
             <div class="folder-content">
                 <span class="folder-icon">
@@ -14,8 +14,8 @@
             </div>
         </div>
     </li>
-    {% if page == "favorites" or page == "notes" or page == "tasks" %}
-        <li class="list-group-item folder-item {% if favorites_folder_all or notes_folder_all or tasks_folder_all %}active-item{% endif %}">
+    {% if page == "favorites" or page == "notes" or page == "tasks" or page == "contacts" %}
+        <li class="list-group-item folder-item {% if favorites_folder_all or notes_folder_all or tasks_folder_all or contacts_folder_all %}active-item{% endif %}">
             <div class="folder-row">
                 <div class="folder-content">
                     <span class="folder-icon">
@@ -23,7 +23,7 @@
                     </span>
                     <a class="folder-link"
                        href="#"
-                       hx-get="{% if page == 'favorites' %}{% url 'favorites-all' %}{% elif page == 'tasks' %}{% url 'tasks-all' %}{% else %}{% url 'notes:all' %}{% endif %}"
+                       hx-get="{% if page == 'favorites' %}{% url 'favorites-all' %}{% elif page == 'tasks' %}{% url 'tasks-all' %}{% elif page == 'contacts' %}{% url 'contacts-all' %}{% else %}{% url 'notes:all' %}{% endif %}"
                        hx-target="#main-content"
                        hx-swap="innerHTML">All
                         {% if page == 'tasks' %}
@@ -32,6 +32,8 @@
                             Favorites
                         {% elif page == 'notes' %}
                             Notes
+                        {% elif page == 'contacts' %}
+                            Contacts
                         {% endif %}
                     </a>
                     {% if all_count %}<span class="folder-count">{{ all_count }}</span>{% endif %}

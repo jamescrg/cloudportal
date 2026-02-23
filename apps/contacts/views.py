@@ -16,8 +16,11 @@ def _get_contacts_context(request):
     """Helper to build context for contacts partials."""
     user = request.user
     selected_folder = select_folder(request, "contacts")
+    contacts_folder_all = request.session.get("contacts_all", False)
 
-    if selected_folder:
+    if contacts_folder_all:
+        contacts = Contact.objects.filter(user=user)
+    elif selected_folder:
         contacts = Contact.objects.filter(user=user, folder=selected_folder)
     else:
         contacts = Contact.objects.filter(user=user, folder_id__isnull=True)
@@ -36,16 +39,20 @@ def _get_contacts_context(request):
 
     google_enabled = bool(user.google_credentials)
 
+    base_count_qs = Contact.objects.filter(user=user)
+
     return {
         "page": "contacts",
         "contacts": pagination.get_object_list(),
         "selected_contact": selected_contact,
         "selected_folder": selected_folder,
+        "contacts_folder_all": contacts_folder_all,
         "google": google_enabled,
         "pagination": pagination,
         "session_key": session_key,
         "trigger_key": trigger_key,
-        "inbox_count": Contact.objects.filter(user=user, folder__isnull=True).count(),
+        "all_count": base_count_qs.count(),
+        "inbox_count": base_count_qs.filter(folder__isnull=True).count(),
     }
 
 
@@ -279,6 +286,16 @@ def google_list(request):
 
 
 # HTMX Views
+
+
+@login_required
+def contacts_all(request):
+    """Select 'All' folder view and return updated contacts with folders OOB."""
+    request.session["contacts_all"] = True
+    request.user.contacts_folder = 0
+    request.user.save()
+    context = _get_contacts_context(request)
+    return render(request, "contacts/contacts-with-folders-oob.html", context)
 
 
 @login_required

@@ -253,9 +253,10 @@ def _get_folder_context(request, page):
     elif page == "contacts":
         from apps.contacts.models import Contact
 
-        context["inbox_count"] = Contact.objects.filter(
-            user=user, folder__isnull=True
-        ).count()
+        base_qs = Contact.objects.filter(user=user)
+        context["all_count"] = base_qs.count()
+        context["inbox_count"] = base_qs.filter(folder__isnull=True).count()
+        context["contacts_folder_all"] = request.session.get("contacts_all", False)
 
     return context
 
@@ -337,41 +338,11 @@ def select_htmx(request, id, page):
         return render(request, "favorites/favorites-with-folders-oob.html", context)
 
     elif page == "contacts":
-        from apps.contacts.models import Contact
+        from apps.contacts.views import _get_contacts_context
 
-        folders = get_folders_for_page(request, page)
-        selected_folder = select_folder(request, page)
+        request.session.pop("contacts_all", None)
 
-        if selected_folder:
-            contacts = Contact.objects.filter(
-                user=user, folder_id=selected_folder.id
-            ).order_by("name")
-        else:
-            contacts = Contact.objects.filter(
-                user=user, folder_id__isnull=True
-            ).order_by("name")
-
-        selected_contact_id = user.contacts_contact
-        try:
-            selected_contact = Contact.objects.filter(pk=selected_contact_id).get()
-        except Contact.DoesNotExist:
-            selected_contact = None
-
-        google_enabled = bool(user.google_credentials)
-
-        context = {
-            "page": page,
-            "user": user,
-            "folders": folders,
-            "selected_folder": selected_folder,
-            "contacts": contacts,
-            "selected_contact": selected_contact,
-            "google": google_enabled,
-            "inbox_count": Contact.objects.filter(
-                user=user, folder_id__isnull=True
-            ).count(),
-        }
-
+        context = _get_contacts_context(request)
         return render(request, "contacts/contacts-with-folders-oob.html", context)
 
     elif page == "notes":

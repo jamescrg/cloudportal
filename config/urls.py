@@ -196,6 +196,7 @@ urlpatterns = [
     ),
     path("contacts/google-list", contacts.google_list, name="contacts-google-list"),
     # contacts htmx
+    path("contacts/all/", contacts.contacts_all, name="contacts-all"),
     path("contacts/list-htmx/", contacts.contacts_list_htmx, name="contacts-list-htmx"),
     path(
         "contacts/detail-htmx/",
