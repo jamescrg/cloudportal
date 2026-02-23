@@ -7,6 +7,7 @@ textarea {
   background: var(--background-light);
   border: solid 1px var(--border-medium);
   border-radius: var(--radius-sm);
+  color: var(--color-primary);
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5;
