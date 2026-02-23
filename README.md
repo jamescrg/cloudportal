@@ -1,13 +1,13 @@
-# MinHome
+# CloudPortal
 
 A free, open-source personal dashboard and productivity suite. Self-hosted, fast, and minimal.
 
-**https://minhome.app**
+**https://cloudportal.link**
 
 
 ## Overview
 
-MinHome is an all-in-one personal home page built on Django. It brings together bookmarks, tasks, contacts, notes, weather, and financial data into a single, customizable dashboard. The interface is built with HTMX and Alpine.js for fast, seamless interactions without the overhead of a JavaScript framework.
+CloudPortal is an all-in-one personal home page built on Django. It brings together bookmarks, tasks, contacts, notes, weather, and financial data into a single, customizable dashboard. The interface is built with HTMX and Alpine.js for fast, seamless interactions without the overhead of a JavaScript framework.
 
 
 ## Features
@@ -95,8 +95,8 @@ MinHome is an all-in-one personal home page built on Django. It brings together 
 1. Clone the repository:
 
 ```bash
-git clone git@github.com:jamescrg/minhome.git
-cd minhome
+git clone git@github.com:jamescrg/cloudportal.git
+cd cloudportal
 ```
 
 2. Create and activate a virtual environment:
@@ -175,12 +175,12 @@ See `.env.example` for the full list. Key variables:
 
 ### Production Deployment
 
-MinHome runs behind Gunicorn with an Nginx reverse proxy. See `gunicorn.conf.py` for the Gunicorn configuration.
+CloudPortal runs behind Gunicorn with an Nginx reverse proxy. See `gunicorn.conf.py` for the Gunicorn configuration.
 
 
 ## Browser Extension
 
-The `extension/` directory contains a Firefox/Chrome extension for saving bookmarks directly from the browser toolbar. Configure it with your MinHome domain in the extension options.
+The `extension/` directory contains a Firefox/Chrome extension for saving bookmarks directly from the browser toolbar. Configure it with your CloudPortal domain in the extension options.
 
 
 ## Testing
