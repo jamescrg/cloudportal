@@ -28,8 +28,14 @@
   outline: none;
 }
 
+.folder-row .menu-icon {
+  width: 1.75rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
 .shared-indicator {
-  margin-left: 1rem;
+  margin-left: 0;
 }
 
 .shared-indicator .bi-people-fill {

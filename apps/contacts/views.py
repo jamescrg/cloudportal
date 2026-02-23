@@ -45,6 +45,7 @@ def _get_contacts_context(request):
         "pagination": pagination,
         "session_key": session_key,
         "trigger_key": trigger_key,
+        "inbox_count": Contact.objects.filter(user=user, folder__isnull=True).count(),
     }
 
 

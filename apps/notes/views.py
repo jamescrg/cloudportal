@@ -51,6 +51,8 @@ def _get_notes_list_context(request):
     trigger_key = "notesChanged"
     pagination = CustomPaginator(queryset, 20, request, session_key)
 
+    base_count_qs = Note.objects.filter(user=user)
+
     return {
         "page": "notes",
         "notes": pagination.get_object_list(),
@@ -63,6 +65,8 @@ def _get_notes_list_context(request):
         "pagination": pagination,
         "session_key": session_key,
         "trigger_key": trigger_key,
+        "all_count": base_count_qs.count(),
+        "inbox_count": base_count_qs.filter(folder__isnull=True).count(),
     }
 
 

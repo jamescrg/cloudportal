@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Count, Q
 
 from apps.folders.models import Folder
 
@@ -38,6 +38,25 @@ def get_folders_for_page(request, page):
         .prefetch_related("editors")
         .order_by("name")
     )
+
+    if page == "tasks":
+        count_field = "task"
+        count_filters = {
+            "task__user": user,
+            "task__is_recurring": False,
+            "task__archived": False,
+        }
+    elif page == "favorites":
+        count_field = "favorite"
+        count_filters = {"favorite__user": user}
+    elif page == "notes":
+        count_field = "note"
+        count_filters = {"note__user": user}
+    elif page == "contacts":
+        count_field = "contact"
+        count_filters = {"contact__user": user}
+
+    folders = folders.annotate(item_count=Count(count_field, filter=Q(**count_filters)))
 
     return folders
 

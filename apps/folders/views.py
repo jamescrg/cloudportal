@@ -221,17 +221,42 @@ def share(request, id, page):
 
 def _get_folder_context(request, page):
     """Helper to build context for folder list partial."""
+    user = request.user
     context = {
         "page": page,
         "folders": get_folders_for_page(request, page),
         "selected_folder": select_folder(request, page),
     }
-    if page == "favorites":
+
+    # Compute inbox count (items with no folder assigned)
+    if page == "tasks":
+        from apps.tasks.models import Task
+
+        base_qs = Task.objects.filter(user=user, is_recurring=False, archived=False)
+        context["all_count"] = base_qs.count()
+        context["inbox_count"] = base_qs.filter(folder__isnull=True).count()
+        context["tasks_folder_all"] = request.session.get("tasks_all", False)
+    elif page == "favorites":
+        from apps.favorites.models import Favorite
+
+        base_qs = Favorite.objects.filter(user=user)
+        context["all_count"] = base_qs.count()
+        context["inbox_count"] = base_qs.filter(folder__isnull=True).count()
         context["favorites_folder_all"] = request.session.get("favorites_all", False)
     elif page == "notes":
+        from apps.notes.models import Note
+
+        base_qs = Note.objects.filter(user=user)
+        context["all_count"] = base_qs.count()
+        context["inbox_count"] = base_qs.filter(folder__isnull=True).count()
         context["notes_folder_all"] = request.session.get("notes_all", False)
-    elif page == "tasks":
-        context["tasks_folder_all"] = request.session.get("tasks_all", False)
+    elif page == "contacts":
+        from apps.contacts.models import Contact
+
+        context["inbox_count"] = Contact.objects.filter(
+            user=user, folder__isnull=True
+        ).count()
+
     return context
 
 
@@ -342,6 +367,9 @@ def select_htmx(request, id, page):
             "contacts": contacts,
             "selected_contact": selected_contact,
             "google": google_enabled,
+            "inbox_count": Contact.objects.filter(
+                user=user, folder_id__isnull=True
+            ).count(),
         }
 
         return render(request, "contacts/contacts-with-folders-oob.html", context)

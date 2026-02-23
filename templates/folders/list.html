@@ -9,7 +9,7 @@
         </a>
     </div>
     <div id="folder-tree-container"
-         hx-trigger="foldersChanged from:body"
+         hx-trigger="foldersChanged from:body{% if page == 'tasks' %}, tasksChanged from:body{% elif page == 'notes' %}, notesChanged from:body{% elif page == 'contacts' %}, contactsChanged from:body{% endif %}"
          hx-get="{% url 'folders-tree' %}?page={{ page }}"
          hx-target="this">{% include "folders/tree.html" %}</div>
 </div>

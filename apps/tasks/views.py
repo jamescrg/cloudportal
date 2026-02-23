@@ -64,6 +64,8 @@ def _get_task_list_context(request):
         int(priority_value) if priority_value not in (None, "", 0) else None
     )
 
+    base_count_qs = Task.objects.filter(user=user, is_recurring=False, archived=False)
+
     return {
         "page": "tasks",
         "folders": folders,
@@ -79,6 +81,8 @@ def _get_task_list_context(request):
         "priorities": list(range(1, 11)),
         "priority_value": priority_value,
         "current_sort": sort,
+        "all_count": base_count_qs.count(),
+        "inbox_count": base_count_qs.filter(folder__isnull=True).count(),
     }
 
 
@@ -470,7 +474,9 @@ def add_htmx(request):
             task.save()
 
     context = _get_task_list_context(request)
-    return render(request, "tasks/list.html", context)
+    response = render(request, "tasks/list.html", context)
+    response["HX-Trigger"] = "tasksChanged"
+    return response
 
 
 @login_required
@@ -630,7 +636,9 @@ def status_htmx(request, id):
                 parent.save(update_fields=["last_generated"])
 
     context = _get_task_list_context(request)
-    return render(request, "tasks/list.html", context)
+    response = render(request, "tasks/list.html", context)
+    response["HX-Trigger"] = "tasksChanged"
+    return response
 
 
 @login_required
@@ -678,7 +686,9 @@ def bulk_status_htmx(request):
         qs.filter(status=1).update(status=0, completed_date=None)
 
     context = _get_task_list_context(request)
-    return render(request, "tasks/list.html", context)
+    response = render(request, "tasks/list.html", context)
+    response["HX-Trigger"] = "tasksChanged"
+    return response
 
 
 @login_required
@@ -697,7 +707,9 @@ def clear_htmx(request):
         )
 
     context = _get_task_list_context(request)
-    return render(request, "tasks/list.html", context)
+    response = render(request, "tasks/list.html", context)
+    response["HX-Trigger"] = "tasksChanged"
+    return response
 
 
 @login_required
@@ -714,7 +726,9 @@ def delete_completed_htmx(request):
         Task.objects.filter(user=request.user, folder__isnull=True, status=1).delete()
 
     context = _get_task_list_context(request)
-    return render(request, "tasks/list.html", context)
+    response = render(request, "tasks/list.html", context)
+    response["HX-Trigger"] = "tasksChanged"
+    return response
 
 
 @login_required
@@ -753,4 +767,6 @@ def move_folder_htmx(request):
         qs.update(folder=None)
 
     context = _get_task_list_context(request)
-    return render(request, "tasks/list.html", context)
+    response = render(request, "tasks/list.html", context)
+    response["HX-Trigger"] = "tasksChanged"
+    return response

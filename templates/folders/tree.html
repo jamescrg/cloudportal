@@ -10,6 +10,7 @@
                    hx-get="{% url 'folder-select-htmx' id=0 page=page %}"
                    hx-target="#main-content"
                    hx-swap="innerHTML">Inbox</a>
+                {% if inbox_count %}<span class="folder-count">{{ inbox_count }}</span>{% endif %}
             </div>
         </div>
     </li>
@@ -33,6 +34,7 @@
                             Notes
                         {% endif %}
                     </a>
+                    {% if all_count %}<span class="folder-count">{{ all_count }}</span>{% endif %}
                 </div>
             </div>
         </li>
@@ -58,6 +60,7 @@
                        hx-get="{% url 'folder-select-htmx' id=folder.id page=page %}"
                        hx-target="#main-content"
                        hx-swap="innerHTML">{{ folder.name }}</a>
+                    {% if folder.item_count %}<span class="folder-count">{{ folder.item_count }}</span>{% endif %}
                 </div>
                 {% include "folders/menu.html" with folder=folder %}
             </div>

@@ -45,6 +45,8 @@ def _get_favorites_list_context(request):
     trigger_key = "favoritesChanged"
     pagination = CustomPaginator(favorites, 20, request, session_key)
 
+    base_count_qs = Favorite.objects.filter(user=user)
+
     return {
         "page": "favorites",
         "folders": get_folders_for_page(request, "favorites"),
@@ -56,6 +58,8 @@ def _get_favorites_list_context(request):
         "trigger_key": trigger_key,
         "current_order": bare_field,
         "keyword": keyword,
+        "all_count": base_count_qs.count(),
+        "inbox_count": base_count_qs.filter(folder__isnull=True).count(),
     }
 
 
