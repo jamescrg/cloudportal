@@ -122,3 +122,9 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.folder-count {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  margin-left: auto;
+}
