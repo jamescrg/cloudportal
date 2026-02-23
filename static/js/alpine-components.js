@@ -224,6 +224,7 @@ document.addEventListener('alpine:init', () => {
       if (!sidebar) return;
       this.isOpen = true;
       sidebar.classList.add('drawer-open');
+      document.querySelector('.drawer-backdrop')?.classList.add('open');
       document.body.style.overflow = 'hidden';
     },
 
@@ -232,6 +233,7 @@ document.addEventListener('alpine:init', () => {
       if (!sidebar) return;
       this.isOpen = false;
       sidebar.classList.remove('drawer-open');
+      document.querySelector('.drawer-backdrop')?.classList.remove('open');
       document.body.style.overflow = '';
     },
 

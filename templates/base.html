@@ -66,9 +66,9 @@
                     x-show="hasSidebar"
                     @click="toggle()"
                     aria-label="Open folders">
-                <i class="icon-panel-left-open"></i>
+                <i class="icon-folders"></i>
             </button>
-            <div class="drawer-backdrop" :class="isOpen && 'open'" @click="close()"></div>
+            <div class="drawer-backdrop" @click="close()"></div>
         </div>
         <!-- javascript -->
         <script src="https://unpkg.com/htmx.org@1.9.10"></script>
