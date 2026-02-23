@@ -84,6 +84,22 @@ a:hover {
   margin-bottom: 1rem;
 }
 
+@media (max-width: 991.98px) {
+  .card-title.flex-center-space {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .card-title.flex-center-space > h1 {
+    flex: 1;
+  }
+
+  .card-title.flex-center-space > .filter-input {
+    order: 3;
+    width: 100%;
+  }
+}
+
 .card-text {
   margin-bottom: 1rem;
 }
