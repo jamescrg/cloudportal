@@ -571,7 +571,7 @@ li {
  * ------------------------------------------------*/
 
 .menu-icon {
-  color: var(--border-dark);
+  color: var(--color-muted);
   padding: 0;
 }
 
