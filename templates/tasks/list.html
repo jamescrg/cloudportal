@@ -5,7 +5,7 @@
         {% elif selected_folder %}
             {{ selected_folder.name }}
         {% else %}
-            Unsorted
+            Inbox
         {% endif %}
     </h1>
     <div style="display:flex;gap:0.5rem">
@@ -136,7 +136,7 @@
                            href="#"
                            hx-post="{% url 'tasks-move-folder-htmx' %}?folder_id="
                            hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">Unsorted</a>
+                           hx-swap="innerHTML scroll:none">Inbox</a>
                     </li>
                     {% for folder in folders %}
                         <li>

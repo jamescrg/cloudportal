@@ -1,4 +1,18 @@
 <ul class="list-group folder-tree">
+    <li class="list-group-item folder-item {% if not selected_folder and not favorites_folder_all and not notes_folder_all and not tasks_folder_all %}active-item{% endif %}">
+        <div class="folder-row">
+            <div class="folder-content">
+                <span class="folder-icon">
+                    <i class="icon-inbox"></i>
+                </span>
+                <a class="folder-link"
+                   href="#"
+                   hx-get="{% url 'folder-select-htmx' id=0 page=page %}"
+                   hx-target="#main-content"
+                   hx-swap="innerHTML">Inbox</a>
+            </div>
+        </div>
+    </li>
     {% if page == "favorites" or page == "notes" or page == "tasks" %}
         <li class="list-group-item folder-item {% if favorites_folder_all or notes_folder_all or tasks_folder_all %}active-item{% endif %}">
             <div class="folder-row">
@@ -49,18 +63,4 @@
             </div>
         </li>
     {% endfor %}
-    <li class="list-group-item folder-item {% if not selected_folder and not favorites_folder_all and not notes_folder_all and not tasks_folder_all %}active-item{% endif %}">
-        <div class="folder-row">
-            <div class="folder-content">
-                <span class="folder-icon-home">
-                    <i class="icon-folder-x"></i>
-                </span>
-                <a class="folder-link"
-                   href="#"
-                   hx-get="{% url 'folder-select-htmx' id=0 page=page %}"
-                   hx-target="#main-content"
-                   hx-swap="innerHTML">Unsorted Items</a>
-            </div>
-        </div>
-    </li>
 </ul>
