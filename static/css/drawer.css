@@ -81,6 +81,11 @@
     transform: translateX(0);
   }
 
+  /* Disable transition while finger is dragging */
+  #sidebar.drawer-dragging {
+    transition: none;
+  }
+
   /* Strip card styling inside drawer — the drawer panel is the container */
   #sidebar .card.folders {
     background: none;

@@ -212,6 +212,9 @@ document.addEventListener('alpine:init', () => {
     isOpen: false,
     hasSidebar: false,
 
+    // Swipe state
+    _touch: null,
+
     toggle() {
       this.isOpen ? this.close() : this.open();
     },
@@ -234,6 +237,127 @@ document.addEventListener('alpine:init', () => {
 
     init() {
       this.hasSidebar = !!document.getElementById('sidebar');
+      if (!this.hasSidebar) return;
+
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = this.$el.querySelector('.drawer-backdrop');
+      const mql = window.matchMedia('(min-width: 992px)');
+      const EDGE_ZONE = 24;        // px from left edge to start open-swipe
+      const VELOCITY_THRESHOLD = 0.3; // px/ms — fast flick opens/closes
+      const DISTANCE_RATIO = 0.35; // fraction of drawer width to snap
+
+      const self = this;
+
+      // --- helpers ---
+      function drawerWidth() {
+        return sidebar.offsetWidth || 280;
+      }
+
+      function applyTranslate(px) {
+        // px: 0 = fully open, -drawerWidth = fully closed
+        sidebar.style.transform = `translateX(${px}px)`;
+        // Sync backdrop opacity: 0 when closed, 1 when open
+        const progress = 1 + px / drawerWidth();
+        backdrop.style.opacity = Math.max(0, Math.min(1, progress));
+        backdrop.style.pointerEvents = progress > 0.05 ? 'auto' : 'none';
+      }
+
+      function clearDrag() {
+        sidebar.classList.remove('drawer-dragging');
+        sidebar.style.transform = '';
+        backdrop.style.opacity = '';
+        backdrop.style.pointerEvents = '';
+        self._touch = null;
+      }
+
+      // --- touch handlers ---
+      function onTouchStart(e) {
+        if (mql.matches) return; // desktop
+        const t = e.touches[0];
+
+        if (!self.isOpen && t.clientX <= EDGE_ZONE) {
+          // Begin open-swipe from left edge
+          self._touch = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastTime: e.timeStamp, mode: 'open', locked: false };
+          sidebar.classList.add('drawer-dragging');
+          backdrop.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        } else if (self.isOpen && (t.clientX <= drawerWidth() || e.target.closest('.drawer-backdrop'))) {
+          // Begin close-swipe on open drawer or backdrop
+          self._touch = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastTime: e.timeStamp, mode: 'close', locked: false };
+          sidebar.classList.add('drawer-dragging');
+        }
+      }
+
+      function onTouchMove(e) {
+        const touch = self._touch;
+        if (!touch) return;
+        const t = e.touches[0];
+        const dx = t.clientX - touch.startX;
+        const dy = t.clientY - touch.startY;
+
+        // Lock direction after 10px of movement
+        if (!touch.locked) {
+          if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+          // If more vertical than horizontal, abort swipe
+          if (Math.abs(dy) > Math.abs(dx)) {
+            clearDrag();
+            if (!self.isOpen) {
+              backdrop.classList.remove('open');
+              document.body.style.overflow = '';
+            }
+            return;
+          }
+          touch.locked = true;
+        }
+
+        e.preventDefault();
+        touch.lastX = t.clientX;
+        touch.lastTime = e.timeStamp;
+
+        const w = drawerWidth();
+        if (touch.mode === 'open') {
+          // dx goes 0 → w; translate goes -w → 0
+          const offset = Math.min(0, Math.max(-w, dx - w));
+          applyTranslate(offset);
+        } else {
+          // dx goes 0 → -w; translate goes 0 → -w
+          const offset = Math.min(0, Math.max(-w, dx));
+          applyTranslate(offset);
+        }
+      }
+
+      function onTouchEnd(e) {
+        const touch = self._touch;
+        if (!touch) return;
+
+        const dt = e.timeStamp - touch.lastTime || 1;
+        const dx = touch.lastX - touch.startX;
+        const velocity = dx / dt; // px/ms, positive = rightward
+        const w = drawerWidth();
+
+        clearDrag();
+
+        if (touch.mode === 'open') {
+          if (velocity > VELOCITY_THRESHOLD || dx > w * DISTANCE_RATIO) {
+            self.isOpen = true;
+            sidebar.classList.add('drawer-open');
+          } else {
+            backdrop.classList.remove('open');
+            document.body.style.overflow = '';
+          }
+        } else {
+          if (velocity < -VELOCITY_THRESHOLD || -dx > w * DISTANCE_RATIO) {
+            self.isOpen = false;
+            sidebar.classList.remove('drawer-open');
+            backdrop.classList.remove('open');
+            document.body.style.overflow = '';
+          }
+        }
+      }
+
+      document.addEventListener('touchstart', onTouchStart, { passive: true });
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend', onTouchEnd, { passive: true });
 
       // Auto-close drawer when a folder link is tapped (htmx navigation)
       document.addEventListener('htmx:beforeRequest', (e) => {
@@ -243,7 +367,6 @@ document.addEventListener('alpine:init', () => {
       });
 
       // Clean up if viewport crosses 992px while drawer is open
-      const mql = window.matchMedia('(min-width: 992px)');
       mql.addEventListener('change', (e) => {
         if (e.matches && this.isOpen) {
           this.close();
