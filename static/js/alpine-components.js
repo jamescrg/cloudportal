@@ -204,6 +204,56 @@ document.addEventListener('alpine:init', () => {
 
 
   /**
+   * Folder Drawer Component
+   * Mobile slide-in drawer for the sidebar folder list
+   * Usage: <div x-data="folderDrawer()">
+   */
+  Alpine.data('folderDrawer', () => ({
+    isOpen: false,
+    hasSidebar: false,
+
+    toggle() {
+      this.isOpen ? this.close() : this.open();
+    },
+
+    open() {
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar) return;
+      this.isOpen = true;
+      sidebar.classList.add('drawer-open');
+      document.body.style.overflow = 'hidden';
+    },
+
+    close() {
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar) return;
+      this.isOpen = false;
+      sidebar.classList.remove('drawer-open');
+      document.body.style.overflow = '';
+    },
+
+    init() {
+      this.hasSidebar = !!document.getElementById('sidebar');
+
+      // Auto-close drawer when a folder link is tapped (htmx navigation)
+      document.addEventListener('htmx:beforeRequest', (e) => {
+        if (this.isOpen && e.detail.elt.closest('#sidebar')) {
+          this.close();
+        }
+      });
+
+      // Clean up if viewport crosses 992px while drawer is open
+      const mql = window.matchMedia('(min-width: 992px)');
+      mql.addEventListener('change', (e) => {
+        if (e.matches && this.isOpen) {
+          this.close();
+        }
+      });
+    }
+  }));
+
+
+  /**
    * Confirm Modal Component
    * A styled replacement for browser's native confirm() dialog
    * Usage: Applied to #confirm-modal-container

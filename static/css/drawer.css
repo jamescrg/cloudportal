@@ -1,0 +1,107 @@
+/*------------------------------------------------
+ * Mobile folder drawer
+ * Slide-in panel for sidebar on viewports < 992px
+ * ------------------------------------------------*/
+
+/* FAB — hidden by default, shown on mobile */
+.drawer-fab {
+  align-items: center;
+  background: var(--background-section);
+  border: solid 1px var(--border-medium);
+  border-radius: 50%;
+  box-shadow: 0 0.25rem 0.75rem var(--shadow-color-heavy);
+  color: var(--color-primary);
+  cursor: pointer;
+  display: none;
+  font-size: 1.25rem;
+  height: 3rem;
+  justify-content: center;
+  position: fixed;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  width: 3rem;
+  z-index: 1039;
+}
+
+.drawer-fab:active {
+  background: var(--background-subnav);
+}
+
+/* Backdrop */
+.drawer-backdrop {
+  background: var(--overlay-backdrop);
+  display: none;
+  inset: 0;
+  opacity: 0;
+  position: fixed;
+  transition: opacity 0.2s ease;
+  z-index: 1039;
+}
+
+.drawer-backdrop.open {
+  opacity: 1;
+}
+
+
+/* Mobile styles */
+@media (max-width: 991.98px) {
+
+  .drawer-fab {
+    display: flex;
+  }
+
+  .drawer-backdrop {
+    display: block;
+    pointer-events: none;
+  }
+
+  .drawer-backdrop.open {
+    pointer-events: auto;
+  }
+
+  /* Pull sidebar out of flow and hide off-screen left */
+  #sidebar {
+    background: var(--background-section);
+    border-right: solid 1px var(--border-medium);
+    box-shadow: 0.25rem 0 1rem var(--shadow-color-heavy);
+    height: 100%;
+    left: 0;
+    max-width: 20rem;
+    overflow-y: auto;
+    padding: 1rem;
+    position: fixed;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 80vw;
+    z-index: 1040;
+  }
+
+  #sidebar.drawer-open {
+    transform: translateX(0);
+  }
+
+  /* Strip card styling inside drawer — the drawer panel is the container */
+  #sidebar .card.folders {
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Extra bottom padding so FAB doesn't overlap content */
+  .content {
+    padding-bottom: 5rem;
+  }
+}
+
+
+/* Desktop — ensure FAB and backdrop stay hidden */
+@media (min-width: 992px) {
+  .drawer-fab,
+  .drawer-backdrop {
+    display: none !important;
+  }
+}

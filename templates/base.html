@@ -33,6 +33,7 @@
         <link rel="stylesheet" href="{% static_v 'css/modals.css' %}">
         <link rel="stylesheet" href="{% static_v 'css/interface.css' %}">
         <link rel="stylesheet" href="{% static_v 'css/app-folders.css' %}">
+        <link rel="stylesheet" href="{% static_v 'css/drawer.css' %}">
         <link rel="stylesheet" href="{% static_v 'css/app-tasks.css' %}">
         <link rel="stylesheet" href="{% static_v 'css/app-search.css' %}">
         {% if page %}
@@ -58,6 +59,17 @@
         </div>
         {% include "modals.html" %}
         {% include "confirm-modal.html" %}
+        <div x-data="folderDrawer()"
+             x-cloak
+             @keydown.escape.window="if(isOpen) close()">
+            <button class="drawer-fab"
+                    x-show="hasSidebar"
+                    @click="toggle()"
+                    aria-label="Open folders">
+                <i class="icon-panel-left-open"></i>
+            </button>
+            <div class="drawer-backdrop" :class="isOpen && 'open'" @click="close()"></div>
+        </div>
         <!-- javascript -->
         <script src="https://unpkg.com/htmx.org@1.9.10"></script>
         <script defer
