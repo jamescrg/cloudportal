@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
-  "name": "MinHome Favorites",
-  "version": "2.1.0",
-  "description": "Save any webpage to your MinHome favorites with one click. Easily organize bookmarks with folders and quick access.",
-  "author": "MinHome",
-  "homepage_url": "https://dev.minhome.app",
+  "name": "CloudPortal",
+  "version": "2.2.0",
+  "description": "Save any webpage to your CloudPortal favorites with one click. Easily organize bookmarks with folders and quick access.",
+  "author": "CloudPortal",
+  "homepage_url": "https://dev.cloudportal.link",
 
   "applications": {
     "gecko": {
@@ -16,7 +16,7 @@
     "activeTab",
     "contextMenus",
     "storage",
-    "https://minhome.app/*"
+    "https://cloudportal.link/*"
   ],
 
   "background": {
@@ -25,27 +25,19 @@
   },
 
   "browser_action": {
-    "default_title": "Add to MinHome Favorites",
-    "default_icon": {
-      "16": "icon.png",
-      "32": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
-    }
+    "default_title": "Add to CloudPortal Favorites",
+    "default_icon": "icon.svg"
   },
 
   "options_page": "options.html",
 
   "icons": {
-    "16": "icon.png",
-    "32": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
+    "48": "icon.svg"
   },
 
   "content_scripts": [
     {
-      "matches": ["https://minhome.app/*", "https://*.minhome.app/*"],
+      "matches": ["https://cloudportal.link/*", "https://*.cloudportal.link/*"],
       "js": ["content.js"],
       "run_at": "document_end"
     }

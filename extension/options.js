@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function loadSettings() {
     api.storage.sync.get(['favoritesDomain'], function(result) {
-      domainInput.value = result.favoritesDomain || 'minhome.app';
+      domainInput.value = result.favoritesDomain || 'cloudportal.link';
     });
   }
 
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Basic domain validation
     if (!isValidDomain(domain)) {
-      showStatus('Please enter a valid domain (e.g., minhome.app)', 'error');
+      showStatus('Please enter a valid domain (e.g., cloudportal.link)', 'error');
       return;
     }
 
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function resetToDefault() {
-    domainInput.value = 'minhome.app';
+    domainInput.value = 'cloudportal.link';
     saveSettings();
   }
 

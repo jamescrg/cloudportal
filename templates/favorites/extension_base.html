@@ -25,6 +25,11 @@
         <link rel="stylesheet" href="{% static_v 'css/base-app.css' %}" />
         <link rel="stylesheet" href="{% static_v 'css/base-forms.css' %}" />
         <link rel="stylesheet" href="{% static_v 'css/extension.css' %}" />
+        <style>
+            @media (prefers-color-scheme: dark) {
+                html, body { background: oklch(0.277 0.000 263.283); }
+            }
+        </style>
     </head>
     <body>
         <div class="container">

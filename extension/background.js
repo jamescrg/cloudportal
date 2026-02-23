@@ -9,7 +9,7 @@ const api = typeof browser !== 'undefined' ? browser : chrome;
 // Function to get the configured domain
 function getFavoritesDomain(callback) {
   api.storage.sync.get(['favoritesDomain'], function(result) {
-    const domain = (result && result.favoritesDomain) || 'minhome.app';
+    const domain = (result && result.favoritesDomain) || 'cloudportal.link';
     callback(domain);
   });
 }

@@ -1,6 +1,6 @@
-# MinHome Favorites Extension
+# CloudPortal Favorites Extension
 
-Save any webpage to your MinHome favorites with one click.
+Save any webpage to your CloudPortal favorites with one click.
 
 ## Features
 
@@ -8,7 +8,7 @@ Save any webpage to your MinHome favorites with one click.
 - **Folder organization**: Choose which folder to save your favorites in
 - **Context menu**: Right-click to add favorites from any page or link
 - **Auto-close**: Extension popup closes automatically after saving
-- **Clean interface**: Matches your MinHome theme and styling
+- **Clean interface**: Matches your CloudPortal theme and styling
 
 ## Usage
 
@@ -16,17 +16,17 @@ Save any webpage to your MinHome favorites with one click.
 2. **Fill out the form** with the page title and URL (pre-filled)
 3. **Choose a folder** (optional) to organize your favorite
 4. **Add a description** (optional) for more context
-5. **Click "Submit"** to save to your MinHome favorites
+5. **Click "Submit"** to save to your CloudPortal favorites
 
 ## Requirements
 
 - Firefox browser
-- MinHome account at https://dev.minhome.app
+- CloudPortal account at https://dev.cloudportal.link
 
 ## Privacy
 
-This extension only communicates with your MinHome application. No data is sent to third parties.
+This extension only communicates with your CloudPortal application. No data is sent to third parties.
 
 ## Support
 
-For support, visit https://dev.minhome.app
+For support, visit https://dev.cloudportal.link
