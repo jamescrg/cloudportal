@@ -1,8 +1,18 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from accounts.managers import CustomUserManager
+
 
 class CustomUser(AbstractUser):
+    objects = CustomUserManager()
+
+    ROLE_OPTIONS = (
+        ("ADMIN", "Admin"),
+        ("USER", "User"),
+    )
+
+    role = models.CharField(max_length=5, choices=ROLE_OPTIONS, default="USER")
     zip = models.IntegerField(null=True, blank=True)
     phone_number = models.CharField(max_length=20, blank=True, default="")
     sms_notifications = models.BooleanField(default=False)
