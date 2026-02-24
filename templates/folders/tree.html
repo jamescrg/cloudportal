@@ -48,20 +48,19 @@
             data-folder-owner="{{ folder.user_id }}">
             <div class="folder-row">
                 <div class="folder-content">
-                    {% if folder.home_column and folder.user == user %}
-                        <span class="folder-icon-home">
-                            <i class="icon-house"></i>
-                        </span>
-                    {% else %}
-                        <span class="folder-icon">
-                            <i class="icon-folder"></i>
-                        </span>
-                    {% endif %}
+                    <span class="folder-icon">
+                        <i class="icon-folder"></i>
+                    </span>
                     <a class="folder-link"
                        href="#"
                        hx-get="{% url 'folder-select-htmx' id=folder.id page=page %}"
                        hx-target="#main-content"
                        hx-swap="innerHTML">{{ folder.name }}</a>
+                    {% if folder.home_column and folder.user == user %}
+                        <span class="home-indicator" title="Shown on Home">
+                            <i class="icon-house"></i>
+                        </span>
+                    {% endif %}
                     {% if folder.editors.all %}
                         <span class="shared-indicator"
                               title="Shared with {{ folder.editors.count }} user{{ folder.editors.count|pluralize }}">

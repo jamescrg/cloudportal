@@ -17,10 +17,6 @@
   margin-right: 0.7rem;
 }
 
-.folder-icon-home {
-  color: var(--color-muted);
-  margin-right: 1rem;
-}
 
 .folders input,
 .folders input:focus {
@@ -40,9 +36,10 @@
 }
 
 
-.shared-indicator {
+.shared-indicator,
+.home-indicator {
   color: var(--color-muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   margin-left: 0.5rem;
   flex-shrink: 0;
   position: relative;
