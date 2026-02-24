@@ -34,6 +34,12 @@
   flex-shrink: 0;
 }
 
+.folder-row .menu-icon .icon-ellipsis-vertical {
+  margin-right: -0.3rem;
+  color: var(--folder-menu-icon-color, var(--stone-350));
+}
+
+
 .shared-indicator {
   color: var(--color-muted);
   font-size: 0.85rem;
@@ -131,9 +137,16 @@
 }
 
 .folder-count {
-  color: var(--color-muted);
+  color: var(--folder-count-color, var(--stone-500));
   font-size: 0.85rem;
   margin-left: auto;
+}
+
+.folder-row > .folder-count {
+  width: 1.5rem;
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: 0;
 }
 
 .folder-tree > li:first-child .folder-count {

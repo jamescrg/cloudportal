@@ -91,5 +91,9 @@
 
     /* Tables */
     --background-table-header: var(--hl-gray);
+
+    /* Folder list */
+    --folder-menu-icon-color: var(--color-muted);
+    --folder-count-color: var(--color-muted);
   }
 }

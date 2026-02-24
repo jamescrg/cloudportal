@@ -4,7 +4,11 @@
             x-ref="button"
             @click="toggle()"
             :aria-expanded="open">
-        <i class="icon-ellipsis-vertical"></i>
+        {% if folder.item_count %}
+            <span class="folder-count">{{ folder.item_count }}</span>
+        {% else %}
+            <i class="icon-ellipsis-vertical"></i>
+        {% endif %}
     </button>
     <ul class="dropdown-menu" x-ref="menu" x-show="open">
         {% if folder.user == user %}
