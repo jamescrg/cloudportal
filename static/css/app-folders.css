@@ -35,11 +35,12 @@
 }
 
 .shared-indicator {
-  margin-left: 0;
-}
-
-.shared-indicator .bi-people-fill {
-  color: var(--border-medium);
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+  position: relative;
+  top: 1px;
 }
 
 

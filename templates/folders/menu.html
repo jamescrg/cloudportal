@@ -4,14 +4,7 @@
             x-ref="button"
             @click="toggle()"
             :aria-expanded="open">
-        {% if folder.editors.all %}
-            <span class="shared-indicator"
-                  title="Shared with {{ folder.editors.count }} user{{ folder.editors.count|pluralize }}">
-                <i class="icon-users"></i>
-            </span>
-        {% else %}
-            <i class="icon-ellipsis-vertical"></i>
-        {% endif %}
+        <i class="icon-ellipsis-vertical"></i>
     </button>
     <ul class="dropdown-menu" x-ref="menu" x-show="open">
         {% if folder.user == user %}

@@ -62,6 +62,12 @@
                        hx-get="{% url 'folder-select-htmx' id=folder.id page=page %}"
                        hx-target="#main-content"
                        hx-swap="innerHTML">{{ folder.name }}</a>
+                    {% if folder.editors.all %}
+                        <span class="shared-indicator"
+                              title="Shared with {{ folder.editors.count }} user{{ folder.editors.count|pluralize }}">
+                            <i class="icon-users"></i>
+                        </span>
+                    {% endif %}
                     {% if folder.item_count %}<span class="folder-count">{{ folder.item_count }}</span>{% endif %}
                 </div>
                 {% include "folders/menu.html" with folder=folder %}
