@@ -18,6 +18,24 @@
         {% if show_weather and weather %}
             {% include "home/weather_indicator.html" %}
         {% endif %}
+        {% if show_weather and not weather %}
+            <script>
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(pos) {
+                        var form = new FormData();
+                        form.append("lat", pos.coords.latitude);
+                        form.append("lon", pos.coords.longitude);
+                        fetch("{% url 'home-save-location' %}", {
+                            method: "POST",
+                            headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                            body: form
+                        }).then(function() {
+                            window.location.reload();
+                        });
+                    });
+                }
+            </script>
+        {% endif %}
     </div>
     {# -- favorites -- #}
     {% include "home/favorites.html" %}

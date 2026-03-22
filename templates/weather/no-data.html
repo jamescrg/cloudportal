@@ -1,19 +1,31 @@
-
-<div class="card">
-
-  <div class="card-title">
-    <h1>Local Weather</h1>
-  </div>
-
-  <div class="card-text">
-    {% if status == "no zip" %}
-      Location required for weather data. Enter a zip code in the form below:
-    {% endif %}
-    {% if status == "invalid zip" %}
-      The zip code you entered was invalid. Please try again:
-    {% endif %}
-  </div>
-
-  {% include "weather/form.html" %}
-
+<div class="card" id="weather-location-card">
+    <div class="card-title">
+        <h1>Local Weather</h1>
+    </div>
+    <div class="card-text" id="weather-location-status">Detecting your location...</div>
 </div>
+<script>
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                var form = new FormData();
+                form.append("lat", pos.coords.latitude);
+                form.append("lon", pos.coords.longitude);
+                fetch("{% url 'home-save-location' %}", {
+                    method: "POST",
+                    headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                    body: form
+                }).then(function() {
+                    window.location.reload();
+                });
+            },
+            function() {
+                document.getElementById("weather-location-status").textContent =
+                    "Location access was denied. Please allow location access in your browser and refresh the page.";
+            }
+        );
+    } else {
+        document.getElementById("weather-location-status").textContent =
+            "Your browser does not support geolocation.";
+    }
+</script>

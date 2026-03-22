@@ -4,14 +4,6 @@
             <div class="flex-start-space">
                 <div class="location">
                     <div class="location-title">{{ current.name }}</div>
-                    <div class="location-zip">
-                        {{ user.zip }}
-                        <a class="location-edit-icon"
-                           href="#"
-                           onclick="showHide('edit-form'); return false;">
-                            <i class="icon-pencil"></i>
-                        </a>
-                    </div>
                 </div>
                 <div class="location-info">
                     <div class="location-icon">
@@ -23,9 +15,6 @@
                     </div>
                     <div class="location-temp">{{ current.main.temp|floatformat:"0" }}°</div>
                 </div>
-            </div>
-            <div class="edit-location">
-                <div id="edit-form" class="edit-form hidden">{% include "weather/form.html" %}</div>
             </div>
         </div>
         <div class="card">

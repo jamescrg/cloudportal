@@ -95,6 +95,11 @@ urlpatterns = [
         home.move_favorite_to_folder,
         name="home-move-favorite-to-folder",
     ),
+    path(
+        "home/save-location/",
+        home.save_location,
+        name="home-save-location",
+    ),
     # favorites
     path("favorites/", favorites.index, name="favorites"),
     path("favorites/add", favorites.add, name="favorites-add"),
@@ -229,7 +234,6 @@ urlpatterns = [
     path("notes/", include("apps.notes.urls")),
     # weather
     path("weather/", weather.index, name="weather"),
-    path("weather/zip", weather.zip, name="weather-zip"),
     # finance
     path("crypto/", finance.crypto, name="crypto"),
     path("crypto/<str:ord>", finance.crypto, name="crypto"),

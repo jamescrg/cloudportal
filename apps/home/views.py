@@ -15,6 +15,31 @@ from apps.home.toggle import show_section
 from apps.tasks.models import Task
 
 
+def fetch_current_weather(user):
+    """Fetch current weather for a user using stored lat/lon coordinates."""
+    if not (user.weather_lat and user.weather_lon):
+        return None
+    try:
+        url = "https://api.openweathermap.org/data/2.5/weather"
+        params = {
+            "lat": user.weather_lat,
+            "lon": user.weather_lon,
+            "units": "imperial",
+            "appid": settings.OPEN_WEATHER_API_KEY,
+        }
+        response = http_requests.get(url, params=params, timeout=5)
+        data = response.json()
+        if "main" in data and "weather" in data:
+            return {
+                "temp": round(data["main"]["temp"]),
+                "icon": data["weather"][0]["icon"],
+                "description": data["weather"][0]["description"],
+            }
+    except Exception:
+        pass
+    return None
+
+
 def get_search_context(user):
     """Get search engine context for a user"""
     engines = [
@@ -127,25 +152,7 @@ def index(request):
     # WEATHER
     # ----------------
     show_weather = bool(user.home_weather)
-    weather = None
-    if show_weather and user.zip:
-        try:
-            url = "https://api.openweathermap.org/data/2.5/weather"
-            params = {
-                "zip": user.zip,
-                "units": "imperial",
-                "appid": settings.OPEN_WEATHER_API_KEY,
-            }
-            response = http_requests.get(url, params=params, timeout=5)
-            data = response.json()
-            if "main" in data and "weather" in data:
-                weather = {
-                    "temp": round(data["main"]["temp"]),
-                    "icon": data["weather"][0]["icon"],
-                    "description": data["weather"][0]["description"],
-                }
-        except Exception:
-            weather = None
+    weather = fetch_current_weather(user) if show_weather else None
 
     # SEARCH
     # ----------------
@@ -719,3 +726,23 @@ def move_favorite_to_folder(request):
         return JsonResponse({"success": False, "error": "Invalid parameters"})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
+
+
+@login_required
+def save_location(request):
+    """Save browser geolocation coordinates."""
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Only POST method allowed"})
+
+    try:
+        lat = float(request.POST.get("lat"))
+        lon = float(request.POST.get("lon"))
+    except (ValueError, TypeError):
+        return JsonResponse({"success": False, "error": "Invalid coordinates"})
+
+    user = request.user
+    user.weather_lat = lat
+    user.weather_lon = lon
+    user.save()
+
+    return JsonResponse({"success": True})
