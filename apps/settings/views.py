@@ -411,6 +411,8 @@ def home_options(request, option, value):
         user.home_tasks = value
     if option == "due_tasks":
         user.home_due_tasks = value
+    if option == "weather":
+        user.home_weather = value
 
     user.save()
     return redirect("/settings/homepage/")

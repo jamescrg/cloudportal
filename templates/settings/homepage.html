@@ -42,6 +42,18 @@
                     {% endif %}
                 </td>
             </tr>
+            <tr>
+                <td class="setting-label">Weather:</td>
+                <td class="setting-control">
+                    {% if user.home_weather %}
+                        <a class="btn btn-primary"
+                           href="{% url 'settings-home-options' option='weather' value='disable' %}">Disable</a>
+                    {% else %}
+                        <a class="btn btn-primary"
+                           href="{% url 'settings-home-options' option='weather' value='enable' %}">Enable</a>
+                    {% endif %}
+                </td>
+            </tr>
         </table>
     </div>
 {% endblock subcontent %}

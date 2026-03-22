@@ -31,6 +31,7 @@ class CustomUser(AbstractUser):
     home_due_tasks = models.IntegerField(default=0)
     home_due_tasks_hidden = models.DateField(null=True, blank=True)
     home_search = models.IntegerField(default=0)
+    home_weather = models.IntegerField(default=0)
     favorites_folder = models.IntegerField(default=0)
     contacts_folder = models.IntegerField(default=0)
     contacts_contact = models.IntegerField(default=0)

@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 
+import requests as http_requests
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -122,6 +124,29 @@ def index(request):
             due_date__lte=three_days,
         ).order_by("due_date", "due_time", "title")
 
+    # WEATHER
+    # ----------------
+    show_weather = bool(user.home_weather)
+    weather = None
+    if show_weather and user.zip:
+        try:
+            url = "https://api.openweathermap.org/data/2.5/weather"
+            params = {
+                "zip": user.zip,
+                "units": "imperial",
+                "appid": settings.OPEN_WEATHER_API_KEY,
+            }
+            response = http_requests.get(url, params=params, timeout=5)
+            data = response.json()
+            if "main" in data and "weather" in data:
+                weather = {
+                    "temp": round(data["main"]["temp"]),
+                    "icon": data["weather"][0]["icon"],
+                    "description": data["weather"][0]["description"],
+                }
+        except Exception:
+            weather = None
+
     # SEARCH
     # ----------------
     search_context = get_search_context(user)
@@ -157,6 +182,8 @@ def index(request):
         "show_events": show_events,
         "columns": columns,
         "moved_folder": moved_folder,
+        "show_weather": show_weather,
+        "weather": weather,
     }
 
     # Add search context

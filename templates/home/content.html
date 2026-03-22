@@ -13,7 +13,12 @@
         {% include "home/due_tasks.html" %}
     {% endif %}
     {# -- search -- #}
-    {% include "home/search.html" %}
+    <div class="search-weather-row">
+        {% include "home/search.html" %}
+        {% if show_weather and weather %}
+            {% include "home/weather_indicator.html" %}
+        {% endif %}
+    </div>
     {# -- favorites -- #}
     {% include "home/favorites.html" %}
 {% endblock content %}
