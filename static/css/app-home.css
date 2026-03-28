@@ -31,11 +31,13 @@
 
 .weather-indicator {
   align-items: center;
+  box-sizing: border-box;
   color: var(--color-primary);
   display: flex;
   gap: 0.15rem;
+  height: 41.6px;
   margin-bottom: 0;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 1rem 0.25rem 0.25rem;
   position: absolute;
   right: 0;
   text-decoration: none;
