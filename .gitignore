@@ -17,6 +17,11 @@ logs/
 node_modules/
 .venv/
 
+# generated frontend build outputs (see build.mjs)
+static/js/vendor/
+static/css/lucide.css
+static/fonts/lucide/
+
 # app logs (keep dir, ignore log files)
 logs/*
 !logs/.gitkeep
