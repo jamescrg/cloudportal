@@ -50,6 +50,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 CSRF_TRUSTED_ORIGINS = [
     "https://dev.minhome.app",
     "https://server-dev.site:8000",
+    "https://cloud.dev-server.io",
 ]
 
 
@@ -203,6 +204,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 SERVER_EMAIL = env("SERVER_EMAIL")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=SERVER_EMAIL)
 ADMINS = [(env("ADMINS_NAME"), env("ADMINS_EMAIL"))]
 
 # API Keys
@@ -294,33 +296,31 @@ class CustomFormRenderer(TemplatesSetting):
 
 FORM_RENDERER = "config.settings.CustomFormRenderer"
 
+# Logging — standardized across all apps; logs live in <app>/logs/
+(BASE_DIR / "logs").mkdir(exist_ok=True)
+
 LOGGING = {
-    # The version number of our log
     "version": 1,
-    # django uses some of its own loggers for internal operations.
-    # In case you want to disable them just replace the False above with true.
     "disable_existing_loggers": False,
-    # A handler for WARNING. It is basically writing
-    # the WARNING messages into a file called WARNING.log
-    "handlers": {
-        "file": {
-            "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "warning.log",
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} [{levelname}] {name}: {message}",
+            "style": "{",
         },
     },
-    # A logger for WARNING which has a handler called "file".
-    # A logger can have multiple handlers.
-    "loggers": {
-        # Notice the blank "".
-        # Usually you would put built in loggers
-        # like django or root here based on your needs.
-        "": {
-            # Notice how file variable is called
-            # in handler which has been defined above
-            "handlers": ["file"],
-            "level": "WARNING",
-            "propagate": True,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "logs" / "django.log",
+            "formatter": "verbose",
         },
+        "null": {"class": "logging.NullHandler"},
+    },
+    "root": {"handlers": ["console", "file"], "level": "WARNING"},
+    "loggers": {
+        # Bot-driven bad Host headers are benign; drop them instead of dumping a
+        # full traceback per hit (this was chf's 117 MB error-log flood).
+        "django.security.DisallowedHost": {"handlers": ["null"], "propagate": False},
     },
 }
