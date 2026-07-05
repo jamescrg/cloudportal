@@ -99,55 +99,54 @@ git clone git@github.com:jamescrg/cloudportal.git
 cd cloudportal
 ```
 
-2. Create and activate a virtual environment:
+2. Install Python dependencies:
+
+[uv](https://docs.astral.sh/uv/) manages the virtual environment and
+dependencies. It creates the `.venv` and installs everything from the lockfile:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+uv sync
 ```
 
-3. Install Python dependencies:
+Prefix commands with `uv run` (e.g. `uv run python manage.py ...`) to run them
+inside the managed environment, or activate it with `source .venv/bin/activate`.
 
-```bash
-pip install -r requirements.txt
-```
-
-4. Install frontend dependencies and build assets:
+3. Install frontend dependencies and build assets:
 
 ```bash
 npm install
 node build.mjs
 ```
 
-5. Copy the example environment file and configure it:
+4. Copy the example environment file and configure it:
 
 ```bash
 cp .env.example .env
 ```
 
-6. Create the database and run migrations:
+5. Create the database and run migrations:
 
 ```bash
 createdb your-db-name
-python manage.py migrate
+uv run python manage.py migrate
 ```
 
-7. Build the search index:
+6. Build the search index:
 
 ```bash
-python manage.py buildwatson
+uv run python manage.py buildwatson
 ```
 
-8. Create a user account:
+7. Create a user account:
 
 ```bash
-python manage.py createsuperuser
+uv run python manage.py createsuperuser
 ```
 
-9. Run the development server:
+8. Run the development server:
 
 ```bash
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 ### Environment Variables
