@@ -738,6 +738,7 @@ li {
 .col-md-6,
 .col-md-8 {
   width: 100%;
+  min-width: 0;
 }
 
 /* Large screens: multi-column layout */

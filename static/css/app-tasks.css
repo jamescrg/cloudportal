@@ -23,10 +23,6 @@
 /* task table */
 /* ------------------------------------------------------------------------- */
 
-.tasks-table {
-  min-width: 28rem;
-}
-
 .tasks-col-checkbox {
   text-align: center;
   width: 2.5rem;
@@ -195,6 +191,21 @@ th.tasks-col-priority .btn-sort.active {
 
 .archive .btn i {
   margin-right: 0.5rem;
+}
+
+@media (max-width: 576px) {
+  .tasks-title-row {
+    flex-wrap: wrap;
+  }
+
+  .tasks-secondary {
+    padding-left: 0;
+  }
+
+  .archive-buttons {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }
 
 /* ------------------------------------------------------------------------- */
