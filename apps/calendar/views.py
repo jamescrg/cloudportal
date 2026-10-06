@@ -20,12 +20,14 @@ from apps.calendar.models import Event, EventReminder, is_zone
 from .events import (
     PAGINATION_KEY,
     SESSION_KEY,
+    SHOW_TASKS_KEY,
     TRIGGER_KEY,
     VIEW_MODE_KEY,
     default_end_time,
     feed_filter,
     get_table_data,
     saved_filter,
+    show_tasks,
     toolbar_context,
     view_mode,
 )
@@ -70,6 +72,18 @@ def events_calendar(request):
     for it when the saved view is the list, since the grid's agenda view
     reads better there than the table."""
     return render(request, "calendar/calendar.html", toolbar_context(request))
+
+
+@login_required
+@require_POST
+def events_show_tasks(request, state):
+    """Show the user's open tasks on the grid beside the events, or hide
+    them. The partial re-renders so the button reads the new state."""
+    if state not in ("on", "off"):
+        return HttpResponseBadRequest("Unknown state.")
+    request.session[SHOW_TASKS_KEY] = state == "on"
+    request.session.modified = True
+    return HttpResponse(status=204, headers={"HX-Trigger": "eventsViewChanged"})
 
 
 @login_required
@@ -356,7 +370,43 @@ def events_api(request):
 
         calendar_events.append(fc_event)
 
+    if show_tasks(request):
+        calendar_events.extend(_task_feed(request.user, first, last))
+
     return JsonResponse(calendar_events, safe=False)
+
+
+def _task_feed(user, first, last):
+    """The user's open tasks due in the range, as FullCalendar events. A
+    task is told from an event by its id prefix and its kind, and may be
+    dragged to another day but not stretched."""
+    from apps.tasks.models import Task
+
+    tasks = Task.objects.filter(
+        user=user,
+        status=0,
+        archived=False,
+        is_recurring=False,
+        due_date__gte=first,
+        due_date__lte=last,
+    )
+    feed = []
+    for task in tasks:
+        fc_task = {
+            "id": f"task-{task.id}",
+            "title": task.title,
+            "className": "fc-event-task",
+            "durationEditable": False,
+            "extendedProps": {"kind": "task", "task_id": task.id},
+        }
+        if task.due_time:
+            fc_task["start"] = task.due_at.isoformat()
+            fc_task["allDay"] = False
+        else:
+            fc_task["start"] = str(task.due_date)
+            fc_task["allDay"] = True
+        feed.append(fc_task)
+    return feed
 
 
 def _quick_update_changes(body):

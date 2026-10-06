@@ -1,5 +1,10 @@
 {% include "calendar/header.html" %}
-<div id="fullcalendar-container"
+{% comment %}
+A class, not an id: htmx copies an existing element's attributes onto a
+swapped-in element with the same id until it settles, which would hand the
+new container the old grid's classes and then strip the new grid's.
+{% endcomment %}
+<div class="fullcalendar-container"
      x-data="eventsCalendar()"
      x-init="initCalendar()"
      hx-disinherit="*"

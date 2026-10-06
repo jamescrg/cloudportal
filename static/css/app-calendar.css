@@ -221,6 +221,26 @@
   white-space: normal;
 }
 
+/* A task on the grid: a lighter chip with a dashed edge, so it reads as
+   something to do rather than somewhere to be */
+.fc-event.fc-event-task,
+.fc-event.fc-event-task.fc-daygrid-block-event,
+.fc-event.fc-event-task.fc-daygrid-dot-event {
+  background-color: var(--background-light) !important;
+  border-style: dashed !important;
+}
+
+.fc-event.fc-event-task .fc-event-title,
+.fc-event.fc-event-task .fc-event-main {
+  font-weight: normal !important;
+}
+
+.fc-event.fc-event-task .fc-event-title::before {
+  content: "\e16e";
+  font-family: lucide;
+  margin-right: 0.25rem;
+}
+
 /* Day cells. The height is the month view's: the year view's mini months
    keep FullCalendar's own compact cells. */
 .fc-dayGridMonth-view .fc-daygrid-day-frame {

@@ -6,18 +6,10 @@
 // The container that hosts the calendar (templates/calendar/content.html)
 const CALENDAR_CONTAINER_ID = "events";
 
-// Reinitialize Alpine on HTMX swaps for the events container
-document.body.addEventListener("htmx:afterSwap", (event) => {
-  if (
-    event.detail.target.id === CALENDAR_CONTAINER_ID &&
-    typeof Alpine !== "undefined"
-  ) {
-    // Small delay to ensure DOM is ready
-    setTimeout(() => {
-      Alpine.initTree(event.detail.target);
-    }, 10);
-  }
-});
+// Alpine initializes content htmx swaps in on its own (it watches the
+// DOM), so the calendar's x-init runs once for each new container. No
+// manual Alpine.initTree here: that ran x-init a second time and built a
+// second grid inside the first.
 
 // Phones get the grid's agenda view (listMonth) in place of both the
 // month grid, which is unusable at that width, and the table list, which
@@ -65,7 +57,7 @@ document.body.addEventListener("eventsViewChanged", () => {
 document.body.addEventListener("htmx:beforeRequest", (event) => {
   const target = event.detail.target;
   if (target && target.id === CALENDAR_CONTAINER_ID) {
-    const calendarContainer = document.getElementById("fullcalendar-container");
+    const calendarContainer = document.querySelector(".fullcalendar-container");
     if (calendarContainer && calendarContainer._x_dataStack) {
       const elt = event.detail.elt;
 
@@ -96,6 +88,10 @@ document.addEventListener("alpine:init", () => {
 
     initCalendar() {
       const calendarEl = this.$el;
+      // Never build twice into one element (FullCalendar marks it "fc")
+      if (calendarEl.classList.contains("fc")) {
+        return;
+      }
       const phone = onPhone();
 
       this.calendar = new FullCalendar.Calendar(calendarEl, {
@@ -183,6 +179,10 @@ document.addEventListener("alpine:init", () => {
       document.body.addEventListener("eventsChanged", () => {
         this.calendar.refetchEvents();
       });
+      // A task edited from the grid re-draws the tasks on it
+      document.body.addEventListener("tasksChanged", () => {
+        this.calendar.refetchEvents();
+      });
     },
 
     savedView() {
@@ -219,8 +219,14 @@ document.addEventListener("alpine:init", () => {
       info.jsEvent.stopPropagation();
 
       // Open the edit modal using HTMX; alpine-components.js opens the
-      // modal when the content lands in the container.
-      htmx.ajax("GET", `/calendar/${info.event.id}/edit`, {
+      // modal when the content lands in the container. A task on the grid
+      // opens the task form instead.
+      const props = info.event.extendedProps || {};
+      const url =
+        props.kind === "task"
+          ? `/tasks/${props.task_id}/form`
+          : `/calendar/${info.event.id}/edit`;
+      htmx.ajax("GET", url, {
         target: "#htmx-modal-container",
         swap: "innerHTML",
       });
@@ -309,6 +315,25 @@ document.addEventListener("alpine:init", () => {
 
     quickUpdate(eventId, data, info) {
       const csrfToken = this.getCsrfToken();
+
+      // A task dragged to another day keeps only its new date
+      const props = info.event.extendedProps || {};
+      if (props.kind === "task") {
+        const form = new FormData();
+        form.append("due_date", data.date);
+        fetch(`/tasks/${props.task_id}/due-date`, {
+          method: "POST",
+          headers: { "X-CSRFToken": csrfToken },
+          body: form,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              info.revert();
+            }
+          })
+          .catch(() => info.revert());
+        return;
+      }
 
       fetch(`/calendar/${eventId}/quick-update`, {
         method: "POST",

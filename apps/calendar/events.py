@@ -7,6 +7,7 @@ from apps.management.pagination import CustomPaginator
 
 SESSION_KEY = "calendar_filter"
 VIEW_MODE_KEY = "calendar_view_mode"
+SHOW_TASKS_KEY = "calendar_show_tasks"
 PAGINATION_KEY = "calendar_page"
 TRIGGER_KEY = "eventsChanged"
 
@@ -36,6 +37,11 @@ def saved_filter(request):
 
 def view_mode(request):
     return request.session.get(VIEW_MODE_KEY, "calendar")
+
+
+def show_tasks(request):
+    """Whether the grid shows the user's open tasks beside the events."""
+    return bool(request.session.get(SHOW_TASKS_KEY, False))
 
 
 def event_filter(request):
@@ -102,6 +108,7 @@ def toolbar_context(request):
     return {
         "page": "calendar",
         "view_mode": view_mode(request),
+        "show_tasks": show_tasks(request),
         "filter_active": filter_is_active(request),
         "today": today,
         "third_day": today + timedelta(days=3),

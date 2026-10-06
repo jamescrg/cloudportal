@@ -21,6 +21,12 @@
                 <i class="icon-calendar"></i>
             </button>
         </div>
+        <button class="square-button filter-button {% if show_tasks %}toggle-active{% endif %}"
+                hx-post="{% if show_tasks %}{% url 'calendar:show-tasks' 'off' %}{% else %}{% url 'calendar:show-tasks' 'on' %}{% endif %}"
+                hx-swap="none"
+                title="{% if show_tasks %}Hide tasks{% else %}Show tasks{% endif %}">
+            <i class="icon-list-checks"></i>
+        </button>
         <button class="square-button filter-button {% if filter_active %}toggle-active{% endif %}"
                 hx-get="{% url 'calendar:filter' %}"
                 hx-target="#htmx-modal-container"
