@@ -252,12 +252,53 @@ def checked(user):
     }
 
 
-def test_new_tasks_start_at_normal_and_due_today(client):
+def test_new_tasks_start_at_normal_with_no_date_by_default(client):
     client.post(reverse("tasks-add-htmx"), {"title": "fresh"})
 
     task = Task.objects.get(title="Fresh")
     assert level_for(task.priority)["name"] == "Normal"
-    assert task.due_date == date.today()
+    assert task.due_date is None
+
+
+@pytest.mark.parametrize(
+    "preset, expected",
+    [
+        ("today", date.today()),
+        ("tomorrow", date.today() + timedelta(days=1)),
+        ("next7", None),
+        ("past_due", None),
+        ("unscheduled", None),
+        ("all", None),
+    ],
+)
+def test_a_new_task_takes_the_date_of_the_view_it_is_added_in(client, preset, expected):
+    client.post(reverse("tasks-filter-date", args=[preset]))
+
+    client.post(reverse("tasks-add-htmx"), {"title": "fresh"})
+
+    assert Task.objects.get(title="Fresh").due_date == expected
+
+
+def test_a_filter_pinned_to_one_day_gives_that_day(client):
+    client.post(
+        reverse("tasks-filter"),
+        {"due_date_min": "2030-03-04", "due_date_max": "2030-03-04"},
+    )
+
+    client.post(reverse("tasks-add-htmx"), {"title": "fresh"})
+
+    assert Task.objects.get(title="Fresh").due_date == date(2030, 3, 4)
+
+
+def test_a_filter_spanning_days_gives_no_date(client):
+    client.post(
+        reverse("tasks-filter"),
+        {"due_date_min": "2030-03-04", "due_date_max": "2030-03-08"},
+    )
+
+    client.post(reverse("tasks-add-htmx"), {"title": "fresh"})
+
+    assert Task.objects.get(title="Fresh").due_date is None
 
 
 def test_the_phone_details_carry_the_flag_and_the_date(client, user):

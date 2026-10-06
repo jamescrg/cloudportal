@@ -15,7 +15,13 @@ from apps.tasks import reminders
 from apps.tasks.filter import TasksFilter
 from apps.tasks.forms import TaskForm, TaskReminderForm
 from apps.tasks.models import Task
-from apps.tasks.priority import DATE_FILTER_NAMES, level_for, levels, quick_date_filters
+from apps.tasks.priority import (
+    DATE_FILTER_NAMES,
+    default_due_date,
+    level_for,
+    levels,
+    quick_date_filters,
+)
 
 
 def _get_task_list_context(request):
@@ -159,7 +165,9 @@ def add(request):
         task = Task()
 
         task.user = request.user
-        task.due_date = date.today()
+        task.due_date = default_due_date(
+            request.session.get("tasks_filter", {}), date.today()
+        )
         task.title = request.POST.get("title")
         task.title = task.title[0].upper() + task.title[1:]
 
@@ -491,8 +499,11 @@ def add_htmx(request):
     if request.method == "POST":
         task = Task()
         task.user = request.user
-        # A new task is due today until it is given another day
-        task.due_date = date.today()
+        # The filter in force sets the date: today's view gives today,
+        # tomorrow's gives tomorrow, and the rest give none
+        task.due_date = default_due_date(
+            request.session.get("tasks_filter", {}), date.today()
+        )
         task.title = request.POST.get("title", "").strip()
 
         if task.title:

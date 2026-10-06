@@ -5,7 +5,7 @@ are how it is shown and chosen, with an icon each, as the law app shows
 importance.
 """
 
-from datetime import timedelta
+from datetime import date, timedelta
 
 # (slug, name, icon, the number chosen for it, the highest number it covers)
 LEVELS = [
@@ -44,6 +44,26 @@ DATE_FILTER_NAMES = {
     "next7": "Next 7 Days",
     "unscheduled": "Unscheduled",
 }
+
+
+def default_due_date(filter_data, today):
+    """The due date a new task starts with, from the filter in force.
+
+    A task added while looking at today's tasks is due today, and while
+    looking at tomorrow's, tomorrow. More generally, a filter pinned to a
+    single day (its from and to the same) gives that day, which is what the
+    Tomorrow preset is. Any other view gives no date.
+    """
+    if filter_data.get("filter_label") == "today":
+        return today
+    start = filter_data.get("due_date_min") or ""
+    end = filter_data.get("due_date_max") or ""
+    if start and start == end:
+        try:
+            return date.fromisoformat(start)
+        except ValueError:
+            return None
+    return None
 
 
 def quick_date_filters(today):
