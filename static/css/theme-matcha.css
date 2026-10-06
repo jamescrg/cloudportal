@@ -64,6 +64,25 @@
   --selected-color: var(--stone-700);
   --selected-border: var(--stone-300);
 
+  /* Calendar events: a pale emerald under dark emerald text — a green a
+     step toward blue from the link's lime (hue 163 against 131), so it
+     stays calm where lime turns acid, and light enough not to weigh on
+     the grid */
+  /* the 200 step let through at 65% lands at the 100 step's lightness
+     over the page, but the day cell shows through it */
+  --event-background: color-mix(in oklch, var(--blue-300) 55%, transparent);
+  --event-border: transparent;
+  /* the text stays the page's; the hue is carried by the fill and the dot */
+  --event-color: var(--color-strong);
+  --event-dot: var(--blue-900);
+
+  /* Calendar tasks: the same system in amber, blue's complement, so a task
+     is told from an event at a glance */
+  --task-background: color-mix(in oklch, var(--amber-200) 55%, transparent);
+  --task-border: transparent;
+  --task-color: var(--color-strong);
+  --task-dot: var(--amber-900);
+
   /* Labels */
   --label-gray: var(--stone-150);
 

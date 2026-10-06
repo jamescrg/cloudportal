@@ -111,9 +111,9 @@
   --fc-button-active-bg-color: var(--selected-background);
   --fc-button-active-border-color: var(--selected-border);
   --fc-today-bg-color: var(--hl-yellow);
-  --fc-event-bg-color: var(--background-control);
-  --fc-event-border-color: var(--border-dark);
-  --fc-event-text-color: var(--color-primary);
+  --fc-event-bg-color: var(--event-background);
+  --fc-event-border-color: var(--event-border);
+  --fc-event-text-color: var(--event-color);
   --fc-page-bg-color: var(--background-section);
   --fc-neutral-bg-color: var(--background-light);
 }
@@ -177,26 +177,36 @@
   font-weight: normal;
 }
 
-/* Event chips in the grids. The chip text is a deliberate exception to
-   the 1rem floor: at 1rem the chips crowd the month grid's day cells. The
-   agenda's rows are not chips and keep 1rem (below). */
+/* Event chips in the grids: a solid fill in the theme's event colour with
+   light text on it, and no border. The chip text is a deliberate
+   exception to the 1rem floor: at 1rem the chips crowd the month grid's
+   day cells. The agenda's rows are not chips and keep 1rem (below). */
 .fc-event:not(.fc-list-event),
 .fc-event.fc-daygrid-block-event,
 .fc-event.fc-daygrid-dot-event {
-  background-color: var(--background-control) !important;
-  border: 1px solid var(--border-dark) !important;
+  background-color: var(--event-background) !important;
+  /* transparent in the light theme, an outline in the entry's colour in
+     dark */
+  border: 1px solid var(--event-border) !important;
   border-radius: var(--radius-sm);
-  color: var(--color-primary) !important;
+  color: var(--event-color) !important;
   cursor: pointer;
   font-size: 0.8125rem;
   padding: 0.125rem 0.25rem;
 }
 
-.fc-event-title,
-.fc-event-time,
-.fc-event .fc-event-main,
+.fc-event:not(.fc-list-event) .fc-event-title,
+.fc-event:not(.fc-list-event) .fc-event-time,
+.fc-event:not(.fc-list-event) .fc-event-main,
 .fc-daygrid-event .fc-event-title,
 .fc-timegrid-event .fc-event-main {
+  color: var(--event-color) !important;
+  font-weight: 600 !important;
+}
+
+/* The agenda's rows read in the page's text colour, with the event colour
+   on their dot */
+.fc .fc-list-event .fc-event-title {
   color: var(--color-primary) !important;
   font-weight: 600 !important;
 }
@@ -211,8 +221,16 @@
   margin-right: 0.25rem;
 }
 
+/* The dot on a timed event is in the entry's solid colour (the theme's
+   dot token): in the fill's own colour, which is translucent, it all but
+   disappears */
 .fc-daygrid-event .fc-daygrid-event-dot {
+  border-color: var(--event-dot);
   margin-top: 0.35rem;
+}
+
+.fc-event-task .fc-daygrid-event-dot {
+  border-color: var(--task-dot);
 }
 
 .fc-daygrid-event .fc-event-title {
@@ -221,24 +239,50 @@
   white-space: normal;
 }
 
-/* A task on the grid: a lighter chip with a dashed edge, so it reads as
-   something to do rather than somewhere to be */
-.fc-event.fc-event-task,
+/* A task on the grid: the same chip as an event in the theme's task
+   colour (blue's complement), with a check mark before its title, so it
+   reads as something to do rather than somewhere to be */
+.fc-event.fc-event-task:not(.fc-list-event),
 .fc-event.fc-event-task.fc-daygrid-block-event,
 .fc-event.fc-event-task.fc-daygrid-dot-event {
-  background-color: var(--background-light) !important;
-  border-style: dashed !important;
+  background-color: var(--task-background) !important;
+  border: 1px solid var(--task-border) !important;
+  color: var(--task-color) !important;
 }
 
-.fc-event.fc-event-task .fc-event-title,
-.fc-event.fc-event-task .fc-event-main {
-  font-weight: normal !important;
+.fc-event.fc-event-task:not(.fc-list-event) .fc-event-title,
+.fc-event.fc-event-task:not(.fc-list-event) .fc-event-time,
+.fc-event.fc-event-task:not(.fc-list-event) .fc-event-main {
+  color: var(--task-color) !important;
 }
 
-.fc-event.fc-event-task .fc-event-title::before {
+.fc-event.fc-event-task .fc-event-title::before,
+.fc-event-task .fc-list-event-title a::before {
   content: "\e16e";
   font-family: lucide;
   margin-right: 0.25rem;
+}
+
+/* Timed entries in the month grid, as Google draws them: no fill, a dot in
+   the entry's colour, and the title in the page's text colour. All-day
+   entries keep their filled block, so the two kinds are told apart at a
+   glance. (These follow the chip and task rules so they win.) */
+.fc-event.fc-daygrid-dot-event,
+.fc-event.fc-event-task.fc-daygrid-dot-event {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--color-primary) !important;
+}
+
+.fc-daygrid-dot-event .fc-event-title,
+.fc-daygrid-dot-event .fc-event-time,
+.fc-event.fc-event-task.fc-daygrid-dot-event .fc-event-title,
+.fc-event.fc-event-task.fc-daygrid-dot-event .fc-event-time {
+  color: var(--color-primary) !important;
+}
+
+.fc-daygrid-dot-event:hover {
+  background-color: var(--background-control) !important;
 }
 
 /* Day cells. The height is the month view's: the year view's mini months
@@ -351,9 +395,10 @@
 }
 
 
-/* Agenda (list) view: the phone's view. The app's table rules zero the
-   cell padding, so it is put back here. Rows read at 1rem, and the time
-   cell shrinks to its text so the title gets the rest of the row. */
+/* Agenda (list) view: the phone's view, and a choice on desktop. The
+   app's table rules zero the cell padding, so it is put back here. Rows
+   read at 1rem, and the time cell shrinks to its text so the title gets
+   the rest of the row. */
 .fc .fc-list {
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -403,7 +448,13 @@
 }
 
 .fc .fc-list-event-dot {
-  border-color: var(--border-dark);
+  border-color: var(--event-dot);
+}
+
+/* A task in the agenda: a plain row like an event's, told apart by its
+   dot in the task colour and the check mark before its title */
+.fc .fc-event-task .fc-list-event-dot {
+  border-color: var(--task-dot);
 }
 
 .fc .fc-list-event:hover td {

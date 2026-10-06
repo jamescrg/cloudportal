@@ -96,14 +96,16 @@ document.addEventListener("alpine:init", () => {
 
       this.calendar = new FullCalendar.Calendar(calendarEl, {
         // Core settings. A phone opens the month's agenda with a toolbar
-        // pared to navigation; wider screens get the full set of views.
+        // pared to navigation; wider screens get the full set of views,
+        // the agenda among them.
         initialView: phone ? "listMonth" : this.savedView(),
         headerToolbar: phone
           ? { left: "prev,next", center: "title", right: "today" }
           : {
               left: "prev,next today",
               center: "title",
-              right: "multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay",
+              right:
+                "multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay,listMonth",
             },
         noEventsContent: "No events this month",
 
@@ -113,10 +115,11 @@ document.addEventListener("alpine:init", () => {
           multiMonthYear: {
             dayMaxEvents: 2,
           },
-          // The phone's agenda: a compact day heading, and start times
-          // only, abbreviated where they can be ("7am", "7:30am"), so the
-          // title keeps most of the row
+          // The agenda (the phone's only view, a choice on wider screens):
+          // a compact day heading, and start times only, abbreviated where
+          // they can be ("7am", "7:30am"), so the title keeps most of the row
           listMonth: {
+            buttonText: "Agenda",
             listDayFormat: { weekday: "short", month: "short", day: "numeric" },
             listDaySideFormat: false,
             displayEventEnd: false,
@@ -186,7 +189,7 @@ document.addEventListener("alpine:init", () => {
     },
 
     savedView() {
-      // Reopen in the last-used view (year/month/week/day). Validate against
+      // Reopen in the last-used view (year/month/week/day/agenda). Validate against
       // the real view names so a stale or hand-edited value can't break the
       // render.
       const saved = localStorage.getItem("calendar-view");
@@ -195,6 +198,7 @@ document.addEventListener("alpine:init", () => {
         "dayGridMonth",
         "timeGridWeek",
         "timeGridDay",
+        "listMonth",
       ];
       return valid.includes(saved) ? saved : "dayGridMonth";
     },
