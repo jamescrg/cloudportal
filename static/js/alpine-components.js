@@ -240,13 +240,14 @@ document.addEventListener('alpine:init', () => {
 
 
   /**
-   * Folder Drawer Component
-   * Mobile slide-in drawer for the sidebar folder list, from the right
-   * Usage: <div x-data="folderDrawer()">
+   * Side Drawer Component
+   * Mobile slide-in panel from the right for whatever the page marks with
+   * data-drawer: the folder sidebar, or the settings section nav
+   * Usage: <div x-data="sideDrawer()">
    */
-  Alpine.data('folderDrawer', () => ({
+  Alpine.data('sideDrawer', () => ({
     isOpen: false,
-    hasSidebar: false,
+    hasPanel: false,
 
     // Swipe state
     _touch: null,
@@ -256,30 +257,30 @@ document.addEventListener('alpine:init', () => {
     },
 
     open() {
-      const sidebar = document.getElementById('sidebar');
-      if (!sidebar) return;
+      const panel = document.querySelector('[data-drawer]');
+      if (!panel) return;
       this.isOpen = true;
-      sidebar.classList.add('drawer-open');
+      panel.classList.add('drawer-open');
       document.querySelector('.drawer-backdrop')?.classList.add('open');
       document.body.style.overflow = 'hidden';
     },
 
     close() {
-      const sidebar = document.getElementById('sidebar');
-      if (!sidebar) return;
+      const panel = document.querySelector('[data-drawer]');
+      if (!panel) return;
       this.isOpen = false;
-      sidebar.classList.remove('drawer-open');
+      panel.classList.remove('drawer-open');
       document.querySelector('.drawer-backdrop')?.classList.remove('open');
       document.body.style.overflow = '';
     },
 
     init() {
-      this.hasSidebar = !!document.getElementById('sidebar');
-      if (!this.hasSidebar) return;
+      this.hasPanel = !!document.querySelector('[data-drawer]');
+      if (!this.hasPanel) return;
 
-      // Looked up on each use: a page may swap the sidebar's contents, and
+      // Looked up on each use: a page may swap the panel's contents, and
       // must never be left dragging an element that is no longer there.
-      const sidebarEl = () => document.getElementById('sidebar');
+      const sidebarEl = () => document.querySelector('[data-drawer]');
       const backdrop = this.$el.querySelector('.drawer-backdrop');
       const mql = window.matchMedia('(min-width: 992px)');
       const EDGE_ZONE = 24;        // px from right edge to start open-swipe
@@ -401,9 +402,9 @@ document.addEventListener('alpine:init', () => {
       document.addEventListener('touchmove', onTouchMove, { passive: false });
       document.addEventListener('touchend', onTouchEnd, { passive: true });
 
-      // Auto-close drawer when a folder link is tapped (htmx navigation)
+      // Auto-close the drawer when a link inside it is tapped (htmx navigation)
       document.addEventListener('htmx:beforeRequest', (e) => {
-        if (this.isOpen && e.detail.elt.closest('#sidebar')) {
+        if (this.isOpen && e.detail.elt.closest('[data-drawer]')) {
           this.close();
         }
       });

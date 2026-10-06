@@ -1,9 +1,10 @@
 /*------------------------------------------------
  * Mobile drawers
- * On viewports < 992px the nav bar and the folder sidebar each collapse
- * into a round floating button at the top of the screen: the menu on the
- * left, which slides its panel in from the left; the folders on the
- * right, which slide in from the right.
+ * On viewports < 992px the nav bar and the page's side panel each
+ * collapse into a round floating button at the top of the screen: the
+ * menu on the left, which slides its panel in from the left; the page's
+ * panel (the folder sidebar, or the settings sections — whatever carries
+ * data-drawer) on the right, which slides in from the right.
  * ------------------------------------------------*/
 
 /* FABs — hidden by default, shown on mobile */
@@ -29,7 +30,7 @@
   left: 0.5rem;
 }
 
-.drawer-fab-folders {
+.drawer-fab-panel {
   right: 0.5rem;
 }
 
@@ -114,8 +115,8 @@
     color: var(--selected-color);
   }
 
-  /* Folder drawer: the sidebar out of flow, off-screen right until opened */
-  #sidebar {
+  /* Side panel: out of flow, off-screen right until opened */
+  [data-drawer] {
     background: var(--background-section);
     border-left: solid 1px var(--border-medium);
     box-shadow: -0.25rem 0 1rem var(--shadow-color-heavy);
@@ -132,17 +133,17 @@
     z-index: 1040;
   }
 
-  #sidebar.drawer-open {
+  [data-drawer].drawer-open {
     transform: translateX(0);
   }
 
   /* Disable transition while finger is dragging */
-  #sidebar.drawer-dragging {
+  [data-drawer].drawer-dragging {
     transition: none;
   }
 
   /* Strip card styling inside drawer — the drawer panel is the container */
-  #sidebar .card.folders {
+  [data-drawer] .card.folders {
     background: none;
     border: none;
     border-radius: 0;

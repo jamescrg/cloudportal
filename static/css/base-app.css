@@ -30,6 +30,15 @@ body {
   min-height: 100%;
 }
 
+/* On mobile the cards run edge to edge, so the page behind them takes
+   their colour rather than showing as a darker band between them. The
+   home page keeps its padding, and its own background with it. */
+@media (max-width: 991.98px) {
+  body:not([data-page="home"]) {
+    background: var(--background-section);
+  }
+}
+
 .page-vertical-centered {
   overflow: hidden;
   position: absolute;
@@ -48,6 +57,26 @@ body {
 
 .content {
   padding-top: 1.5rem;
+}
+
+/* On mobile the content runs edge to edge, except on the home page; the
+   cards carry their own padding. The row's gutter is dropped with it, or
+   its negative margins would push the page wider than the screen. */
+@media (max-width: 991.98px) {
+  body:not([data-page="home"]) .container.content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  body:not([data-page="home"]) .content .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  body:not([data-page="home"]) .content .row > [class*="col"] {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 

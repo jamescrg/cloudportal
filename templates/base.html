@@ -85,15 +85,20 @@
                 </ul>
             </nav>
         </div>
-        <!-- Mobile folders: a floating button, upper right, opens the sidebar from the right -->
-        <div x-data="folderDrawer()"
+        <!-- Mobile side panel: a floating button, upper right, opens the page's
+             panel (the folder sidebar, or the settings sections) from the right -->
+        <div x-data="sideDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">
-            <button class="drawer-fab drawer-fab-folders"
-                    x-show="hasSidebar"
+            <button class="drawer-fab drawer-fab-panel"
+                    x-show="hasPanel"
                     @click="toggle()"
-                    aria-label="Open folders">
-                <i class="icon-folders"></i>
+                    aria-label="{% if page == 'settings' %}Open settings sections{% else %}Open folders{% endif %}">
+                {% if page == 'settings' %}
+                    <i class="icon-settings-2"></i>
+                {% else %}
+                    <i class="icon-folders"></i>
+                {% endif %}
             </button>
             <div class="drawer-backdrop" @click="close()"></div>
         </div>

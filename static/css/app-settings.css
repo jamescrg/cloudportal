@@ -150,8 +150,9 @@ Profile Form
  Mobile Responsive
 ========================================================================== */
 
-@media (width <= 1000px) {
-  /* Section nav mobile: horizontal scroll */
+/* Below 992px the section nav is the side drawer, stacked (see the end of
+   this file); between 992px and 1000px the tab strip scrolls sideways. */
+@media (992px <= width <= 1000px) {
   .section-nav {
     -webkit-overflow-scrolling: touch;
     overflow-x: auto;
@@ -191,4 +192,50 @@ Profile Form
 
 #calendar-inbound-address {
   margin-right: 0.5rem;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* mobile: the section nav is the side drawer (drawer.css), stacked */
+/* ------------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+  .section-nav {
+    background: var(--background-section);
+    padding: 1rem 0;
+  }
+
+  .section-nav ul {
+    margin: 0;
+  }
+
+  .section-nav li {
+    display: block;
+    padding: 0;
+  }
+
+  .section-nav a {
+    display: block;
+    font-size: 1.1rem;
+    padding: 0.75rem 1.5rem;
+    top: 0;
+  }
+
+  .section-nav .active {
+    background: var(--selected-background);
+    border-radius: 0;
+  }
+
+  .section-nav .active a {
+    color: var(--selected-color);
+  }
+
+  .section-nav .active::before,
+  .section-nav .active::after {
+    display: none;
+  }
+
+  .section > .section-nav:first-child {
+    border-radius: 0;
+  }
 }
