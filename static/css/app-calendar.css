@@ -330,23 +330,70 @@
 }
 
 
+/* Agenda (list) view: the phone's view. The app's table rules zero the
+   cell padding, so it is put back here. */
+.fc .fc-list {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.fc .fc-list-table td {
+  padding: 0.5rem 0.75rem;
+}
+
+.fc .fc-list-day-cushion {
+  background: var(--background-control);
+  padding: 0.5rem 0.75rem;
+}
+
+.fc .fc-list-day-text,
+.fc .fc-list-day-side-text {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.fc .fc-list-event-time {
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.fc .fc-list-event-title a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.fc .fc-list-event-dot {
+  border-color: var(--border-dark);
+}
+
+.fc .fc-list-event:hover td {
+  background: var(--background-subnav);
+}
+
+.fc .fc-list-empty {
+  background: var(--background-light);
+  color: var(--color-muted);
+}
+
+
 /* ------------------------------------------------------------------------- */
 /* mobile */
 /* ------------------------------------------------------------------------- */
 
 @media (width <= 768px) {
+  /* Navigation, the month, and Today on one row */
   .fc .fc-toolbar {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .fc .fc-toolbar-chunk {
-    display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
   .fc .fc-toolbar-title {
     font-size: 1rem;
+  }
+
+  .fc .fc-list-day-cushion,
+  .fc .fc-list-table td {
+    padding: 0.5rem;
   }
 
   /* The grid is replaced by the list (events-calendar.js forces list view),

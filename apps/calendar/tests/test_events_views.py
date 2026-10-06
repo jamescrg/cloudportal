@@ -35,6 +35,15 @@ def test_list_partial_follows_the_saved_view(client):
     assertTemplateUsed(response, "calendar/list.html")
 
 
+def test_the_calendar_partial_is_served_whatever_the_saved_view(client):
+    client.post(reverse("calendar:view-mode", args=["list"]))
+
+    response = client.get(reverse("calendar:calendar"))
+
+    assertTemplateUsed(response, "calendar/calendar.html")
+    assert "fullcalendar-container" in response.content.decode()
+
+
 def test_unknown_view_mode_is_refused(client):
     assert client.post(reverse("calendar:view-mode", args=["week"])).status_code == 400
 

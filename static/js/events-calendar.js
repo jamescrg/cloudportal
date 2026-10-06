@@ -19,6 +19,40 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   }
 });
 
+// Phones get the grid's agenda view (listMonth) in place of both the
+// month grid, which is unusable at that width, and the table list, which
+// is not laid out for it.
+const PHONE_WIDTH = 768;
+
+function onPhone() {
+  return window.innerWidth <= PHONE_WIDTH;
+}
+
+// If a phone lands on the table (the saved view is the list), fetch the
+// calendar partial in its place; the saved view is left alone for the
+// desktop. The partial's x-init then builds the agenda.
+function preferAgendaOnPhone(container) {
+  if (!onPhone() || !window.htmx) {
+    return;
+  }
+  if (container && container.querySelector(".events-table")) {
+    window.htmx.ajax("GET", "/calendar/calendar/", {
+      target: "#" + CALENDAR_CONTAINER_ID,
+      swap: "innerHTML",
+    });
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  preferAgendaOnPhone(document.getElementById(CALENDAR_CONTAINER_ID));
+});
+
+document.body.addEventListener("htmx:afterSwap", (event) => {
+  if (event.detail.target.id === CALENDAR_CONTAINER_ID) {
+    preferAgendaOnPhone(event.detail.target);
+  }
+});
+
 // Track when we're intentionally switching views
 let viewSwitchPending = false;
 
@@ -61,35 +95,21 @@ document.addEventListener("alpine:init", () => {
     addUrl: "/calendar/add",
 
     initCalendar() {
-      // On mobile the FullCalendar grid is unusable, so render the list
-      // instead. Switch the saved view to "list" with htmx.ajax (the 204
-      // response's HX-Trigger: eventsViewChanged makes #events re-fetch
-      // list.html; the session then persists 'list', so later loads render it
-      // directly). The request is issued here rather than by clicking the
-      // hidden toggle button — that relied on htmx having already wired the
-      // button up, which races with this x-init and left the panel blank. If
-      // the toggle can't be found we fall through and build the grid, so
-      // events are never missing.
-      if (window.innerWidth <= 768) {
-        const listUrl = document
-          .querySelector('.view-toggle button[title="List View"]')
-          ?.getAttribute("hx-post");
-        if (listUrl) {
-          window.htmx.ajax("POST", listUrl, { swap: "none" });
-          return;
-        }
-      }
-
       const calendarEl = this.$el;
+      const phone = onPhone();
 
       this.calendar = new FullCalendar.Calendar(calendarEl, {
-        // Core settings
-        initialView: this.savedView(),
-        headerToolbar: {
-          left: "prev,next today",
-          center: "title",
-          right: "multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay",
-        },
+        // Core settings. A phone opens the month's agenda with a toolbar
+        // pared to navigation; wider screens get the full set of views.
+        initialView: phone ? "listMonth" : this.savedView(),
+        headerToolbar: phone
+          ? { left: "prev,next", center: "title", right: "today" }
+          : {
+              left: "prev,next today",
+              center: "title",
+              right: "multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay",
+            },
+        noEventsContent: "No events this month",
 
         // The year view: twelve mini months, three across. Its cells are
         // small, so fewer events show before a day collapses to "+N more".
@@ -133,7 +153,10 @@ document.addEventListener("alpine:init", () => {
         // every view switch, so it doubles as the persistence hook.
         datesSet: (info) => {
           this.applyViewHeight(info.view.type);
-          localStorage.setItem("calendar-view", info.view.type);
+          // The agenda is the phone's view, not a choice to carry over
+          if (!phone) {
+            localStorage.setItem("calendar-view", info.view.type);
+          }
         },
         windowResize: () => this.applyViewHeight(this.calendar.view.type),
 

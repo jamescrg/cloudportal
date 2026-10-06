@@ -65,6 +65,14 @@ def events_list(request):
 
 
 @login_required
+def events_calendar(request):
+    """The calendar partial whatever view the session holds. A phone asks
+    for it when the saved view is the list, since the grid's agenda view
+    reads better there than the table."""
+    return render(request, "calendar/calendar.html", toolbar_context(request))
+
+
+@login_required
 @require_POST
 def events_view_mode(request, mode):
     """Switch between the list and the calendar grid."""

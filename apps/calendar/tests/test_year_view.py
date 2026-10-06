@@ -12,15 +12,22 @@ CSS = Path(settings.BASE_DIR, "static/css/app-calendar.css").read_text()
 
 
 def test_the_toolbar_offers_the_year_view():
-    toolbar = re.search(r"right:\s*\"([^\"]+)\"", JS).group(1)
+    # The wide-screen toolbar; the phone's holds only Today
+    toolbars = re.findall(r"right:\s*\"([^\"]+)\"", JS)
+    views = [t for t in toolbars if "dayGridMonth" in t]
 
-    assert toolbar.split(",")[0] == "multiMonthYear"
+    assert views and views[0].split(",")[0] == "multiMonthYear"
 
 
 def test_the_year_view_is_remembered():
     valid = re.search(r"const valid = \[([^\]]+)\]", JS).group(1)
 
     assert "multiMonthYear" in valid
+
+
+def test_a_phone_opens_the_months_agenda():
+    assert 'phone ? "listMonth" : this.savedView()' in JS
+    assert '"/calendar/calendar/"' in JS
 
 
 def test_the_month_views_cell_height_is_scoped_to_the_month_view():
