@@ -13,9 +13,9 @@
             </a>
         </div>
         <div class="modal-body">
-            {% if not google_connected %}
+            {% if sync_on and not google_connected %}
                 <p class="event-note">
-                    Not connected to a Google account. The event will be kept here only; connect one in Settings to have it posted to Google Calendar.
+                    Google Calendar sync is on, but no Google account is connected. The event will be kept here only until one is connected in Settings.
                 </p>
             {% endif %}
             {% if edit and event.detached_from_google %}

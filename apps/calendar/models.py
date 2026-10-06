@@ -20,6 +20,9 @@ class Event(TimestampMixin, models.Model):
             In-person)
         location (str): a meeting link or an address
         google_id (str): the event's id on Google Calendar, when it is there
+        ical_uid (str): the identifier of the invitation the event came from,
+            so an updated or cancelled invitation finds it again
+        ical_sequence (int): the invitation's revision; an older one is stale
         google_synced_at (datetime): when the event was last pushed to Google
     """
 
@@ -54,6 +57,8 @@ class Event(TimestampMixin, models.Model):
     # event removed on Google and kept here (see detached_from_google); it is
     # never pushed again.
     google_synced_at = models.DateTimeField(null=True, blank=True)
+    ical_uid = models.CharField(max_length=255, blank=True, null=True)
+    ical_sequence = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.description} : {self.id}"
@@ -78,6 +83,7 @@ class Event(TimestampMixin, models.Model):
         db_table = "app_event"
         indexes = [
             models.Index(fields=["user", "date"]),
+            models.Index(fields=["user", "ical_uid"]),
         ]
 
 

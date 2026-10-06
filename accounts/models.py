@@ -19,6 +19,16 @@ class CustomUser(AbstractUser):
     email_reminders = models.BooleanField(default=False)
     notification_email = models.EmailField(blank=True, default="")
     google_credentials = models.TextField(null=True, blank=True)
+    # Whether the calendar syncs with Google Calendar. Separate from linking
+    # a Google account, which contacts and the home page also use.
+    calendar_sync = models.BooleanField(default=False)
+    # Forwarded invitations: the unguessable part of the address the user
+    # forwards them to, and the addresses (besides their own) they forward
+    # from. One address per line.
+    calendar_inbound_token = models.CharField(
+        max_length=32, blank=True, null=True, unique=True
+    )
+    calendar_forward_from = models.TextField(blank=True, default="")
     extension_token = models.CharField(
         max_length=64, blank=True, null=True, unique=True
     )

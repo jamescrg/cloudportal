@@ -27,7 +27,8 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 ### Calendar
 - Year, month, week, and day views with drag-and-drop rescheduling, plus a sortable list view
 - Events carry a type (Zoom, Virtual, Phone, In-person) and a meeting link or address, and can run over several days
-- Two-way sync with Google Calendar: saves push immediately, and `sync_calendar` (via cron) pulls changes and retries failed pushes
+- Optional two-way sync with Google Calendar (switched on under Settings → Calendar): saves push immediately, and `sync_calendar` (via cron) pulls changes and retries failed pushes
+- Forward a calendar invitation to your own forwarding address and it is posted as an event; forwarded updates and cancellations follow (see Forwarding invitations)
 
 ### Tasks
 - Folder-based task lists with due dates and optional due times
@@ -197,3 +198,15 @@ pytest
 ## License
 
 Free and open source. Self-host it, customize it, make it yours.
+
+## Forwarding invitations
+
+Invitations are received through a [Mailgun inbound route](https://documentation.mailgun.com/docs/mailgun/user-manual/receive-forward-store/), on the same Mailgun account the app sends from.
+
+1. Use a domain Mailgun already receives for: the sending domain works if its MX records point at `mxa.mailgun.org` and `mxb.mailgun.org`, as `mail.cloudportal.link` does. Otherwise add a receiving domain in Mailgun and add those MX records at the DNS host.
+2. Add a route that matches forwarding addresses on that domain and forwards to the webhook:
+   `match_recipient("^calendar-.*@mail\.cloudportal\.link$")` → `forward("https://cloudportal.link/calendar/inbound/")`.
+3. Set two variables in `.env`: `CALENDAR_INBOUND_DOMAIN=mail.cloudportal.link` and `MAILGUN_WEBHOOK_SIGNING_KEY=…` (Mailgun → Settings → API Security → HTTP webhook signing key). Posts without a valid signature are refused.
+4. Under Settings → Calendar, create a forwarding address and list any addresses you forward from besides your account address.
+
+Each forward gets a short email back saying what was posted, updated, or removed, or why nothing was.

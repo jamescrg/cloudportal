@@ -3,12 +3,13 @@ import json
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import requests
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from apps.calendar import sync as calendar_sync
+from apps.calendar import invitations, sync as calendar_sync
 from apps.finance.forms import CryptoSymbolForm, SecuritiesSymbolForm
 from apps.finance.models import CryptoSymbol, SecuritiesSymbol
 from apps.notes.models import Note
@@ -359,6 +360,50 @@ def tasks_settings_index(request):
         "subapp": "tasks",
     }
     return render(request, "settings/tasks.html", context)
+
+
+@login_required
+def calendar_settings_index(request):
+    """Show the Calendar settings tab."""
+    context = {
+        "page": "settings",
+        "subapp": "calendar",
+        "inbound_domain": settings.CALENDAR_INBOUND_DOMAIN,
+        "inbound_address": invitations.inbound_address(request.user),
+    }
+    return render(request, "settings/calendar.html", context)
+
+
+@login_required
+def calendar_options(request, option, value):
+    """Set calendar-related options on the user."""
+    user = request.user
+    if option == "google_sync" and value in ("on", "off"):
+        user.calendar_sync = value == "on"
+        user.save(update_fields=["calendar_sync"])
+        # Turning sync on adopts the events kept here so far, as connecting
+        # a Google account does.
+        if user.calendar_sync:
+            calendar_sync.reconcile(user)
+    # A new forwarding address retires the old one at once
+    if option == "inbound_address" and value == "new":
+        user.calendar_inbound_token = invitations.new_token()
+        user.save(update_fields=["calendar_inbound_token"])
+    if option == "inbound_address" and value == "clear":
+        user.calendar_inbound_token = None
+        user.save(update_fields=["calendar_inbound_token"])
+    return redirect("/settings/calendar/")
+
+
+@login_required
+@require_POST
+def calendar_forward_from(request):
+    """Save the addresses, besides the user's own, that invitations may be
+    forwarded from."""
+    user = request.user
+    user.calendar_forward_from = request.POST.get("calendar_forward_from", "").strip()
+    user.save(update_fields=["calendar_forward_from"])
+    return redirect("/settings/calendar/")
 
 
 @login_required

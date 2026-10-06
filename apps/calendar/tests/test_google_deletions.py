@@ -42,6 +42,7 @@ class FakeGoogle:
 def remote(monkeypatch, user):
     fake = FakeGoogle()
     user.google_credentials = '{"token": "x"}'
+    user.calendar_sync = True
     user.save()
     monkeypatch.setattr(google, "build_service", lambda user: fake)
     return fake

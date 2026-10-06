@@ -16,4 +16,5 @@ urlpatterns = [
     path("filter/", views.events_filter, name="filter"),
     path("filter/default", views.events_filter_default, name="filter-default"),
     path("filter/sort/<str:order>", views.events_filter_sort, name="filter-sort"),
+    path("inbound/", views.calendar_inbound, name="inbound"),
 ]

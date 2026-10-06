@@ -13,7 +13,7 @@ class Command(BaseCommand):
         self.stdout.write("Starting Google Calendar sync...")
 
         users = (
-            CustomUser.objects.filter(is_active=True)
+            CustomUser.objects.filter(is_active=True, calendar_sync=True)
             .exclude(google_credentials__isnull=True)
             .exclude(google_credentials="")
         )

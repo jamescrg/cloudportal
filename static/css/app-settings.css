@@ -170,3 +170,25 @@ Profile Form
     padding-bottom: 0;
   }
 }
+
+
+
+/* ------------------------------------------------------------------------- */
+/* calendar: forwarding addresses */
+/* ------------------------------------------------------------------------- */
+
+.calendar-forward-from {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  max-width: 24rem;
+}
+
+.calendar-forward-from .btn {
+  align-self: flex-start;
+}
+
+#calendar-inbound-address {
+  margin-right: 0.5rem;
+}

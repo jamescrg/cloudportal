@@ -44,6 +44,7 @@ class FakeGoogle:
 def remote(monkeypatch, user):
     fake = FakeGoogle()
     user.google_credentials = '{"token": "x"}'
+    user.calendar_sync = True
     user.save()
     monkeypatch.setattr(google, "build_service", lambda user: fake)
     return fake
@@ -56,6 +57,16 @@ def test_not_connected_means_no_push(user):
     event.refresh_from_db()
     assert event.google_id is None
     assert event.google_synced_at is None
+
+
+def test_sync_turned_off_means_no_push_even_when_connected(remote, user):
+    user.calendar_sync = False
+    user.save()
+    event = Event.objects.create(user=user, date=date(2030, 3, 4), description="Call")
+
+    assert sync.push_event(event) == "skipped"
+    assert sync.reconcile(user) == {"pushed": 0, "deleted": 0, "failed": 0}
+    assert remote.sent == []
 
 
 def test_first_push_creates_and_marks_synced(remote, user):

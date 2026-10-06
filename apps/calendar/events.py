@@ -59,6 +59,23 @@ def filter_is_active(request):
     return saved_filter(request) != DEFAULT_FILTER
 
 
+def fit_description(text):
+    """Cut a title from outside (Google, an invitation) to what the
+    description column holds. The cut falls on a word boundary where the
+    text has one."""
+    from apps.calendar.models import Event
+
+    limit = Event._meta.get_field("description").max_length
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    if not text[limit].isspace():
+        whole_words = cut.rpartition(" ")[0].rstrip()
+        if whole_words:
+            cut = whole_words
+    return cut.rstrip()
+
+
 def default_end_time(start_time):
     """The end time for an event saved with a start and no end: an hour
     later, kept on the same day. An event has one date, so an end past

@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from email.utils import parseaddr
 from logging import getLogger
 
 from django.contrib.auth.decorators import login_required
@@ -7,9 +8,10 @@ from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
 
-import apps.calendar.google as google
+import apps.calendar.invitations as invitations
 import apps.calendar.sync as sync
 from apps.calendar.forms import EventForm
 from apps.calendar.models import Event
@@ -185,7 +187,8 @@ def events_add(request):
         "page": "calendar",
         "edit": False,
         "action": "/calendar/add",
-        "google_connected": google.check_credentials(request.user),
+        "sync_on": request.user.calendar_sync,
+        "google_connected": bool(request.user.google_credentials),
         "form": form,
     }
     return render(request, "calendar/form.html", context)
@@ -207,7 +210,8 @@ def events_edit(request, id):
         "edit": True,
         "action": f"/calendar/{id}/edit",
         "event": event,
-        "google_connected": google.check_credentials(request.user),
+        "sync_on": request.user.calendar_sync,
+        "google_connected": bool(request.user.google_credentials),
         "form": form,
     }
     return render(request, "calendar/form.html", context)
@@ -356,3 +360,60 @@ def events_quick_update(request, id):
     event.save()
 
     return _event_change_response(sync.push_event(event))
+
+
+@csrf_exempt
+@require_POST
+def calendar_inbound(request):
+    """Mailgun's post of a message sent to a user's forwarding address.
+
+    200 takes the message. 406 refuses it for good (Mailgun does not retry
+    it): an address or sender that is not a user's, or a message with no
+    invitation in it. A post without Mailgun's signature is refused outright.
+    """
+    if not invitations.signature_is_valid(request.POST):
+        return HttpResponse("Bad signature", status=403)
+
+    user = invitations.user_for_recipient(request.POST.get("recipient", ""))
+    if user is None:
+        logger.info("Forwarded invitation to an unknown address was dropped")
+        return HttpResponse("Unknown address", status=406)
+
+    sender = parseaddr(request.POST.get("from") or request.POST.get("sender", ""))[1]
+    if sender.lower() not in invitations.allowed_senders(user):
+        logger.info("Forwarded invitation from %s was dropped", sender)
+        return HttpResponse("Sender not allowed", status=406)
+
+    subject = request.POST.get("subject", "").strip() or "(no subject)"
+    text = invitations.calendar_text(request)
+    invitation = None
+    if text is not None:
+        try:
+            invitation = invitations.parse_invitation(text)
+        except Exception:
+            logger.exception("Forwarded invitation could not be read")
+    if invitation is None:
+        invitations.notify(
+            user,
+            "Calendar: invitation not posted",
+            f'The message "{subject}" had no calendar invitation attached, '
+            "so nothing was posted. Forward the invitation itself, with its "
+            "attachment, rather than a copy of its text.",
+        )
+        return HttpResponse("No invitation", status=406)
+
+    outcome, event = invitations.post_invitation(user, invitation)
+    notes = {
+        "created": ("Calendar: invitation posted", "Posted: {}."),
+        "updated": ("Calendar: invitation updated", "Updated: {}."),
+        "cancelled": ("Calendar: invitation cancelled", "Removed: {}."),
+        "stale": (
+            "Calendar: invitation not posted",
+            "An older version of an invitation already posted arrived, so it "
+            "was left as it is: {}.",
+        ),
+    }
+    if outcome in notes:
+        note_subject, note = notes[outcome]
+        invitations.notify(user, note_subject, note.format(invitations.describe(event)))
+    return HttpResponse("OK")

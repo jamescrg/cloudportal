@@ -44,8 +44,9 @@ def best_effort(default):
 
 
 def check_credentials(user):
-    """Whether the user has connected a Google account."""
-    return bool(user.google_credentials)
+    """Whether the user's events sync with Google Calendar: sync is turned
+    on in Settings and a Google account is connected."""
+    return bool(user.calendar_sync and user.google_credentials)
 
 
 def build_service(user):
@@ -375,23 +376,10 @@ def _detach(event):
 
 
 def _fit_description(text):
-    """Cut a description taken from a Google title to what the column holds.
+    """A title from Google, cut to what the description column holds."""
+    from apps.calendar.events import fit_description
 
-    Google's title is unbounded; saving one longer than the column failed
-    that event's pull on every sync. The cut falls on a word boundary where
-    the text has one.
-    """
-    from apps.calendar.models import Event
-
-    limit = Event._meta.get_field("description").max_length
-    if len(text) <= limit:
-        return text
-    cut = text[:limit]
-    if not text[limit].isspace():
-        whole_words = cut.rpartition(" ")[0].rstrip()
-        if whole_words:
-            cut = whole_words
-    return cut.rstrip()
+    return fit_description(text)
 
 
 def _parse_google_event(google_event):

@@ -284,6 +284,21 @@ urlpatterns = [
         settings.personal_profile,
         name="personal-profile-action",
     ),
+    path(
+        "settings/calendar/",
+        settings.calendar_settings_index,
+        name="settings-calendar",
+    ),
+    path(
+        "settings/calendar-options/<str:option>/<str:value>",
+        settings.calendar_options,
+        name="settings-calendar-options",
+    ),
+    path(
+        "settings/calendar/forward-from",
+        settings.calendar_forward_from,
+        name="settings-calendar-forward-from",
+    ),
     path("settings/tasks/", settings.tasks_settings_index, name="settings-tasks"),
     path(
         "settings/tasks-options/<str:option>/<str:value>",

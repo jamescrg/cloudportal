@@ -282,6 +282,13 @@ TWILIO_PHONE_NUMBER = env("TWILIO_PHONE_NUMBER", default="")
 SMS_RECIPIENT = env("SMS_RECIPIENT", default="")
 
 
+# Forwarded calendar invitations arrive through a Mailgun inbound route:
+# the domain the forwarding addresses are on (post-<token>@<domain>), and
+# the key Mailgun signs its webhook posts with. Both empty means the
+# feature is off.
+CALENDAR_INBOUND_DOMAIN = env("CALENDAR_INBOUND_DOMAIN", default="")
+MAILGUN_WEBHOOK_SIGNING_KEY = env("MAILGUN_WEBHOOK_SIGNING_KEY", default="")
+
 # set cookies (sessions) to last for two months
 # default is two weeks, multiplying by four to get two months
 SESSION_COOKIE_AGE = 1209600 * 4

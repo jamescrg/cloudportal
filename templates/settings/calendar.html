@@ -1,0 +1,80 @@
+{% extends "settings/main.html" %}
+{% block subcontent %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Google Calendar Sync</h1>
+        </div>
+        <p class="card-text">
+            When sync is on, events saved here are posted to the connected Google account's calendar, and changes made on Google are pulled back. When it is off, the calendar is kept here only.
+        </p>
+        <table class="options">
+            <tr>
+                <td class="setting-label">Sync:</td>
+                <td class="setting-control">
+                    <a class="btn {% if user.calendar_sync %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-calendar-options' option='google_sync' value='on' %}">On</a>
+                    <a class="btn {% if not user.calendar_sync %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-calendar-options' option='google_sync' value='off' %}">Off</a>
+                </td>
+            </tr>
+        </table>
+        {% if user.calendar_sync and not user.google_credentials %}
+            <p class="card-text">
+                Sync is on, but no Google account is connected. <a href="{% url 'settings-google' %}">Connect one</a> to start syncing.
+            </p>
+        {% endif %}
+    </div>
+    <div class="card">
+        <div class="card-title">
+            <h1>Forward Invitations</h1>
+        </div>
+        <p class="card-text">
+            Forward a calendar invitation to your forwarding address and it is posted here as an event. Forward a changed or cancelled invitation and the event follows. Only mail from your own address, or one listed below, is accepted.
+        </p>
+        {% if not inbound_domain %}
+            <p class="card-text">Forwarding is not set up on this server yet.</p>
+        {% else %}
+            <table class="options">
+                <tr>
+                    <td class="setting-label">Address:</td>
+                    <td class="setting-control">
+                        {% if inbound_address %}
+                            <code id="calendar-inbound-address">{{ inbound_address }}</code>
+                            <button class="btn btn-secondary copy-btn"
+                                    type="button"
+                                    data-copy-target="#calendar-inbound-address"
+                                    title="Copy">
+                                <i class="icon-copy"></i>
+                            </button>
+                            <a class="btn btn-secondary"
+                               href="{% url 'settings-calendar-options' option='inbound_address' value='new' %}">New address</a>
+                            <a class="btn btn-secondary"
+                               href="{% url 'settings-calendar-options' option='inbound_address' value='clear' %}">Remove</a>
+                        {% else %}
+                            <a class="btn btn-primary"
+                               href="{% url 'settings-calendar-options' option='inbound_address' value='new' %}">Create address</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+            <form class="calendar-forward-from"
+                  method="post"
+                  action="{% url 'settings-calendar-forward-from' %}">
+                {% csrf_token %}
+                <label for="id_calendar_forward_from">Also accept forwards from</label>
+                <textarea id="id_calendar_forward_from"
+                          name="calendar_forward_from"
+                          rows="3"
+                          placeholder="One address per line">{{ user.calendar_forward_from }}</textarea>
+                <p class="form-text">
+                    Your account address
+                    {% if user.email %}
+                        , {{ user.email }},
+                    {% endif %}
+                    is always accepted.
+                </p>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        {% endif %}
+    </div>
+{% endblock subcontent %}
