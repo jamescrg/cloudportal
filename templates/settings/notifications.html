@@ -4,9 +4,12 @@
         <div class="card-title">
             <h1>Notifications</h1>
         </div>
+        <p class="card-text">
+            Notifications for events and tasks are set on each one. The daily digest of past-due tasks is switched on here.
+        </p>
         <table class="options">
             <tr>
-                <td class="setting-label">Email Reminders:</td>
+                <td class="setting-label">Past Due Digest:</td>
                 <td class="setting-control">
                     {% if user.email_reminders %}
                         <a class="btn btn-primary"

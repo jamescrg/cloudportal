@@ -93,5 +93,6 @@ class Command(BaseCommand):
             status=0,
             due_date=today,
             due_time=template.due_time,
+            time_zone=template.time_zone,
             parent_task=template,
-        )
+        ).copy_reminders_from(template)

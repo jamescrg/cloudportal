@@ -36,7 +36,8 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 - Folder-based task lists with due dates and optional due times
 - Recurring tasks (daily, weekly, monthly, yearly) with automatic instance generation
 - Share task folders with other users for collaborative lists
-- Email reminders for overdue and upcoming tasks (via cron)
+- Email notifications per task, set on the task as "N minutes/hours/days/weeks before" like event notifications; recurring tasks pass theirs on to each instance. A daily past-due digest can be switched on in Settings. Both are sent by `send_task_reminders` via cron
+- Time zone aware due times: a task with a due time is a fixed moment, shown and notified where you are now
 - Quick-filter for tasks due soon; archive completed tasks
 
 ### Notes
@@ -177,7 +178,7 @@ See `.env.example` for the full list. Key variables:
 
 ```
 0 1 * * * /path/to/.venv/bin/python /path/to/manage.py create_recurring_tasks
-*/15 * * * * /path/to/.venv/bin/python /path/to/manage.py send_task_reminders
+*/5 * * * * /path/to/.venv/bin/python /path/to/manage.py send_task_reminders
 */5 * * * * /path/to/.venv/bin/python /path/to/manage.py send_event_reminders
 ```
 

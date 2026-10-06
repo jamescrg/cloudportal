@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
@@ -224,11 +225,17 @@ def events_edit(request, id):
 
 def _reminders_context(event, reminder_form=None):
     """The Notifications section of the edit form: the event's reminders
-    and the row that adds one."""
+    and the row that adds one (components/reminders.html)."""
+    reminders = list(event.reminders.all())
+    for reminder in reminders:
+        reminder.delete_url = reverse(
+            "calendar:reminder-delete", args=[event.id, reminder.id]
+        )
     return {
         "event": event,
-        "reminders": event.reminders.all(),
+        "reminders": reminders,
         "reminder_form": reminder_form or ReminderForm(event=event),
+        "reminder_add_url": reverse("calendar:reminder-add", args=[event.id]),
     }
 
 
@@ -243,7 +250,7 @@ def reminder_add(request, id):
         reminder.event = event
         reminder.save()
         form = None
-    return render(request, "calendar/reminders.html", _reminders_context(event, form))
+    return render(request, "components/reminders.html", _reminders_context(event, form))
 
 
 @login_required
@@ -252,7 +259,7 @@ def reminder_delete(request, id, reminder_id):
     """Remove a notification from the event and re-render the section."""
     event = _event_for_user(id, request.user)
     EventReminder.objects.filter(event=event, pk=reminder_id).delete()
-    return render(request, "calendar/reminders.html", _reminders_context(event))
+    return render(request, "components/reminders.html", _reminders_context(event))
 
 
 @login_required

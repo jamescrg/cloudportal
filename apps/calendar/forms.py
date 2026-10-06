@@ -1,6 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
+from apps.common.forms import ReminderFormBase
+
 from .models import Event, EventReminder
 
 # The longest description the column holds. The field refuses anything
@@ -72,45 +74,13 @@ class EventForm(forms.ModelForm):
         return cleaned_data
 
 
-class ReminderForm(forms.ModelForm):
-    """One notification for an event: an amount, a unit, and for an all-day
-    event the time of day. The event decides which units are offered: an
-    all-day event counts back in days or weeks only."""
+class ReminderForm(ReminderFormBase):
+    """One notification for an event. A timed event counts back from its
+    start; an all-day event counts back in days or weeks to a time of day."""
 
-    use_required_attribute = False
-
-    class Meta:
+    class Meta(ReminderFormBase.Meta):
         model = EventReminder
-        fields = ("amount", "unit", "time")
-        widgets = {
-            "amount": forms.NumberInput(attrs={"min": 0}),
-            "time": forms.TimeInput(attrs={"type": "time"}),
-        }
 
     def __init__(self, *args, event, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, timed=bool(event.start_time), **kwargs)
         self.event = event
-        self.all_day = not event.start_time
-        if self.all_day:
-            self.fields["unit"].choices = [
-                choice
-                for choice in EventReminder.UNIT_CHOICES
-                if choice[0] in EventReminder.ALL_DAY_UNITS
-            ]
-            self.initial.setdefault("amount", 1)
-            self.initial.setdefault("unit", "days")
-            self.initial.setdefault("time", EventReminder.DEFAULT_TIME)
-        else:
-            self.initial.setdefault("amount", 30)
-            self.initial.setdefault("unit", "minutes")
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if self.all_day:
-            if cleaned_data.get("unit") not in EventReminder.ALL_DAY_UNITS:
-                self.add_error("unit", "An all-day event counts back in days or weeks.")
-            if not cleaned_data.get("time"):
-                cleaned_data["time"] = EventReminder.DEFAULT_TIME
-        else:
-            cleaned_data["time"] = None
-        return cleaned_data

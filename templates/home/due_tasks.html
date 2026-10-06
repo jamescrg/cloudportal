@@ -28,8 +28,8 @@
                         <a href="{% url 'tasks-edit' task.id %}">{{ task.title }}</a>
                     </div>
                     <div class="tasks-due">
-                        {{ task.due_date|date:"M j" }}
-                        {% if task.due_time %}{{ task.due_time|time:"g:i A" }}{% endif %}
+                        {{ task.shown.due_date|date:"M j" }}
+                        {% if task.shown.due_time %}{{ task.shown.due_time|time:"g:i A" }}{% endif %}
                     </div>
                 </div>
                 {% if task.parent_task %}

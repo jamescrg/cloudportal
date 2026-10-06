@@ -21,8 +21,8 @@
             {% if task.completed_date %}
                 <span class="tasks-secondary">Done: {{ task.completed_date|date:"M j" }}</span>
             {% elif task.due_date %}
-                <span class="tasks-secondary">Due: {{ task.due_date|date:"M j" }}
-                    {% if task.due_time %}{{ task.due_time|time:"g:i A" }}{% endif %}
+                <span class="tasks-secondary">Due: {{ task.shown.due_date|date:"M j" }}
+                    {% if task.shown.due_time %}{{ task.shown.due_time|time:"g:i A" }}{% endif %}
                 </span>
             {% elif task.parent_task %}
                 <span class="tasks-secondary">

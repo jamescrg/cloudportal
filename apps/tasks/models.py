@@ -1,7 +1,11 @@
+from datetime import datetime
+from types import SimpleNamespace
+
+from django.conf import settings
 from django.db import models
 
 from accounts.models import CustomUser
-from apps.common.models import TimestampMixin
+from apps.common.models import ReminderMixin, TimestampMixin, zone_or_default
 from apps.folders.models import Folder
 
 
@@ -35,6 +39,8 @@ class Task(TimestampMixin, models.Model):
     completed_date = models.DateField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
     due_time = models.TimeField(blank=True, null=True)
+    # The zone the due date and time are in, so together they name a moment
+    time_zone = models.CharField(max_length=64, default=settings.TIME_ZONE)
     reminder_sent_date = models.DateField(blank=True, null=True)
 
     # Recurrence fields
@@ -56,5 +62,66 @@ class Task(TimestampMixin, models.Model):
     def __str__(self):
         return f"{self.title} : {self.id}"
 
+    @property
+    def due_at(self):
+        """The moment a task with a due time is due; None without one."""
+        if not self.due_date or not self.due_time:
+            return None
+        return datetime.combine(
+            self.due_date, self.due_time, tzinfo=zone_or_default(self.time_zone)
+        )
+
+    def in_zone(self, time_zone):
+        """The due date and time as seen from a zone."""
+        if not self.due_at:
+            return SimpleNamespace(due_date=self.due_date, due_time=self.due_time)
+        local = self.due_at.astimezone(zone_or_default(time_zone))
+        return SimpleNamespace(due_date=local.date(), due_time=local.time())
+
+    @property
+    def shown(self):
+        """The due date and time where the task's owner is now."""
+        if not self.due_at:
+            return SimpleNamespace(due_date=self.due_date, due_time=self.due_time)
+        return self.in_zone(self.user.time_zone)
+
+    def copy_reminders_from(self, template):
+        """Give this task the notifications its recurring template has."""
+        for reminder in template.reminders.all():
+            self.reminders.create(
+                amount=reminder.amount, unit=reminder.unit, time=reminder.time
+            )
+
     class Meta:
         db_table = "app_task"
+
+
+class TaskReminder(ReminderMixin):
+    """A notification for a task (see ReminderMixin). A task with a due
+    time counts back from that moment; one with only a due date counts
+    back in days or weeks to a time of day."""
+
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="reminders")
+
+    class Meta(ReminderMixin.Meta):
+        db_table = "app_task_reminder"
+
+    @property
+    def target(self):
+        return self.task
+
+    @property
+    def target_id(self):
+        return self.task_id
+
+    @property
+    def target_user(self):
+        return self.task.user
+
+    @property
+    def target_start_at(self):
+        return self.task.due_at
+
+    @property
+    def target_date(self):
+        return self.task.due_date

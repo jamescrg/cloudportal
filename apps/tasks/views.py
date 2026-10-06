@@ -4,13 +4,16 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods, require_POST
 
 from accounts.models import CustomUser
 from apps.folders.folders import get_folders_for_page, get_task_folders, select_folder
 from apps.folders.models import Folder
 from apps.management.pagination import CustomPaginator
+from apps.tasks import reminders
 from apps.tasks.filter import TasksFilter
-from apps.tasks.forms import TaskForm
+from apps.tasks.forms import TaskForm, TaskReminderForm
 from apps.tasks.models import Task
 
 
@@ -189,6 +192,7 @@ def edit(request, id):
         if form.is_valid():
             task = form.save(commit=False)
             task.user = user
+            task.time_zone = user.time_zone
             task.title = task.title[0].upper() + task.title[1:]
             recurrence = form.cleaned_data.get("recurrence")
 
@@ -199,6 +203,7 @@ def edit(request, id):
                 parent_task.title = task.title
                 parent_task.priority = task.priority
                 parent_task.due_time = task.due_time
+                parent_task.time_zone = task.time_zone
                 if recurrence:
                     parent_task.recurrence_type = recurrence
                     if task.due_date:
@@ -255,8 +260,9 @@ def edit(request, id):
                         status=0,
                         due_date=task.due_date,
                         due_time=task.due_time,
+                        time_zone=task.time_zone,
                         parent_task=task,
-                    )
+                    ).copy_reminders_from(task)
                     task.last_generated = date.today()
                     task.save(update_fields=["last_generated"])
 
@@ -272,6 +278,7 @@ def edit(request, id):
                         latest_instance.title = task.title
                         latest_instance.priority = task.priority
                         latest_instance.due_time = task.due_time
+                        latest_instance.time_zone = task.time_zone
                         latest_instance.save()
 
         return redirect("tasks")
@@ -504,6 +511,7 @@ def task_form(request, id):
         if form.is_valid():
             task = form.save(commit=False)
             task.user = user
+            task.time_zone = user.time_zone
             task.title = task.title[0].upper() + task.title[1:]
             recurrence = form.cleaned_data.get("recurrence")
 
@@ -520,6 +528,7 @@ def task_form(request, id):
                 parent_task.title = task.title
                 parent_task.priority = task.priority
                 parent_task.due_time = task.due_time
+                parent_task.time_zone = task.time_zone
                 if recurrence:
                     parent_task.recurrence_type = recurrence
                     if task.due_date:
@@ -570,8 +579,9 @@ def task_form(request, id):
                         status=0,
                         due_date=task.due_date,
                         due_time=task.due_time,
+                        time_zone=task.time_zone,
                         parent_task=task,
-                    )
+                    ).copy_reminders_from(task)
                     task.last_generated = date.today()
                     task.save(update_fields=["last_generated"])
                 elif task.is_recurring and was_recurring:
@@ -585,6 +595,7 @@ def task_form(request, id):
                         latest_instance.title = task.title
                         latest_instance.priority = task.priority
                         latest_instance.due_time = task.due_time
+                        latest_instance.time_zone = task.time_zone
                         latest_instance.save()
 
             return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
@@ -592,8 +603,13 @@ def task_form(request, id):
         # Form validation failed - re-render form with errors
 
     else:
-        # GET request - display the form
-        form = TaskForm(instance=task, use_required_attribute=False)
+        # GET request - display the form, its due date and time as seen
+        # from where the user is now
+        form = TaskForm(
+            instance=task,
+            initial=vars(task.in_zone(user.time_zone)),
+            use_required_attribute=False,
+        )
 
         if task.parent_task:
             form.fields["recurrence"].initial = task.parent_task.recurrence_type
@@ -605,8 +621,52 @@ def task_form(request, id):
         "task": task,
         "form": form,
         "folders": get_folders_for_page(request, "tasks"),
-    }
+    } | _reminders_context(task)
     return render(request, "tasks/modal-form.html", context)
+
+
+def _reminders_context(task, reminder_form=None):
+    """The Notifications section of the task form (components/reminders.html).
+    A task needs a due date before it can have one."""
+    task_reminders = list(task.reminders.all())
+    for reminder in task_reminders:
+        reminder.delete_url = reverse(
+            "tasks-reminder-delete", args=[task.id, reminder.id]
+        )
+    if task.due_date:
+        form = reminder_form or TaskReminderForm(task=task)
+        note = ""
+    else:
+        form = None
+        note = "Set a due date to add notifications."
+    return {
+        "reminders": task_reminders,
+        "reminder_form": form,
+        "reminder_add_url": reverse("tasks-reminder-add", args=[task.id]),
+        "reminders_note": note,
+    }
+
+
+@login_required
+@require_POST
+def reminder_add(request, id):
+    """Add a notification to the task and re-render the section."""
+    task = get_object_or_404(Task, pk=id, user=request.user)
+    form = TaskReminderForm(request.POST, task=task)
+    if task.due_date and form.is_valid():
+        data = form.cleaned_data
+        reminders.add_reminder(task, data["amount"], data["unit"], data["time"])
+        form = None
+    return render(request, "components/reminders.html", _reminders_context(task, form))
+
+
+@login_required
+@require_http_methods(["POST", "DELETE"])
+def reminder_delete(request, id, reminder_id):
+    """Remove a notification from the task and re-render the section."""
+    task = get_object_or_404(Task, pk=id, user=request.user)
+    reminders.remove_reminder(task, reminder_id)
+    return render(request, "components/reminders.html", _reminders_context(task))
 
 
 @login_required
@@ -644,8 +704,9 @@ def status_htmx(request, id):
                     status=0,
                     due_date=date.today(),
                     due_time=parent.due_time,
+                    time_zone=parent.time_zone,
                     parent_task=parent,
-                )
+                ).copy_reminders_from(parent)
                 parent.last_generated = date.today()
                 parent.save(update_fields=["last_generated"])
 

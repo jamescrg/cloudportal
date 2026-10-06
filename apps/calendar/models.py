@@ -1,29 +1,21 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime
 from types import SimpleNamespace
-from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 from accounts.models import CustomUser
-from apps.common.models import TimestampMixin
+from apps.common.models import ReminderMixin, TimestampMixin, is_zone, zone_or_default
 
-
-def zone_or_default(name):
-    """The zone of that name, or the app's when the name is not one."""
-    try:
-        return ZoneInfo(name or settings.TIME_ZONE)
-    except (ValueError, KeyError, OSError):
-        return ZoneInfo(settings.TIME_ZONE)
-
-
-def is_zone(name):
-    try:
-        ZoneInfo(name)
-    except (ValueError, KeyError, OSError, TypeError):
-        return False
-    return bool(name)
+__all__ = [
+    "Event",
+    "EventReminder",
+    "CalendarSyncState",
+    "PendingGoogleDeletion",
+    "is_zone",
+    "zone_or_default",
+]
 
 
 class Event(TimestampMixin, models.Model):
@@ -152,74 +144,33 @@ class Event(TimestampMixin, models.Model):
         ]
 
 
-class EventReminder(models.Model):
-    """A notification for an event, emailed some time before it.
-
-    Attributes:
-        event (int): the event the notification is for
-        amount (int): how many of the unit before the event
-        unit (str): minutes, hours, days or weeks
-        time (time): for an all-day event, the time of day the notification
-            goes out; ignored for a timed event, which counts back from
-            its start time
-        sent_for (datetime): the moment the notification was last sent for.
-            It is compared with the moment it is now due, so an event that
-            moves is notified again, and one that does not is notified once.
-    """
-
-    UNIT_CHOICES = [
-        ("minutes", "minutes"),
-        ("hours", "hours"),
-        ("days", "days"),
-        ("weeks", "weeks"),
-    ]
-    ALL_DAY_UNITS = ("days", "weeks")
-    DEFAULT_TIME = time(9, 0)
+class EventReminder(ReminderMixin):
+    """A notification for an event (see ReminderMixin)."""
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="reminders")
-    amount = models.PositiveIntegerField(default=0)
-    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default="minutes")
-    time = models.TimeField(null=True, blank=True)
-    sent_for = models.DateTimeField(null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.describe()} : {self.event_id}"
-
-    @property
-    def offset(self):
-        return timedelta(**{self.unit: self.amount})
-
-    @property
-    def fire_at(self):
-        """When the notification goes out, in the app's time zone.
-
-        A timed event counts back from its start, a fixed moment. An all-day
-        event counts back whole days from its date and goes out at the
-        notification's time of day where the user is now.
-        """
-        if self.event.start_time:
-            return self.event.start_at - self.offset
-        day = datetime.combine(
-            self.event.date,
-            self.time or self.DEFAULT_TIME,
-            tzinfo=zone_or_default(self.event.user.time_zone),
-        )
-        return day - self.offset
-
-    def describe(self):
-        """The notification in words: "30 minutes before", "1 day before
-        at 9:00 AM", "At the start", "That day at 9:00 AM"."""
-        at = ""
-        if not self.event.start_time:
-            at = " at " + (self.time or self.DEFAULT_TIME).strftime("%-I:%M %p")
-        if self.amount == 0:
-            return ("That day" + at) if at else "At the start"
-        unit = self.unit if self.amount != 1 else self.unit[:-1]
-        return f"{self.amount} {unit} before{at}"
-
-    class Meta:
+    class Meta(ReminderMixin.Meta):
         db_table = "app_event_reminder"
-        ordering = ["-unit", "-amount"]
+
+    @property
+    def target(self):
+        return self.event
+
+    @property
+    def target_id(self):
+        return self.event_id
+
+    @property
+    def target_user(self):
+        return self.event.user
+
+    @property
+    def target_start_at(self):
+        return self.event.start_at
+
+    @property
+    def target_date(self):
+        return self.event.date
 
 
 class CalendarSyncState(models.Model):

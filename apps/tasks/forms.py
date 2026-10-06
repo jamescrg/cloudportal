@@ -1,8 +1,9 @@
 from django import forms
 
+from apps.common.forms import ReminderFormBase
 from config.settings import CustomFormRenderer
 
-from .models import Task
+from .models import Task, TaskReminder
 
 
 class TaskForm(forms.ModelForm):
@@ -75,3 +76,14 @@ class TaskForm(forms.ModelForm):
         for field in super().__iter__():
             if field.name not in skip:
                 yield field
+
+
+class TaskReminderForm(ReminderFormBase):
+    """One notification for a task."""
+
+    class Meta(ReminderFormBase.Meta):
+        model = TaskReminder
+
+    def __init__(self, *args, task, **kwargs):
+        super().__init__(*args, timed=bool(task.due_time), **kwargs)
+        self.task = task

@@ -162,6 +162,12 @@ urlpatterns = [
     path("tasks/<int:id>/status", tasks.status_htmx, name="tasks-status"),
     path("tasks/<int:id>/priority", tasks.priority_htmx, name="tasks-priority"),
     path("tasks/<int:id>/delete-htmx", tasks.delete_htmx, name="tasks-delete-htmx"),
+    path("tasks/<int:id>/reminders/add", tasks.reminder_add, name="tasks-reminder-add"),
+    path(
+        "tasks/<int:id>/reminders/<int:reminder_id>/delete",
+        tasks.reminder_delete,
+        name="tasks-reminder-delete",
+    ),
     path("tasks/bulk-status", tasks.bulk_status_htmx, name="tasks-bulk-status"),
     path("tasks/clear-htmx", tasks.clear_htmx, name="tasks-clear-htmx"),
     path(
