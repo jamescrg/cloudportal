@@ -13,31 +13,6 @@
             {% endif %}
         </a>
     </td>
-    <td class="tasks-col-priority">
-        <div class="dropdown" x-data="dropdown()">
-            <button class="btn-priority"
-                    type="button"
-                    title="{{ task.level.name }}"
-                    x-ref="button"
-                    @click="toggle()"
-                    :aria-expanded="open">
-                <i class="{{ task.level.icon }}"></i>
-            </button>
-            <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
-                {% for level in priority_levels %}
-                    <li>
-                        <a class="dropdown-item {% if task.level.slug == level.slug %}active{% endif %}"
-                           href="#"
-                           hx-get="{% url 'tasks-priority' task.id %}?priority={{ level.value }}"
-                           hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">
-                            <i class="{{ level.icon }} priority-{{ level.slug }}"></i> {{ level.name }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </td>
     <td class="tasks-col-title">
         <div class="tasks-title-row">
             <a class="{% if task.status == 1 %}text-completed{% endif %}"
@@ -51,7 +26,7 @@
             flag when it is not Normal, then the due date and time.
             {% endcomment %}
             <span class="tasks-secondary tasks-secondary-wide">
-                {% if task.completed_date %}
+                {% if task.archived and task.completed_date %}
                     Done: {{ task.completed_date|date:"M j" }}
                 {% elif task.shown.due_time %}
                     {{ task.shown.due_time|time:"g:i A" }}
@@ -64,7 +39,7 @@
                     <i class="{{ task.level.icon }} priority-{{ task.level.slug }}"
                        title="{{ task.level.name }}"></i>
                 {% endif %}
-                {% if task.completed_date %}
+                {% if task.archived and task.completed_date %}
                     Done: {{ task.completed_date|date:"M j" }}
                 {% elif task.due_date %}
                     {{ task.shown.due_date|date:"M j" }}
@@ -89,5 +64,30 @@
                 <i class="icon-calendar-plus"></i>
             {% endif %}
         </a>
+    </td>
+    <td class="tasks-col-priority">
+        <div class="dropdown" x-data="dropdown()">
+            <button class="btn-priority"
+                    type="button"
+                    title="{{ task.level.name }}"
+                    x-ref="button"
+                    @click="toggle()"
+                    :aria-expanded="open">
+                <i class="{{ task.level.icon }}"></i>
+            </button>
+            <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                {% for level in priority_levels %}
+                    <li>
+                        <a class="dropdown-item {% if task.level.slug == level.slug %}active{% endif %}"
+                           href="#"
+                           hx-get="{% url 'tasks-priority' task.id %}?priority={{ level.value }}"
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">
+                            <i class="{{ level.icon }} priority-{{ level.slug }}"></i> {{ level.name }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </td>
 </tr>

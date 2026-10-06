@@ -69,13 +69,6 @@
                     </ul>
                 </div>
             </th>
-            <th class="tasks-col-priority">
-                <button class="btn-sort {% if 'priority' in current_sort %}active{% endif %}"
-                        hx-get="{% url 'tasks-order-by' 'priority' %}"
-                        hx-target="#tasks-container">
-                    <i class="icon-flag"></i>
-                </button>
-            </th>
             <th class="tasks-col-title">
                 Task
                 <button class="btn-sort {% if 'title' in current_sort %}active{% endif %}"
@@ -90,6 +83,13 @@
                         hx-get="{% url 'tasks-order-by' 'due_date' %}"
                         hx-target="#tasks-container">
                     <i class="icon-chevrons-up-down"></i>
+                </button>
+            </th>
+            <th class="tasks-col-priority">
+                <button class="btn-sort {% if 'priority' in current_sort %}active{% endif %}"
+                        hx-get="{% url 'tasks-order-by' 'priority' %}"
+                        hx-target="#tasks-container">
+                    <i class="icon-flag"></i>
                 </button>
             </th>
         </tr>

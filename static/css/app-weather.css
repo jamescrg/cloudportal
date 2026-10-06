@@ -41,12 +41,6 @@
   margin-bottom: 0;
 }
 
-.table td, th {
-  border: solid 1px var(--border-medium);
-  border-left: none;
-  border-right: none;
-}
-
 .card-title h1 {
 }
 

@@ -66,13 +66,13 @@ def test_choosing_a_level_stores_its_number(client, task):
 # --- the Due column --------------------------------------------------------
 
 
-def test_the_columns_run_check_priority_task_due(client, task):
+def test_the_columns_run_check_task_due_priority(client, task):
     html = client.get(reverse("tasks-list")).content.decode()
 
-    assert html.index('class="tasks-col-priority"') < html.index(
-        'class="tasks-col-title"'
-    )
     assert html.index('class="tasks-col-title"') < html.index('class="tasks-col-due"')
+    assert html.index('class="tasks-col-due"') < html.index(
+        'class="tasks-col-priority"'
+    )
 
 
 @pytest.fixture
@@ -252,12 +252,12 @@ def checked(user):
     }
 
 
-def test_new_tasks_start_at_normal_with_no_due_date(client):
+def test_new_tasks_start_at_normal_and_due_today(client):
     client.post(reverse("tasks-add-htmx"), {"title": "fresh"})
 
     task = Task.objects.get(title="Fresh")
     assert level_for(task.priority)["name"] == "Normal"
-    assert task.due_date is None
+    assert task.due_date == date.today()
 
 
 def test_the_phone_details_carry_the_flag_and_the_date(client, user):

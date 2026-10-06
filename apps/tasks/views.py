@@ -157,6 +157,7 @@ def add(request):
         task = Task()
 
         task.user = request.user
+        task.due_date = date.today()
         task.title = request.POST.get("title")
         task.title = task.title[0].upper() + task.title[1:]
 
@@ -488,6 +489,8 @@ def add_htmx(request):
     if request.method == "POST":
         task = Task()
         task.user = request.user
+        # A new task is due today until it is given another day
+        task.due_date = date.today()
         task.title = request.POST.get("title", "").strip()
 
         if task.title:

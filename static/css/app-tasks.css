@@ -74,6 +74,13 @@ td.tasks-col-checkbox a:hover {
   white-space: nowrap;
 }
 
+/* The table's borders and corners come from the base .table rules. The
+   check column is centred here with enough weight to beat the base
+   cells' left alignment, which a bare .tasks-col-checkbox did not. */
+.tasks-table .tasks-col-checkbox {
+  text-align: center;
+}
+
 .tasks-table .tasks-col-title {
   white-space: normal;
 }
@@ -105,6 +112,20 @@ td.tasks-col-checkbox a:hover {
   .tasks-table .tasks-col-due,
   .tasks-secondary-wide {
     display: none;
+  }
+
+  /* The title is the last column showing, so it ends without a rule and
+     takes the right-hand corners */
+  .tasks-table .tasks-col-title {
+    border-right: none;
+  }
+
+  .tasks-table tr:first-child th.tasks-col-title {
+    border-top-right-radius: calc(var(--radius-md) - 1px);
+  }
+
+  .tasks-table tr:last-child td.tasks-col-title {
+    border-bottom-right-radius: calc(var(--radius-md) - 1px);
   }
 
   .tasks-secondary-phone {

@@ -1,9 +1,4 @@
 
-.crypto th, td {
-  border: solid 1px var(--border-medium);
-  padding: 0.5rem;
-}
-
 th {
   font-weight: 600;
 }
