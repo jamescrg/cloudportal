@@ -38,6 +38,23 @@
   background: var(--background-subnav);
 }
 
+/* The menu button carries the site's mark: the cloud icon with its lines
+   drawn in the brand gradient (a diagonal run, stops at 15% and 85%, as on
+   the favicon). The gradient is painted behind the glyph and clipped to
+   it; its two colours are theme tokens. */
+.drawer-fab-mark {
+  background: linear-gradient(
+    135deg,
+    var(--brand-grad-from) 15%,
+    var(--brand-grad-to) 85%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+  -webkit-text-fill-color: transparent;
+}
+
 /* Backdrop */
 .drawer-backdrop {
   background: var(--overlay-backdrop);

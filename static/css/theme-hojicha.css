@@ -28,6 +28,11 @@
   --link: var(--gb-bright-aqua);
   --link-hover: var(--gb-aqua);
 
+  /* The site's mark: the link aqua into the ramp's yellow, the favicon's
+     dark gradient */
+  --brand-grad-from: var(--link);
+  --brand-grad-to: var(--gb-bright-yellow);
+
   /* Buttons */
   --button-primary-background: var(--gb-faded-aqua);
   --button-primary-color: var(--gb-light);

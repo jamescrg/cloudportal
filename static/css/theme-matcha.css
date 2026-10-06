@@ -37,6 +37,11 @@
   --link: var(--lime-800);
   --link-hover: var(--lime-700);
 
+  /* The site's mark (the cloud on the mobile menu button): the link green
+     into violet, the favicon's gradient */
+  --brand-grad-from: var(--link);
+  --brand-grad-to: var(--violet-500);
+
   /* Backgrounds */
   --background-subnav: var(--stone-200);
   --background-subnav-tab-active: var(--background-section);
