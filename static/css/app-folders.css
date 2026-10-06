@@ -18,6 +18,13 @@
 }
 
 
+/* The add button in the folder list's heading is a bare icon: no fill,
+   no border */
+.folders .card-title .square-button {
+  background: none;
+  border: none;
+}
+
 .folders input,
 .folders input:focus {
   box-shadow: none;
@@ -103,29 +110,11 @@
  * folder list display
  * ------------------------------------------------*/
 
+/* The folder list is ruled horizontally only, by its rows' own lines */
 .folder-tree {
-  border: solid 1px var(--border-medium);
-  border-radius: var(--radius-md);
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-/* The list's own border is its top and bottom edge, and its first and
-   last rows are rounded to sit inside it (so the active row's fill does
-   not square off the corners) */
-.folder-tree > li:first-child {
-  border-radius: calc(var(--radius-md) - 1px) calc(var(--radius-md) - 1px) 0 0;
-  border-top: none;
-}
-
-.folder-tree > li:last-child {
-  border-bottom: none;
-  border-radius: 0 0 calc(var(--radius-md) - 1px) calc(var(--radius-md) - 1px);
-}
-
-.folder-tree > li:only-child {
-  border-radius: calc(var(--radius-md) - 1px);
 }
 
 .folder-row {

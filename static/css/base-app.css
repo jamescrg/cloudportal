@@ -190,14 +190,10 @@ strong{
  * tables
  * ------------------------------------------------*/
 
-/* A bordered table with rounded corners, as the law app draws its tables:
-   the table carries the outer border, the cells carry the rules between
-   them, and the four corner cells are rounded to sit inside it. */
+/* A table is ruled horizontally only: a line above the header and one
+   under each row. No side borders, and no rules between the cells. */
 .table {
-  border: solid 1px var(--border-medium);
-  border-collapse: separate;
-  border-radius: var(--radius-md);
-  border-spacing: 0;
+  border-collapse: collapse;
   color: inherit;
   width: 100%;
 }
@@ -205,7 +201,6 @@ strong{
 .table th,
 .table td {
   border-bottom: solid 1px var(--border-medium);
-  border-right: solid 1px var(--border-medium);
   padding: 0.5rem;
   text-align: left;
   vertical-align: top;
@@ -213,35 +208,8 @@ strong{
 
 .table th {
   background: var(--background-table-header, var(--background-control));
+  border-top: solid 1px var(--border-medium);
   vertical-align: middle;
-}
-
-/* The table's own border is the right and bottom edge */
-.table th:last-child,
-.table td:last-child {
-  border-right: none;
-}
-
-.table > :last-child > tr:last-child > * {
-  border-bottom: none;
-}
-
-/* The corner cells: of the first row of the table's first section, and
-   the last row of its last */
-.table > :first-child > tr:first-child > :first-child {
-  border-top-left-radius: calc(var(--radius-md) - 1px);
-}
-
-.table > :first-child > tr:first-child > :last-child {
-  border-top-right-radius: calc(var(--radius-md) - 1px);
-}
-
-.table > :last-child > tr:last-child > :first-child {
-  border-bottom-left-radius: calc(var(--radius-md) - 1px);
-}
-
-.table > :last-child > tr:last-child > :last-child {
-  border-bottom-right-radius: calc(var(--radius-md) - 1px);
 }
 
 th {

@@ -359,3 +359,32 @@ def test_the_bulk_row_offers_date_and_priority(client, checked):
 
     assert reverse("tasks-bulk-due-date") in html
     assert reverse("tasks-bulk-priority", args=[5]) in html
+
+
+# --- the header check is a toggle ------------------------------------------
+
+
+def test_the_header_check_checks_all_then_unchecks_all(client, user):
+    a = Task.objects.create(user=user, title="A")
+    b = Task.objects.create(user=user, title="B", status=1)
+
+    response = client.get(reverse("tasks-list"))
+    assert response.context["all_complete"] is False
+    html = response.content.decode()
+    assert reverse("tasks-bulk-status") + "?status=1" in html
+    assert "All Complete" not in html
+
+    response = client.post(reverse("tasks-bulk-status") + "?status=1")
+    a.refresh_from_db()
+    assert a.status == 1
+    assert response.context["all_complete"] is True
+    assert reverse("tasks-bulk-status") + "?status=0" in response.content.decode()
+
+    client.post(reverse("tasks-bulk-status") + "?status=0")
+    a.refresh_from_db()
+    b.refresh_from_db()
+    assert (a.status, b.status) == (0, 0)
+
+
+def test_an_empty_list_is_not_all_complete(client):
+    assert client.get(reverse("tasks-list")).context["all_complete"] is False

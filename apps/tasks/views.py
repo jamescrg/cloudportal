@@ -85,6 +85,8 @@ def _get_task_list_context(request):
         "filter_label": filter_label,
         "tasks_folder_all": tasks_folder_all,
         "has_completed_tasks": any(t.status == 1 for t in task_list),
+        # The header's check toggles: all checked means the next click unchecks
+        "all_complete": bool(task_list) and all(t.status == 1 for t in task_list),
         "priority_levels": levels(),
         "date_filter_label": filter_label if filter_label in presets else "all",
         "date_filter_name": DATE_FILTER_NAMES.get(filter_label, "All Dates"),

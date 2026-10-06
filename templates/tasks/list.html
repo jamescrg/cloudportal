@@ -1,11 +1,12 @@
 <div class="card-title flex-center-space">
     <h1>
+        {% comment %} The icon is the one the folder list shows beside the same entry {% endcomment %}
         {% if tasks_folder_all %}
-            All
+            <i class="icon-folders card-title-icon"></i>All
         {% elif selected_folder %}
-            {{ selected_folder.name }}
+            <i class="icon-folder card-title-icon"></i>{{ selected_folder.name }}
         {% else %}
-            Inbox
+            <i class="icon-inbox card-title-icon"></i>Inbox
         {% endif %}
     </h1>
     <div class="tasks-tools">
@@ -43,31 +44,22 @@
     <table class="table tasks-table">
         <tr>
             <th class="tasks-col-checkbox">
-                <div class="dropdown" x-data="dropdown()">
-                    <button class="btn-icon"
-                            type="button"
-                            x-ref="button"
-                            @click="toggle()"
-                            :aria-expanded="open">
+                {% comment %}
+                One click checks every task in view; when they are all
+                checked already, it unchecks them.
+                {% endcomment %}
+                <button class="btn-icon"
+                        type="button"
+                        title="{% if all_complete %}Uncheck all{% else %}Check all{% endif %}"
+                        hx-post="{% url 'tasks-bulk-status' %}?status={% if all_complete %}0{% else %}1{% endif %}"
+                        hx-target="#tasks-container"
+                        hx-swap="innerHTML scroll:none">
+                    {% if all_complete %}
+                        <i class="icon-circle-check-big"></i>
+                    {% else %}
                         <i class="icon-circle"></i>
-                    </button>
-                    <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
-                        <li>
-                            <a class="dropdown-item"
-                               href="#"
-                               hx-post="{% url 'tasks-bulk-status' %}?status=1"
-                               hx-target="#tasks-container"
-                               hx-swap="innerHTML scroll:none">All Complete</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item"
-                               href="#"
-                               hx-post="{% url 'tasks-bulk-status' %}?status=0"
-                               hx-target="#tasks-container"
-                               hx-swap="innerHTML scroll:none">All Pending</a>
-                        </li>
-                    </ul>
-                </div>
+                    {% endif %}
+                </button>
             </th>
             <th class="tasks-col-title">
                 Task
@@ -106,12 +98,6 @@
 {% if has_completed_tasks %}
     <div class="archive">
         <div class="archive-buttons">
-            <button class="btn btn-secondary"
-                    hx-post="{% url 'tasks-clear-htmx' %}"
-                    hx-target="#tasks-container"
-                    hx-swap="innerHTML">
-                <i class="icon-archive"></i> Archive
-            </button>
             <div class="dropdown" x-data="dropdown()">
                 <button class="btn btn-secondary"
                         type="button"
@@ -212,6 +198,12 @@
                     {% endfor %}
                 </ul>
             </div>
+            <button class="btn btn-secondary"
+                    hx-post="{% url 'tasks-clear-htmx' %}"
+                    hx-target="#tasks-container"
+                    hx-swap="innerHTML">
+                <i class="icon-archive"></i> Archive
+            </button>
             <button class="btn btn-secondary"
                     hx-post="{% url 'tasks-delete-completed-htmx' %}"
                     hx-target="#tasks-container"

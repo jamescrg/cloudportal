@@ -48,6 +48,19 @@ td.tasks-col-checkbox a:hover {
   width: 3rem;
 }
 
+/* The folder's icon before the list's title, set off from the text by the
+   same gap the folder list uses (.folder-icon); phones drop it for room */
+.card-title-icon {
+  color: var(--color-muted);
+  margin-right: 1rem;
+}
+
+@media (width <= 768px) {
+  .card-title-icon {
+    display: none;
+  }
+}
+
 /* The toolbar's own tools, right of the list's title */
 .tasks-tools {
   display: flex;
@@ -74,8 +87,7 @@ td.tasks-col-checkbox a:hover {
   white-space: nowrap;
 }
 
-/* The table's borders and corners come from the base .table rules. The
-   check column is centred here with enough weight to beat the base
+/* The check column is centred here with enough weight to beat the base
    cells' left alignment, which a bare .tasks-col-checkbox did not. */
 .tasks-table .tasks-col-checkbox {
   text-align: center;
@@ -112,20 +124,6 @@ td.tasks-col-checkbox a:hover {
   .tasks-table .tasks-col-due,
   .tasks-secondary-wide {
     display: none;
-  }
-
-  /* The title is the last column showing, so it ends without a rule and
-     takes the right-hand corners */
-  .tasks-table .tasks-col-title {
-    border-right: none;
-  }
-
-  .tasks-table tr:first-child th.tasks-col-title {
-    border-top-right-radius: calc(var(--radius-md) - 1px);
-  }
-
-  .tasks-table tr:last-child td.tasks-col-title {
-    border-bottom-right-radius: calc(var(--radius-md) - 1px);
   }
 
   .tasks-secondary-phone {
@@ -407,11 +405,18 @@ th.tasks-col-priority .btn-sort.active {
   margin-top: 1.5rem;
 }
 
+/* The edits (move, date, priority) sit on the left; the two that clear
+   tasks away (archive, delete) sit on the far right. Archive is the first
+   plain button among the dropdowns, and takes the free space before it. */
 .archive-buttons {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-start;
   width: 100%;
+}
+
+.archive-buttons > button:first-of-type {
+  margin-left: auto;
 }
 
 /* The bulk Due Date menu's calendar hangs off the menu itself */
