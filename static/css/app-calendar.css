@@ -102,6 +102,22 @@
 
 /* Override FullCalendar default styling to match the app's tokens */
 .fc {
+  /* Entries on the calendar are neutral: events and tasks alike are a
+     gray chip with no border in the page's text colour (a task is told by
+     its check mark and lighter weight). The dots take the accent's
+     lavender and the task's check mark the link's lime, the site's two
+     colours (Gruvbox purple and aqua in the dark themes). Every theme maps these through its own semantic
+     tokens; a theme whose control gray matches the card sets
+     --calendar-chip to a gray that shows. */
+  --event-background: var(--calendar-chip, var(--background-control));
+  --event-border: transparent;
+  --event-color: var(--color-primary);
+  --event-dot: var(--color-accent);
+  --task-background: var(--event-background);
+  --task-border: transparent;
+  --task-color: var(--color-primary);
+  --task-dot: var(--color-accent);
+  --task-icon: var(--link);
   --fc-border-color: var(--border-medium);
   --fc-button-bg-color: var(--background-control);
   --fc-button-border-color: var(--border-medium);
@@ -177,16 +193,14 @@
   font-weight: normal;
 }
 
-/* Event chips in the grids: a solid fill in the theme's event colour with
-   light text on it, and no border. The chip text is a deliberate
+/* Event chips in the grids: a gray fill and no border (the tokens are on
+   .fc, above). The chip text is a deliberate
    exception to the 1rem floor: at 1rem the chips crowd the month grid's
    day cells. The agenda's rows are not chips and keep 1rem (below). */
 .fc-event:not(.fc-list-event),
 .fc-event.fc-daygrid-block-event,
 .fc-event.fc-daygrid-dot-event {
   background-color: var(--event-background) !important;
-  /* transparent in the light theme, an outline in the entry's colour in
-     dark */
   border: 1px solid var(--event-border) !important;
   border-radius: var(--radius-sm);
   color: var(--event-color) !important;
@@ -221,12 +235,13 @@
   margin-right: 0.25rem;
 }
 
-/* The dot on a timed event is in the entry's solid colour (the theme's
-   dot token): in the fill's own colour, which is translucent, it all but
-   disappears */
+/* The dot on a timed event, in the dot token */
 .fc-daygrid-event .fc-daygrid-event-dot {
   border-color: var(--event-dot);
   margin-top: 0.35rem;
+  /* an optical nudge onto the text's centre line */
+  position: relative;
+  top: 1px;
 }
 
 .fc-event-task .fc-daygrid-event-dot {
@@ -239,9 +254,9 @@
   white-space: normal;
 }
 
-/* A task on the grid: the same chip as an event in the theme's task
-   colour (blue's complement), with a check mark before its title, so it
-   reads as something to do rather than somewhere to be */
+/* A task on the grid: the event's chip, with a check mark before its
+   title and a lighter weight, so it reads as something to do rather than
+   somewhere to be */
 .fc-event.fc-event-task:not(.fc-list-event),
 .fc-event.fc-event-task.fc-daygrid-block-event,
 .fc-event.fc-event-task.fc-daygrid-dot-event {
@@ -254,13 +269,18 @@
 .fc-event.fc-event-task:not(.fc-list-event) .fc-event-time,
 .fc-event.fc-event-task:not(.fc-list-event) .fc-event-main {
   color: var(--task-color) !important;
+  font-weight: normal !important;
 }
 
-.fc-event.fc-event-task .fc-event-title::before,
-.fc-event-task .fc-list-event-title a::before {
+.fc-event.fc-event-task .fc-event-title::before {
+  color: var(--task-icon);
   content: "\e16e";
+  display: inline-block;
   font-family: lucide;
   margin-right: 0.25rem;
+  /* an optical nudge onto the title's centre line */
+  position: relative;
+  top: 1px;
 }
 
 /* Timed entries in the month grid, as Google draws them: no fill, a dot in
@@ -449,12 +469,33 @@
 
 .fc .fc-list-event-dot {
   border-color: var(--event-dot);
+  /* an optical nudge into line with the task check mark */
+  left: 1px;
+  position: relative;
 }
 
-/* A task in the agenda: a plain row like an event's, told apart by its
-   dot in the task colour and the check mark before its title */
-.fc .fc-event-task .fc-list-event-dot {
-  border-color: var(--task-dot);
+/* In the agenda the dot tells a timed row from an all-day one: lavender
+   for a timed event, the text colour for an all-day event and for the
+   in-between days of a timed event that runs over several days (they
+   read "all-day"; neither its start nor its end falls on them). A task,
+   timed or not, has its check mark in the dot's place, so every title
+   starts in the same column. */
+.fc .fc-list-event.fc-event-all-day .fc-list-event-dot,
+.fc .fc-list-event:not(.fc-event-start, .fc-event-end) .fc-list-event-dot {
+  border-color: var(--color-primary);
+}
+
+.fc .fc-list-event.fc-event-task .fc-list-event-dot {
+  display: none;
+}
+
+.fc .fc-list-event.fc-event-task .fc-list-event-graphic::before {
+  color: var(--task-icon);
+  content: "\e16e";
+  font-family: lucide;
+  /* an optical nudge onto the dots' centre line */
+  left: -2px;
+  position: relative;
 }
 
 .fc .fc-list-event:hover td {

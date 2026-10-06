@@ -129,6 +129,24 @@ document.addEventListener("alpine:init", () => {
               omitZeroMinute: true,
               meridiem: "short",
             },
+            // The last day of a timed event that runs over several days
+            // would read "12am" (that day's share starts at midnight); it
+            // reads "until 3pm" instead
+            eventDidMount: (info) => {
+              if (info.isStart || !info.isEnd || info.event.allDay) {
+                return;
+              }
+              const cell = info.el.querySelector(".fc-list-event-time");
+              if (cell && info.event.end) {
+                const end = info.view.calendar.formatDate(info.event.end, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  omitZeroMinute: true,
+                  meridiem: "short",
+                });
+                cell.textContent = `until ${end}`;
+              }
+            },
           },
         },
 
@@ -151,6 +169,10 @@ document.addEventListener("alpine:init", () => {
         eventDrop: (info) => this.handleEventDrop(info),
         eventResize: (info) => this.handleEventResize(info),
         dateClick: (info) => this.handleDateClick(info),
+
+        // All-day entries carry a class of their own, so the agenda can
+        // leave their dot off (a dot marks a timed entry, as on the grid)
+        eventClassNames: (arg) => (arg.event.allDay ? ["fc-event-all-day"] : []),
 
         // Display settings
         nowIndicator: true,

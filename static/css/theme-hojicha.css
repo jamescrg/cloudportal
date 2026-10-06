@@ -90,20 +90,11 @@
   --search-highlight: var(--yellow-900);
   --search-highlight-current: var(--amber-800);
 
-  /* Calendar entries: on the dark canvas a fill looks muddy, so the hue
-     moves onto an outline and the text, in Gruvbox's own colours: its blue
-     for events and its yellow, blue's complement, for tasks */
-  --event-background: transparent;
-  --event-border: var(--gb-bright-blue);
-  --event-color: var(--gb-bright-blue);
-  --event-dot: var(--gb-bright-blue);
-  --task-background: transparent;
-  --task-border: var(--gb-yellow);
-  --task-color: var(--gb-bright-yellow);
-  --task-dot: var(--gb-bright-yellow);
-
   /* Labels */
   --label-gray: var(--gb-dark1);
+
+  /* Calendar chips: the control gray is the card's here, so a step up */
+  --calendar-chip: var(--gb-dark2);
 
   /* Tables */
   --background-table-header: var(--hl-gray);
