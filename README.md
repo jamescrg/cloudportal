@@ -24,6 +24,11 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 - Bulk move and delete operations
 - Browser extension for one-click saving from Firefox or Chrome
 
+### Calendar
+- Year, month, week, and day views with drag-and-drop rescheduling, plus a sortable list view
+- Events carry a type (Zoom, Virtual, Phone, In-person) and a meeting link or address, and can run over several days
+- Two-way sync with Google Calendar: saves push immediately, and `sync_calendar` (via cron) pulls changes and retries failed pushes
+
 ### Tasks
 - Folder-based task lists with due dates and optional due times
 - Recurring tasks (daily, weekly, monthly, yearly) with automatic instance generation

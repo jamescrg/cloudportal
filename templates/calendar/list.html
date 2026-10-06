@@ -1,0 +1,62 @@
+{% include "calendar/header.html" %}
+<div class="table-container">
+    <table class="table events-table">
+        <tr>
+            <th class="date">
+                Date
+                <button class="btn-sort {% if current_order == 'date' %}active{% endif %}"
+                        hx-post="{% url 'calendar:filter-sort' 'date' %}"
+                        hx-swap="none">
+                    <i class="icon-chevrons-up-down"></i>
+                </button>
+            </th>
+            <th class="description">
+                Description
+                <button class="btn-sort {% if current_order == 'description' %}active{% endif %}"
+                        hx-post="{% url 'calendar:filter-sort' 'description' %}"
+                        hx-swap="none">
+                    <i class="icon-chevrons-up-down"></i>
+                </button>
+            </th>
+            <th class="duration">Duration</th>
+            <th class="event-type">
+                Type
+                <button class="btn-sort {% if current_order == 'event_type' %}active{% endif %}"
+                        hx-post="{% url 'calendar:filter-sort' 'event_type' %}"
+                        hx-swap="none">
+                    <i class="icon-chevrons-up-down"></i>
+                </button>
+            </th>
+            <th class="location">Location</th>
+        </tr>
+        {% for event in objects %}
+            <tr class="{% if event.date >= today and event.date < third_day %}is-soon{% endif %}">
+                <td class="date">
+                    {{ event.date|date:"Y-m-d" }}
+                    {% if event.end_date %}<span class="event-end-date">– {{ event.end_date|date:"Y-m-d" }}</span>{% endif %}
+                    {% if event.start_time %}<span class="event-time">{{ event.start_time|time:"g:i A" }}</span>{% endif %}
+                </td>
+                <td class="description">
+                    <a href="#"
+                       hx-get="{% url 'calendar:edit' event.id %}"
+                       hx-target="#htmx-modal-container">{{ event.description }}</a>
+                    {% if event.detached_from_google %}<span class="event-detached">Not on Google Calendar</span>{% endif %}
+                </td>
+                <td class="duration">
+                    {% if event.duration_days %}
+                        {{ event.duration_days }} days
+                    {% elif event.duration %}
+                        {{ event.duration }} hr{{ event.duration|pluralize }}
+                    {% endif %}
+                </td>
+                <td class="event-type">{{ event.event_type|default:"" }}</td>
+                <td class="location">{{ event.location|default:"" }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="empty-message">No events found.</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% include "pagination.html" %}

@@ -79,6 +79,11 @@
         <script src="{% static_v 'js/main.js' %}"></script>
         <script src="{% static_v 'js/search-preservation.js' %}"></script>
         <script src="{% static_v 'js/htmx-focus.js' %}"></script>
+        {% if page and page == "calendar" %}
+            <!-- FullCalendar grid for the calendar page -->
+            <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+            <script src="{% static_v 'js/events-calendar.js' %}"></script>
+        {% endif %}
         {% if page and page == "home" %}
             <!-- SortableJS-based drag-and-drop functionality for home page -->
             <script src="{% static_v 'js/sortable-drag-drop.js' %}"></script>

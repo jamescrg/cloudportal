@@ -1,0 +1,89 @@
+<div class="modal-dialog modal-md">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Filter Events</h5>
+            <a href="#" @click.prevent="$dispatch('close-modal')">
+                <i class="icon-x"></i>
+            </a>
+        </div>
+        <div class="modal-body">
+            <form id="events-filter-form"
+                  class="form-compact col2"
+                  hx-post="{% url 'calendar:filter' %}"
+                  hx-target="#htmx-modal-container">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_period">Period</label>
+                    <div>
+                        <select name="period" id="id_period">
+                            <option value="upcoming"
+                                    {% if filter_data.period == "upcoming" %}selected{% endif %}>Upcoming</option>
+                            <option value="past" {% if filter_data.period == "past" %}selected{% endif %}>Past</option>
+                            <option value="" {% if not filter_data.period %}selected{% endif %}>All</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_event_type">Type</label>
+                    <div>
+                        <select name="event_type" id="id_event_type">
+                            <option value="" {% if not filter_data.event_type %}selected{% endif %}>All</option>
+                            <option value="Zoom"
+                                    {% if filter_data.event_type == "Zoom" %}selected{% endif %}>Zoom</option>
+                            <option value="Virtual"
+                                    {% if filter_data.event_type == "Virtual" %}selected{% endif %}>Virtual</option>
+                            <option value="Phone"
+                                    {% if filter_data.event_type == "Phone" %}selected{% endif %}>Phone</option>
+                            <option value="In-person"
+                                    {% if filter_data.event_type == "In-person" %}selected{% endif %}>
+                                In-person
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_date_0">Date From</label>
+                    <div>
+                        <input type="date"
+                               name="date_min"
+                               id="id_date_0"
+                               value="{{ filter_data.date_min|default:'' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_date_1">Date To</label>
+                    <div>
+                        <input type="date"
+                               name="date_max"
+                               id="id_date_1"
+                               value="{{ filter_data.date_max|default:'' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_order_by">Sort By</label>
+                    <div>
+                        <select name="order_by" id="id_order_by">
+                            <option value="date"
+                                    {% if sort_value == "date" or sort_value == "" %}selected{% endif %}>
+                                Date (Soonest)
+                            </option>
+                            <option value="-date" {% if sort_value == "-date" %}selected{% endif %}>Date (Latest)</option>
+                            <option value="description"
+                                    {% if sort_value == "description" %}selected{% endif %}>Description (A-Z)</option>
+                            <option value="-description"
+                                    {% if sort_value == "-description" %}selected{% endif %}>Description (Z-A)</option>
+                            <option value="event_type"
+                                    {% if sort_value == "event_type" %}selected{% endif %}>Type</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary"
+                    hx-post="{% url 'calendar:filter-default' %}"
+                    hx-target="#htmx-modal-container">Restore Defaults</button>
+            <button type="submit" form="events-filter-form" class="btn btn-primary">Apply</button>
+        </div>
+    </div>
+</div>

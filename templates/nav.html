@@ -14,6 +14,9 @@
                 <li {% if page == 'tasks' %}class="active"{% endif %}>
                     <a href="{% url 'tasks' %}">Tasks</a>
                 </li>
+                <li {% if page == 'calendar' %}class="active"{% endif %}>
+                    <a href="{% url 'calendar:index' %}">Calendar</a>
+                </li>
                 <li {% if page == 'notes' %}class="active"{% endif %}>
                     <a href="{% url 'notes:index' %}">Notes</a>
                 </li>

@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "mathfilters",
     "django_filters",
     "accounts",
+    "apps.calendar",
     "apps.folders",
     "apps.home",
     "apps.favorites",

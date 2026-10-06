@@ -1,0 +1,357 @@
+
+/* ------------------------------------------------------------------------- */
+/* toolbar */
+/* ------------------------------------------------------------------------- */
+
+.calendar-tools {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0;
+}
+
+.view-toggle .square-button {
+  border-radius: 0;
+}
+
+.view-toggle .square-button:first-child {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-right: none;
+}
+
+.view-toggle .square-button:last-child {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* event list */
+/* ------------------------------------------------------------------------- */
+
+.events-table td {
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.events-table .date {
+  width: 14rem;
+}
+
+/* The date cell reads "first – last  9:00 AM": the range and the time
+   each on their own line when the cell is narrow. */
+.events-table .event-end-date {
+  white-space: nowrap;
+}
+
+.events-table .description {
+  min-width: 18rem;
+  white-space: normal;
+}
+
+.events-table .duration,
+.events-table .event-type {
+  width: 7rem;
+}
+
+.events-table .location {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.events-table .event-time {
+  color: var(--color-muted);
+  margin-left: 0.5rem;
+}
+
+/* An event within the next three days */
+.events-table tr.is-soon td {
+  background: var(--hl-yellow);
+}
+
+/* An event deleted on Google and kept here: said in words under the
+   description, since the row has no other sign of it. */
+.events-table .event-detached {
+  color: var(--color-muted);
+  display: block;
+  font-size: 0.85rem;
+}
+
+.events-table .empty-message {
+  color: var(--color-muted);
+  font-style: italic;
+  text-align: center;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* event form */
+/* ------------------------------------------------------------------------- */
+
+.event-note {
+  color: var(--color-muted);
+  margin: 0 0 1rem;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* FullCalendar grid */
+/* ------------------------------------------------------------------------- */
+
+/* Override FullCalendar default styling to match the app's tokens */
+.fc {
+  --fc-border-color: var(--border-medium);
+  --fc-button-bg-color: var(--background-control);
+  --fc-button-border-color: var(--border-medium);
+  --fc-button-text-color: var(--button-toolbar);
+  --fc-button-hover-bg-color: var(--background-subnav);
+  --fc-button-hover-border-color: var(--border-dark);
+  --fc-button-active-bg-color: var(--selected-background);
+  --fc-button-active-border-color: var(--selected-border);
+  --fc-today-bg-color: var(--hl-yellow);
+  --fc-event-bg-color: var(--background-control);
+  --fc-event-border-color: var(--border-dark);
+  --fc-event-text-color: var(--color-primary);
+  --fc-page-bg-color: var(--background-section);
+  --fc-neutral-bg-color: var(--background-light);
+}
+
+/* Ensure calendar borders are visible and rounded */
+.fc .fc-scrollgrid {
+  border-bottom-width: 1px !important;
+  border-radius: var(--radius-md);
+  border-right-width: 1px !important;
+  overflow: hidden;
+}
+
+/* Button styling */
+.fc .fc-button {
+  border-radius: var(--radius-md);
+  text-transform: capitalize;
+}
+
+.fc .fc-button .fc-icon {
+  font-size: 1em;
+  line-height: 1;
+}
+
+.fc .fc-button:focus,
+.fc .fc-button:focus-visible,
+.fc .fc-button:active,
+.fc .fc-button-primary:focus,
+.fc .fc-button-primary:focus-visible {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.fc .fc-button:hover,
+.fc .fc-button-primary:hover,
+.fc .fc-button:active,
+.fc .fc-button-primary:active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: var(--background-control) !important;
+  border-color: var(--border-medium) !important;
+  color: var(--button-toolbar) !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background: var(--selected-background) !important;
+  border-color: var(--selected-border) !important;
+  color: var(--selected-color) !important;
+}
+
+/* Header toolbar */
+.fc .fc-toolbar {
+  gap: 1.25rem;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 1.25rem;
+}
+
+.fc .fc-toolbar-title {
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  font-weight: normal;
+}
+
+/* Event chips. The chip text is a deliberate exception to the 1rem floor:
+   at 1rem the chips crowd the month grid's day cells. */
+.fc-event,
+.fc-event.fc-daygrid-block-event,
+.fc-event.fc-daygrid-dot-event {
+  background-color: var(--background-control) !important;
+  border: 1px solid var(--border-dark) !important;
+  border-radius: var(--radius-sm);
+  color: var(--color-primary) !important;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  padding: 0.125rem 0.25rem;
+}
+
+.fc-event-title,
+.fc-event-time,
+.fc-event .fc-event-main,
+.fc-daygrid-event .fc-event-title,
+.fc-timegrid-event .fc-event-main {
+  color: var(--color-primary) !important;
+  font-weight: 600 !important;
+}
+
+.fc-daygrid-event {
+  align-items: flex-start;
+  padding: 0.125rem 0.375rem;
+  white-space: normal !important;
+}
+
+.fc-daygrid-event .fc-event-time {
+  margin-right: 0.25rem;
+}
+
+.fc-daygrid-event .fc-daygrid-event-dot {
+  margin-top: 0.35rem;
+}
+
+.fc-daygrid-event .fc-event-title {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+}
+
+/* Day cells. The height is the month view's: the year view's mini months
+   keep FullCalendar's own compact cells. */
+.fc-dayGridMonth-view .fc-daygrid-day-frame {
+  min-height: 6rem;
+}
+
+.fc .fc-daygrid-day-number {
+  color: var(--color-primary);
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: var(--color-primary);
+  font-weight: 600;
+  padding: 0.5rem;
+}
+
+/* Today highlight - only the day number */
+.fc .fc-day-today {
+  background-color: transparent !important;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  background-color: var(--selected-background);
+  border-radius: 50%;
+  color: var(--selected-color);
+  font-weight: 600;
+  height: 1.75rem;
+  line-height: 1.75rem;
+  padding: 0;
+  text-align: center;
+  width: 1.75rem;
+}
+
+/* Week/Day view time slots */
+.fc .fc-timegrid-slot-label {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+/* The time grid renders as layered tables: the slots table (hour rows) is
+   stacked on top of the day-columns table, and FullCalendar relies on slot
+   cells being transparent so the columns' vertical borders show through. */
+.fc .fc-timegrid-slots td,
+.fc .fc-timegrid-cols td {
+  background: transparent;
+}
+
+/* The app's table rules paint th/td borders and padding; the grid draws its
+   own, so keep them out of it. */
+.fc th,
+.fc td {
+  border-bottom: 0;
+  padding: 0;
+}
+
+.fc th {
+  background: transparent;
+  border-top: 0;
+}
+
+
+/* Year view: twelve mini months. Everything is a step smaller than the
+   month view so a month fits in a third of the width, and the chips are
+   trimmed to a line of text. */
+.fc .fc-multimonth {
+  border-radius: var(--radius-md);
+}
+
+.fc .fc-multimonth-title {
+  color: var(--color-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem 0 0.5rem;
+}
+
+.fc-multiMonthYear-view .fc-daygrid-day-number {
+  font-size: 0.8125rem;
+  padding: 0.25rem;
+}
+
+.fc-multiMonthYear-view .fc-col-header-cell-cushion {
+  font-size: 0.8125rem;
+  padding: 0.25rem;
+}
+
+.fc-multiMonthYear-view .fc-day-today .fc-daygrid-day-number {
+  height: 1.5rem;
+  line-height: 1.5rem;
+  width: 1.5rem;
+}
+
+.fc-multiMonthYear-view .fc-event,
+.fc-multiMonthYear-view .fc-daygrid-event {
+  font-size: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.fc-multiMonthYear-view .fc-daygrid-event .fc-event-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc-multiMonthYear-view .fc-daygrid-more-link {
+  font-size: 0.75rem;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* mobile */
+/* ------------------------------------------------------------------------- */
+
+@media (width <= 768px) {
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .fc .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1rem;
+  }
+
+  /* The grid is replaced by the list (events-calendar.js forces list view),
+     so the List/Calendar toggle has nothing to switch to. */
+  .view-toggle {
+    display: none;
+  }
+}

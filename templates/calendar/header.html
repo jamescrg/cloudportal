@@ -1,0 +1,31 @@
+<div class="card-title flex-center-space">
+    <h1>Calendar</h1>
+    <div class="calendar-tools">
+        <button class="square-button filter-button"
+                hx-get="{% url 'calendar:add' %}"
+                hx-target="#htmx-modal-container"
+                title="Add Event">
+            <i class="icon-plus"></i>
+        </button>
+        <div class="view-toggle">
+            <button class="square-button filter-button {% if view_mode == 'list' %}toggle-active{% endif %}"
+                    hx-post="{% url 'calendar:view-mode' 'list' %}"
+                    hx-swap="none"
+                    title="List View">
+                <i class="icon-list"></i>
+            </button>
+            <button class="square-button filter-button {% if view_mode == 'calendar' %}toggle-active{% endif %}"
+                    hx-post="{% url 'calendar:view-mode' 'calendar' %}"
+                    hx-swap="none"
+                    title="Calendar View">
+                <i class="icon-calendar"></i>
+            </button>
+        </div>
+        <button class="square-button filter-button {% if filter_active %}toggle-active{% endif %}"
+                hx-get="{% url 'calendar:filter' %}"
+                hx-target="#htmx-modal-container"
+                title="Filter">
+            <i class="icon-list-filter"></i>
+        </button>
+    </div>
+</div>

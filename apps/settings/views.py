@@ -8,6 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from apps.calendar import sync as calendar_sync
 from apps.finance.forms import CryptoSymbolForm, SecuritiesSymbolForm
 from apps.finance.models import CryptoSymbol, SecuritiesSymbol
 from apps.notes.models import Note
@@ -236,6 +237,10 @@ def google_store(request):
     user = request.user
     user.google_credentials = google_credentials_json
     user.save()
+
+    # Events kept here before the connection, and any pushes that failed
+    # while it was down, go to Google Calendar now.
+    calendar_sync.reconcile(user)
 
     return redirect("/settings/google/")
 

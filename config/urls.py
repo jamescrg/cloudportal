@@ -232,6 +232,8 @@ urlpatterns = [
     ),
     # notes
     path("notes/", include("apps.notes.urls")),
+    # calendar
+    path("calendar/", include("apps.calendar.urls")),
     # weather
     path("weather/", weather.index, name="weather"),
     # finance
