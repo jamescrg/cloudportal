@@ -261,7 +261,7 @@ document.addEventListener('alpine:init', () => {
       if (!panel) return;
       this.isOpen = true;
       panel.classList.add('drawer-open');
-      document.querySelector('.drawer-backdrop')?.classList.add('open');
+      this.$el.querySelector('.drawer-backdrop')?.classList.add('open');
       document.body.style.overflow = 'hidden';
     },
 
@@ -270,7 +270,7 @@ document.addEventListener('alpine:init', () => {
       if (!panel) return;
       this.isOpen = false;
       panel.classList.remove('drawer-open');
-      document.querySelector('.drawer-backdrop')?.classList.remove('open');
+      this.$el.querySelector('.drawer-backdrop')?.classList.remove('open');
       document.body.style.overflow = '';
     },
 
