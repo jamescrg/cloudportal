@@ -177,9 +177,10 @@
   font-weight: normal;
 }
 
-/* Event chips. The chip text is a deliberate exception to the 1rem floor:
-   at 1rem the chips crowd the month grid's day cells. */
-.fc-event,
+/* Event chips in the grids. The chip text is a deliberate exception to
+   the 1rem floor: at 1rem the chips crowd the month grid's day cells. The
+   agenda's rows are not chips and keep 1rem (below). */
+.fc-event:not(.fc-list-event),
 .fc-event.fc-daygrid-block-event,
 .fc-event.fc-daygrid-dot-event {
   background-color: var(--background-control) !important;
@@ -331,18 +332,30 @@
 
 
 /* Agenda (list) view: the phone's view. The app's table rules zero the
-   cell padding, so it is put back here. */
+   cell padding, so it is put back here. Rows read at 1rem, and the time
+   cell shrinks to its text so the title gets the rest of the row. */
 .fc .fc-list {
   border-radius: var(--radius-md);
   overflow: hidden;
 }
 
 .fc .fc-list-table td {
+  font-size: 1rem;
   padding: 0.5rem 0.75rem;
+}
+
+.fc .fc-list-event {
+  font-size: 1rem;
+}
+
+.fc .fc-list-event-time,
+.fc .fc-list-event-graphic {
+  width: 1%;
 }
 
 .fc .fc-list-day-cushion {
   background: var(--background-control);
+  font-size: 1rem;
   padding: 0.5rem 0.75rem;
 }
 

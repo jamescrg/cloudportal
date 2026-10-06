@@ -3,6 +3,139 @@
  * Replacement for Bootstrap JS dropdowns and modals
  */
 
+/**
+ * Swipe gestures for a slide-in drawer: a swipe in from the screen edge
+ * opens it, a swipe back toward that edge closes it, and the panel
+ * follows the finger in between.
+ *
+ * drawer:   the Alpine component, with isOpen, open() and close()
+ * panel():  the element that slides (looked up on each use, since a page
+ *           may swap its contents)
+ * backdrop: the drawer's own backdrop element
+ * side:     'left' or 'right', the edge the panel slides in from
+ */
+function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
+  const mql = window.matchMedia('(min-width: 992px)');
+  const EDGE_ZONE = 24;           // px from the edge to start an open-swipe
+  const VELOCITY_THRESHOLD = 0.3; // px/ms — a fast flick opens or closes
+  const DISTANCE_RATIO = 0.35;    // fraction of the width to snap
+  // +1: the panel rests off the right edge when closed; -1: off the left
+  const sign = side === 'right' ? 1 : -1;
+  let touch = null;
+
+  function width() {
+    return panel()?.offsetWidth || 280;
+  }
+
+  // px: 0 = fully open, sign * width = fully closed
+  function clamp(px) {
+    const closed = sign * width();
+    return Math.max(Math.min(0, closed), Math.min(Math.max(0, closed), px));
+  }
+
+  function applyTranslate(px) {
+    panel().style.transform = `translateX(${px}px)`;
+    // Sync backdrop opacity: 0 when closed, 1 when open
+    const progress = 1 - px / (sign * width());
+    backdrop.style.opacity = Math.max(0, Math.min(1, progress));
+    backdrop.style.pointerEvents = progress > 0.05 ? 'auto' : 'none';
+  }
+
+  function clearDrag() {
+    const el = panel();
+    if (el) {
+      el.classList.remove('drawer-dragging');
+      el.style.transform = '';
+    }
+    backdrop.style.opacity = '';
+    backdrop.style.pointerEvents = '';
+    touch = null;
+  }
+
+  function nearEdge(x) {
+    return side === 'right' ? x >= window.innerWidth - EDGE_ZONE : x <= EDGE_ZONE;
+  }
+
+  function overPanel(x) {
+    return side === 'right' ? x >= window.innerWidth - width() : x <= width();
+  }
+
+  function onTouchStart(e) {
+    if (mql.matches || !panel()) return; // desktop, or no panel on this page
+    const t = e.touches[0];
+    const state = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastTime: e.timeStamp, locked: false };
+
+    if (!drawer.isOpen && nearEdge(t.clientX)) {
+      touch = { ...state, mode: 'open' };
+      panel().classList.add('drawer-dragging');
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    } else if (drawer.isOpen && (overPanel(t.clientX) || e.target.closest('.drawer-backdrop'))) {
+      touch = { ...state, mode: 'close' };
+      panel().classList.add('drawer-dragging');
+    }
+  }
+
+  function onTouchMove(e) {
+    if (!touch) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touch.startX;
+    const dy = t.clientY - touch.startY;
+
+    // Lock direction after 10px of movement; a vertical swipe is a scroll
+    if (!touch.locked) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        const wasOpening = touch.mode === 'open';
+        clearDrag();
+        if (wasOpening) {
+          backdrop.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+        return;
+      }
+      touch.locked = true;
+    }
+
+    e.preventDefault();
+    touch.lastX = t.clientX;
+    touch.lastTime = e.timeStamp;
+
+    // Opening starts from the closed position and follows the finger in;
+    // closing starts from open and follows it out
+    const from = touch.mode === 'open' ? sign * width() : 0;
+    applyTranslate(clamp(from + dx));
+  }
+
+  function onTouchEnd(e) {
+    if (!touch) return;
+    const mode = touch.mode;
+    const dt = e.timeStamp - touch.lastTime || 1;
+    const dx = touch.lastX - touch.startX;
+    const velocity = dx / dt; // px/ms, positive = rightward
+    const w = width();
+
+    clearDrag();
+
+    // Movement away from the panel's edge opens; toward it closes
+    if (mode === 'open') {
+      if (velocity * -sign > VELOCITY_THRESHOLD || dx * -sign > w * DISTANCE_RATIO) {
+        drawer.open();
+      } else {
+        backdrop.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    } else if (velocity * sign > VELOCITY_THRESHOLD || dx * sign > w * DISTANCE_RATIO) {
+      drawer.close();
+    }
+  }
+
+  document.addEventListener('touchstart', onTouchStart, { passive: true });
+  document.addEventListener('touchmove', onTouchMove, { passive: false });
+  document.addEventListener('touchend', onTouchEnd, { passive: true });
+}
+
+
 document.addEventListener('alpine:init', () => {
 
   /**
@@ -229,6 +362,12 @@ document.addEventListener('alpine:init', () => {
     },
 
     init() {
+      attachDrawerSwipe(this, {
+        panel: () => this.$el.querySelector('.nav-drawer'),
+        backdrop: this.$el.querySelector('.drawer-backdrop'),
+        side: 'left',
+      });
+
       // Close if the viewport grows past the mobile breakpoint while open
       window.matchMedia('(min-width: 992px)').addEventListener('change', (e) => {
         if (e.matches && this.isOpen) {
@@ -281,126 +420,12 @@ document.addEventListener('alpine:init', () => {
       // Looked up on each use: a page may swap the panel's contents, and
       // must never be left dragging an element that is no longer there.
       const sidebarEl = () => document.querySelector('[data-drawer]');
-      const backdrop = this.$el.querySelector('.drawer-backdrop');
       const mql = window.matchMedia('(min-width: 992px)');
-      const EDGE_ZONE = 24;        // px from right edge to start open-swipe
-      const VELOCITY_THRESHOLD = 0.3; // px/ms — fast flick opens/closes
-      const DISTANCE_RATIO = 0.35; // fraction of drawer width to snap
-
-      const self = this;
-
-      // --- helpers ---
-      function drawerWidth() {
-        return sidebarEl().offsetWidth || 280;
-      }
-
-      function applyTranslate(px) {
-        // px: 0 = fully open, +drawerWidth = fully closed (off the right edge)
-        sidebarEl().style.transform = `translateX(${px}px)`;
-        // Sync backdrop opacity: 0 when closed, 1 when open
-        const progress = 1 - px / drawerWidth();
-        backdrop.style.opacity = Math.max(0, Math.min(1, progress));
-        backdrop.style.pointerEvents = progress > 0.05 ? 'auto' : 'none';
-      }
-
-      function clearDrag() {
-        sidebarEl().classList.remove('drawer-dragging');
-        sidebarEl().style.transform = '';
-        backdrop.style.opacity = '';
-        backdrop.style.pointerEvents = '';
-        self._touch = null;
-      }
-
-      // --- touch handlers ---
-      function onTouchStart(e) {
-        if (mql.matches) return; // desktop
-        const t = e.touches[0];
-
-        if (!self.isOpen && t.clientX >= window.innerWidth - EDGE_ZONE) {
-          // Begin open-swipe from the right edge
-          self._touch = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastTime: e.timeStamp, mode: 'open', locked: false };
-          sidebarEl().classList.add('drawer-dragging');
-          backdrop.classList.add('open');
-          document.body.style.overflow = 'hidden';
-        } else if (self.isOpen && (t.clientX >= window.innerWidth - drawerWidth() || e.target.closest('.drawer-backdrop'))) {
-          // Begin close-swipe on open drawer or backdrop
-          self._touch = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastTime: e.timeStamp, mode: 'close', locked: false };
-          sidebarEl().classList.add('drawer-dragging');
-        }
-      }
-
-      function onTouchMove(e) {
-        const touch = self._touch;
-        if (!touch) return;
-        const t = e.touches[0];
-        const dx = t.clientX - touch.startX;
-        const dy = t.clientY - touch.startY;
-
-        // Lock direction after 10px of movement
-        if (!touch.locked) {
-          if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-          // If more vertical than horizontal, abort swipe
-          if (Math.abs(dy) > Math.abs(dx)) {
-            clearDrag();
-            if (!self.isOpen) {
-              backdrop.classList.remove('open');
-              document.body.style.overflow = '';
-            }
-            return;
-          }
-          touch.locked = true;
-        }
-
-        e.preventDefault();
-        touch.lastX = t.clientX;
-        touch.lastTime = e.timeStamp;
-
-        const w = drawerWidth();
-        if (touch.mode === 'open') {
-          // finger moves left: dx goes 0 → -w; translate goes w → 0
-          const offset = Math.max(0, Math.min(w, w + dx));
-          applyTranslate(offset);
-        } else {
-          // finger moves right: dx goes 0 → w; translate goes 0 → w
-          const offset = Math.max(0, Math.min(w, dx));
-          applyTranslate(offset);
-        }
-      }
-
-      function onTouchEnd(e) {
-        const touch = self._touch;
-        if (!touch) return;
-
-        const dt = e.timeStamp - touch.lastTime || 1;
-        const dx = touch.lastX - touch.startX;
-        const velocity = dx / dt; // px/ms, positive = rightward
-        const w = drawerWidth();
-
-        clearDrag();
-
-        if (touch.mode === 'open') {
-          // a leftward flick or pull opens
-          if (velocity < -VELOCITY_THRESHOLD || -dx > w * DISTANCE_RATIO) {
-            self.isOpen = true;
-            sidebarEl().classList.add('drawer-open');
-          } else {
-            backdrop.classList.remove('open');
-            document.body.style.overflow = '';
-          }
-        } else {
-          // a rightward flick or pull closes
-          if (velocity > VELOCITY_THRESHOLD || dx > w * DISTANCE_RATIO) {
-            self.isOpen = false;
-            sidebarEl().classList.remove('drawer-open');
-            backdrop.classList.remove('open');
-            document.body.style.overflow = '';
-          }
-        }
-      }
-
-      document.addEventListener('touchstart', onTouchStart, { passive: true });
-      document.addEventListener('touchmove', onTouchMove, { passive: false });
-      document.addEventListener('touchend', onTouchEnd, { passive: true });
+      attachDrawerSwipe(this, {
+        panel: sidebarEl,
+        backdrop: this.$el.querySelector('.drawer-backdrop'),
+        side: 'right',
+      });
 
       // Auto-close the drawer when a link inside it is tapped (htmx navigation)
       document.addEventListener('htmx:beforeRequest', (e) => {

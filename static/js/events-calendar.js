@@ -117,6 +117,20 @@ document.addEventListener("alpine:init", () => {
           multiMonthYear: {
             dayMaxEvents: 2,
           },
+          // The phone's agenda: a compact day heading, and start times
+          // only, abbreviated where they can be ("7am", "7:30am"), so the
+          // title keeps most of the row
+          listMonth: {
+            listDayFormat: { weekday: "short", month: "short", day: "numeric" },
+            listDaySideFormat: false,
+            displayEventEnd: false,
+            eventTimeFormat: {
+              hour: "numeric",
+              minute: "2-digit",
+              omitZeroMinute: true,
+              meridiem: "short",
+            },
+          },
         },
 
         // Event source - JSON API
