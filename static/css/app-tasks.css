@@ -419,6 +419,18 @@ th.tasks-col-priority .btn-sort.active {
   margin-left: auto;
 }
 
+/* On phones the row wraps, and all five sit centred in one run */
+@media (width <= 768px) {
+  .archive-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .archive-buttons > button:first-of-type {
+    margin-left: 0;
+  }
+}
+
 /* The bulk Due Date menu's calendar hangs off the menu itself */
 .bulk-date-menu {
   position: relative;
