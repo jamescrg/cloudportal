@@ -708,10 +708,15 @@ li {
 .container {
   margin-left: auto;
   margin-right: auto;
-  max-width: 1200px;
+  max-width: 1400px;
   padding-left: 1rem;
   padding-right: 1rem;
   width: 100%;
+}
+
+/* The home page keeps its narrower layout */
+body[data-page="home"] .container {
+  max-width: 1200px;
 }
 
 .row {
