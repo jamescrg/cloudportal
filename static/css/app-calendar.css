@@ -353,8 +353,15 @@
   width: 1%;
 }
 
+/* A day heading is set off from the day before it by a top rule and a
+   wash a step darker than the rows; the app's table rules strip the
+   heading cell's own borders, so the rule is put back here. */
+.fc .fc-list-day th {
+  border-top: solid 1px var(--border-medium);
+}
+
 .fc .fc-list-day-cushion {
-  background: var(--background-control);
+  background: var(--background-subnav);
   font-size: 1rem;
   padding: 0.5rem 0.75rem;
 }
