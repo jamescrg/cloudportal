@@ -38,6 +38,13 @@ class TasksFilter(django_filters.FilterSet):
         method="filter_recurring",
         label="Recurring",
     )
+    # "false" keeps only tasks with no due date (unscheduled); "true" only
+    # those with one; "" either
+    has_due_date = django_filters.BooleanFilter(
+        field_name="due_date",
+        lookup_expr="isnull",
+        exclude=True,
+    )
     show_archived = django_filters.BooleanFilter(
         method="filter_archived",
         label="Show Archived",

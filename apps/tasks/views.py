@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,6 +15,7 @@ from apps.tasks import reminders
 from apps.tasks.filter import TasksFilter
 from apps.tasks.forms import TaskForm, TaskReminderForm
 from apps.tasks.models import Task
+from apps.tasks.priority import DATE_FILTER_NAMES, level_for, levels, quick_date_filters
 
 
 def _get_task_list_context(request):
@@ -33,13 +34,20 @@ def _get_task_list_context(request):
             user=user, folder__isnull=True, is_recurring=False
         )
 
-    filter_data = request.session.get("tasks_filter", {})
+    filter_data = dict(request.session.get("tasks_filter", {}))
     filter_label = filter_data.get("filter_label", "")
+
+    # A date preset is worked out afresh each time, so "Today" is still
+    # today tomorrow
+    presets = quick_date_filters(date.today())
+    if filter_label in presets:
+        filter_data.update(presets[filter_label])
+
     task_filter = TasksFilter(filter_data, queryset=queryset)
     tasks = task_filter.qs
 
-    # Default behavior: if no custom filter, exclude archived
-    if filter_label not in ("custom", "due"):
+    # Archived tasks show only when the filter dialog asks for them
+    if filter_label != "custom":
         tasks = tasks.filter(archived=False)
 
     # Apply sort — always push completed tasks to the bottom
@@ -61,11 +69,8 @@ def _get_task_list_context(request):
     pagination = CustomPaginator(tasks, 20, request, session_key)
 
     task_list = pagination.get_object_list()
-
-    priority_value = filter_data.get("priority")
-    priority_value = (
-        int(priority_value) if priority_value not in (None, "", 0) else None
-    )
+    for task in task_list:
+        task.level = level_for(task.priority)
 
     base_count_qs = Task.objects.filter(user=user, is_recurring=False, archived=False)
 
@@ -80,9 +85,11 @@ def _get_task_list_context(request):
         "filter_label": filter_label,
         "tasks_folder_all": tasks_folder_all,
         "has_completed_tasks": any(t.status == 1 for t in task_list),
-        "priority_choices": range(1, 11),
-        "priorities": list(range(1, 11)),
-        "priority_value": priority_value,
+        "priority_levels": levels(),
+        "date_filter_label": filter_label if filter_label in presets else "all",
+        "date_filter_name": DATE_FILTER_NAMES.get(filter_label, "All Dates"),
+        "date_filter_names": DATE_FILTER_NAMES,
+        "today": date.today(),
         "current_sort": sort,
         "all_count": base_count_qs.count(),
         "inbox_count": base_count_qs.filter(folder__isnull=True).count(),
@@ -374,37 +381,47 @@ def tasks_all(request):
 
 
 @login_required
-def tasks_due(request):
-    """Toggle quick filter: stash current filter and show due tasks, or restore."""
-    current_filter = request.session.get("tasks_filter", {})
-    stash = request.session.get("tasks_filter_stash")
+@require_POST
+def filter_date_htmx(request, preset):
+    """Apply one of the date dropdown's presets, or "all" to clear it. Only
+    the date dimension changes; status and sort stay as they are."""
+    presets = quick_date_filters(date.today())
+    if preset not in presets:
+        return HttpResponse("Unknown date filter", status=400)
 
-    if current_filter.get("filter_label") == "due" and stash is not None:
-        # Restore stashed state
-        request.session["tasks_filter"] = stash["tasks_filter"]
-        request.session["tasks_all"] = stash["tasks_all"]
-        request.user.tasks_folder = stash["tasks_folder"]
-        request.user.save()
-        request.session.pop("tasks_filter_stash", None)
-    else:
-        # Stash current state and apply due filter
-        request.session["tasks_filter_stash"] = {
-            "tasks_filter": current_filter,
-            "tasks_all": request.session.get("tasks_all", False),
-            "tasks_folder": request.user.tasks_folder,
-        }
-        request.session["tasks_all"] = True
-        request.user.tasks_folder = 0
-        request.user.save()
-        request.session["tasks_filter"] = {
-            "filter_label": "due",
-            "status": "Pending",
-            "due_date_max": date.today().strftime("%Y-%m-%d"),
-            "sort": "due_date",
-        }
+    filter_data = request.session.get("tasks_filter", {})
+    filter_data.update(presets[preset])
+    filter_data["filter_label"] = preset
+    request.session["tasks_filter"] = filter_data
+    request.session["tasks_page"] = 1
+    request.session.modified = True
 
     context = _get_task_list_context(request)
-    return render(request, "tasks/tasks-with-folders-oob.html", context)
+    return render(request, "tasks/list.html", context)
+
+
+@login_required
+@require_POST
+def due_date_htmx(request, id):
+    """Set or clear a task's due date from the list's Due column. Clearing
+    the date clears the time with it."""
+    task = get_object_or_404(Task, pk=id, user=request.user)
+    value = request.POST.get("due_date", "").strip()
+    if value:
+        try:
+            task.due_date = datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return HttpResponse("Unreadable date", status=400)
+        task.time_zone = request.user.time_zone
+    else:
+        task.due_date = None
+        task.due_time = None
+    task.save(update_fields=["due_date", "due_time", "time_zone"])
+
+    context = _get_task_list_context(request)
+    response = render(request, "tasks/list.html", context)
+    response["HX-Trigger"] = "tasksChanged"
+    return response
 
 
 @login_required
@@ -423,7 +440,6 @@ def task_filter(request):
         }
         filter_data["filter_label"] = "custom"
         request.session["tasks_filter"] = filter_data
-        request.session.pop("tasks_filter_stash", None)
         return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
     filter_data = request.session.get("tasks_filter", {})
@@ -454,7 +470,6 @@ def tasks_order_by(request, order):
     filter_data["sort"] = new_sort
     request.session["tasks_filter"] = filter_data
     request.session["tasks_page"] = 1
-    request.session.pop("tasks_filter_stash", None)
     request.session.modified = True
 
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
@@ -464,7 +479,6 @@ def tasks_order_by(request, order):
 def task_filter_default(request):
     """Clear task filter to defaults."""
     request.session.pop("tasks_filter", None)
-    request.session.pop("tasks_filter_stash", None)
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
 
@@ -813,17 +827,65 @@ def delete_completed_htmx(request):
     return response
 
 
-@login_required
-def filter_priority_htmx(request, priority_value):
-    """Filter tasks by priority level via htmx."""
-    filter_data = request.session.get("tasks_filter", {})
-    filter_data["priority"] = "" if priority_value == 0 else priority_value
-    request.session["tasks_filter"] = filter_data
-    request.session.pop("tasks_filter_stash", None)
-    request.session.modified = True
+def _checked_tasks(request):
+    """The checked (completed) tasks in the view the user is looking at:
+    every folder, the selected folder, or the Inbox. The bulk buttons
+    under the list act on these."""
+    if request.session.get("tasks_all", False):
+        return Task.objects.filter(user=request.user, status=1, archived=False)
+    selected_folder = select_folder(request, "tasks")
+    if selected_folder:
+        return Task.objects.filter(folder=selected_folder, status=1, archived=False)
+    return Task.objects.filter(
+        user=request.user, folder__isnull=True, status=1, archived=False
+    )
 
+
+def _list_response(request):
     context = _get_task_list_context(request)
-    return render(request, "tasks/list.html", context)
+    response = render(request, "tasks/list.html", context)
+    response["HX-Trigger"] = "tasksChanged"
+    return response
+
+
+@login_required
+@require_POST
+def bulk_due_date_htmx(request):
+    """Give the checked tasks a due date: today, tomorrow, a week out, a
+    chosen day, or none. Clearing the date clears the time with it."""
+    value = request.POST.get("due_date", "").strip()
+    today = date.today()
+    presets = {
+        "today": today,
+        "tomorrow": today + timedelta(days=1),
+        "week": today + timedelta(days=7),
+    }
+    if value in presets:
+        due_date = presets[value]
+    elif value:
+        try:
+            due_date = datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return HttpResponse("Unreadable date", status=400)
+    else:
+        due_date = None
+
+    tasks = _checked_tasks(request)
+    if due_date is None:
+        tasks.update(due_date=None, due_time=None)
+    else:
+        tasks.update(due_date=due_date, time_zone=request.user.time_zone)
+    return _list_response(request)
+
+
+@login_required
+@require_POST
+def bulk_priority_htmx(request, priority_value):
+    """Give the checked tasks a priority level."""
+    if not 1 <= priority_value <= 10:
+        return HttpResponse("Unknown priority", status=400)
+    _checked_tasks(request).update(priority=priority_value)
+    return _list_response(request)
 
 
 @login_required

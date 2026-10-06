@@ -48,6 +48,27 @@ td.tasks-col-checkbox a:hover {
   width: 3rem;
 }
 
+/* The toolbar's own tools, right of the list's title */
+.tasks-tools {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Its text is a step smaller than the buttons' icons, on the same line
+   height, so it stands as tall as the Filter button beside it */
+.tasks-date-filter {
+  gap: 0.5rem;
+}
+
+.tasks-date-filter > span {
+  font-size: 1rem;
+  line-height: 1.375rem;
+}
+
+.tasks-date-filter > span > i {
+  margin-right: 0.25rem;
+}
+
 .tasks-table td {
   vertical-align: top;
   white-space: nowrap;
@@ -70,17 +91,204 @@ td.tasks-col-checkbox a:hover {
   white-space: nowrap;
 }
 
+/* The phone's inline details stand in for the two columns it hides */
+.tasks-secondary-phone {
+  display: none;
+}
+
+.tasks-secondary-phone i {
+  margin-right: 0.25rem;
+}
+
+@media (width <= 768px) {
+  .tasks-table .tasks-col-priority,
+  .tasks-table .tasks-col-due,
+  .tasks-secondary-wide {
+    display: none;
+  }
+
+  .tasks-secondary-phone {
+    display: inline;
+  }
+}
+
+/* Priority as an icon, coloured by level; the dropdown's icons match */
 .btn-priority {
   background: none;
   border: none;
-  color: var(--link);
+  color: var(--color-muted);
   cursor: pointer;
   font: inherit;
+  font-size: 1.1rem;
   padding: 0;
 }
 
-.btn-priority:hover {
-  color: var(--link-hover);
+tr.priority-highest .btn-priority,
+i.priority-highest {
+  color: var(--red-600);
+}
+
+tr.priority-high .btn-priority,
+i.priority-high {
+  color: var(--violet-600);
+}
+
+tr.priority-low .btn-priority,
+i.priority-low {
+  color: var(--slate-400);
+}
+
+tr.priority-lowest .btn-priority,
+i.priority-lowest {
+  color: var(--slate-500);
+}
+
+tr.complete .btn-priority {
+  color: var(--color-muted);
+}
+
+.tasks-table .tasks-col-priority .dropdown-menu {
+  min-width: auto;
+  text-align: left;
+}
+
+/* Due column: the date is a link, in the link colour, and a click opens
+   a flatpickr calendar beside it; a task with no date shows an add icon
+   on hover */
+.tasks-table .tasks-col-due {
+  overflow: visible;
+  position: relative;
+  width: 9rem;
+}
+
+/* The input the calendar hangs off, present only while it is open */
+.task-date-picker-input {
+  height: 0;
+  padding: 0;
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+}
+
+/* flatpickr in the theme's tokens: both themes define them, so one set
+   of rules serves light and dark */
+.flatpickr-calendar {
+  background: var(--background-section);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0.25rem 0.75rem var(--shadow-color);
+  color: var(--color-primary);
+}
+
+.flatpickr-calendar.arrowTop::before,
+.flatpickr-calendar.arrowBottom::before {
+  border-bottom-color: var(--border-medium);
+  border-top-color: var(--border-medium);
+}
+
+.flatpickr-calendar.arrowTop::after,
+.flatpickr-calendar.arrowBottom::after {
+  border-bottom-color: var(--background-section);
+  border-top-color: var(--background-section);
+}
+
+.flatpickr-months,
+.flatpickr-current-month,
+.flatpickr-current-month input.cur-year,
+.flatpickr-monthDropdown-months {
+  background: transparent;
+  color: var(--color-primary);
+}
+
+.flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+  background: var(--background-section);
+  color: var(--color-primary);
+}
+
+.flatpickr-weekday {
+  color: var(--color-muted);
+}
+
+.flatpickr-day {
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+}
+
+.flatpickr-day:hover {
+  background: var(--background-subnav);
+  border-color: var(--border-medium);
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: var(--color-faint);
+}
+
+.flatpickr-day.today:not(.selected) {
+  border-color: var(--color-accent);
+}
+
+.flatpickr-day.today:not(.selected):hover {
+  background: var(--background-subnav);
+  border-color: var(--color-accent);
+  color: var(--color-primary);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: var(--selected-background);
+  border-color: var(--selected-border);
+  color: var(--selected-color);
+}
+
+.flatpickr-prev-month,
+.flatpickr-next-month {
+  color: var(--color-primary);
+  fill: var(--color-primary);
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+  color: var(--link);
+  fill: var(--link);
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+  fill: currentColor;
+}
+
+/* The Clear button added under the calendar (static/js/tasks.js) */
+.flatpickr-clear {
+  background: var(--background-control);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  cursor: pointer;
+  display: block;
+  font-size: 0.9rem;
+  margin: 0.5rem auto;
+  padding: 0.25rem 0;
+  width: 30%;
+}
+
+.tasks-table .empty-date-icon {
+  color: var(--color-muted);
+  display: block;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tasks-table .tasks-col-due:hover .empty-date-icon {
+  opacity: 1;
+}
+
+tr.past-due .task-date-link {
+  color: var(--urgent);
+}
+
+tr.complete .task-date-link {
+  color: var(--color-muted);
 }
 
 th.tasks-col-checkbox {
@@ -180,8 +388,14 @@ th.tasks-col-priority .btn-sort.active {
 
 .archive-buttons {
   display: flex;
-  justify-content: space-between;
+  gap: 0.5rem;
+  justify-content: flex-start;
   width: 100%;
+}
+
+/* The bulk Due Date menu's calendar hangs off the menu itself */
+.bulk-date-menu {
+  position: relative;
 }
 
 

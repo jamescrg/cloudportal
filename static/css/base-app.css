@@ -118,8 +118,14 @@ a:hover {
     gap: 0.5rem;
   }
 
+  /* A long title (a folder name) is cut with an ellipsis rather than
+     wrapping under the buttons beside it */
   .card-title.flex-center-space > h1 {
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .card-title.flex-center-space > .filter-input {
@@ -743,8 +749,10 @@ li {
   width: 100%;
 }
 
-/* The home page keeps its narrower layout */
-body[data-page="home"] .container {
+/* The home page keeps its narrower layout. Only its content is held in:
+   the nav bar's container stays full width, so the nav does not shift
+   between pages. */
+body[data-page="home"] .container.content {
   max-width: 1200px;
 }
 

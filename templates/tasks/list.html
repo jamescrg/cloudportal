@@ -8,47 +8,29 @@
             Inbox
         {% endif %}
     </h1>
-    <div style="display:flex;gap:0.5rem">
+    <div class="tasks-tools">
         <div class="dropdown" x-data="dropdown()">
             <button type="button"
-                    id="tasks-priority-filter"
-                    class="square-button filter-button {% if priority_value %}toggle-active{% endif %}"
+                    id="tasks-date-filter"
+                    class="square-button filter-button select-btn tasks-date-filter {% if date_filter_label != 'all' %}toggle-active{% endif %}"
                     x-ref="button"
                     @click="toggle()"
                     :aria-expanded="open">
-                <i class="icon-flag"></i>
+                <span><i class="icon-calendar"></i> {{ date_filter_name }}</span>
+                <small><i class="icon-chevron-down"></i></small>
             </button>
             <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
-                {% for priority in priorities %}
+                {% for preset, name in date_filter_names.items %}
                     <li>
-                        <a class="dropdown-item {% if priority == priority_value %}active{% endif %}"
+                        <a class="dropdown-item {% if date_filter_label == preset %}active{% endif %}"
                            href="#"
-                           hx-post="{% url 'tasks-filter-priority' priority %}"
+                           hx-post="{% url 'tasks-filter-date' preset %}"
                            hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">
-                            {% if priority == 1 %}
-                                1 only
-                            {% else %}
-                                {{ priority }} and above
-                            {% endif %}
-                        </a>
+                           hx-swap="innerHTML scroll:none">{{ name }}</a>
                     </li>
                 {% endfor %}
-                <li>
-                    <a class="dropdown-item {% if not priority_value %}active{% endif %}"
-                       href="#"
-                       hx-post="{% url 'tasks-filter-priority' 0 %}"
-                       hx-target="#tasks-container"
-                       hx-swap="innerHTML scroll:none">All Levels</a>
-                </li>
             </ul>
         </div>
-        <button class="square-button filter-button {% if filter_label == 'due' %}toggle-active{% endif %}"
-                hx-get="{% url 'tasks-due' %}"
-                hx-target="#main-content"
-                hx-swap="innerHTML">
-            <i class="icon-clock"></i>
-        </button>
         <button class="square-button filter-button {% if filter_label == 'custom' %}toggle-active{% endif %}"
                 hx-get="{% url 'tasks-filter' %}"
                 hx-target="#htmx-modal-container">
@@ -87,6 +69,13 @@
                     </ul>
                 </div>
             </th>
+            <th class="tasks-col-priority">
+                <button class="btn-sort {% if 'priority' in current_sort %}active{% endif %}"
+                        hx-get="{% url 'tasks-order-by' 'priority' %}"
+                        hx-target="#tasks-container">
+                    <i class="icon-flag"></i>
+                </button>
+            </th>
             <th class="tasks-col-title">
                 Task
                 <button class="btn-sort {% if 'title' in current_sort %}active{% endif %}"
@@ -95,11 +84,12 @@
                     <i class="icon-chevrons-up-down"></i>
                 </button>
             </th>
-            <th class="tasks-col-priority">
-                <button class="btn-sort {% if 'priority' in current_sort %}active{% endif %}"
-                        hx-get="{% url 'tasks-order-by' 'priority' %}"
+            <th class="tasks-col-due">
+                Due
+                <button class="btn-sort {% if 'due_date' in current_sort %}active{% endif %}"
+                        hx-get="{% url 'tasks-order-by' 'due_date' %}"
                         hx-target="#tasks-container">
-                    <i class="icon-flag"></i>
+                    <i class="icon-chevrons-up-down"></i>
                 </button>
             </th>
         </tr>
@@ -107,7 +97,7 @@
             {% include "tasks/row.html" %}
         {% empty %}
             <tr>
-                <td colspan="3" class="empty-message">No tasks found.</td>
+                <td colspan="4" class="empty-message">No tasks found.</td>
             </tr>
         {% endfor %}
     </table>
@@ -145,6 +135,79 @@
                                hx-post="{% url 'tasks-move-folder-htmx' %}?folder_id={{ folder.id }}"
                                hx-target="#tasks-container"
                                hx-swap="innerHTML scroll:none">{{ folder.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="dropdown" x-data="dropdown()">
+                <button class="btn btn-secondary"
+                        type="button"
+                        x-ref="button"
+                        @click="toggle()"
+                        :aria-expanded="open">
+                    <i class="icon-calendar"></i> Due Date
+                </button>
+                <ul class="dropdown-menu bulk-date-menu"
+                    x-ref="menu"
+                    x-show="open"
+                    @click="if ($event.target.closest('a')) close()">
+                    <li>
+                        <a class="dropdown-item"
+                           href="#"
+                           hx-post="{% url 'tasks-bulk-due-date' %}"
+                           hx-vals='{"due_date": "today"}'
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">Today</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                           href="#"
+                           hx-post="{% url 'tasks-bulk-due-date' %}"
+                           hx-vals='{"due_date": "tomorrow"}'
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">Tomorrow</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                           href="#"
+                           hx-post="{% url 'tasks-bulk-due-date' %}"
+                           hx-vals='{"due_date": "week"}'
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">In a Week</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                           href="#"
+                           onclick="event.preventDefault(); openTaskDatePicker(this, '{% url 'tasks-bulk-due-date' %}', '')">Choose a Date…</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                           href="#"
+                           hx-post="{% url 'tasks-bulk-due-date' %}"
+                           hx-vals='{"due_date": ""}'
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">No Date</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown" x-data="dropdown()">
+                <button class="btn btn-secondary"
+                        type="button"
+                        x-ref="button"
+                        @click="toggle()"
+                        :aria-expanded="open">
+                    <i class="icon-flag"></i> Priority
+                </button>
+                <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                    {% for level in priority_levels %}
+                        <li>
+                            <a class="dropdown-item"
+                               href="#"
+                               hx-post="{% url 'tasks-bulk-priority' level.value %}"
+                               hx-target="#tasks-container"
+                               hx-swap="innerHTML scroll:none">
+                                <i class="{{ level.icon }} priority-{{ level.slug }}"></i> {{ level.name }}
+                            </a>
                         </li>
                     {% endfor %}
                 </ul>

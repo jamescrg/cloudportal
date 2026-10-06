@@ -150,7 +150,12 @@ urlpatterns = [
     path("tasks/clear", tasks.clear, name="tasks-clear"),
     # tasks htmx
     path("tasks/all/", tasks.tasks_all, name="tasks-all"),
-    path("tasks/due/", tasks.tasks_due, name="tasks-due"),
+    path(
+        "tasks/filter-date/<str:preset>/",
+        tasks.filter_date_htmx,
+        name="tasks-filter-date",
+    ),
+    path("tasks/<int:id>/due-date", tasks.due_date_htmx, name="tasks-due-date"),
     path("tasks/order-by/<str:order>/", tasks.tasks_order_by, name="tasks-order-by"),
     path("tasks/filter", tasks.task_filter, name="tasks-filter"),
     path(
@@ -175,15 +180,16 @@ urlpatterns = [
         tasks.delete_completed_htmx,
         name="tasks-delete-completed-htmx",
     ),
+    path("tasks/bulk-due-date", tasks.bulk_due_date_htmx, name="tasks-bulk-due-date"),
+    path(
+        "tasks/bulk-priority/<int:priority_value>",
+        tasks.bulk_priority_htmx,
+        name="tasks-bulk-priority",
+    ),
     path(
         "tasks/move-folder-htmx",
         tasks.move_folder_htmx,
         name="tasks-move-folder-htmx",
-    ),
-    path(
-        "tasks/filter-priority/<int:priority_value>/",
-        tasks.filter_priority_htmx,
-        name="tasks-filter-priority",
     ),
     path(
         "tasks/add-editor/<int:folder_id>/<int:user_id>",
