@@ -29,6 +29,8 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 - Events carry a type (Zoom, Virtual, Phone, In-person) and a meeting link or address, and can run over several days
 - Optional two-way sync with Google Calendar (switched on under Settings → Calendar): saves push immediately, and `sync_calendar` (via cron) pulls changes and retries failed pushes
 - Forward a calendar invitation to your own forwarding address and it is posted as an event; forwarded updates and cancellations follow (see Forwarding invitations)
+- Email notifications per event, any number of them, set as "N minutes/hours/days/weeks before" (with a time of day for all-day events), sent by `send_event_reminders` via cron
+- Time zone aware: each timed event is a fixed moment, and the browser reports where you are, so times are entered, shown, and notified in your current zone while travelling
 
 ### Tasks
 - Folder-based task lists with due dates and optional due times
@@ -176,6 +178,7 @@ See `.env.example` for the full list. Key variables:
 ```
 0 1 * * * /path/to/.venv/bin/python /path/to/manage.py create_recurring_tasks
 */15 * * * * /path/to/.venv/bin/python /path/to/manage.py send_task_reminders
+*/5 * * * * /path/to/.venv/bin/python /path/to/manage.py send_event_reminders
 ```
 
 ### Production Deployment

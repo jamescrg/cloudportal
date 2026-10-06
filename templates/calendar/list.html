@@ -30,11 +30,11 @@
             <th class="location">Location</th>
         </tr>
         {% for event in objects %}
-            <tr class="{% if event.date >= today and event.date < third_day %}is-soon{% endif %}">
+            <tr class="{% if event.shown.date >= today and event.shown.date < third_day %}is-soon{% endif %}">
                 <td class="date">
-                    {{ event.date|date:"Y-m-d" }}
-                    {% if event.end_date %}<span class="event-end-date">– {{ event.end_date|date:"Y-m-d" }}</span>{% endif %}
-                    {% if event.start_time %}<span class="event-time">{{ event.start_time|time:"g:i A" }}</span>{% endif %}
+                    {{ event.shown.date|date:"Y-m-d" }}
+                    {% if event.shown.end_date %}<span class="event-end-date">– {{ event.shown.end_date|date:"Y-m-d" }}</span>{% endif %}
+                    {% if event.shown.start_time %}<span class="event-time">{{ event.shown.start_time|time:"g:i A" }}</span>{% endif %}
                 </td>
                 <td class="description">
                     <a href="#"

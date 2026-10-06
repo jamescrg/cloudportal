@@ -22,6 +22,10 @@ class CustomUser(AbstractUser):
     # Whether the calendar syncs with Google Calendar. Separate from linking
     # a Google account, which contacts and the home page also use.
     calendar_sync = models.BooleanField(default=False)
+    # Where the user is now, as their browser reports it on each page load.
+    # Times they type are read in this zone, and the list and notifications
+    # are shown and sent in it.
+    time_zone = models.CharField(max_length=64, default="America/New_York")
     # Forwarded invitations: the unguessable part of the address the user
     # forwards them to, and the addresses (besides their own) they forward
     # from. One address per line.

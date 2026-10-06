@@ -1,4 +1,4 @@
-"""Email utility for task reminders."""
+"""Email utility for task and event reminders."""
 
 import logging
 
@@ -108,3 +108,46 @@ def _build_body(task, reminder_type):
     lines.append("")
     lines.append(f"-- {settings.SITE_NAME}")
     return "\n".join(lines)
+
+
+def send_event_reminder_email(user, event):
+    """Send the notification for a calendar event.
+
+    Returns:
+        dict with 'success' boolean and optional 'error'
+    """
+    recipient = user.notification_email or user.email
+    if not recipient:
+        return {"success": False, "error": "User has no email address"}
+
+    shown = event.in_zone(user.time_zone)
+    when = shown.date.strftime("%A, %B %-d")
+    if shown.start_time:
+        when += " at " + shown.start_time.strftime("%-I:%M %p")
+    subject = f"{event.description} - {when}"
+
+    lines = [f"{event.description}", ""]
+    lines.append(f"When: {when}")
+    if shown.end_date:
+        lines.append(f"Through: {shown.end_date.strftime('%A, %B %-d')}")
+    if shown.start_time and shown.end_time:
+        lines.append(f"Ends: {shown.end_time.strftime('%-I:%M %p')}")
+    if event.event_type:
+        lines.append(f"Type: {event.event_type}")
+    if event.location:
+        lines.append(f"Location: {event.location}")
+    lines.append("")
+    lines.append(f"-- {settings.SITE_NAME}")
+    body = "\n".join(lines)
+
+    try:
+        send_mail(
+            subject, body, settings.SERVER_EMAIL, [recipient], fail_silently=False
+        )
+        logger.info(f"Event reminder sent to {recipient} for event {event.id}")
+        return {"success": True}
+    except Exception as e:
+        logger.error(
+            f"Failed to send event reminder to {recipient} for event {event.id}: {e}"
+        )
+        return {"success": False, "error": str(e)}

@@ -12,6 +12,12 @@ urlpatterns = [
     path("<int:id>/edit", views.events_edit, name="edit"),
     path("<int:id>/delete", views.events_delete, name="delete"),
     path("<int:id>/quick-update", views.events_quick_update, name="quick-update"),
+    path("<int:id>/reminders/add", views.reminder_add, name="reminder-add"),
+    path(
+        "<int:id>/reminders/<int:reminder_id>/delete",
+        views.reminder_delete,
+        name="reminder-delete",
+    ),
     path("view/<str:mode>", views.events_view_mode, name="view-mode"),
     path("filter/", views.events_filter, name="filter"),
     path("filter/default", views.events_filter_default, name="filter-default"),

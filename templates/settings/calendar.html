@@ -2,6 +2,20 @@
 {% block subcontent %}
     <div class="card">
         <div class="card-title">
+            <h1>Time Zone</h1>
+        </div>
+        <p class="card-text">
+            Times you enter are read in the zone you are in, and the list and notifications follow it. Your browser reports it each time you open the app, so it moves with you.
+        </p>
+        <table class="options">
+            <tr>
+                <td class="setting-label">Current zone:</td>
+                <td class="setting-control">{{ user.time_zone }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="card">
+        <div class="card-title">
             <h1>Google Calendar Sync</h1>
         </div>
         <p class="card-text">

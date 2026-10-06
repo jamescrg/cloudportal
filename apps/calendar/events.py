@@ -117,14 +117,13 @@ def get_table_data(request):
     # timed event on one day, nothing for an all-day event.
     event_list = pagination.get_object_list()
     for event in event_list:
+        event.shown = event.in_zone(request.user.time_zone)
         event.duration = None
         event.duration_days = None
-        if event.end_date:
-            event.duration_days = (event.end_date - event.date).days + 1
+        if event.shown.end_date:
+            event.duration_days = (event.shown.end_date - event.shown.date).days + 1
         elif event.start_time and event.end_time:
-            start = datetime.combine(datetime.today(), event.start_time)
-            end = datetime.combine(datetime.today(), event.end_time)
-            event.duration = (end - start).total_seconds() / 3600
+            event.duration = (event.end_at - event.start_at).total_seconds() / 3600
 
     return toolbar_context(request) | {
         "pagination": pagination,

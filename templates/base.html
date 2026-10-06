@@ -45,7 +45,7 @@
         {% endif %}
     </head>
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-          {% if user.is_authenticated %}data-user-id="{{ user.id }}"{% endif %}>
+          {% if user.is_authenticated %}data-user-id="{{ user.id }}" data-time-zone="{{ user.time_zone }}"{% endif %}>
         {% if env == "dev" %}
             <div class="dev-banner">
                 <i class="icon-wrench"></i>
@@ -79,6 +79,9 @@
         <script src="{% static_v 'js/main.js' %}"></script>
         <script src="{% static_v 'js/search-preservation.js' %}"></script>
         <script src="{% static_v 'js/htmx-focus.js' %}"></script>
+        {% if user.is_authenticated %}
+            <script src="{% static_v 'js/time-zone.js' %}"></script>
+        {% endif %}
         {% if page and page == "calendar" %}
             <!-- FullCalendar grid for the calendar page -->
             <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>

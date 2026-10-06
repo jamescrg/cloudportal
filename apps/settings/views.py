@@ -363,6 +363,22 @@ def tasks_settings_index(request):
 
 
 @login_required
+@require_POST
+def time_zone(request):
+    """Record where the user is now, as their browser reports it on each
+    page load. A name that is not a zone changes nothing."""
+    from apps.calendar.models import is_zone
+
+    name = request.POST.get("time_zone", "").strip()
+    if not is_zone(name):
+        return HttpResponse("Unknown time zone", status=400)
+    if request.user.time_zone != name:
+        request.user.time_zone = name
+        request.user.save(update_fields=["time_zone"])
+    return HttpResponse(status=204)
+
+
+@login_required
 def calendar_settings_index(request):
     """Show the Calendar settings tab."""
     context = {

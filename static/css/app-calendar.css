@@ -96,6 +96,52 @@
 }
 
 
+/* Notifications, below the event form in the Edit Event dialog */
+.event-reminders {
+  border-top: solid 1px var(--border-medium);
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+}
+
+.event-reminder-list li {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.event-reminder-list .btn-icon {
+  color: var(--color-muted);
+}
+
+.event-reminder-list .btn-icon:hover {
+  color: var(--urgent);
+}
+
+.event-reminder-none {
+  color: var(--color-muted);
+}
+
+.event-reminder-add {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.event-reminder-add input[type="number"] {
+  width: 5rem;
+}
+
+.event-reminders .errorlist {
+  color: var(--urgent);
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+
 /* ------------------------------------------------------------------------- */
 /* FullCalendar grid */
 /* ------------------------------------------------------------------------- */

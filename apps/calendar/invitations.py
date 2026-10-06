@@ -24,7 +24,7 @@ from icalendar import Calendar
 import apps.calendar.sync as sync
 from accounts.models import CustomUser
 from apps.calendar.events import default_end_time, fit_description
-from apps.calendar.models import Event
+from apps.calendar.models import Event, is_zone
 
 logger = logging.getLogger(__name__)
 
@@ -124,17 +124,20 @@ def calendar_text(request):
 # --- reading the invitation -----------------------------------------------
 
 
-def _local(value):
-    """A date stays a date; a datetime becomes a naive local datetime."""
+def _local(value, zone):
+    """A date stays a date; a datetime becomes a naive datetime in the
+    zone. One with no zone of its own is taken to be in it already."""
     if isinstance(value, datetime):
         if value.tzinfo is not None:
-            value = value.astimezone(ZoneInfo(settings.TIME_ZONE))
+            value = value.astimezone(ZoneInfo(zone))
         return value.replace(tzinfo=None)
     return value
 
 
-def parse_invitation(text):
-    """The first event in iCalendar text, or None when there is none."""
+def parse_invitation(text, zone=None):
+    """The first event in iCalendar text, read in the zone (the user's),
+    or None when there is none."""
+    zone = zone if is_zone(zone) else settings.TIME_ZONE
     calendar = Calendar.from_ical(text)
     events = list(calendar.walk("VEVENT"))
     if not events:
@@ -144,9 +147,9 @@ def parse_invitation(text):
     method = str(calendar.get("METHOD", "")).upper()
     status = str(vevent.get("STATUS", "")).upper()
 
-    start = _local(vevent.get("DTSTART").dt)
+    start = _local(vevent.get("DTSTART").dt, zone)
     end_property = vevent.get("DTEND")
-    end = _local(end_property.dt) if end_property is not None else None
+    end = _local(end_property.dt, zone) if end_property is not None else None
     duration = vevent.get("DURATION")
     if end is None and duration is not None:
         end = start + duration.dt
@@ -215,6 +218,7 @@ def post_invitation(user, invitation):
     location_limit = Event._meta.get_field("location").max_length
     event.location = invitation.location[:location_limit] or None
     event.ical_sequence = invitation.sequence
+    event.time_zone = user.time_zone
     event.save()
     sync.push_event(event)
     return ("updated" if existing else "created"), event
@@ -238,9 +242,10 @@ def notify(user, subject, body):
 
 
 def describe(event):
-    when = event.date.strftime("%a, %b %-d")
-    if event.end_date:
-        when += event.end_date.strftime(" to %a, %b %-d")
-    if event.start_time:
-        when += " at " + event.start_time.strftime("%-I:%M %p")
+    shown = event.in_zone(event.user.time_zone)
+    when = shown.date.strftime("%a, %b %-d")
+    if shown.end_date:
+        when += shown.end_date.strftime(" to %a, %b %-d")
+    if shown.start_time:
+        when += " at " + shown.start_time.strftime("%-I:%M %p")
     return f"{event.description} on {when}"

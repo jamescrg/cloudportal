@@ -148,8 +148,8 @@ def test_feed_shapes_timed_and_all_day_events(client, user):
         ).json()
     }
 
-    assert feed[str(timed.id)]["start"] == "2030-03-04T09:00:00"
-    assert feed[str(timed.id)]["end"] == "2030-03-04T10:30:00"
+    assert feed[str(timed.id)]["start"] == "2030-03-04T09:00:00-05:00"
+    assert feed[str(timed.id)]["end"] == "2030-03-04T10:30:00-05:00"
     assert feed[str(timed.id)]["allDay"] is False
     assert feed[str(timed.id)]["extendedProps"] == {
         "event_type": "Zoom",

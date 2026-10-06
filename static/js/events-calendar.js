@@ -204,7 +204,7 @@ document.addEventListener("alpine:init", () => {
       // them. FullCalendar's end is exclusive, so an all-day event's end
       // date is the day before its end; a one-day event has no end date.
       const date = this.formatDate(event.start);
-      const updateData = { date, end_date: null };
+      const updateData = { date, end_date: null, time_zone: this.browserZone() };
 
       if (event.allDay) {
         updateData.start_time = null;
@@ -243,6 +243,15 @@ document.addEventListener("alpine:init", () => {
         target: "#htmx-modal-container",
         swap: "innerHTML",
       });
+    },
+
+    browserZone() {
+      // The zone the dragged-to wall-clock times are in: the browser's
+      try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+      } catch (e) {
+        return null;
+      }
     },
 
     formatDate(date) {

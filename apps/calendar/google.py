@@ -73,11 +73,11 @@ def _event_body(event):
         end_datetime = datetime.combine(event.last_date, event.end_time)
         body["start"] = {
             "dateTime": start_datetime.isoformat(),
-            "timeZone": settings.TIME_ZONE,
+            "timeZone": event.time_zone,
         }
         body["end"] = {
             "dateTime": end_datetime.isoformat(),
-            "timeZone": settings.TIME_ZONE,
+            "timeZone": event.time_zone,
         }
     else:
         # All-day event - use date format; Google's end date is exclusive
@@ -306,7 +306,7 @@ def _process_google_event(user, google_event):
 
     # Parse Google event data
     try:
-        event_data = _parse_google_event(google_event)
+        event_data = _parse_google_event(google_event, user.time_zone)
     except Exception as e:
         logger.error("Error parsing Google event %s: %s", google_id, e)
         return "skipped"
@@ -382,12 +382,14 @@ def _fit_description(text):
     return fit_description(text)
 
 
-def _parse_google_event(google_event):
+def _parse_google_event(google_event, zone=None):
     """
     Parse Google Calendar event into local Event model fields.
-    Extracts: date, start_time, end_time, event_type, location
+    Extracts: date, start_time, end_time, time_zone, event_type, location.
+    A timed event keeps the zone Google gives it; without one, it is read
+    in ``zone`` (the user's, or the app's).
     """
-    from apps.calendar.models import Event
+    from apps.calendar.models import Event, is_zone
 
     event_data = {}
 
@@ -407,10 +409,14 @@ def _parse_google_event(google_event):
                 event_data["end_date"] = last
     elif "dateTime" in start:
         # Timed event. Google returns RFC3339 datetimes (typically UTC);
-        # convert to the app's zone before storing wall-clock values —
+        # convert to the event's zone before storing wall-clock values —
         # storing the UTC clock verbatim shifts every synced event by the
         # UTC offset, compounding on each round trip.
-        local_tz = ZoneInfo(settings.TIME_ZONE)
+        zone_name = start.get("timeZone") or zone or settings.TIME_ZONE
+        if not is_zone(zone_name):
+            zone_name = zone if is_zone(zone) else settings.TIME_ZONE
+        event_data["time_zone"] = zone_name
+        local_tz = ZoneInfo(zone_name)
         start_dt = date_parser.parse(start["dateTime"])
         end_dt = date_parser.parse(end["dateTime"])
         if start_dt.tzinfo is not None:

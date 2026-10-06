@@ -27,6 +27,7 @@ def test_utc_datetimes_convert_to_eastern():
     assert data["date"] == date(2026, 7, 17)
     assert data["start_time"] == time(10, 30)
     assert data["end_time"] == time(12, 30)
+    assert data["time_zone"] == "America/New_York"
 
 
 def test_offset_datetimes_pass_through():

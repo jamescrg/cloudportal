@@ -1,0 +1,43 @@
+{% comment %}
+The Notifications section of the Edit Event dialog. It stands outside the
+event form (a form cannot hold another), and every change re-renders it
+in place. Context: event, reminders, reminder_form.
+{% endcomment %}
+<div id="event-reminders" class="event-reminders">
+    <h2>Notifications</h2>
+    <ul class="event-reminder-list">
+        {% for reminder in reminders %}
+            <li>
+                <span>{{ reminder.describe }}</span>
+                <button type="button"
+                        class="btn-icon"
+                        title="Remove"
+                        hx-post="{% url 'calendar:reminder-delete' event.id reminder.id %}"
+                        hx-target="#event-reminders"
+                        hx-swap="outerHTML">
+                    <i class="icon-x"></i>
+                </button>
+            </li>
+        {% empty %}
+            <li class="event-reminder-none">No notifications.</li>
+        {% endfor %}
+    </ul>
+    <form class="event-reminder-add"
+          hx-post="{% url 'calendar:reminder-add' event.id %}"
+          hx-target="#event-reminders"
+          hx-swap="outerHTML">
+        {% csrf_token %}
+        {{ reminder_form.amount }}
+        {{ reminder_form.unit }}
+        <span>before</span>
+        {% if reminder_form.all_day %}
+            <span>at</span>
+            {{ reminder_form.time }}
+        {% endif %}
+        <button type="submit" class="btn btn-secondary">Add</button>
+    </form>
+    {{ reminder_form.non_field_errors }}
+    {{ reminder_form.amount.errors }}
+    {{ reminder_form.unit.errors }}
+    {{ reminder_form.time.errors }}
+</div>

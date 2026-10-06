@@ -100,8 +100,8 @@ def test_the_feed_ends_a_timed_span_on_its_last_day(client, user):
 
     row = _feed(client)[str(event.id)]
 
-    assert row["start"] == "2030-03-04T09:00:00"
-    assert row["end"] == "2030-03-06T17:00:00"
+    assert row["start"] == "2030-03-04T09:00:00-05:00"
+    assert row["end"] == "2030-03-06T17:00:00-05:00"
 
 
 def test_a_span_that_began_before_the_range_is_still_in_it(client, user):
@@ -111,8 +111,10 @@ def test_a_span_that_began_before_the_range_is_still_in_it(client, user):
     before = Event.objects.create(
         user=user, date=date(2030, 2, 20), end_date=date(2030, 2, 22), description="B"
     )
+    # The feed allows a day each side for zone differences, so two days
+    # before the range is the first day left out
     one_day_before = Event.objects.create(
-        user=user, date=date(2030, 2, 28), description="D"
+        user=user, date=date(2030, 2, 27), description="D"
     )
 
     feed = _feed(client)

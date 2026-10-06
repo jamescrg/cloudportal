@@ -13,8 +13,8 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 import apps.calendar.invitations as invitations
 import apps.calendar.sync as sync
-from apps.calendar.forms import EventForm
-from apps.calendar.models import Event
+from apps.calendar.forms import EventForm, ReminderForm
+from apps.calendar.models import Event, EventReminder, is_zone
 
 from .events import (
     PAGINATION_KEY,
@@ -162,9 +162,11 @@ def _initial_from_click(request):
 
 
 def _save_event(form, user):
-    """Save a valid form's event for the user and push it to Google."""
+    """Save a valid form's event for the user and push it to Google. The
+    times were typed where the user is now, so that is the event's zone."""
     event = form.save(commit=False)
     event.user = user
+    event.time_zone = user.time_zone
 
     # An event saved with a start and no end runs for an hour
     if event.start_time and not event.end_time:
@@ -203,7 +205,10 @@ def events_edit(request, id):
         if form.is_valid():
             return _event_change_response(_save_event(form, request.user))
     else:
-        form = EventForm(instance=event)
+        # The form opens on the event as seen from where the user is now;
+        # saving it re-anchors the same moment to that zone.
+        shown = event.in_zone(request.user.time_zone)
+        form = EventForm(instance=event, initial=vars(shown))
 
     context = {
         "page": "calendar",
@@ -213,8 +218,41 @@ def events_edit(request, id):
         "sync_on": request.user.calendar_sync,
         "google_connected": bool(request.user.google_credentials),
         "form": form,
-    }
+    } | _reminders_context(event)
     return render(request, "calendar/form.html", context)
+
+
+def _reminders_context(event, reminder_form=None):
+    """The Notifications section of the edit form: the event's reminders
+    and the row that adds one."""
+    return {
+        "event": event,
+        "reminders": event.reminders.all(),
+        "reminder_form": reminder_form or ReminderForm(event=event),
+    }
+
+
+@login_required
+@require_POST
+def reminder_add(request, id):
+    """Add a notification to the event and re-render the section."""
+    event = _event_for_user(id, request.user)
+    form = ReminderForm(request.POST, event=event)
+    if form.is_valid():
+        reminder = form.save(commit=False)
+        reminder.event = event
+        reminder.save()
+        form = None
+    return render(request, "calendar/reminders.html", _reminders_context(event, form))
+
+
+@login_required
+@require_http_methods(["POST", "DELETE"])
+def reminder_delete(request, id, reminder_id):
+    """Remove a notification from the event and re-render the section."""
+    event = _event_for_user(id, request.user)
+    EventReminder.objects.filter(event=event, pk=reminder_id).delete()
+    return render(request, "calendar/reminders.html", _reminders_context(event))
 
 
 @login_required
@@ -262,11 +300,14 @@ def events_api(request):
 
     # The saved filter (less its period), over this user's events that touch
     # the range: an event over several days counts from its first day to its
-    # last, so one that began before the range still shows in it.
+    # last, so one that began before the range still shows in it. A day's
+    # margin each side covers a timed event whose date reads differently in
+    # the grid's zone than in its own.
+    first, last = start_date - timedelta(days=1), end_date + timedelta(days=1)
     events = (
         feed_filter(request)
-        .qs.filter(date__lte=end_date)
-        .filter(Q(end_date__gte=start_date) | Q(end_date=None, date__gte=start_date))
+        .qs.filter(date__lte=last)
+        .filter(Q(end_date__gte=first) | Q(end_date=None, date__gte=first))
     )
 
     # Convert to FullCalendar format
@@ -281,14 +322,16 @@ def events_api(request):
             },
         }
 
-        # Handle timed vs all-day events. FullCalendar's end is exclusive, so
-        # an all-day event over several days ends the day after its last.
+        # Handle timed vs all-day events. A timed event is sent as a moment
+        # with its offset, and the grid draws it in the browser's own zone.
+        # FullCalendar's end is exclusive, so an all-day event over several
+        # days ends the day after its last.
         if event.start_time and event.end_time:
-            fc_event["start"] = f"{event.date}T{event.start_time}"
-            fc_event["end"] = f"{event.last_date}T{event.end_time}"
+            fc_event["start"] = event.start_at.isoformat()
+            fc_event["end"] = event.end_at.isoformat()
             fc_event["allDay"] = False
         elif event.start_time:
-            fc_event["start"] = f"{event.date}T{event.start_time}"
+            fc_event["start"] = event.start_at.isoformat()
             fc_event["allDay"] = False
         else:
             fc_event["start"] = str(event.date)
@@ -328,6 +371,11 @@ def _quick_update_changes(body):
                     if data[field]
                     else None
                 )
+        # The browser says which zone the dragged-to times are in
+        if "time_zone" in data:
+            if not is_zone(data["time_zone"]):
+                return None
+            changes["time_zone"] = data["time_zone"]
     except (ValueError, TypeError):
         return None
     return changes
@@ -389,7 +437,7 @@ def calendar_inbound(request):
     invitation = None
     if text is not None:
         try:
-            invitation = invitations.parse_invitation(text)
+            invitation = invitations.parse_invitation(text, user.time_zone)
         except Exception:
             logger.exception("Forwarded invitation could not be read")
     if invitation is None:

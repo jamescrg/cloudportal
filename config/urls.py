@@ -294,6 +294,7 @@ urlpatterns = [
         settings.calendar_options,
         name="settings-calendar-options",
     ),
+    path("settings/time-zone", settings.time_zone, name="settings-time-zone"),
     path(
         "settings/calendar/forward-from",
         settings.calendar_forward_from,
