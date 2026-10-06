@@ -2,27 +2,7 @@
     <div class="container">
         <div class="nav-scroll-container">
             <ul>
-                <li {% if page == 'home' %}class="active"{% endif %}>
-                    <a href="{% url 'home' %}">Home</a>
-                </li>
-                <li {% if page == 'favorites' %}class="active"{% endif %}>
-                    <a href="{% url 'favorites' %}">Favorites</a>
-                </li>
-                <li {% if page == 'contacts' %}class="active"{% endif %}>
-                    <a href="{% url 'contacts' %}">Contacts</a>
-                </li>
-                <li {% if page == 'tasks' %}class="active"{% endif %}>
-                    <a href="{% url 'tasks' %}">Tasks</a>
-                </li>
-                <li {% if page == 'calendar' %}class="active"{% endif %}>
-                    <a href="{% url 'calendar:index' %}">Calendar</a>
-                </li>
-                <li {% if page == 'notes' %}class="active"{% endif %}>
-                    <a href="{% url 'notes:index' %}">Notes</a>
-                </li>
-                <li {% if page == 'weather' %}class="active"{% endif %}>
-                    <a href="{% url 'weather' %}">Weather</a>
-                </li>
+                {% include "nav-links.html" %}
             </ul>
             <ul class="navbar-right">
                 <li>

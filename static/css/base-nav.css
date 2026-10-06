@@ -98,13 +98,9 @@
  Responsive - Tighter spacing on mobile
 ========================================================================== */
 
-@media (max-width: 991px) {
-  .navbar li {
-    /* padding: 0.5rem 0.75rem; */
-  }
-
-  .navbar a {
-    font-size: 1rem;
-    white-space: nowrap;
+@media (max-width: 991.98px) {
+  /* The bar collapses into the menu drawer (drawer.css) */
+  .navbar {
+    display: none;
   }
 }

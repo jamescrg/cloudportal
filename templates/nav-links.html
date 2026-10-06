@@ -1,0 +1,25 @@
+{% comment %}
+The site's pages, as list items. nav.html lays them out as the desktop
+bar; the mobile menu drawer (base.html) stacks the same items.
+{% endcomment %}
+<li {% if page == 'home' %}class="active"{% endif %}>
+    <a href="{% url 'home' %}">Home</a>
+</li>
+<li {% if page == 'favorites' %}class="active"{% endif %}>
+    <a href="{% url 'favorites' %}">Favorites</a>
+</li>
+<li {% if page == 'contacts' %}class="active"{% endif %}>
+    <a href="{% url 'contacts' %}">Contacts</a>
+</li>
+<li {% if page == 'tasks' %}class="active"{% endif %}>
+    <a href="{% url 'tasks' %}">Tasks</a>
+</li>
+<li {% if page == 'calendar' %}class="active"{% endif %}>
+    <a href="{% url 'calendar:index' %}">Calendar</a>
+</li>
+<li {% if page == 'notes' %}class="active"{% endif %}>
+    <a href="{% url 'notes:index' %}">Notes</a>
+</li>
+<li {% if page == 'weather' %}class="active"{% endif %}>
+    <a href="{% url 'weather' %}">Weather</a>
+</li>

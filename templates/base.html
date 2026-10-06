@@ -60,10 +60,36 @@
         </div>
         {% include "modals.html" %}
         {% include "confirm-modal.html" %}
+        <!-- Mobile menu: the nav bar collapses into a floating button, upper left -->
+        <div x-data="navDrawer()"
+             x-cloak
+             @keydown.escape.window="if(isOpen) close()">
+            <button class="drawer-fab drawer-fab-nav"
+                    @click="toggle()"
+                    aria-label="Open menu">
+                <i class="icon-menu"></i>
+            </button>
+            <div class="drawer-backdrop" @click="close()"></div>
+            <nav class="nav-drawer" :class="{ 'drawer-open': isOpen }">
+                <ul>
+                    {% include "nav-links.html" %}
+                    <li {% if page == 'settings' %}class="active"{% endif %}>
+                        <a href="{% url 'settings' %}">Settings</a>
+                    </li>
+                    <li>
+                        <a href="#"
+                           @click="close()"
+                           hx-get="{% url 'search' %}"
+                           hx-target="#htmx-modal-container">Search</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <!-- Mobile folders: a floating button, upper right, opens the sidebar from the right -->
         <div x-data="folderDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">
-            <button class="drawer-fab"
+            <button class="drawer-fab drawer-fab-folders"
                     x-show="hasSidebar"
                     @click="toggle()"
                     aria-label="Open folders">

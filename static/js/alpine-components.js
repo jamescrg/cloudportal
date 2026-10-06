@@ -204,8 +204,44 @@ document.addEventListener('alpine:init', () => {
 
 
   /**
+   * Menu Drawer Component
+   * Mobile slide-in panel holding the site's pages (the nav bar collapses
+   * into a floating button on small screens)
+   * Usage: <div x-data="navDrawer()">
+   */
+  Alpine.data('navDrawer', () => ({
+    isOpen: false,
+
+    toggle() {
+      this.isOpen ? this.close() : this.open();
+    },
+
+    open() {
+      this.isOpen = true;
+      this.$el.querySelector('.drawer-backdrop')?.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    },
+
+    close() {
+      this.isOpen = false;
+      this.$el.querySelector('.drawer-backdrop')?.classList.remove('open');
+      document.body.style.overflow = '';
+    },
+
+    init() {
+      // Close if the viewport grows past the mobile breakpoint while open
+      window.matchMedia('(min-width: 992px)').addEventListener('change', (e) => {
+        if (e.matches && this.isOpen) {
+          this.close();
+        }
+      });
+    }
+  }));
+
+
+  /**
    * Folder Drawer Component
-   * Mobile slide-in drawer for the sidebar folder list
+   * Mobile slide-in drawer for the sidebar folder list, from the right
    * Usage: <div x-data="folderDrawer()">
    */
   Alpine.data('folderDrawer', () => ({
@@ -241,10 +277,12 @@ document.addEventListener('alpine:init', () => {
       this.hasSidebar = !!document.getElementById('sidebar');
       if (!this.hasSidebar) return;
 
-      const sidebar = document.getElementById('sidebar');
+      // Looked up on each use: a page may swap the sidebar's contents, and
+      // must never be left dragging an element that is no longer there.
+      const sidebarEl = () => document.getElementById('sidebar');
       const backdrop = this.$el.querySelector('.drawer-backdrop');
       const mql = window.matchMedia('(min-width: 992px)');
-      const EDGE_ZONE = 24;        // px from left edge to start open-swipe
+      const EDGE_ZONE = 24;        // px from right edge to start open-swipe
       const VELOCITY_THRESHOLD = 0.3; // px/ms — fast flick opens/closes
       const DISTANCE_RATIO = 0.35; // fraction of drawer width to snap
 
@@ -252,21 +290,21 @@ document.addEventListener('alpine:init', () => {
 
       // --- helpers ---
       function drawerWidth() {
-        return sidebar.offsetWidth || 280;
+        return sidebarEl().offsetWidth || 280;
       }
 
       function applyTranslate(px) {
-        // px: 0 = fully open, -drawerWidth = fully closed
-        sidebar.style.transform = `translateX(${px}px)`;
+        // px: 0 = fully open, +drawerWidth = fully closed (off the right edge)
+        sidebarEl().style.transform = `translateX(${px}px)`;
         // Sync backdrop opacity: 0 when closed, 1 when open
-        const progress = 1 + px / drawerWidth();
+        const progress = 1 - px / drawerWidth();
         backdrop.style.opacity = Math.max(0, Math.min(1, progress));
         backdrop.style.pointerEvents = progress > 0.05 ? 'auto' : 'none';
       }
 
       function clearDrag() {
-        sidebar.classList.remove('drawer-dragging');
-        sidebar.style.transform = '';
+        sidebarEl().classList.remove('drawer-dragging');
+        sidebarEl().style.transform = '';
         backdrop.style.opacity = '';
         backdrop.style.pointerEvents = '';
         self._touch = null;
@@ -277,16 +315,16 @@ document.addEventListener('alpine:init', () => {
         if (mql.matches) return; // desktop
         const t = e.touches[0];
 
-        if (!self.isOpen && t.clientX <= EDGE_ZONE) {
-          // Begin open-swipe from left edge
+        if (!self.isOpen && t.clientX >= window.innerWidth - EDGE_ZONE) {
+          // Begin open-swipe from the right edge
           self._touch = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastTime: e.timeStamp, mode: 'open', locked: false };
-          sidebar.classList.add('drawer-dragging');
+          sidebarEl().classList.add('drawer-dragging');
           backdrop.classList.add('open');
           document.body.style.overflow = 'hidden';
-        } else if (self.isOpen && (t.clientX <= drawerWidth() || e.target.closest('.drawer-backdrop'))) {
+        } else if (self.isOpen && (t.clientX >= window.innerWidth - drawerWidth() || e.target.closest('.drawer-backdrop'))) {
           // Begin close-swipe on open drawer or backdrop
           self._touch = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastTime: e.timeStamp, mode: 'close', locked: false };
-          sidebar.classList.add('drawer-dragging');
+          sidebarEl().classList.add('drawer-dragging');
         }
       }
 
@@ -318,12 +356,12 @@ document.addEventListener('alpine:init', () => {
 
         const w = drawerWidth();
         if (touch.mode === 'open') {
-          // dx goes 0 → w; translate goes -w → 0
-          const offset = Math.min(0, Math.max(-w, dx - w));
+          // finger moves left: dx goes 0 → -w; translate goes w → 0
+          const offset = Math.max(0, Math.min(w, w + dx));
           applyTranslate(offset);
         } else {
-          // dx goes 0 → -w; translate goes 0 → -w
-          const offset = Math.min(0, Math.max(-w, dx));
+          // finger moves right: dx goes 0 → w; translate goes 0 → w
+          const offset = Math.max(0, Math.min(w, dx));
           applyTranslate(offset);
         }
       }
@@ -340,17 +378,19 @@ document.addEventListener('alpine:init', () => {
         clearDrag();
 
         if (touch.mode === 'open') {
-          if (velocity > VELOCITY_THRESHOLD || dx > w * DISTANCE_RATIO) {
+          // a leftward flick or pull opens
+          if (velocity < -VELOCITY_THRESHOLD || -dx > w * DISTANCE_RATIO) {
             self.isOpen = true;
-            sidebar.classList.add('drawer-open');
+            sidebarEl().classList.add('drawer-open');
           } else {
             backdrop.classList.remove('open');
             document.body.style.overflow = '';
           }
         } else {
-          if (velocity < -VELOCITY_THRESHOLD || -dx > w * DISTANCE_RATIO) {
+          // a rightward flick or pull closes
+          if (velocity > VELOCITY_THRESHOLD || dx > w * DISTANCE_RATIO) {
             self.isOpen = false;
-            sidebar.classList.remove('drawer-open');
+            sidebarEl().classList.remove('drawer-open');
             backdrop.classList.remove('open');
             document.body.style.overflow = '';
           }
