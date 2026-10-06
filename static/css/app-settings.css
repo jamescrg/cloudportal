@@ -27,7 +27,7 @@
 
 
 /* ==========================================================================
-Section Layout (nav / body)
+Section Layout (rail / body)
 ========================================================================== */
 
 /* Container resets when using section layout children */
@@ -35,76 +35,86 @@ Section Layout (nav / body)
   padding: 0;
 }
 
-/* Section Nav - tab navigation */
+/* The settings sections outgrew a tab row, so they stand as a rail down
+   the left of the body, the pattern the law app's settings use. Below
+   992px the rail becomes the side drawer (see the end of this file). */
+.section:has(> .section-nav) {
+  align-items: stretch;
+  display: flex;
+}
+
+/* No border between the rail and the body: the active tab's curves need a
+   clean edge, as the top nav's do, so the two surfaces' colours draw it. */
 .section-nav {
   background: var(--background-subnav);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  flex: 0 0 10rem;
   margin: 0;
-  padding: 0.25rem 0 0;
+  padding: 0;
 }
 
 .section-nav ul {
-  margin: 0.25rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 1rem 0 1rem 0.75rem;
   padding: 0;
 }
 
 .section-nav li {
-  display: inline-block;
-  padding: 0.5rem 1rem;
+  display: block;
+  padding: 0;
 }
 
+/* The whole row is the link */
 .section-nav a {
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   color: var(--color-primary);
-  margin: 0;
-  padding-bottom: 0.5rem;
-  position: relative;
-  top: 0.05rem;
+  display: block;
+  margin-right: 0.75rem;
+  padding: 0.5rem 0.75rem;
 }
 
-.section-nav .active {
-  background: var(--background-subnav-tab-active);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+/* The active row is a side tab joined to the body, as the top nav's tabs
+   join the page: it takes the body's colour, reaches the rail's edge, and
+   curves into the body above and below. */
+.section-nav .active a {
+  background: var(--background-section);
+  margin-right: 0;
   position: relative;
 }
 
-.section-nav .active::before,
-.section-nav .active::after {
-  background: var(--background-subnav-tab-active);
-  bottom: 0;
+.section-nav .active a::before,
+.section-nav .active a::after {
+  background: var(--background-section);
   content: "";
   height: var(--radius-lg);
+  pointer-events: none;
   position: absolute;
+  right: 0;
   width: var(--radius-lg);
 }
 
-.section-nav .active::before {
-  left: calc(-1 * var(--radius-lg));
+/* Above the tab: a square less the quarter circle at its top left */
+.section-nav .active a::before {
+  top: calc(-1 * var(--radius-lg));
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M8,0 L8,8 L0,8 A8,8 0 0,0 8,0 Z' fill='white'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M8,0 L8,8 L0,8 A8,8 0 0,0 8,0 Z' fill='white'/%3E%3C/svg%3E");
 }
 
-.section-nav .active::after {
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L0,8 L8,8 A8,8 0 0,1 0,0 Z' fill='white'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L0,8 L8,8 A8,8 0 0,1 0,0 Z' fill='white'/%3E%3C/svg%3E");
-  right: calc(-1 * var(--radius-lg));
-}
-
-.section-nav li:first-child.active {
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-
-.section-nav li:first-child.active::before {
-  display: none;
-}
-
-/* Section Nav without header - rounded top corners */
-.section > .section-nav:first-child {
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+/* Below the tab: a square less the quarter circle at its bottom left */
+.section-nav .active a::after {
+  bottom: calc(-1 * var(--radius-lg));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L8,0 L8,8 A8,8 0 0,0 0,0 Z' fill='white'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L8,0 L8,8 A8,8 0 0,0 0,0 Z' fill='white'/%3E%3C/svg%3E");
 }
 
 /* Section Body - main content area */
 .section-body {
   background: var(--background-section);
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  flex: 1;
+  min-width: 0;
   padding: 1.25rem 1rem 1.5rem;
 }
 
@@ -150,26 +160,6 @@ Profile Form
  Mobile Responsive
 ========================================================================== */
 
-/* Below 992px the section nav is the side drawer, stacked (see the end of
-   this file); between 992px and 1000px the tab strip scrolls sideways. */
-@media (992px <= width <= 1000px) {
-  .section-nav {
-    -webkit-overflow-scrolling: touch;
-    overflow-x: auto;
-  }
-
-  .section-nav ul {
-    display: flex;
-    flex-wrap: nowrap;
-  }
-
-  .section-nav li {
-    flex-shrink: 0;
-  }
-
-  .section-nav .active {
-    padding-bottom: 0;
-  }
 }
 
 
@@ -200,42 +190,41 @@ Profile Form
 /* ------------------------------------------------------------------------- */
 
 @media (max-width: 991.98px) {
+  .section:has(> .section-nav) {
+    display: block;
+  }
+
   .section-nav {
     background: var(--background-section);
+    border-radius: 0;
+    flex: none;
     padding: 1rem 0;
   }
 
   .section-nav ul {
+    gap: 0;
     margin: 0;
   }
 
-  .section-nav li {
-    display: block;
-    padding: 0;
-  }
-
   .section-nav a {
-    display: block;
-    font-size: 1.1rem;
-    padding: 0.75rem 1.5rem;
-    top: 0;
-  }
-
-  .section-nav .active {
-    background: var(--selected-background);
     border-radius: 0;
+    font-size: 1.1rem;
+    margin-right: 0;
+    padding: 0.75rem 1.5rem;
   }
 
+  /* In the drawer the active row is a plain highlight, not a tab */
   .section-nav .active a {
+    background: var(--selected-background);
     color: var(--selected-color);
   }
 
-  .section-nav .active::before,
-  .section-nav .active::after {
+  .section-nav .active a::before,
+  .section-nav .active a::after {
     display: none;
   }
 
-  .section > .section-nav:first-child {
-    border-radius: 0;
+  .section-body {
+    border-radius: var(--radius-md);
   }
 }
