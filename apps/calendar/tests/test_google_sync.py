@@ -69,7 +69,7 @@ def test_all_day_events_unchanged():
     assert data["end_time"] is None
 
 
-def test_a_bare_meeting_type_in_the_location_is_the_type():
+def test_a_location_is_kept_as_it_reads():
     data = _parse_google_event(
         {
             "start": {"date": "2026-07-17"},
@@ -77,5 +77,5 @@ def test_a_bare_meeting_type_in_the_location_is_the_type():
             "location": "Phone",
         }
     )
-    assert data["event_type"] == "Phone"
-    assert data["location"] is None
+    assert "event_type" not in data
+    assert data["location"] == "Phone"

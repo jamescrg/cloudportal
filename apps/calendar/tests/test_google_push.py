@@ -76,7 +76,7 @@ def test_first_push_creates_and_marks_synced(remote, user):
         start_time=time(9, 0),
         end_time=time(10, 0),
         description="Call",
-        event_type="Zoom",
+        location="Zoom",
     )
 
     assert sync.push_event(event) == "ok"

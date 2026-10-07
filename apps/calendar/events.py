@@ -15,7 +15,6 @@ DEFAULT_FILTER = {
     "period": "upcoming",
     "date_min": "",
     "date_max": "",
-    "event_type": "",
     "order_by": "date",
 }
 
@@ -118,7 +117,9 @@ def toolbar_context(request):
 def get_table_data(request):
     filter = event_filter(request)
 
-    pagination = CustomPaginator(filter.qs, 20, request, PAGINATION_KEY)
+    pagination = CustomPaginator(
+        filter.qs.select_related("series"), 20, request, PAGINATION_KEY
+    )
 
     # The duration column: days for an event over several days, hours for a
     # timed event on one day, nothing for an all-day event.

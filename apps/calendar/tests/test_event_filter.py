@@ -23,9 +23,7 @@ def events(user):
         "past": Event.objects.create(
             user=user, date=today - timedelta(days=7), description="Last week"
         ),
-        "today": Event.objects.create(
-            user=user, date=today, description="Today", event_type="Phone"
-        ),
+        "today": Event.objects.create(user=user, date=today, description="Today"),
         "future": Event.objects.create(
             user=user, date=today + timedelta(days=7), description="Next week"
         ),
@@ -69,13 +67,7 @@ def test_period_all_and_past(client, events):
     assert list(_list(client).context["objects"]) == [events["past"]]
 
 
-def test_type_and_date_range_filter_both_views(client, events):
-    client.post(reverse("calendar:filter"), {"period": "", "event_type": "Phone"})
-
-    assert list(_list(client).context["objects"]) == [events["today"]]
-    assert _feed(client) == {str(events["today"].id)}
-    assert _list(client).context["filter_active"] is True
-
+def test_a_date_range_filters_both_views(client, events):
     today = timezone.localdate()
     client.post(
         reverse("calendar:filter"),

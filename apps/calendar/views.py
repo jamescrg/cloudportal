@@ -230,17 +230,25 @@ def events_add(request):
 def _save_occurrence(form, event, series, user):
     """Save an edit to an occurrence of a repeating event.
 
-    "This event" saves the one occurrence. "This and following events", or
-    any change to how it repeats, ends the series the day before this
+    "This event" saves the one occurrence. "This and following events" with
+    the same rule and the same day carries the edit to the later
+    occurrences where they stand, so one moved by hand stays moved and each
+    keeps its notifications and its Google event. Any other change to how
+    it repeats, or to its day, ends the series the day before this
     occurrence (as it was) and starts a new one from it as saved, the way
     Google Calendar splits a series. Repeat set to none leaves this
     occurrence standing alone.
     """
     original_date = Event.objects.values_list("date", flat=True).get(pk=event.pk)
     rule = form.rule()
-    this_only = form.cleaned_data.get("scope") != "following"
-    if this_only and rule == recurrence.rule_of(series):
+    same_rule = rule == recurrence.rule_of(series)
+    if form.cleaned_data.get("scope") != "following" and same_rule:
         return _save_event(form, user)
+
+    if same_rule and form.cleaned_data["date"] == original_date:
+        result = _save_event(form, user)
+        recurrence.update_following(series, event)
+        return result
 
     result = _save_event(form, user)
     recurrence.end_before(series, original_date, keep=event)
@@ -393,10 +401,14 @@ def events_api(request):
     # margin each side covers a timed event whose date reads differently in
     # the grid's zone than in its own.
     first, last = start_date - timedelta(days=1), end_date + timedelta(days=1)
+    # Repeating events are made a year ahead; a look further out makes the
+    # occurrences it needs
+    recurrence.extend_for(request.user, last)
     events = (
         feed_filter(request)
         .qs.filter(date__lte=last)
         .filter(Q(end_date__gte=first) | Q(end_date=None, date__gte=first))
+        .select_related("series")
     )
 
     # Convert to FullCalendar format
@@ -406,10 +418,13 @@ def events_api(request):
             "id": str(event.id),
             "title": event.description or "Untitled",
             "extendedProps": {
-                "event_type": event.event_type or "",
                 "location": event.location or "",
             },
         }
+        # A repeating event is marked, with its rule in words for a tooltip
+        if event.series:
+            fc_event["className"] = "fc-event-repeats"
+            fc_event["extendedProps"]["repeats"] = event.series.summary
 
         # Handle timed vs all-day events. A timed event is sent as a moment
         # with its offset, and the grid draws it in the browser's own zone.

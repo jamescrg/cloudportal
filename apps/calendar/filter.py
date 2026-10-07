@@ -15,7 +15,6 @@ SORT_CHOICES = (
     ("-date", "Date (Latest)"),
     ("description", "Description (A-Z)"),
     ("-description", "Description (Z-A)"),
-    ("event_type", "Type"),
 )
 
 
@@ -43,23 +42,17 @@ class EventFilter(django_filters.FilterSet):
         widget=RangeWidget(attrs={"type": "date"}),
         label="Date",
     )
-    event_type = django_filters.ChoiceFilter(
-        choices=Event.EVENT_TYPE_CHOICES,
-        empty_label="All",
-        label="Type",
-    )
     order_by = EventOrderingFilter(
         fields=(
             ("date", "date"),
             ("description", "description"),
-            ("event_type", "event_type"),
         ),
         empty_label=None,
     )
 
     class Meta:
         model = Event
-        fields = ["period", "date", "event_type"]
+        fields = ["period", "date"]
 
     def __init__(self, data=None, *, user, **kwargs):
         kwargs.setdefault("queryset", Event.objects.all())

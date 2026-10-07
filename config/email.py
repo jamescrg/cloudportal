@@ -108,8 +108,6 @@ def send_event_reminder_email(user, event):
         lines.append(f"Through: {shown.end_date.strftime('%A, %B %-d')}")
     if shown.start_time and shown.end_time:
         lines.append(f"Ends: {shown.end_time.strftime('%-I:%M %p')}")
-    if event.event_type:
-        lines.append(f"Type: {event.event_type}")
     if event.location:
         lines.append(f"Location: {event.location}")
     lines.append("")

@@ -24,24 +24,6 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="id_event_type">Type</label>
-                    <div>
-                        <select name="event_type" id="id_event_type">
-                            <option value="" {% if not filter_data.event_type %}selected{% endif %}>All</option>
-                            <option value="Zoom"
-                                    {% if filter_data.event_type == "Zoom" %}selected{% endif %}>Zoom</option>
-                            <option value="Virtual"
-                                    {% if filter_data.event_type == "Virtual" %}selected{% endif %}>Virtual</option>
-                            <option value="Phone"
-                                    {% if filter_data.event_type == "Phone" %}selected{% endif %}>Phone</option>
-                            <option value="In-person"
-                                    {% if filter_data.event_type == "In-person" %}selected{% endif %}>
-                                In-person
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
                     <label for="id_date_0">Date From</label>
                     <div>
                         <input type="date"
@@ -72,8 +54,6 @@
                                     {% if sort_value == "description" %}selected{% endif %}>Description (A-Z)</option>
                             <option value="-description"
                                     {% if sort_value == "-description" %}selected{% endif %}>Description (Z-A)</option>
-                            <option value="event_type"
-                                    {% if sort_value == "event_type" %}selected{% endif %}>Type</option>
                         </select>
                     </div>
                 </div>

@@ -38,8 +38,7 @@ class EventSeries(TimestampMixin, models.Model):
         until (date): the last day an occurrence may fall on; blank for no end
         count (int): how many occurrences in all; blank for no limit
         generated_through (date): occurrences exist up to this day
-        description, start_time, end_time, event_type, location: what each
-            occurrence is
+        description, start_time, end_time, location: what each occurrence is
         span_days (int): how many days after its first an occurrence ends;
             0 for one on a single day
         time_zone (str): the zone the days and times are in
@@ -72,7 +71,6 @@ class EventSeries(TimestampMixin, models.Model):
     end_time = models.TimeField(blank=True, null=True)
     span_days = models.PositiveIntegerField(default=0)
     time_zone = models.CharField(max_length=64, default=settings.TIME_ZONE)
-    event_type = models.CharField(max_length=50, blank=True, null=True)
     location = models.CharField(max_length=150, blank=True, null=True)
     reminders = models.JSONField(default=list, blank=True)
 
@@ -82,6 +80,13 @@ class EventSeries(TimestampMixin, models.Model):
     @property
     def weekday_list(self):
         return [int(day) for day in self.weekdays.split(",") if day.strip()]
+
+    @property
+    def summary(self):
+        """The rule in words ("Weekly on Tuesday and Thursday")."""
+        from apps.calendar.recurrence import describe
+
+        return describe(self)
 
     class Meta:
         db_table = "app_event_series"
@@ -101,8 +106,6 @@ class Event(TimestampMixin, models.Model):
             name an exact moment, so an event made while travelling keeps
             its moment wherever it is looked at from
         description (str): what the event is
-        event_type (str): how the event takes place (Zoom, Virtual, Phone,
-            In-person)
         location (str): a meeting link or an address
         google_id (str): the event's id on Google Calendar, when it is there
         ical_uid (str): the identifier of the invitation the event came from,
@@ -111,13 +114,6 @@ class Event(TimestampMixin, models.Model):
         google_synced_at (datetime): when the event was last pushed to Google
         series (int): the repeating event this is one occurrence of, if any
     """
-
-    EVENT_TYPE_CHOICES = [
-        ("Zoom", "Zoom"),
-        ("Virtual", "Virtual"),
-        ("Phone", "Phone"),
-        ("In-person", "In-person"),
-    ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     date = models.DateField()
@@ -128,9 +124,6 @@ class Event(TimestampMixin, models.Model):
     end_time = models.TimeField(blank=True, null=True)
     time_zone = models.CharField(max_length=64, default=settings.TIME_ZONE)
     description = models.CharField(max_length=255, blank=True)
-    event_type = models.CharField(
-        max_length=50, choices=EVENT_TYPE_CHOICES, blank=True, null=True
-    )
     # CharField (not TextField) on purpose: location is a short pointer — a
     # meeting link or an address — not a notes field. 150 still fits a Zoom
     # URL + passcode.

@@ -200,7 +200,6 @@ def generate(series, through):
                 end_time=series.end_time,
                 time_zone=series.time_zone,
                 description=series.description,
-                event_type=series.event_type,
                 location=series.location,
             )
         )
@@ -228,7 +227,6 @@ def start_series(event, rule, today=None):
         end_time=event.end_time,
         span_days=span,
         time_zone=event.time_zone,
-        event_type=event.event_type,
         location=event.location,
         reminders=_reminder_template(event),
         **rule,
@@ -329,3 +327,105 @@ def extend_all(today=None):
     for series in running.iterator():
         made += generate(series, through)
     return made
+
+
+# The furthest ahead a look at the calendar makes occurrences
+FURTHEST = timedelta(days=365 * 10)
+
+
+def extend_for(user, through, today=None):
+    """Make a user's occurrences up to a day the calendar is showing, past
+    the year made ahead (but never more than ten years out). Returns how
+    many were made."""
+    today = today or timezone.localdate()
+    through = min(through, today + FURTHEST)
+    made = 0
+    running = EventSeries.objects.filter(
+        user=user, generated_through__lt=through
+    ).exclude(until__lte=F("generated_through"))
+    for series in running:
+        made += generate(series, through)
+    return made
+
+
+def update_following(series, event):
+    """Carry an edit of one occurrence (its description, times, place and
+    length) to the later occurrences and to the series, leaving each on
+    its own day. The occurrences keep their notifications and their Google
+    events, which take the change on the next sync."""
+    span = (event.end_date - event.date).days if event.end_date else 0
+    fields = {
+        "description": event.description,
+        "start_time": event.start_time,
+        "end_time": event.end_time,
+        "time_zone": event.time_zone,
+        "location": event.location,
+    }
+    with transaction.atomic():
+        for occurrence in series.occurrences.filter(date__gt=event.date):
+            for name, value in fields.items():
+                setattr(occurrence, name, value)
+            occurrence.end_date = (
+                occurrence.date + timedelta(days=span) if span else None
+            )
+            occurrence.save()
+        for name, value in fields.items():
+            setattr(series, name, value)
+        series.span_days = span
+        series.save()
+
+
+WEEKDAY_NAMES = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+]
+ORDINALS = {1: "first", 2: "second", 3: "third", 4: "fourth", -1: "last"}
+UNITS = {"daily": "day", "weekly": "week", "monthly": "month", "yearly": "year"}
+
+
+def _and(items):
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def describe(series):
+    """The rule in words: "Weekly on Tuesday and Thursday", "Every 2 months
+    on the second Tuesday", "Annually on October 6, 10 times"."""
+    start = series.start
+    unit = UNITS[series.frequency]
+    if series.interval == 1:
+        lead = {
+            "daily": "Daily",
+            "weekly": "Weekly",
+            "monthly": "Monthly",
+            "yearly": "Annually",
+        }[series.frequency]
+    else:
+        lead = f"Every {series.interval} {unit}s"
+
+    if series.frequency == "weekly":
+        if series.interval == 1 and series.weekdays == WEEKDAYS:
+            text = "Every weekday"
+        else:
+            days = series.weekday_list or [start.weekday()]
+            text = f"{lead} on {_and([WEEKDAY_NAMES[d] for d in days])}"
+    elif series.frequency == "monthly":
+        if series.monthly_by == "weekday":
+            nth = ORDINALS[nth_weekday(start)]
+            text = f"{lead} on the {nth} {WEEKDAY_NAMES[start.weekday()]}"
+        else:
+            text = f"{lead} on day {start.day}"
+    elif series.frequency == "yearly":
+        text = f"{lead} on {start.strftime('%B')} {start.day}"
+    else:
+        text = lead
+
+    if series.until:
+        text += f", until {series.until.strftime('%b')} {series.until.day}, {series.until.year}"
+    elif series.count:
+        text += f", {series.count} times"
+    return text

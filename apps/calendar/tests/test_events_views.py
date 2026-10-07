@@ -74,7 +74,6 @@ def test_edit_post(client, event):
     data = {
         "date": "2022-12-29",
         "description": "File Answer, moved",
-        "event_type": "Phone",
         "location": "555-1234",
     }
     response = client.post(f"/calendar/{event.id}/edit", data)
@@ -82,7 +81,6 @@ def test_edit_post(client, event):
     event.refresh_from_db()
     assert str(event.date) == "2022-12-29"
     assert event.description == "File Answer, moved"
-    assert event.event_type == "Phone"
     assert event.location == "555-1234"
 
 
@@ -145,7 +143,6 @@ def test_feed_shapes_timed_and_all_day_events(client, user):
         start_time="09:00",
         end_time="10:30",
         description="Timed",
-        event_type="Zoom",
         location="https://zoom.example/j/1",
     )
     all_day = Event.objects.create(user=user, date="2030-03-05", description="All day")
@@ -161,7 +158,6 @@ def test_feed_shapes_timed_and_all_day_events(client, user):
     assert feed[str(timed.id)]["end"] == "2030-03-04T10:30:00-05:00"
     assert feed[str(timed.id)]["allDay"] is False
     assert feed[str(timed.id)]["extendedProps"] == {
-        "event_type": "Zoom",
         "location": "https://zoom.example/j/1",
     }
     assert feed[str(all_day.id)]["start"] == "2030-03-05"

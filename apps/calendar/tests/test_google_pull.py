@@ -113,14 +113,13 @@ def test_unpushed_local_edits_are_kept(user):
     assert event.description == "Dentist"
 
 
-def test_removing_the_location_leaves_the_meeting_type(user):
-    event = _in_step(user, event_type="Zoom", location="https://zoom.example/j/1")
+def test_removing_the_location_on_google_removes_it_here(user):
+    event = _in_step(user, location="https://zoom.example/j/1")
 
     _pull(user, summary="Dentist")
 
     event.refresh_from_db()
     assert event.location is None
-    assert event.event_type == "Zoom"
 
 
 def test_another_users_event_with_the_same_id_is_not_touched(user, other_user):

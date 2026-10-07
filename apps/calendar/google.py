@@ -84,12 +84,8 @@ def _event_body(event):
         body["start"] = {"date": str(event.date)}
         body["end"] = {"date": str(event.last_date + timedelta(days=1))}
 
-    # Map the free-text location to Google's location field; fall back to
-    # the meeting type so type-only events still show something there.
     if event.location:
         body["location"] = event.location
-    elif event.event_type:
-        body["location"] = event.event_type
 
     return body
 
@@ -385,7 +381,7 @@ def _fit_description(text):
 def _parse_google_event(google_event, zone=None):
     """
     Parse Google Calendar event into local Event model fields.
-    Extracts: date, start_time, end_time, time_zone, event_type, location.
+    Extracts: date, start_time, end_time, time_zone, location.
     A timed event keeps the zone Google gives it; without one, it is read
     in ``zone`` (the user's, or the app's).
     """
@@ -430,18 +426,12 @@ def _parse_google_event(google_event, zone=None):
             end_dt.date() if end_dt.date() > start_dt.date() else None
         )
 
-    # Parse location: a bare meeting-type value maps to event_type, anything
-    # else is treated as a free-text location. Google's location is
-    # unbounded; truncate to our column limit so a long value can't fail the
-    # whole sync run. The location is always set, to nothing when Google
-    # holds no free text, so one removed there is removed here. The meeting
-    # type is left as it is: it is this app's own classification, and Google
-    # only ever shows it in place of a missing location.
+    # Google's location is unbounded; truncate to our column limit so a long
+    # value can't fail the whole sync run. The location is always set, to
+    # nothing when Google holds none, so one removed there is removed here.
     location = google_event.get("location") or ""
     event_data["location"] = None
-    if location in dict(Event.EVENT_TYPE_CHOICES):
-        event_data["event_type"] = location
-    elif location:
+    if location:
         max_length = Event._meta.get_field("location").max_length
         event_data["location"] = location[:max_length]
 

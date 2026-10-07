@@ -80,7 +80,115 @@ document.body.addEventListener("htmx:beforeRequest", (event) => {
   }
 });
 
+// The event form's Repeat section (templates/calendar/form.html). The
+// Repeat choices read as Google's do, from the event's date ("Weekly on
+// Tuesday", "Monthly on the second Tuesday", "Annually on October 6"), and
+// follow it as it changes; so does the weekday ticked for a weekly repeat,
+// while it is still the only one. The ordinal matches the server's
+// (recurrence.nth_weekday): a fifth weekday repeats as the last.
+const WEEKDAY_NAMES = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const ORDINALS = { 1: "first", 2: "second", 3: "third", 4: "fourth", 5: "last" };
+
+function parseDay(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
+  if (!match) {
+    return null;
+  }
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+}
+
+// Monday 0, as Python counts them
+function weekdayOf(day) {
+  return (day.getDay() + 6) % 7;
+}
+
+// A repeating event shows its rule in words when hovered
+function markRepeats(info) {
+  const repeats = (info.event.extendedProps || {}).repeats;
+  if (repeats) {
+    info.el.title = `${info.event.title} · ${repeats}`;
+  }
+}
+
+function repeatLabels(day) {
+  if (!day) {
+    return {};
+  }
+  const weekday = WEEKDAY_NAMES[weekdayOf(day)];
+  const nth = ORDINALS[Math.floor((day.getDate() - 1) / 7) + 1];
+  return {
+    daily: "Daily",
+    weekdays: "Every weekday (Monday to Friday)",
+    // The days come from the checkboxes beneath, so the choice is plain
+    weekly: "Weekly",
+    monthly: `Monthly on day ${day.getDate()}`,
+    monthly_weekday: `Monthly on the ${nth} ${weekday}`,
+    yearly: `Annually on ${MONTH_NAMES[day.getMonth()]} ${day.getDate()}`,
+  };
+}
+
 document.addEventListener("alpine:init", () => {
+  Alpine.data("eventRepeat", (initial) => ({
+    repeat: initial.repeat || "",
+    ends: initial.ends || "never",
+    date: initial.date || "",
+    scope: "this",
+
+    init() {
+      this.relabel();
+      this.$watch("date", (value, previous) => {
+        this.relabel();
+        this.followWeekday(parseDay(previous), parseDay(value));
+      });
+    },
+
+    relabel() {
+      const labels = repeatLabels(parseDay(this.date));
+      this.$root.querySelectorAll('select[name="repeat"] option').forEach((option) => {
+        if (labels[option.value]) {
+          option.textContent = labels[option.value];
+        }
+      });
+    },
+
+    // A weekly repeat starts on the date's weekday; when the date moves and
+    // that is still the only day ticked, the tick moves with it
+    followWeekday(previous, current) {
+      if (!previous || !current) {
+        return;
+      }
+      const boxes = [...this.$root.querySelectorAll('input[name="weekdays"]')];
+      const ticked = boxes.filter((box) => box.checked).map((box) => Number(box.value));
+      if (ticked.length === 1 && ticked[0] === weekdayOf(previous)) {
+        boxes.forEach((box) => {
+          box.checked = Number(box.value) === weekdayOf(current);
+        });
+      }
+    },
+  }));
+
   Alpine.data("eventsCalendar", () => ({
     calendar: null,
     apiUrl: "/calendar/api/",
@@ -133,6 +241,7 @@ document.addEventListener("alpine:init", () => {
             // would read "12am" (that day's share starts at midnight); it
             // reads "until 3pm" instead
             eventDidMount: (info) => {
+              markRepeats(info);
               if (info.isStart || !info.isEnd || info.event.allDay) {
                 return;
               }
@@ -149,6 +258,10 @@ document.addEventListener("alpine:init", () => {
             },
           },
         },
+
+        // Every other view: the repeat tooltip (the agenda sets its own,
+        // above)
+        eventDidMount: markRepeats,
 
         // Event source - JSON API
         events: {

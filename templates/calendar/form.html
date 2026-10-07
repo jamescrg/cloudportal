@@ -1,4 +1,5 @@
-<div class="modal-dialog modal-lg">
+<div class="modal-dialog modal-lg"
+     x-data="eventRepeat({ repeat: '{{ form.repeat.value|default_if_none:'' }}', ends: '{{ form.ends.value|default:'never' }}', date: '{{ form.date.value|default_if_none:''|stringformat:'s' }}' })">
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">
@@ -18,6 +19,11 @@
                     Google Calendar sync is on, but no Google account is connected. The event will be kept here only until one is connected in Settings.
                 </p>
             {% endif %}
+            {% if edit and event.series %}
+                <p class="event-note event-repeats">
+                    <i class="icon-repeat"></i> {{ event.series.summary }}
+                </p>
+            {% endif %}
             {% if edit and event.detached_from_google %}
                 <p class="event-note">
                     Not on Google Calendar. This event was deleted there and kept here, so it will not be posted to Google again.
@@ -26,12 +32,11 @@
             <form id="event-form"
                   hx-post="{{ action }}"
                   hx-target="#htmx-modal-container"
-                  class="form-compact col3"
-                  x-data="{ repeat: '{{ form.repeat.value|default_if_none:'' }}', ends: '{{ form.ends.value|default:'never' }}' }">
+                  class="form-compact event-form">
                 {% csrf_token %}
                 {% for field in form %}
                     {% if field.name not in form.REPEAT_FIELDS and field.name != "scope" %}
-                        <div class="form-group">
+                        <div class="form-group field-{{ field.name }}">
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                             <div>
                                 {{ field }}
@@ -41,14 +46,15 @@
                     {% endif %}
                 {% endfor %}
                 {# How the event repeats: each part shows once it applies #}
-                <div class="form-group">
+                <div class="form-group field-repeat">
                     <label for="{{ form.repeat.id_for_label }}">Repeat</label>
                     <div>
                         {{ form.repeat }}
                         {{ form.repeat.errors }}
                     </div>
                 </div>
-                <div class="form-group" x-show="repeat && repeat !== 'weekdays'">
+                <div class="form-group field-interval"
+                     x-show="repeat && repeat !== 'weekdays'">
                     <label for="{{ form.interval.id_for_label }}">Every</label>
                     <div class="repeat-every">
                         {{ form.interval }}
@@ -56,41 +62,35 @@
                         {{ form.interval.errors }}
                     </div>
                 </div>
-                <div class="form-group" x-show="repeat">
+                <div class="form-group field-ends" x-show="repeat">
                     <label for="{{ form.ends.id_for_label }}">Ends</label>
                     <div>
                         {{ form.ends }}
                         {{ form.ends.errors }}
                     </div>
                 </div>
-                <div class="form-group" x-show="repeat && ends === 'on'">
+                <div class="form-group field-until" x-show="repeat && ends === 'on'">
                     <label for="{{ form.until.id_for_label }}">Last day</label>
                     <div>
                         {{ form.until }}
                         {{ form.until.errors }}
                     </div>
                 </div>
-                <div class="form-group" x-show="repeat && ends === 'after'">
+                <div class="form-group field-count" x-show="repeat && ends === 'after'">
                     <label for="{{ form.count.id_for_label }}">Times</label>
                     <div>
                         {{ form.count }}
                         {{ form.count.errors }}
                     </div>
                 </div>
-                <div class="form-group span3 repeat-weekdays" x-show="repeat === 'weekly'">
+                <div class="form-group field-weekdays repeat-weekdays"
+                     x-show="repeat === 'weekly'">
                     <label>On</label>
                     <div>
                         {{ form.weekdays }}
                         {{ form.weekdays.errors }}
                     </div>
                 </div>
-                {% if form.scope %}
-                    {# An occurrence of a repeating event: what a save or a delete reaches #}
-                    <div class="form-group span3 repeat-scope">
-                        <label>{{ form.scope.label }}</label>
-                        <div>{{ form.scope }}</div>
-                    </div>
-                {% endif %}
             </form>
             {% if edit %}
                 {% include "components/reminders.html" %}
@@ -102,11 +102,15 @@
                    class="btn btn-danger"
                    hx-delete="{% url 'calendar:delete' event.id %}"
                    hx-target="#htmx-modal-container"
-                   {% if event.series %}hx-include="#event-form [name=scope]" hx-confirm="Delete the events chosen under Apply to?"{% else %}hx-confirm="Are you sure you want to delete this event?"{% endif %}>Delete</a>
+                   {% if event.series %}hx-include="[name='scope']" hx-confirm="Delete this event?" :hx-confirm="scope === 'following' ? 'Delete this event and all the ones after it?' : 'Delete this event? The others in the series stay.'"{% else %}hx-confirm="Are you sure you want to delete this event?"{% endif %}>Delete</a>
             {% else %}
                 <button type="button"
                         class="btn btn-secondary"
                         @click="$dispatch('close-modal')">Cancel</button>
+            {% endif %}
+            {% if form.scope %}
+                {# What Delete and Save reach, between the two buttons it governs #}
+                <div class="repeat-scope" role="radiogroup" aria-label="Apply to">{{ form.scope }}</div>
             {% endif %}
             <button type="submit" form="event-form" class="btn btn-primary">Save</button>
         </div>

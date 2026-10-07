@@ -19,14 +19,6 @@
                 </button>
             </th>
             <th class="duration">Duration</th>
-            <th class="event-type">
-                Type
-                <button class="btn-sort {% if current_order == 'event_type' %}active{% endif %}"
-                        hx-post="{% url 'calendar:filter-sort' 'event_type' %}"
-                        hx-swap="none">
-                    <i class="icon-chevrons-up-down"></i>
-                </button>
-            </th>
             <th class="location">Location</th>
         </tr>
         {% for event in objects %}
@@ -40,7 +32,7 @@
                     <a href="#"
                        hx-get="{% url 'calendar:edit' event.id %}"
                        hx-target="#htmx-modal-container">{{ event.description }}</a>
-                    {% if event.series_id %}<i class="icon-repeat event-repeat" title="Repeats"></i>{% endif %}
+                    {% if event.series_id %}<i class="icon-repeat event-repeat" title="{{ event.series.summary }}"></i>{% endif %}
                     {% if event.detached_from_google %}<span class="event-detached">Not on Google Calendar</span>{% endif %}
                 </td>
                 <td class="duration">
@@ -50,12 +42,11 @@
                         {{ event.duration }} hr{{ event.duration|pluralize }}
                     {% endif %}
                 </td>
-                <td class="event-type">{{ event.event_type|default:"" }}</td>
                 <td class="location">{{ event.location|default:"" }}</td>
             </tr>
         {% empty %}
             <tr>
-                <td colspan="5" class="empty-message">No events found.</td>
+                <td colspan="4" class="empty-message">No events found.</td>
             </tr>
         {% endfor %}
     </table>

@@ -72,7 +72,9 @@ class EventForm(forms.ModelForm):
         choices=SCOPE_CHOICES,
         initial="this",
         required=False,
-        widget=forms.RadioSelect,
+        # Shown in the modal's footer, beside the Delete and Save buttons it
+        # governs; form= keeps it part of the form all the same
+        widget=forms.RadioSelect(attrs={"x-model": "scope", "form": "event-form"}),
     )
 
     REPEAT_FIELDS = ("repeat", "interval", "weekdays", "ends", "until", "count")
@@ -82,24 +84,23 @@ class EventForm(forms.ModelForm):
         fields = (
             "description",
             "date",
+            "end_date",
             "start_time",
             "end_time",
-            "end_date",
-            "event_type",
             "location",
         )
         labels = {
-            "end_date": "End Date",
-            "event_type": "Type",
+            "end_date": "End date",
         }
         widgets = {
-            "description": forms.TextInput(attrs={"autofocus": True, "class": "span3"}),
-            "date": forms.DateInput(attrs={"type": "date"}),
+            "description": forms.TextInput(attrs={"autofocus": True}),
+            # The repeat labels ("Monthly on the second Tuesday") follow the date
+            "date": forms.DateInput(attrs={"type": "date", "x-model": "date"}),
             "end_date": forms.DateInput(attrs={"type": "date"}),
             "start_time": forms.TimeInput(attrs={"type": "time"}),
             "end_time": forms.TimeInput(attrs={"type": "time"}),
             "location": forms.TextInput(
-                attrs={"class": "span2", "placeholder": "Meeting link or address"}
+                attrs={"placeholder": "Meeting link or address"}
             ),
         }
 

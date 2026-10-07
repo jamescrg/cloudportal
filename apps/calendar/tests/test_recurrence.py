@@ -318,7 +318,7 @@ def test_an_edit_to_this_event_leaves_the_rest(client, user):
     assert descriptions.count("Standup moved") == 1
 
 
-def test_an_edit_to_following_events_splits_the_series(client, user):
+def test_a_new_rule_from_an_occurrence_splits_the_series(client, user):
     series = _weekly_series(client, user)
     third = series.occurrences.order_by("date")[2]
 
@@ -328,7 +328,7 @@ def test_an_edit_to_following_events_splits_the_series(client, user):
             "date": str(third.date),
             "description": "Team sync",
             "repeat": "weekly",
-            "interval": 1,
+            "interval": 2,
             "weekdays": series.weekdays,
             "scope": "following",
         },
@@ -491,3 +491,152 @@ def test_a_notification_removed_from_an_occurrence_leaves_the_later_ones(client,
     assert not occurrences[-1].reminders.exists()
     series.refresh_from_db()
     assert series.reminders == []
+
+
+# --- polish ----------------------------------------------------------------
+
+
+def test_an_edit_to_following_with_the_same_rule_changes_them_in_place(client, user):
+    series = _weekly_series(client, user)
+    occurrences = list(series.occurrences.order_by("date"))
+    # One moved by hand, and one already on Google
+    moved = occurrences[4]
+    Event.objects.filter(pk=moved.pk).update(date=moved.date + timedelta(days=1))
+    Event.objects.filter(pk=occurrences[5].pk).update(google_id="g-5")
+    pivot = occurrences[2]
+
+    client.post(
+        reverse("calendar:edit", args=[pivot.id]),
+        {
+            "date": str(pivot.date),
+            "description": "Team sync",
+            "start_time": "10:00",
+            "repeat": "weekly",
+            "interval": 1,
+            "weekdays": series.weekdays,
+            "scope": "following",
+        },
+    )
+
+    series.refresh_from_db()
+    assert series.until is None
+    assert series.description == "Team sync"
+    assert series.occurrences.count() == 53
+    descriptions = list(
+        series.occurrences.order_by("date").values_list("description", flat=True)
+    )
+    assert descriptions[:2] == ["Standup", "Standup"]
+    assert set(descriptions[2:]) == {"Team sync"}
+    moved_now = Event.objects.get(pk=moved.pk)
+    assert moved_now.date == moved.date + timedelta(days=1)
+    assert moved_now.start_time == time(10, 0)
+    assert Event.objects.get(pk=occurrences[5].pk).google_id == "g-5"
+    # Made later, the series' later occurrences read the new way too
+    assert (
+        recurrence.generate(series, series.generated_through + timedelta(days=14)) == 2
+    )
+    assert series.occurrences.order_by("-date").first().description == "Team sync"
+
+
+def test_moving_the_day_of_following_events_splits_the_series(client, user):
+    series = _weekly_series(client, user)
+    third = series.occurrences.order_by("date")[2]
+
+    client.post(
+        reverse("calendar:edit", args=[third.id]),
+        {
+            "date": str(third.date + timedelta(days=1)),
+            "description": "Standup",
+            "repeat": "weekly",
+            "interval": 1,
+            "weekdays": series.weekdays,
+            "scope": "following",
+        },
+    )
+
+    series.refresh_from_db()
+    assert series.until == third.date - timedelta(days=1)
+
+
+@pytest.mark.parametrize(
+    "fields, words",
+    [
+        ({"frequency": "daily"}, "Daily"),
+        ({"frequency": "daily", "interval": 3}, "Every 3 days"),
+        ({"frequency": "weekly", "weekdays": "1,3"}, "Weekly on Tuesday and Thursday"),
+        ({"frequency": "weekly", "weekdays": "0,1,2,3,4"}, "Every weekday"),
+        (
+            {"frequency": "weekly", "interval": 2, "weekdays": ""},
+            "Every 2 weeks on Monday",
+        ),
+        ({"frequency": "monthly"}, "Monthly on day 7"),
+        (
+            {"frequency": "monthly", "monthly_by": "weekday"},
+            "Monthly on the first Monday",
+        ),
+        (
+            {
+                "frequency": "monthly",
+                "monthly_by": "weekday",
+                "start": date(2030, 1, 31),
+            },
+            "Monthly on the last Thursday",
+        ),
+        ({"frequency": "yearly"}, "Annually on January 7"),
+        ({"frequency": "daily", "count": 10}, "Daily, 10 times"),
+        ({"frequency": "daily", "until": date(2030, 3, 1)}, "Daily, until Mar 1, 2030"),
+    ],
+)
+def test_a_rule_reads_in_words(user, fields, words):
+    assert _series(user, **fields).summary == words
+
+
+def test_looking_past_the_year_makes_the_occurrences_there(client, user):
+    series = _weekly_series(client, user)
+    far = timezone.localdate() + timedelta(days=500)
+
+    rows = client.get(
+        reverse("calendar:api"),
+        {"start": str(far), "end": str(far + timedelta(days=30))},
+    ).json()
+
+    assert len(rows) >= 4
+    series.refresh_from_db()
+    assert series.generated_through >= far + timedelta(days=30)
+
+
+def test_occurrences_are_never_made_past_ten_years(user):
+    first = _first(user)
+    series = recurrence.start_series(
+        first, recurrence.rule_for("yearly", 1, [], first.date), today=TODAY
+    )
+
+    recurrence.extend_for(user, TODAY + timedelta(days=365 * 50), today=TODAY)
+
+    series.refresh_from_db()
+    assert series.generated_through == TODAY + recurrence.FURTHEST
+
+
+def test_the_feed_marks_repeating_events(client, user):
+    series = _weekly_series(client, user)
+    Event.objects.create(user=user, date=_soon(), description="One-off")
+
+    rows = client.get(
+        reverse("calendar:api"), {"start": str(_soon()), "end": str(_soon(2))}
+    ).json()
+
+    marked = {row["title"]: row.get("className") for row in rows}
+    assert marked == {"Standup": "fc-event-repeats", "One-off": None}
+    repeating = next(row for row in rows if row["title"] == "Standup")
+    assert repeating["extendedProps"]["repeats"] == series.summary
+
+
+def test_the_edit_form_says_how_the_event_repeats(client, user):
+    series = _weekly_series(client, user)
+
+    page = client.get(
+        reverse("calendar:edit", args=[series.occurrences.first().id])
+    ).content.decode()
+
+    assert series.summary in page
+    assert "eventRepeat(" in page
