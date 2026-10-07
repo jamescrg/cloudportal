@@ -88,7 +88,6 @@
 
   /* The active tab is lit at the top by the light's own green */
   --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, var(--mist-light)) 85%, transparent);
-  --atmos-tab-hover: color-mix(in oklab, var(--stone-50) 28%, transparent);
 
   /* Cards carry no light of their own: they are the plain card colour,
      let through so the wash shows behind them. At 65% body text keeps

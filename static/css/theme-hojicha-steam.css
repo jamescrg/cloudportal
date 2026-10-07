@@ -17,7 +17,6 @@
     color-mix(in oklab, var(--background-nav) 86%, var(--gb-faded-orange))
   );
   --atmos-tab-glow: color-mix(in oklab, var(--gb-dark3) 45%, transparent);
-  --atmos-tab-hover: color-mix(in oklab, var(--gb-dark2) 55%, transparent);
 
   --atmos-card: linear-gradient(
     165deg,
