@@ -65,26 +65,34 @@
   /* Shadows take the light's colour too: green-gray, not black */
   --mist-shadow: color-mix(in oklab, var(--lime-950) 28%, transparent);
 
+  /* The page: a still wash of the same light, pooled where it would fall
+     in a misty field. Green low on the left, the sun high on the right,
+     lavender gathering in the far corner, a little sea-green underfoot.
+     It sits under the moving mist (paused for now), runs up under the
+     bar, and the active tab shows it too (atmosphere.css). */
+  --atmos-wash:
+    radial-gradient(60vmax 45vmax at 10% 55%, color-mix(in oklab, var(--mist-light) 60%, transparent), transparent 70%),
+    radial-gradient(50vmax 40vmax at 95% 20%, color-mix(in oklab, var(--mist-sun) 55%, transparent), transparent 70%),
+    radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--mist-shade) 45%, transparent), transparent 70%),
+    radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--emerald-100) 50%, transparent), transparent 70%);
+
   /* ------------------------------------------------------------------
      The atmosphere's dials, drawn from the light
      ------------------------------------------------------------------ */
   --atmos-ink: var(--stone-700);
   --atmos-grain: 0.07;
 
-  /* The bar runs from stone into the tea's green and ends in the shade */
+  /* The bar runs from stone into the tea's green and ends in the shade,
+     a little translucent so the wash carries on up under it */
   --atmos-nav: linear-gradient(
     100deg,
-    var(--background-nav) 30%,
-    color-mix(in oklab, var(--background-nav) 84%, var(--lime-300)) 72%,
-    color-mix(in oklab, var(--background-nav) 78%, var(--mist-shade))
+    color-mix(in oklab, var(--background-nav) 82%, transparent) 30%,
+    color-mix(in oklab, color-mix(in oklab, var(--background-nav) 84%, var(--lime-300)) 82%, transparent) 72%,
+    color-mix(in oklab, color-mix(in oklab, var(--background-nav) 78%, var(--mist-shade)) 82%, transparent)
   );
 
-  /* The active tab is lit at the top and falls into the page */
-  --atmos-tab: linear-gradient(
-    to bottom,
-    color-mix(in oklab, color-mix(in oklab, var(--background-body) 55%, var(--stone-50)) 88%, var(--mist-light)),
-    var(--background-body) 85%
-  );
+  /* The active tab is lit at the top by the light's own green */
+  --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, var(--mist-light)) 85%, transparent);
   --atmos-tab-hover: color-mix(in oklab, var(--stone-50) 28%, transparent);
 
   --atmos-card: var(--mist-sheen), var(--background-section);
@@ -97,22 +105,6 @@
     color-mix(in oklab, var(--background-control) 70%, var(--stone-50)),
     var(--background-control)
   );
-}
-
-/* --------------------------------------------------------------------------
- The page: a still wash of the same light, pooled where it would fall in
- a misty field. Green low on the left, the sun high on the right,
- lavender gathering in the far corner, a little sea-green underfoot. It
- sits under the moving mist (paused for now) and clears the top of the
- page with the rest of the sky.
--------------------------------------------------------------------------- */
-
-.atmos-sky {
-  background:
-    radial-gradient(60vmax 45vmax at 10% 55%, color-mix(in oklab, var(--mist-light) 60%, transparent), transparent 70%),
-    radial-gradient(50vmax 40vmax at 95% 20%, color-mix(in oklab, var(--mist-sun) 55%, transparent), transparent 70%),
-    radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--mist-shade) 45%, transparent), transparent 70%),
-    radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--emerald-100) 50%, transparent), transparent 70%);
 }
 
 /* --------------------------------------------------------------------------

@@ -16,11 +16,7 @@
     var(--background-nav) 35%,
     color-mix(in oklab, var(--background-nav) 86%, var(--gb-faded-orange))
   );
-  --atmos-tab: linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--background-body) 78%, var(--gb-dark3)),
-    var(--background-body) 85%
-  );
+  --atmos-tab-glow: color-mix(in oklab, var(--gb-dark3) 45%, transparent);
   --atmos-tab-hover: color-mix(in oklab, var(--gb-dark2) 55%, transparent);
 
   --atmos-card: linear-gradient(
@@ -31,12 +27,10 @@
   );
   --atmos-card-rim: color-mix(in oklab, var(--gb-light) 7%, transparent);
   --atmos-card-shadow: rgb(0 0 0 / 55%);
-}
 
-/* The still wash under the moving layers: the ember's glow, held at its
-   middle breath, so the page stays warm while the motion is paused */
-.atmos-sky {
-  background: radial-gradient(
+  /* The still wash under the moving layers: the ember's glow, held at its
+     middle breath, so the page stays warm while the motion is paused */
+  --atmos-wash: radial-gradient(
     60vmax 38vmax at 50% 112%,
     color-mix(in oklab, var(--gb-faded-orange) 26%, transparent),
     color-mix(in oklab, var(--gb-faded-red) 9%, transparent) 55%,
