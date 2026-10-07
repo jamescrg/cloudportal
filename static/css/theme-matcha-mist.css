@@ -8,13 +8,13 @@
  the top left, carrying the tea's green, and
  where it runs out the shade is lavender. Surfaces are not given colours
  of their own; they take a sheen, the light laid as a translucent layer
- over whatever colour the surface already has, at one of three strengths.
- Cards are the exception: they take no sheen, and let the wash through.
+ over whatever colour the surface already has, at one of two strengths.
+ Cards and buttons are the exception: they take no sheen, and the cards
+ let the wash through.
  Turn these dials and every surface follows.
 -------------------------------------------------------------------------- */
 
 :root {
-  --mist-angle: 160deg; /* the strong sheen's slant */
   --mist-light: var(--lime-100);
   --mist-shade: var(--violet-200);
 
@@ -44,22 +44,6 @@
       color-mix(in oklab, var(--mist-shade) 26%, transparent),
       transparent
     );
-
-  /* Strong, for small things that need to read as lit at a glance (a
-     button is too small for pools): straight across, corner to corner */
-  --mist-sheen-strong: linear-gradient(
-    var(--mist-angle),
-    color-mix(in oklab, var(--mist-light) 60%, transparent),
-    transparent 55%,
-    color-mix(in oklab, var(--mist-shade) 34%, transparent)
-  );
-
-  /* Gloss: white falling away down the top half, for raised controls */
-  --mist-gloss: linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 50%),
-    rgb(255 255 255 / 0%) 60%
-  );
 
   /* Shadows take the light's colour too: green-gray, not black */
   --mist-shadow: color-mix(in oklab, var(--lime-950) 28%, transparent);
@@ -151,18 +135,11 @@
   }
 }
 
-/* Buttons: raised, so glossed. The green ones carry the strong sheen as
-   well, so the green reads as lit rather than painted; the light's own
-   green would only muddy a red one. */
+/* Buttons: flat colour, no gradient, lifted by a soft shadow */
 .btn-primary,
-.btn-success {
-  background-image: var(--mist-gloss), var(--mist-sheen-strong);
-  box-shadow: 0 1px 2px var(--mist-shadow);
-}
-
+.btn-success,
 .btn-secondary,
 .btn-danger {
-  background-image: var(--mist-gloss);
   box-shadow: 0 1px 2px var(--mist-shadow);
 }
 
@@ -188,10 +165,8 @@ body[data-page="home"] :is(.search-input, .search-engine-btn) {
     0 14px 32px -18px var(--atmos-card-shadow);
 }
 
-/* The task list's bulk actions sit flat under the list: no gloss, not
-   raised */
+/* The task list's bulk actions sit flat under the list, not raised */
 .archive-buttons .btn {
-  background-image: none;
   box-shadow: none;
 }
 
