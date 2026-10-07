@@ -108,6 +108,11 @@
   --atmos-card-rim: transparent;
   --atmos-card-shadow: color-mix(in oklab, var(--lime-950) 16%, transparent);
 
+  /* Borders a step darker than Matcha's, so the lines in the cards hold
+     against the hills coming through them */
+  --border-medium: color-mix(in oklab, var(--stone-300) 55%, var(--stone-400));
+  --border-dark: color-mix(in oklab, var(--stone-400) 75%, var(--stone-500));
+
   /* Table heads: the control colour, let through as the cards are, or
      the head would sit on a card as a solid band */
   --background-table-header: color-mix(in srgb, var(--background-control) var(--mist-card-opacity), transparent);
