@@ -426,6 +426,12 @@ th.tasks-col-priority .btn-sort.active {
   color: var(--button-secondary-muted, var(--color-secondary));
 }
 
+/* The bulk actions that open a menu (folder, date, priority) carry a
+   small chevron after their icon */
+.archive-buttons .btn small {
+  margin-left: 0.25rem;
+}
+
 @media (max-width: 576px) {
   .tasks-title-row {
     flex-wrap: wrap;

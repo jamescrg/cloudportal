@@ -107,6 +107,7 @@
                         @click="toggle()"
                         :aria-expanded="open">
                     <i class="icon-folder"></i>
+                    <small><i class="icon-chevron-down"></i></small>
                 </button>
                 <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
                     <li>
@@ -136,6 +137,7 @@
                         @click="toggle()"
                         :aria-expanded="open">
                     <i class="icon-calendar"></i>
+                    <small><i class="icon-chevron-down"></i></small>
                 </button>
                 <ul class="dropdown-menu bulk-date-menu"
                     x-ref="menu"
@@ -189,6 +191,7 @@
                         @click="toggle()"
                         :aria-expanded="open">
                     <i class="icon-flag"></i>
+                    <small><i class="icon-chevron-down"></i></small>
                 </button>
                 <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
                     {% for level in priority_levels %}
