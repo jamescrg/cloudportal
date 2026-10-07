@@ -121,16 +121,11 @@ body {
   }
 }
 
-/* On mobile the cards run edge to edge on a page of their own colour
-   (base-app.css), so the weather and the card lighting would only show as
-   bands between them. The home page keeps its gutters, and both. */
+/* On mobile the cards run edge to edge (base-app.css). The wash still
+   shows through them, as on the desktop; only the shadow goes, which
+   has no edge to lift there. */
 @media (max-width: 991.98px) {
-  body:not([data-page="home"]) .atmos-sky {
-    display: none;
-  }
-
   body:not([data-page="home"]) .card {
-    background: var(--background-section);
     box-shadow: none;
   }
 }
