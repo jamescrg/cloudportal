@@ -33,6 +33,17 @@
   --atmos-card-shadow: rgb(0 0 0 / 55%);
 }
 
+/* The still wash under the moving layers: the ember's glow, held at its
+   middle breath, so the page stays warm while the motion is paused */
+.atmos-sky {
+  background: radial-gradient(
+    60vmax 38vmax at 50% 112%,
+    color-mix(in oklab, var(--gb-faded-orange) 26%, transparent),
+    color-mix(in oklab, var(--gb-faded-red) 9%, transparent) 55%,
+    transparent
+  );
+}
+
 /* The ember: a wide warm glow from below the page's foot, breathing */
 .atmos-glow {
   animation: ember 14s ease-in-out infinite alternate;

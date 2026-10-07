@@ -1,40 +1,164 @@
 /* ==========================================================================
  Matcha Mist: Matcha's colours (theme-matcha.css, always loaded) with the
- atmosphere (atmosphere.css) on top. Morning mist over a tea field:
- banks of pale green, cream and lavender drift across the page over a
- minute or two, and a patch of sun comes and goes through them. The cards
- are lit from the top left, faintly green where the light falls, and
- shade to lavender at the far corner.
+ atmosphere (atmosphere.css) on top. Morning mist over a tea field.
 ========================================================================== */
 
+/* --------------------------------------------------------------------------
+ The light. Every gradient in the theme is the same light: it falls from
+ the top left, carrying the tea's green with a little sun in it, and
+ where it runs out the shade is lavender. Surfaces are not given colours
+ of their own; they take a sheen, the light laid as a translucent layer
+ over whatever colour the surface already has, at one of three strengths.
+ Turn these dials and every surface follows.
+-------------------------------------------------------------------------- */
+
 :root {
+  --mist-angle: 160deg; /* the strong sheen's slant */
+  --mist-light: var(--lime-100);
+  --mist-sun: var(--amber-100);
+  --mist-shade: var(--violet-200);
+
+  /* The sheens: a pool of light in the lit corner and a pool of shade
+     in the far one, each a fixed size, so a tall card is lit like a
+     short one rather than stretched into a band. Soft for menus and
+     other quiet surfaces, plain for cards and dialogs. */
+  --mist-sheen-soft:
+    radial-gradient(
+      24rem 12rem at 0% 0%,
+      color-mix(in oklab, var(--mist-light) 24%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      20rem 10rem at 100% 100%,
+      color-mix(in oklab, var(--mist-shade) 16%, transparent),
+      transparent
+    );
+  --mist-sheen:
+    radial-gradient(
+      48rem 18rem at 0% 0%,
+      color-mix(in oklab, var(--mist-light) 42%, transparent),
+      color-mix(in oklab, var(--mist-sun) 10%, transparent) 45%,
+      transparent
+    ),
+    radial-gradient(
+      40rem 16rem at 100% 100%,
+      color-mix(in oklab, var(--mist-shade) 26%, transparent),
+      transparent
+    );
+
+  /* Strong, for small things that need to read as lit at a glance (a
+     button is too small for pools): straight across, corner to corner */
+  --mist-sheen-strong: linear-gradient(
+    var(--mist-angle),
+    color-mix(in oklab, var(--mist-light) 60%, transparent),
+    transparent 55%,
+    color-mix(in oklab, var(--mist-shade) 34%, transparent)
+  );
+
+  /* Gloss: white falling away down the top half, for raised controls */
+  --mist-gloss: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 50%),
+    rgb(255 255 255 / 0%) 60%
+  );
+
+  /* Shadows take the light's colour too: green-gray, not black */
+  --mist-shadow: color-mix(in oklab, var(--lime-950) 28%, transparent);
+
+  /* ------------------------------------------------------------------
+     The atmosphere's dials, drawn from the light
+     ------------------------------------------------------------------ */
   --atmos-ink: var(--stone-700);
   --atmos-grain: 0.07;
 
-  /* The bar warms into the tea's green toward the right, and ends in
-     lavender */
+  /* The bar runs from stone into the tea's green and ends in the shade */
   --atmos-nav: linear-gradient(
     100deg,
     var(--background-nav) 30%,
     color-mix(in oklab, var(--background-nav) 84%, var(--lime-300)) 72%,
-    color-mix(in oklab, var(--background-nav) 78%, var(--violet-200))
+    color-mix(in oklab, var(--background-nav) 78%, var(--mist-shade))
   );
+
+  /* The active tab is lit at the top and falls into the page */
   --atmos-tab: linear-gradient(
     to bottom,
-    color-mix(in oklab, var(--background-body) 55%, var(--stone-50)),
+    color-mix(in oklab, color-mix(in oklab, var(--background-body) 55%, var(--stone-50)) 88%, var(--mist-light)),
     var(--background-body) 85%
   );
   --atmos-tab-hover: color-mix(in oklab, var(--stone-50) 28%, transparent);
 
-  --atmos-card: linear-gradient(
-    165deg,
-    color-mix(in oklab, var(--stone-50) 88%, var(--lime-100)) 0%,
-    var(--background-section) 40%,
-    color-mix(in oklab, var(--background-section) 88%, var(--violet-100)) 100%
-  );
+  --atmos-card: var(--mist-sheen), var(--background-section);
   --atmos-card-rim: color-mix(in oklab, white 70%, transparent);
-  --atmos-card-shadow: color-mix(in oklab, var(--lime-950) 30%, transparent);
+  --atmos-card-shadow: var(--mist-shadow);
+
+  /* Table heads: lit from above, so a row of cells reads as one band */
+  --background-table-header: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--background-control) 70%, var(--stone-50)),
+    var(--background-control)
+  );
 }
+
+/* --------------------------------------------------------------------------
+ The page: a still wash of the same light, pooled where it would fall in
+ a misty field. Green low on the left, the sun high on the right,
+ lavender gathering in the far corner, a little sea-green underfoot. It
+ sits under the moving mist (paused for now) and clears the top of the
+ page with the rest of the sky.
+-------------------------------------------------------------------------- */
+
+.atmos-sky {
+  background:
+    radial-gradient(60vmax 45vmax at 10% 55%, color-mix(in oklab, var(--mist-light) 60%, transparent), transparent 70%),
+    radial-gradient(50vmax 40vmax at 95% 20%, color-mix(in oklab, var(--mist-sun) 55%, transparent), transparent 70%),
+    radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--mist-shade) 45%, transparent), transparent 70%),
+    radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--emerald-100) 50%, transparent), transparent 70%);
+}
+
+/* --------------------------------------------------------------------------
+ The surfaces. Each keeps its own colour and takes a sheen over it.
+-------------------------------------------------------------------------- */
+
+.modal-content {
+  background-image: var(--mist-sheen);
+  box-shadow: 0 1.5rem 3rem -1rem var(--mist-shadow), 0 0.25rem 0.5rem var(--shadow-color);
+}
+
+/* Menus: the sheen on the menu, so the items are cleared to let it
+   through (the hovered one still lights up) */
+.dropdown-menu {
+  background-image: var(--mist-sheen-soft);
+  box-shadow: 0 0.75rem 1.5rem -0.75rem var(--mist-shadow);
+}
+
+.dropdown-menu li {
+  background-color: transparent;
+}
+
+@media (max-width: 991.98px) {
+  .nav-drawer {
+    background-image: var(--mist-sheen);
+  }
+}
+
+/* Buttons: raised, so glossed. The green ones carry the strong sheen as
+   well, so the green reads as lit rather than painted; the light's own
+   green would only muddy a red one. */
+.btn-primary,
+.btn-success {
+  background-image: var(--mist-gloss), var(--mist-sheen-strong);
+  box-shadow: 0 1px 2px var(--mist-shadow);
+}
+
+.btn-secondary,
+.btn-danger {
+  background-image: var(--mist-gloss);
+  box-shadow: 0 1px 2px var(--mist-shadow);
+}
+
+/* --------------------------------------------------------------------------
+ The weather in motion, over the wash. Paused for now (atmosphere.css).
+-------------------------------------------------------------------------- */
 
 /* The mist. Each bank is a soft-edged ellipse of colour, larger than the
    screen, wandering on its own slow loop so they never line up the same

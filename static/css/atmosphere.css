@@ -132,6 +132,21 @@ body {
   }
 }
 
+/* --------------------------------------------------------------------------
+ Motion is paused (2026-10-07) while the gradients are worked on: each
+ theme's still wash stays, the moving layers over it are put away, and
+ the cards simply appear. Delete this block to set the weather going.
+-------------------------------------------------------------------------- */
+
+.atmos,
+.content .card {
+  animation: none;
+}
+
+.atmos-sky > i {
+  display: none;
+}
+
 /* Asked for stillness: the weather holds still and the cards simply
    appear */
 @media (prefers-reduced-motion: reduce) {
