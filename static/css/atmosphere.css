@@ -11,9 +11,6 @@
   --atmos-grain: 0.05;
   --atmos-nav: var(--background-nav);
   --atmos-wash: none;
-  --atmos-photo: none;
-  --atmos-photo-filter: none;
-  --atmos-photo-opacity: 0;
   --atmos-tab-glow: transparent;
   --atmos-card: var(--background-section);
   --atmos-card-rim: transparent;
@@ -34,7 +31,6 @@ body {
 
 .atmos {
   animation: atmos-in 1.6s ease backwards 0.1s;
-  background: var(--background-body);
   inset: 0;
   overflow: hidden;
   pointer-events: none;
@@ -51,21 +47,6 @@ body {
 .atmos-sky > i {
   position: absolute;
   will-change: transform, opacity;
-}
-
-/* A photograph, filtered through the wash: drained of its own colour by
-   the theme's filter and multiplied over the wash, so white leaves the
-   light as it is and the photo's shapes show only as shade in the wash's
-   own colours. The room's background above gives it something to
-   multiply over. Kept white at the top, it leaves the active tab (which
-   shows only the wash) matching the page under it. */
-.atmos-photo {
-  background: var(--atmos-photo) center bottom / cover no-repeat;
-  filter: var(--atmos-photo-filter);
-  inset: 0;
-  mix-blend-mode: multiply;
-  opacity: var(--atmos-photo-opacity);
-  position: absolute;
 }
 
 /* Grain: tone-on-tone, drawn as a mask so the ink follows the theme */
@@ -144,7 +125,7 @@ body {
    (base-app.css), so the weather and the card lighting would only show as
    bands between them. The home page keeps its gutters, and both. */
 @media (max-width: 991.98px) {
-  body:not([data-page="home"]) .atmos {
+  body:not([data-page="home"]) .atmos-sky {
     display: none;
   }
 

@@ -76,13 +76,6 @@
     radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--mist-shade) 45%, transparent), transparent 70%),
     radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--emerald-100) 50%, transparent), transparent 70%);
 
-  /* An experiment: misty hills (from mp) filtered through the wash. The
-     filter drains the photo's blue and lifts it until the sky is white,
-     so only the hills show, as shade in green and lavender. */
-  --atmos-photo: url("../images/atmos/misty-hills.webp");
-  --atmos-photo-filter: grayscale(1) contrast(0.55) brightness(1.45);
-  --atmos-photo-opacity: 0.5;
-
   /* ------------------------------------------------------------------
      The atmosphere's dials, drawn from the light
      ------------------------------------------------------------------ */
@@ -97,21 +90,15 @@
   --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, var(--mist-light)) 50%, transparent);
 
   /* Cards carry no light of their own: they are the plain card colour,
-     let through so the wash (and the hills in it) shows behind them. At
-     75% body text keeps about 6.5:1 against them (7:1 solid); the cards
-     stop reading as panels, somewhere under 60%, long before the text
-     suffers. */
-  --mist-card-opacity: 75%;
+     let through so the wash shows behind them. At 65% body text keeps
+     about 6.3:1 against them (7:1 solid); the cards stop reading as
+     panels, somewhere under 60%, long before the text suffers. */
+  --mist-card-opacity: 65%;
   --atmos-card: color-mix(in srgb, var(--background-section) var(--mist-card-opacity), transparent);
   /* No rim of light along the top; a soft shadow, lighter than the one
      under dialogs */
   --atmos-card-rim: transparent;
   --atmos-card-shadow: color-mix(in oklab, var(--lime-950) 16%, transparent);
-
-  /* Borders a step darker than Matcha's, so the lines in the cards hold
-     against the hills coming through them */
-  --border-medium: color-mix(in oklab, var(--stone-300) 55%, var(--stone-400));
-  --border-dark: color-mix(in oklab, var(--stone-400) 75%, var(--stone-500));
 
   /* Table heads: the control colour, let through as the cards are, or
      the head would sit on a card as a solid band */
