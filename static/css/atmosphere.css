@@ -76,12 +76,19 @@ body {
   background: var(--atmos-nav);
 }
 
+/* The grain can't follow the tab (its corners are masks already), so
+   the tab takes the grain's average instead: a flat veil of its ink at
+   the grain's strength times its mean cover, measured at 0.203 */
 .navbar .active,
 .navbar .active::before,
 .navbar .active::after {
+  --atmos-grain-tone: color-mix(in srgb, var(--atmos-ink) calc(var(--atmos-grain) * 20.3%), transparent);
+
   background-attachment: fixed;
   background-color: var(--background-body);
-  background-image: var(--atmos-wash);
+  background-image:
+    linear-gradient(var(--atmos-grain-tone), var(--atmos-grain-tone)),
+    var(--atmos-wash);
 }
 
 .navbar .active {
