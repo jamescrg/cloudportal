@@ -405,30 +405,15 @@ th.tasks-col-priority .btn-sort.active {
   margin-top: 1.5rem;
 }
 
-/* The edits (move, date, priority) sit on the left; the two that clear
-   tasks away (archive, delete) sit on the far right. Archive is the first
-   plain button among the dropdowns, and takes the free space before it. */
+/* The bulk actions (move, date, priority, archive, delete) are icons
+   only, named by their titles, in one run from the left; on phones the
+   run wraps */
 .archive-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: flex-start;
   width: 100%;
-}
-
-.archive-buttons > button:first-of-type {
-  margin-left: auto;
-}
-
-/* On phones the row wraps, and all five sit centred in one run */
-@media (width <= 768px) {
-  .archive-buttons {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .archive-buttons > button:first-of-type {
-    margin-left: 0;
-  }
 }
 
 /* The bulk Due Date menu's calendar hangs off the menu itself */
@@ -439,10 +424,6 @@ th.tasks-col-priority .btn-sort.active {
 
 .archive .btn {
   color: var(--button-secondary-muted, var(--color-secondary));
-}
-
-.archive .btn i {
-  margin-right: 0.5rem;
 }
 
 @media (max-width: 576px) {

@@ -100,11 +100,13 @@
         <div class="archive-buttons">
             <div class="dropdown" x-data="dropdown()">
                 <button class="btn btn-secondary"
+                        title="Move to folder"
+                        aria-label="Move to folder"
                         type="button"
                         x-ref="button"
                         @click="toggle()"
                         :aria-expanded="open">
-                    <i class="icon-folder"></i> Folder
+                    <i class="icon-folder"></i>
                 </button>
                 <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
                     <li>
@@ -127,11 +129,13 @@
             </div>
             <div class="dropdown" x-data="dropdown()">
                 <button class="btn btn-secondary"
+                        title="Set due date"
+                        aria-label="Set due date"
                         type="button"
                         x-ref="button"
                         @click="toggle()"
                         :aria-expanded="open">
-                    <i class="icon-calendar"></i> Due
+                    <i class="icon-calendar"></i>
                 </button>
                 <ul class="dropdown-menu bulk-date-menu"
                     x-ref="menu"
@@ -178,11 +182,13 @@
             </div>
             <div class="dropdown" x-data="dropdown()">
                 <button class="btn btn-secondary"
+                        title="Set priority"
+                        aria-label="Set priority"
                         type="button"
                         x-ref="button"
                         @click="toggle()"
                         :aria-expanded="open">
-                    <i class="icon-flag"></i> Priority
+                    <i class="icon-flag"></i>
                 </button>
                 <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
                     {% for level in priority_levels %}
@@ -199,17 +205,21 @@
                 </ul>
             </div>
             <button class="btn btn-secondary"
+                    title="Archive completed tasks"
+                    aria-label="Archive completed tasks"
                     hx-post="{% url 'tasks-clear-htmx' %}"
                     hx-target="#tasks-container"
                     hx-swap="innerHTML">
-                <i class="icon-archive"></i> Archive
+                <i class="icon-archive"></i>
             </button>
             <button class="btn btn-secondary"
+                    title="Delete completed tasks"
+                    aria-label="Delete completed tasks"
                     hx-post="{% url 'tasks-delete-completed-htmx' %}"
                     hx-target="#tasks-container"
                     hx-swap="innerHTML"
                     hx-confirm="Are you sure you want to delete all completed tasks?">
-                <i class="icon-trash-2"></i> Delete
+                <i class="icon-trash-2"></i>
             </button>
         </div>
     </div>
