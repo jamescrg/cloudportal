@@ -84,6 +84,7 @@ Section Layout (rail / body)
 .section:has(> .section-nav) {
   align-items: stretch;
   display: flex;
+  margin-bottom: 1.5rem; /* a card's, so a long section ends clear of the page's foot */
 }
 
 /* No border between the rail and the body: the active tab's curves need a
