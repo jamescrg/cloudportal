@@ -29,10 +29,6 @@
     --link: var(--gb-bright-aqua);
     --link-hover: var(--gb-aqua);
 
-    /* The site's mark, as in theme-hojicha.css */
-    --brand-grad-from: var(--link);
-    --brand-grad-to: var(--gb-bright-yellow);
-
     /* Buttons */
     --button-primary-background: var(--gb-faded-aqua);
     --button-primary-color: var(--gb-light);

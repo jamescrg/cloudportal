@@ -208,8 +208,12 @@ def test_the_dropdown_names_the_preset_in_force(client, dated):
     response = client.post(reverse("tasks-filter-date", args=["today"]))
 
     assert response.context["date_filter_label"] == "today"
-    assert "toggle-active" in response.content.decode()
     assert response.context["date_filter_name"] == "Today"
+    # The dropdown names the preset; it is not lit in the accent colour
+    assert (
+        'class="square-button filter-button select-btn tasks-date-filter"'
+        in response.content.decode()
+    )
 
 
 def test_a_preset_leaves_status_and_sort_alone(client, dated):
