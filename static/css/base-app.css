@@ -437,6 +437,12 @@ li {
   color: var(--link-hover);
 }
 
+/* An add button in a card's heading is a bare icon: no fill, no border */
+.square-button.add-button {
+  background: none;
+  border: none;
+}
+
 .square-button.filter-button {
   color: var(--color-primary);
 }

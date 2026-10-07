@@ -88,9 +88,15 @@
   white-space: nowrap;
 }
 
-/* Keep right-aligned items at the end */
+/* Keep right-aligned items at the end. The scroll container clips what
+   overflows it, so the run keeps a corner's width clear at its end, or
+   the settings tab, active, loses its right outer corner. */
 .navbar-right {
   margin-left: auto !important;
+}
+
+.navbar .navbar-right {
+  padding-right: var(--radius-lg);
 }
 
 
