@@ -73,6 +73,12 @@
 
 /* An event deleted on Google and kept here: said in words under the
    description, since the row has no other sign of it. */
+/* A repeating event's mark beside its description */
+.events-table .event-repeat {
+  color: var(--color-muted);
+  margin-left: 0.25rem;
+}
+
 .events-table .event-detached {
   color: var(--color-muted);
   display: block;
@@ -93,6 +99,50 @@
 .event-note {
   color: var(--color-muted);
   margin: 0 0 1rem;
+}
+
+/* Repeat: the interval with its unit beside it ("2 weeks") */
+.repeat-every {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.repeat-every input {
+  width: 4rem;
+}
+
+.form-compact .repeat-count {
+  width: 4rem;
+}
+
+/* The weekday boxes and the Apply to choices read across in a row. The
+   form's checkbox rule centres a lone box in a column (and outranks a
+   plain class, hence the :has here); these are a set. */
+.form-compact .form-group.repeat-weekdays:has(input),
+.form-compact .form-group.repeat-scope:has(input) {
+  align-items: stretch;
+  display: block;
+}
+
+.repeat-weekdays [id$="weekdays"],
+.repeat-scope [id$="scope"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.repeat-weekdays label,
+.repeat-scope label {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.form-compact .repeat-weekdays > label,
+.form-compact .repeat-scope > label {
+  margin-bottom: 0.5rem;
 }
 
 

@@ -304,10 +304,12 @@ name = "cloudportal"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "croniter" },
     { name = "django" },
     { name = "django-environ" },
     { name = "django-filter" },
     { name = "django-mathfilters" },
+    { name = "django-q2" },
     { name = "django-watson" },
     { name = "google-api-python-client" },
     { name = "google-auth-httplib2" },
@@ -336,10 +338,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "croniter", specifier = "==6.0.0" },
     { name = "django", specifier = "==5.2.11" },
     { name = "django-environ", specifier = "==0.12.0" },
     { name = "django-filter", specifier = "==25.2" },
     { name = "django-mathfilters", specifier = "==1.0.0" },
+    { name = "django-q2", specifier = "==1.7.2" },
     { name = "django-watson", specifier = "==1.6.3" },
     { name = "google-api-python-client", specifier = "==2.187.0" },
     { name = "google-auth-httplib2", specifier = "==0.2.1" },
@@ -373,6 +377,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44", size = 27697, upload-time = "2022-10-25T02:36:22.414Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6", size = 25335, upload-time = "2022-10-25T02:36:20.889Z" },
+]
+
+[[package]]
+name = "croniter"
+version = "6.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+    { name = "pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ad/2f/44d1ae153a0e27be56be43465e5cb39b9650c781e001e7864389deb25090/croniter-6.0.0.tar.gz", hash = "sha256:37c504b313956114a983ece2c2b07790b1f1094fe9d81cc94739214748255577", size = 64481, upload-time = "2024-12-17T17:17:47.32Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/4b/290b4c3efd6417a8b0c284896de19b1d5855e6dbdb97d2a35e68fa42de85/croniter-6.0.0-py2.py3-none-any.whl", hash = "sha256:2f878c3856f17896979b2a4379ba1f09c83e374931ea15cc835c5dd2eee9b368", size = 25468, upload-time = "2024-12-17T17:17:45.359Z" },
 ]
 
 [[package]]
@@ -438,6 +455,31 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ca/a6/1e8262e52aa3cbfae277bc97c23dd4f1f6c7d7c3adaf45fb41132c312a40/django-mathfilters-1.0.0.tar.gz", hash = "sha256:c9b892ef6dfc893683e75cfd0279c187a601ca68f4684c38f9da44657fb64b07", size = 5699, upload-time = "2020-02-10T12:02:06.569Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8a/c6/107083a63a564664830e352af330563763654972d27d56e42d9b6e3c744f/django_mathfilters-1.0.0-py3-none-any.whl", hash = "sha256:64200a21bb249fbf27be601d4bbb788779e09c6e063170c097cd82c4d18ebb83", size = 5909, upload-time = "2020-02-10T12:02:09.819Z" },
+]
+
+[[package]]
+name = "django-picklefield"
+version = "3.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/93/03/13114bccbd1ec8c026ac1ff33dae75ae6c6a5632e4769ee9cda283b9f57e/django_picklefield-3.4.0.tar.gz", hash = "sha256:3a1f740536c0e60d0dba43aa89ccdbe86760d4c3f8ec47799eae122baa741d0a", size = 12555, upload-time = "2025-11-27T03:11:53.13Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/79/b7/139eb1419ca7b27fd714925b8d0eed6efb592479dcf2155fed6c0c87c956/django_picklefield-3.4.0-py3-none-any.whl", hash = "sha256:929bcfbae5b48bd22a52bc04521fdfdd152eee36abb9f20228f9480f9df65f45", size = 10031, upload-time = "2025-11-27T03:11:51.937Z" },
+]
+
+[[package]]
+name = "django-q2"
+version = "1.7.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "django-picklefield" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9d/ae/434a0554fd26fb3824a6b4babb9ac3c434d1a6973d2efc85142f92447e84/django_q2-1.7.2.tar.gz", hash = "sha256:ab30bbf597cc8ade99ed4deeea37c3ade1c4e5976a61be6452930d14d9ebcd1c", size = 78120, upload-time = "2024-09-09T22:17:21.925Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c5/1d/155a16f9858a033d61889245fbc5a7679d448d4159016f72adf4a41b9e25/django_q2-1.7.2-py3-none-any.whl", hash = "sha256:3c480d8afd90a87006404b208a49766d370d5fc864a8dd1d3a0221ec22b12bc0", size = 103215, upload-time = "2024-09-09T22:17:19.894Z" },
 ]
 
 [[package]]

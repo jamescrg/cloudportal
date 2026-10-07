@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "watson",
     "mathfilters",
     "django_filters",
+    "django_q",
     "accounts",
     "apps.calendar",
     "apps.folders",
@@ -81,6 +82,27 @@ INSTALLED_APPS = [
     "apps.search",
     "apps.settings",
 ]
+
+# Django-Q2: the background worker that runs the scheduled jobs (see
+# apps/management/schedules.py). The database is the broker, so it needs
+# nothing beyond `manage.py qcluster` running beside the web server.
+Q_CLUSTER = {
+    "name": "cpl",
+    "workers": 2,
+    "recycle": 500,
+    "timeout": 300,
+    # Must exceed the timeout, or a slow job is started again while it runs
+    "retry": 600,
+    # A job that can never succeed stops after this many attempts instead
+    # of retrying forever and filling the task history
+    "max_attempts": 10,
+    "queue_limit": 50,
+    "bulk": 10,
+    "orm": "default",
+    # A job missed while the worker was down runs once at its next slot,
+    # not once for every slot it missed
+    "catch_up": False,
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

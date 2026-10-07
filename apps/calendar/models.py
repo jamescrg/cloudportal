@@ -10,12 +10,81 @@ from apps.common.models import ReminderMixin, TimestampMixin, is_zone, zone_or_d
 
 __all__ = [
     "Event",
+    "EventSeries",
     "EventReminder",
     "CalendarSyncState",
     "PendingGoogleDeletion",
     "is_zone",
     "zone_or_default",
 ]
+
+
+class EventSeries(TimestampMixin, models.Model):
+    """A repeating event: the rule it repeats by and what each occurrence
+    is. The occurrences are ordinary events (Event.series), made a while
+    ahead and kept topped up (see recurrence.py), so everything that works
+    on an event works on one occurrence.
+
+    Attributes:
+        user (int): whose calendar the series is on
+        frequency (str): daily, weekly, monthly or yearly
+        interval (int): every how many of them (2 = every other)
+        weekdays (str): for a weekly series, the days it falls on, as
+            weekday numbers (Monday 0) joined by commas
+        monthly_by (str): for a monthly series, "day" (the same day of the
+            month) or "weekday" (the same weekday of the same week: the
+            second Tuesday, the last Friday)
+        start (date): the first occurrence's day; the rule counts from it
+        until (date): the last day an occurrence may fall on; blank for no end
+        count (int): how many occurrences in all; blank for no limit
+        generated_through (date): occurrences exist up to this day
+        description, start_time, end_time, event_type, location: what each
+            occurrence is
+        span_days (int): how many days after its first an occurrence ends;
+            0 for one on a single day
+        time_zone (str): the zone the days and times are in
+        reminders (list): each occurrence's notifications, as
+            {"amount", "unit", "time"}
+    """
+
+    FREQUENCY_CHOICES = [
+        ("daily", "Daily"),
+        ("weekly", "Weekly"),
+        ("monthly", "Monthly"),
+        ("yearly", "Yearly"),
+    ]
+    MONTHLY_BY_CHOICES = [("day", "Day of the month"), ("weekday", "Weekday")]
+
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES)
+    interval = models.PositiveIntegerField(default=1)
+    weekdays = models.CharField(max_length=20, blank=True)
+    monthly_by = models.CharField(
+        max_length=10, choices=MONTHLY_BY_CHOICES, default="day"
+    )
+    start = models.DateField()
+    until = models.DateField(blank=True, null=True)
+    count = models.PositiveIntegerField(blank=True, null=True)
+    generated_through = models.DateField()
+
+    description = models.CharField(max_length=255, blank=True)
+    start_time = models.TimeField(blank=True, null=True)
+    end_time = models.TimeField(blank=True, null=True)
+    span_days = models.PositiveIntegerField(default=0)
+    time_zone = models.CharField(max_length=64, default=settings.TIME_ZONE)
+    event_type = models.CharField(max_length=50, blank=True, null=True)
+    location = models.CharField(max_length=150, blank=True, null=True)
+    reminders = models.JSONField(default=list, blank=True)
+
+    def __str__(self):
+        return f"{self.description} ({self.frequency}) : {self.id}"
+
+    @property
+    def weekday_list(self):
+        return [int(day) for day in self.weekdays.split(",") if day.strip()]
+
+    class Meta:
+        db_table = "app_event_series"
 
 
 class Event(TimestampMixin, models.Model):
@@ -40,6 +109,7 @@ class Event(TimestampMixin, models.Model):
             so an updated or cancelled invitation finds it again
         ical_sequence (int): the invitation's revision; an older one is stale
         google_synced_at (datetime): when the event was last pushed to Google
+        series (int): the repeating event this is one occurrence of, if any
     """
 
     EVENT_TYPE_CHOICES = [
@@ -76,6 +146,13 @@ class Event(TimestampMixin, models.Model):
     google_synced_at = models.DateTimeField(null=True, blank=True)
     ical_uid = models.CharField(max_length=255, blank=True, null=True)
     ical_sequence = models.IntegerField(default=0)
+    series = models.ForeignKey(
+        EventSeries,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="occurrences",
+    )
 
     def __str__(self):
         return f"{self.description} : {self.id}"

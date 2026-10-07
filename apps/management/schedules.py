@@ -1,0 +1,61 @@
+"""The scheduled jobs, run by the Django-Q cluster (manage.py qcluster).
+
+Every job is defined here once. setup_schedules writes them to Django-Q's
+Schedule table, creating or updating each by name, so running it on every
+deploy keeps the table in step with this list.
+"""
+
+from dataclasses import dataclass
+
+from croniter import croniter
+from django.utils import timezone
+from django_q.models import Schedule
+
+
+@dataclass(frozen=True)
+class ScheduleSpec:
+    name: str
+    func: str
+    cron: str
+    description: str = ""
+
+
+def schedule_specs():
+    return (
+        ScheduleSpec(
+            "extend-event-series",
+            "apps.calendar.recurrence.extend_all",
+            "0 2 * * *",
+            description=(
+                "Tops up every repeating event's occurrences to a year ahead, "
+                "as the days pass."
+            ),
+        ),
+    )
+
+
+def install_schedules(names=None):
+    """Create or update the schedules (all, or those named) and return
+    (spec, created) pairs."""
+    wanted = set(names) if names is not None else None
+    local_now = timezone.localtime(timezone.now())
+    results = []
+
+    for spec in schedule_specs():
+        if wanted is not None and spec.name not in wanted:
+            continue
+        _, created = Schedule.objects.update_or_create(
+            name=spec.name,
+            defaults={
+                "func": spec.func,
+                "schedule_type": Schedule.CRON,
+                "cron": spec.cron,
+                "repeats": -1,
+                # A new or changed schedule waits for its next real slot
+                # rather than firing as soon as the cluster starts
+                "next_run": croniter(spec.cron, local_now).get_next(type(local_now)),
+            },
+        )
+        results.append((spec, created))
+
+    return results

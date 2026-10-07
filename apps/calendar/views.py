@@ -5,7 +5,7 @@ from logging import getLogger
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
 
 import apps.calendar.invitations as invitations
+import apps.calendar.recurrence as recurrence
 import apps.calendar.sync as sync
 from apps.calendar.forms import EventForm, ReminderForm
 from apps.calendar.models import Event, EventReminder, is_zone
@@ -204,9 +205,16 @@ def events_add(request):
     if request.method == "POST":
         form = EventForm(request.POST)
         if form.is_valid():
-            return _event_change_response(_save_event(form, request.user))
+            result = _save_event(form, request.user)
+            rule = form.rule()
+            if rule:
+                recurrence.start_series(form.instance, rule)
+            return _event_change_response(result)
     else:
-        form = EventForm(initial=_initial_from_click(request))
+        initial = _initial_from_click(request)
+        # A weekly repeat starts out on the day's own weekday
+        initial["weekdays"] = [str(initial["date"].weekday())]
+        form = EventForm(initial=initial)
 
     context = {
         "page": "calendar",
@@ -219,19 +227,53 @@ def events_add(request):
     return render(request, "calendar/form.html", context)
 
 
+def _save_occurrence(form, event, series, user):
+    """Save an edit to an occurrence of a repeating event.
+
+    "This event" saves the one occurrence. "This and following events", or
+    any change to how it repeats, ends the series the day before this
+    occurrence (as it was) and starts a new one from it as saved, the way
+    Google Calendar splits a series. Repeat set to none leaves this
+    occurrence standing alone.
+    """
+    original_date = Event.objects.values_list("date", flat=True).get(pk=event.pk)
+    rule = form.rule()
+    this_only = form.cleaned_data.get("scope") != "following"
+    if this_only and rule == recurrence.rule_of(series):
+        return _save_event(form, user)
+
+    result = _save_event(form, user)
+    recurrence.end_before(series, original_date, keep=event)
+    if rule:
+        recurrence.start_series(event, rule)
+    return result
+
+
 @login_required
 def events_edit(request, id):
     event = _event_for_user(id, request.user)
+    series = event.series
 
     if request.method == "POST":
-        form = EventForm(request.POST, instance=event)
+        form = EventForm(request.POST, instance=event, series=series)
         if form.is_valid():
-            return _event_change_response(_save_event(form, request.user))
+            if series is None:
+                result = _save_event(form, request.user)
+                rule = form.rule()
+                if rule:
+                    recurrence.start_series(event, rule)
+            else:
+                result = _save_occurrence(form, event, series, request.user)
+            return _event_change_response(result)
     else:
         # The form opens on the event as seen from where the user is now;
         # saving it re-anchors the same moment to that zone.
         shown = event.in_zone(request.user.time_zone)
-        form = EventForm(instance=event, initial=vars(shown))
+        if series is not None:
+            initial = vars(shown) | recurrence.form_initial(series)
+        else:
+            initial = vars(shown) | {"weekdays": [str(shown.date.weekday())]}
+        form = EventForm(instance=event, initial=initial, series=series)
 
     context = {
         "page": "calendar",
@@ -271,6 +313,8 @@ def reminder_add(request, id):
         reminder = form.save(commit=False)
         reminder.event = event
         reminder.save()
+        # On a repeating event it goes on the later occurrences too
+        recurrence.add_reminder(event, reminder)
         form = None
     return render(request, "components/reminders.html", _reminders_context(event, form))
 
@@ -280,7 +324,11 @@ def reminder_add(request, id):
 def reminder_delete(request, id, reminder_id):
     """Remove a notification from the event and re-render the section."""
     event = _event_for_user(id, request.user)
-    EventReminder.objects.filter(event=event, pk=reminder_id).delete()
+    reminder = EventReminder.objects.filter(event=event, pk=reminder_id).first()
+    if reminder is not None:
+        reminder.delete()
+        # On a repeating event it leaves the later occurrences too
+        recurrence.remove_reminder(event, reminder)
     return render(request, "components/reminders.html", _reminders_context(event))
 
 
@@ -288,6 +336,18 @@ def reminder_delete(request, id, reminder_id):
 @require_http_methods(["POST", "DELETE"])
 def events_delete(request, id):
     event = _event_for_user(id, request.user)
+
+    # An occurrence deleted with "This and following events" ends its series
+    # here; the occurrences go off Google through the deletion queue.
+    # htmx sends a DELETE's fields in its body, which Django leaves unread
+    if request.method == "DELETE":
+        fields = QueryDict(request.body)
+    else:
+        fields = request.POST
+    scope = request.GET.get("scope") or fields.get("scope")
+    if event.series is not None and scope == "following":
+        recurrence.end_before(event.series, event.date)
+        return HttpResponse(status=204, headers={"HX-Trigger": TRIGGER_KEY})
 
     # Remove from Google (queues a retry on failure) before deleting locally.
     result = sync.delete_event_remote(event)

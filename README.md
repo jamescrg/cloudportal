@@ -29,6 +29,7 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 - Events carry a type (Zoom, Virtual, Phone, In-person) and a meeting link or address, and can run over several days
 - Optional two-way sync with Google Calendar (switched on under Settings → Calendar): saves push immediately, and `sync_calendar` (via cron) pulls changes and retries failed pushes
 - Forward a calendar invitation to your own forwarding address and it is posted as an event; forwarded updates and cancellations follow (see Forwarding invitations)
+- Repeating events (daily, every weekday, weekly on chosen days, monthly by day or by weekday, yearly; every N; ending never, on a day or after a number of times). Occurrences are real events made a year ahead and topped up daily by the background worker; an edit or delete applies to "this event" or "this and following events"
 - Email notifications per event, any number of them, set as "N minutes/hours/days/weeks before" (with a time of day for all-day events), sent by `send_event_reminders` via cron
 - Time zone aware: each timed event is a fixed moment, and the browser reports where you are, so times are entered, shown, and notified in your current zone while travelling
 
@@ -181,6 +182,27 @@ See `.env.example` for the full list. Key variables:
 */5 * * * * /path/to/.venv/bin/python /path/to/manage.py send_task_reminders
 */5 * * * * /path/to/.venv/bin/python /path/to/manage.py send_event_reminders
 ```
+
+### Background Worker (Production)
+
+Scheduled jobs are moving from cron to a Django-Q2 cluster, which uses the
+database as its broker. The jobs are listed in `apps/management/schedules.py`;
+so far it runs:
+
+| Schedule | When | Job |
+| --- | --- | --- |
+| `extend-event-series` | 2:00 daily | Tops up repeating events' occurrences to a year ahead |
+
+Write the schedules to the database after each migrate (safe to repeat):
+
+```
+/path/to/.venv/bin/python /path/to/manage.py setup_schedules
+```
+
+Run the cluster beside Gunicorn. `deploy/systemd/cpl-qcluster.service` is a
+unit for it: replace `@USER@` and `@APP_DIR@`, install it under
+`/etc/systemd/system/`, then `systemctl enable --now cpl-qcluster`. Restart
+it after a deploy so it loads the new code.
 
 ### Production Deployment
 

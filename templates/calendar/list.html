@@ -40,6 +40,7 @@
                     <a href="#"
                        hx-get="{% url 'calendar:edit' event.id %}"
                        hx-target="#htmx-modal-container">{{ event.description }}</a>
+                    {% if event.series_id %}<i class="icon-repeat event-repeat" title="Repeats"></i>{% endif %}
                     {% if event.detached_from_google %}<span class="event-detached">Not on Google Calendar</span>{% endif %}
                 </td>
                 <td class="duration">
