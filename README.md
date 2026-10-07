@@ -82,8 +82,8 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 |---|---|
 | Backend | Django 5.2, PostgreSQL, Gunicorn |
 | Frontend | HTMX, Alpine.js, SortableJS, Tiptap 2 |
-| Icons | Lucide (icon font) |
-| Build | esbuild (JS bundling), npm |
+| Icons | Lucide (icon font, from unpkg) |
+| Build | esbuild, by hand, for the committed TipTap bundle |
 | Search | django-watson |
 | APIs | OpenWeatherMap, CoinMarketCap, Finnhub, Google Calendar/Contacts |
 | Notifications | SMTP email, Twilio SMS |
@@ -98,7 +98,7 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 
 - Python 3.12+
 - PostgreSQL
-- Node.js and npm (for building frontend assets)
+- Node.js and npm, only to rebuild the TipTap bundle after upgrading TipTap
 
 ### Setup
 
@@ -121,11 +121,13 @@ uv sync
 Prefix commands with `uv run` (e.g. `uv run python manage.py ...`) to run them
 inside the managed environment, or activate it with `source .venv/bin/activate`.
 
-3. Install frontend dependencies and build assets:
+3. Frontend assets need no build: the TipTap bundle the notes editor uses is
+committed in `static/js/vendor/`, and the other libraries load from CDNs. After
+upgrading TipTap in `package.json`, rebuild the bundle and commit it:
 
 ```bash
 npm install
-node build.mjs
+npm run build
 ```
 
 4. Copy the example environment file and configure it:
