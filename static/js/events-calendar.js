@@ -242,11 +242,17 @@ document.addEventListener("alpine:init", () => {
       let height = "auto";
       if (viewType.startsWith("timeGrid")) {
         // Fit the calendar between its natural page position and the bottom
-        // of the viewport (with a little breathing room), so the time grid
-        // gets an internal scroller. Floor keeps it usable on short windows.
+        // of the viewport, so the time grid gets an internal scroller. The
+        // card around it keeps its own padding and margin below, as on any
+        // other page. Floor keeps it usable on short windows.
         const offsetTop =
           this.$el.getBoundingClientRect().top + window.scrollY;
-        height = Math.max(480, window.innerHeight - offsetTop - 16);
+        const card = this.$el.closest(".card");
+        const below = card
+          ? parseFloat(getComputedStyle(card).paddingBottom) +
+            parseFloat(getComputedStyle(card).marginBottom)
+          : 16;
+        height = Math.max(480, window.innerHeight - offsetTop - below);
       }
       if (this.calendar.getOption("height") !== height) {
         this.calendar.setOption("height", height);
