@@ -1,0 +1,139 @@
+/* ==========================================================================
+ Hojicha Steam: Hojicha's colours (theme-hojicha.css, loaded first) with
+ the atmosphere (atmosphere.css) on top. Late evening over a cup of
+ roasted tea: an ember glow low in the page breathes slowly, and wisps of
+ steam rise through it, widen and are gone. The cards are lit warm from
+ the top left, as if by the same glow.
+========================================================================== */
+
+:root {
+  --atmos-ink: var(--gb-light);
+  --atmos-grain: 0.06;
+
+  /* The bar glows faintly toward the right, the ember's side */
+  --atmos-nav: linear-gradient(
+    100deg,
+    var(--background-nav) 35%,
+    color-mix(in oklab, var(--background-nav) 86%, var(--gb-faded-orange))
+  );
+  --atmos-tab: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--background-body) 78%, var(--gb-dark3)),
+    var(--background-body) 85%
+  );
+  --atmos-tab-hover: color-mix(in oklab, var(--gb-dark2) 55%, transparent);
+
+  --atmos-card: linear-gradient(
+    165deg,
+    color-mix(in oklab, var(--background-section) 86%, var(--gb-dark3)) 0%,
+    var(--background-section) 42%,
+    color-mix(in oklab, var(--background-section) 82%, var(--background-body)) 100%
+  );
+  --atmos-card-rim: color-mix(in oklab, var(--gb-light) 7%, transparent);
+  --atmos-card-shadow: rgb(0 0 0 / 55%);
+}
+
+/* The ember: a wide warm glow from below the page's foot, breathing */
+.atmos-glow {
+  animation: ember 14s ease-in-out infinite alternate;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--gb-faded-orange) 34%, transparent),
+    color-mix(in oklab, var(--gb-faded-red) 12%, transparent) 55%,
+    transparent
+  );
+  border-radius: 50%;
+  bottom: -45vmax;
+  height: 75vmax;
+  left: 50%;
+  margin-left: -60vmax;
+  width: 120vmax;
+}
+
+/* The steam. Each wisp is a tall soft ellipse that starts low and faint,
+   rises most of the page while swaying and spreading, and fades out. The
+   negative delays put them all mid-rise from the first frame. */
+.atmos-cloud {
+  animation: steam 34s linear infinite;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--gb-light2) 11%, transparent),
+    color-mix(in oklab, var(--gb-light2) 5%, transparent) 45%,
+    color-mix(in oklab, var(--gb-light2) 1.5%, transparent) 75%,
+    transparent
+  );
+  border-radius: 50%;
+  bottom: -30vh;
+  height: 60vh;
+  opacity: 0;
+  width: 26vw;
+}
+
+.atmos-cloud-1 {
+  animation-delay: -2s;
+  left: 18vw;
+}
+
+.atmos-cloud-2 {
+  animation-delay: -9s;
+  animation-duration: 41s;
+  left: 42vw;
+  width: 32vw;
+}
+
+.atmos-cloud-3 {
+  animation-delay: -18s;
+  animation-duration: 30s;
+  left: 64vw;
+}
+
+.atmos-cloud-4 {
+  animation-delay: -26s;
+  animation-duration: 38s;
+  left: 28vw;
+  width: 20vw;
+}
+
+.atmos-cloud-5 {
+  animation-delay: -31s;
+  animation-duration: 45s;
+  left: 72vw;
+  width: 30vw;
+}
+
+@keyframes ember {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.97);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-4deg) scale(0.6, 0.8);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  40% {
+    transform: translate(3vw, -40vh) rotate(5deg) scale(1, 1);
+  }
+
+  70% {
+    opacity: 0.7;
+    transform: translate(-2vw, -75vh) rotate(-3deg) scale(1.5, 1.15);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(2vw, -105vh) rotate(6deg) scale(2, 1.3);
+  }
+}

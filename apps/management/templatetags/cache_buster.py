@@ -47,7 +47,7 @@ def static_v_page(context):
 
 
 @register.simple_tag(takes_context=True)
-def static_v_theme(context):
+def static_v_theme(context, name=None):
     """A way to force the client browser to reload a changed static file.
     Normally the client browser will cache a static file and not reload until it's expired.
     This just appends "?v=modification_date" to the url of the file to make the browser think it's a different file.
@@ -55,8 +55,9 @@ def static_v_theme(context):
     http://stackoverflow.com/questions/118884/how-to-force-browser-to-reload-cached-css-js-files
     """
 
-    # Gets the static file from the /static directory
-    static_file = f"{settings.STATIC_URL}css/theme-{context["theme"]}.css"
+    # Gets the static file from the /static directory; a variant theme
+    # names its base theme's file, or its own
+    static_file = f"{settings.STATIC_URL}css/theme-{name or context["theme"]}.css"
     modified_url = (
         static_file
         + "?v="

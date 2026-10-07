@@ -46,13 +46,20 @@
             <link rel="stylesheet" href="{% static_v_page %}">
         {% endif %}
         <link rel="stylesheet" href="{% static_v 'css/icons.css' %}">
-        {% if theme and theme != "matcha" %}
+        {% if theme_base and theme_base != "matcha" %}
+            <link rel="stylesheet" href="{% static_v_theme theme_base %}">
+        {% endif %}
+        {% if theme_variant %}
+            <link rel="stylesheet" href="{% static_v 'css/atmosphere.css' %}">
             <link rel="stylesheet" href="{% static_v_theme %}">
         {% endif %}
     </head>
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
           {% if page %}data-page="{{ page }}"{% endif %}
           {% if user.is_authenticated %}data-user-id="{{ user.id }}" data-time-zone="{{ user.time_zone }}"{% endif %}>
+        {% if theme_variant %}
+            {% include "atmosphere.html" %}
+        {% endif %}
         {% if env == "dev" %}
             <div class="dev-banner">
                 <i class="icon-wrench"></i>

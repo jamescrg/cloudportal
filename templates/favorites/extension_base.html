@@ -20,8 +20,9 @@
         <link rel="stylesheet" href="{% static_v 'css/base-colors.css' %}" />
         <link rel="stylesheet" href="{% static_v 'css/base-palette.css' %}" />
         <link rel="stylesheet" href="{% static_v 'css/theme-matcha.css' %}" />
-        {% if theme and theme != "matcha" %}
-            <link rel="stylesheet" href="{% static_v_theme %}" />
+        {# The extension's popup takes a variant's colours, not its atmosphere #}
+        {% if theme_base and theme_base != "matcha" %}
+            <link rel="stylesheet" href="{% static_v_theme theme_base %}" />
         {% endif %}
         <link rel="stylesheet" href="{% static_v 'css/base-app.css' %}" />
         <link rel="stylesheet" href="{% static_v 'css/base-forms.css' %}" />

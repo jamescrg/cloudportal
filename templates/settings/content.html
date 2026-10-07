@@ -21,6 +21,10 @@
                                 <span>
                                     {% if theme == "hojicha" %}
                                         Hojicha
+                                    {% elif theme == "matcha-mist" %}
+                                        Matcha Mist
+                                    {% elif theme == "hojicha-steam" %}
+                                        Hojicha Steam
                                     {% elif theme == "auto" %}
                                         Auto
                                     {% else %}
@@ -39,6 +43,16 @@
                                     <a class="dropdown-item"
                                        href="#"
                                        @click.prevent="$el.closest('form').querySelector('[name=theme]').value='hojicha'; $el.closest('form').submit();">Hojicha</a>
+                                </li>
+                                <li {% if theme == "matcha-mist" %}class="active"{% endif %}>
+                                    <a class="dropdown-item"
+                                       href="#"
+                                       @click.prevent="$el.closest('form').querySelector('[name=theme]').value='matcha-mist'; $el.closest('form').submit();">Matcha Mist</a>
+                                </li>
+                                <li {% if theme == "hojicha-steam" %}class="active"{% endif %}>
+                                    <a class="dropdown-item"
+                                       href="#"
+                                       @click.prevent="$el.closest('form').querySelector('[name=theme]').value='hojicha-steam'; $el.closest('form').submit();">Hojicha Steam</a>
                                 </li>
                                 <li {% if theme == "auto" %}class="active"{% endif %}>
                                     <a class="dropdown-item"

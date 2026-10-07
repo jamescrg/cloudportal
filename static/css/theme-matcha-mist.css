@@ -1,0 +1,137 @@
+/* ==========================================================================
+ Matcha Mist: Matcha's colours (theme-matcha.css, always loaded) with the
+ atmosphere (atmosphere.css) on top. Morning mist over a tea field: banks
+ of pale green and cream drift across the page over a minute or two, and
+ a patch of sun comes and goes through them. The cards are lit from the
+ top left, faintly green where the light falls.
+========================================================================== */
+
+:root {
+  --atmos-ink: var(--stone-700);
+  --atmos-grain: 0.07;
+
+  /* The bar warms into the tea's green toward the right */
+  --atmos-nav: linear-gradient(
+    100deg,
+    var(--background-nav) 30%,
+    color-mix(in oklab, var(--background-nav) 82%, var(--lime-300))
+  );
+  --atmos-tab: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--background-body) 55%, var(--stone-50)),
+    var(--background-body) 85%
+  );
+  --atmos-tab-hover: color-mix(in oklab, var(--stone-50) 28%, transparent);
+
+  --atmos-card: linear-gradient(
+    165deg,
+    color-mix(in oklab, var(--stone-50) 88%, var(--lime-100)) 0%,
+    var(--background-section) 40%,
+    color-mix(in oklab, var(--background-section) 90%, var(--stone-300)) 100%
+  );
+  --atmos-card-rim: color-mix(in oklab, white 70%, transparent);
+  --atmos-card-shadow: color-mix(in oklab, var(--lime-950) 30%, transparent);
+}
+
+/* The mist. Each bank is a soft-edged ellipse of colour, larger than the
+   screen, wandering on its own slow loop so they never line up the same
+   way twice. */
+.atmos-cloud {
+  border-radius: 50%;
+  height: 70vmax;
+  width: 90vmax;
+}
+
+.atmos-cloud-1 {
+  animation: mist-a 95s ease-in-out infinite alternate;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--lime-100) 70%, transparent), color-mix(in oklab, color-mix(in oklab, var(--lime-100) 70%, transparent) 50%, transparent) 50%, transparent);
+  left: -30vmax;
+  top: 5vh;
+}
+
+.atmos-cloud-2 {
+  animation: mist-b 120s ease-in-out infinite alternate -40s;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--stone-50) 80%, transparent), color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, transparent) 50%, transparent) 50%, transparent);
+  right: -35vmax;
+  top: 20vh;
+}
+
+.atmos-cloud-3 {
+  animation: mist-a 140s ease-in-out infinite alternate-reverse -70s;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--emerald-100) 45%, transparent), color-mix(in oklab, color-mix(in oklab, var(--emerald-100) 45%, transparent) 50%, transparent) 50%, transparent);
+  bottom: -40vmax;
+  left: 10vw;
+}
+
+.atmos-cloud-4 {
+  animation: mist-b 110s ease-in-out infinite alternate-reverse -20s;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--amber-50) 75%, transparent), color-mix(in oklab, color-mix(in oklab, var(--amber-50) 75%, transparent) 50%, transparent) 50%, transparent);
+  height: 50vmax;
+  right: -10vmax;
+  bottom: -20vmax;
+  width: 60vmax;
+}
+
+.atmos-cloud-5 {
+  animation: mist-a 160s ease-in-out infinite alternate -100s;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--lime-50) 60%, transparent), color-mix(in oklab, color-mix(in oklab, var(--lime-50) 60%, transparent) 50%, transparent) 50%, transparent);
+  height: 40vmax;
+  left: 35vw;
+  top: 35vh;
+  width: 70vmax;
+}
+
+/* The sun through the mist: warm, high on the right, coming and going */
+.atmos-glow {
+  animation: sun 48s ease-in-out infinite alternate;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--amber-100) 55%, transparent), color-mix(in oklab, color-mix(in oklab, var(--amber-100) 55%, transparent) 50%, transparent) 50%, transparent);
+  border-radius: 50%;
+  height: 60vmax;
+  right: -12vmax;
+  top: -8vmax;
+  width: 60vmax;
+}
+
+@keyframes mist-a {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(14vw, -4vh) scale(1.12);
+  }
+
+  100% {
+    transform: translate(26vw, 3vh) scale(0.96);
+  }
+}
+
+@keyframes mist-b {
+  0% {
+    transform: translate(0, 0) scale(1.05);
+  }
+
+  50% {
+    transform: translate(-12vw, 5vh) scale(0.94);
+  }
+
+  100% {
+    transform: translate(-22vw, -3vh) scale(1.1);
+  }
+}
+
+@keyframes sun {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.95);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.75;
+    transform: scale(1.08);
+  }
+}
