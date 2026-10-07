@@ -100,10 +100,18 @@
   --atmos-card-rim: transparent;
   --atmos-card-shadow: color-mix(in oklab, var(--lime-950) 16%, transparent);
 
+  /* Text a touch darker than Matcha's, halfway to the next stone, to
+     hold against the wash through the cards */
+  --color-primary: color-mix(in oklab, var(--stone-600) 50%, var(--stone-700));
+
   /* Borders a touch darker than Matcha's, so the lines in the cards
      hold against the wash coming through them */
   --border-medium: color-mix(in oklab, var(--stone-300) 75%, var(--stone-400));
   --border-dark: color-mix(in oklab, var(--stone-400) 85%, var(--stone-500));
+
+  /* Calendar chips a step darker than Matcha's, so they hold on the
+     see-through cards */
+  --calendar-chip: color-mix(in oklab, var(--stone-300) 80%, transparent);
 
   /* Table heads: the control colour, let through as the cards are, or
      the head would sit on a card as a solid band */
@@ -155,6 +163,13 @@
    let through as the cards are */
 .active-item {
   background: color-mix(in oklab, var(--mist-shade) 45%, transparent);
+}
+
+/* The calendar's weekday headings: FullCalendar paints its header row in
+   the solid page colour, which reads whitish on a see-through card; here
+   it is a darker gray laid over the card */
+.fc .fc-scrollgrid .fc-scrollgrid-section-header > * {
+  background: color-mix(in oklab, var(--stone-300) 85%, transparent);
 }
 
 /* The home page's search box and engine picker sit on the wash as the
