@@ -84,10 +84,8 @@
   --atmos-grain: 0.07;
 
   /* The bar is the wash itself carried on up, a step darker: a thin
-     stone veil over the page's own light, with a hairline along its
-     foot to set it apart */
+     stone veil over the page's own light */
   --atmos-nav: color-mix(in oklab, var(--stone-600) 13%, transparent);
-  --atmos-nav-line: color-mix(in oklab, var(--stone-700) 16%, transparent);
 
   /* The active tab is lit at the top by the light's own green */
   --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, var(--mist-light)) 85%, transparent);
