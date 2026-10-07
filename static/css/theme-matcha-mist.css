@@ -5,7 +5,7 @@
 
 /* --------------------------------------------------------------------------
  The light. Every gradient in the theme is the same light: it falls from
- the top left, carrying the tea's green with a little sun in it, and
+ the top left, carrying the tea's green, and
  where it runs out the shade is lavender. Surfaces are not given colours
  of their own; they take a sheen, the light laid as a translucent layer
  over whatever colour the surface already has, at one of three strengths.
@@ -16,7 +16,6 @@
 :root {
   --mist-angle: 160deg; /* the strong sheen's slant */
   --mist-light: var(--lime-100);
-  --mist-sun: var(--amber-100);
   --mist-shade: var(--violet-200);
 
   /* The sheens: a pool of light in the lit corner and a pool of shade
@@ -38,7 +37,6 @@
     radial-gradient(
       48rem 18rem at 0% 0%,
       color-mix(in oklab, var(--mist-light) 42%, transparent),
-      color-mix(in oklab, var(--mist-sun) 10%, transparent) 45%,
       transparent
     ),
     radial-gradient(
@@ -67,13 +65,14 @@
   --mist-shadow: color-mix(in oklab, var(--lime-950) 28%, transparent);
 
   /* The page: a still wash of the same light, pooled where it would fall
-     in a misty field. Green low on the left, the sun high on the right,
-     lavender gathering in the far corner, a little sea-green underfoot.
+     in a misty field: green and lavender only. Green low on the left,
+     lavender high on the right and gathering in the far corner, a little
+     sea-green underfoot.
      It sits under the moving mist (paused for now), runs up under the
      bar, and the active tab shows it too (atmosphere.css). */
   --atmos-wash:
     radial-gradient(60vmax 45vmax at 10% 55%, color-mix(in oklab, var(--mist-light) 60%, transparent), transparent 70%),
-    radial-gradient(50vmax 40vmax at 95% 20%, color-mix(in oklab, var(--mist-sun) 55%, transparent), transparent 70%),
+    radial-gradient(50vmax 40vmax at 95% 15%, color-mix(in oklab, var(--mist-shade) 40%, transparent), transparent 70%),
     radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--mist-shade) 45%, transparent), transparent 70%),
     radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--emerald-100) 50%, transparent), transparent 70%);
 
@@ -184,7 +183,7 @@
 
 .atmos-cloud-4 {
   animation: mist-b 110s ease-in-out infinite alternate-reverse -20s;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--amber-50) 75%, transparent), color-mix(in oklab, color-mix(in oklab, var(--amber-50) 75%, transparent) 50%, transparent) 50%, transparent);
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--violet-100) 65%, transparent), color-mix(in oklab, color-mix(in oklab, var(--violet-100) 65%, transparent) 50%, transparent) 50%, transparent);
   height: 50vmax;
   right: -10vmax;
   bottom: -20vmax;
@@ -201,10 +200,10 @@
   width: 70vmax;
 }
 
-/* The sun through the mist: warm, high on the right, coming and going */
+/* A pool of lavender light high on the right, coming and going */
 .atmos-glow {
-  animation: sun 48s ease-in-out infinite alternate;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--amber-100) 55%, transparent), color-mix(in oklab, color-mix(in oklab, var(--amber-100) 55%, transparent) 50%, transparent) 50%, transparent);
+  animation: glow 48s ease-in-out infinite alternate;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--violet-100) 55%, transparent), color-mix(in oklab, color-mix(in oklab, var(--violet-100) 55%, transparent) 50%, transparent) 50%, transparent);
   border-radius: 50%;
   height: 60vmax;
   right: -12vmax;
@@ -240,7 +239,7 @@
   }
 }
 
-@keyframes sun {
+@keyframes glow {
   0% {
     opacity: 0.35;
     transform: scale(0.95);
