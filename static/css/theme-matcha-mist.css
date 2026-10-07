@@ -135,14 +135,6 @@
   }
 }
 
-/* Buttons: flat colour, no gradient, lifted by a soft shadow */
-.btn-primary,
-.btn-success,
-.btn-secondary,
-.btn-danger {
-  box-shadow: 0 1px 2px var(--mist-shadow);
-}
-
 /* The selected folder or contact: the selected lavender, a little let
    through so it sits in the card */
 .active-item {
@@ -163,11 +155,6 @@ body[data-page="home"] :is(.search-input, .search-engine-btn) {
   box-shadow:
     0 1px 2px var(--shadow-color),
     0 14px 32px -18px var(--atmos-card-shadow);
-}
-
-/* The task list's bulk actions sit flat under the list, not raised */
-.archive-buttons .btn {
-  box-shadow: none;
 }
 
 /* --------------------------------------------------------------------------

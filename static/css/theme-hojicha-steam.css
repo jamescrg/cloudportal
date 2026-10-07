@@ -11,8 +11,8 @@
  The light. Every gradient in the theme is the same light: it falls from
  the top left, carrying the ember's warmth, and where it runs out the
  shade is plum. Surfaces keep their own colours and take a sheen, the
- light laid over them as a translucent layer. Cards are the exception:
- they take no sheen, and let the wash through. On a dark ground colour
+ light laid over them as a translucent layer. Cards and buttons are the
+ exception: they take no sheen, and the cards let the wash through. On a dark ground colour
  tells far more than on a light one, so every strength here is a good
  deal lower than the mist's. Turn these dials and every surface follows.
 -------------------------------------------------------------------------- */
@@ -47,14 +47,6 @@
       color-mix(in oklab, var(--steam-shade) 14%, transparent),
       transparent
     );
-
-  /* Gloss: a breath of light down the top half, for raised controls; a
-     dark button takes far less than the mist's half-white */
-  --steam-gloss: linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 7%),
-    rgb(255 255 255 / 0%) 60%
-  );
 
   /* Shadows on a dark ground are near black, or they don't show */
   --steam-shadow: rgb(0 0 0 / 45%);
@@ -141,16 +133,6 @@
   }
 }
 
-/* Buttons: raised, so glossed. No coloured sheen on any of them: the
-   ember over Hojicha's aqua or red would only muddy it. */
-.btn-primary,
-.btn-success,
-.btn-secondary,
-.btn-danger {
-  background-image: var(--steam-gloss);
-  box-shadow: 0 1px 2px var(--steam-shadow);
-}
-
 /* The selected folder or contact: the selected plum, a little let
    through so it sits in the card */
 .active-item {
@@ -170,12 +152,6 @@ body[data-page="home"] :is(.search-input, .search-engine-btn) {
   box-shadow:
     0 1px 2px var(--shadow-color),
     0 14px 32px -18px var(--atmos-card-shadow);
-}
-
-/* The task list's bulk actions sit flat under the list */
-.archive-buttons .btn {
-  background-image: none;
-  box-shadow: none;
 }
 
 /* --------------------------------------------------------------------------
