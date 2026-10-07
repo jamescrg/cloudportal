@@ -121,11 +121,13 @@ body {
   }
 }
 
-/* On mobile the cards run edge to edge (base-app.css). The wash still
-   shows through them, as on the desktop; only the shadow goes, which
-   has no edge to lift there. */
+/* On mobile the cards run edge to edge on a page of their own colour
+   (base-app.css), so they drop their fill and shadow and the page reads
+   as one sheet with the wash straight through it: no bands between
+   cards. The home page keeps its gutters, and its cards. */
 @media (max-width: 991.98px) {
   body:not([data-page="home"]) .card {
+    background: transparent;
     box-shadow: none;
   }
 }
