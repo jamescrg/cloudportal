@@ -20,12 +20,18 @@ def test_original_theme_has_no_atmosphere(client):
     assert 'class="atmos"' not in html
 
 
-def test_matcha_mist_builds_on_matcha(client):
-    html = page_for(client, "matcha-mist")
+def test_matcha_lavender_builds_on_matcha(client):
+    html = page_for(client, "matcha-lavender")
     assert "css/theme-matcha.css" in html
     assert "css/atmosphere.css" in html
-    assert "css/theme-matcha-mist.css" in html
+    assert "css/theme-matcha-lavender.css" in html
     assert 'class="atmos"' in html
+
+
+def test_matcha_mist_is_now_matcha_lavender(client):
+    html = page_for(client, "matcha-mist")
+    assert "css/theme-matcha-lavender.css" in html
+    assert "css/theme-matcha-mist.css" not in html
 
 
 def test_hojicha_steam_builds_on_hojicha(client):
@@ -39,5 +45,5 @@ def test_hojicha_steam_builds_on_hojicha(client):
 
 def test_variants_are_offered(client):
     html = page_for(client, "matcha")
-    assert "Matcha Mist" in html
+    assert "Matcha Lavender" in html
     assert "Hojicha Steam" in html

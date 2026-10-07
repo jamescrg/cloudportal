@@ -16,8 +16,13 @@ def site_handle(request):
 # The atmospheric variants: each is its base theme's colours, with the
 # shared atmosphere (static/css/atmosphere.css) and its own file on top
 THEME_VARIANTS = {
-    "matcha-mist": "matcha",
+    "matcha-lavender": "matcha",
     "hojicha-steam": "hojicha",
+}
+
+# Renamed themes, so a session still holding the old name keeps its theme
+RENAMED_THEMES = {
+    "matcha-mist": "matcha-lavender",
 }
 
 
@@ -28,6 +33,7 @@ def theme(request):
         name = request.user.theme
     else:
         name = ""
+    name = RENAMED_THEMES.get(name, name)
     return {
         "theme": name,
         "theme_base": THEME_VARIANTS.get(name, name),

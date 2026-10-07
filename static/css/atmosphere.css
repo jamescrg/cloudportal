@@ -1,5 +1,5 @@
 /* ==========================================================================
- Atmosphere: what the variant themes (Matcha Mist, Hojicha Steam) share.
+ Atmosphere: what the variant themes (Matcha Lavender, Hojicha Steam) share.
  Loaded only for a variant, after its base theme and before its own file,
  which sets the dials below and draws and moves the layers. The original
  themes never load this.

@@ -21,8 +21,8 @@
                                 <span>
                                     {% if theme == "hojicha" %}
                                         Hojicha
-                                    {% elif theme == "matcha-mist" %}
-                                        Matcha Mist
+                                    {% elif theme == "matcha-lavender" %}
+                                        Matcha Lavender
                                     {% elif theme == "hojicha-steam" %}
                                         Hojicha Steam
                                     {% elif theme == "auto" %}
@@ -44,10 +44,10 @@
                                        href="#"
                                        @click.prevent="$el.closest('form').querySelector('[name=theme]').value='hojicha'; $el.closest('form').submit();">Hojicha</a>
                                 </li>
-                                <li {% if theme == "matcha-mist" %}class="active"{% endif %}>
+                                <li {% if theme == "matcha-lavender" %}class="active"{% endif %}>
                                     <a class="dropdown-item"
                                        href="#"
-                                       @click.prevent="$el.closest('form').querySelector('[name=theme]').value='matcha-mist'; $el.closest('form').submit();">Matcha Mist</a>
+                                       @click.prevent="$el.closest('form').querySelector('[name=theme]').value='matcha-lavender'; $el.closest('form').submit();">Matcha Lavender</a>
                                 </li>
                                 <li {% if theme == "hojicha-steam" %}class="active"{% endif %}>
                                     <a class="dropdown-item"
