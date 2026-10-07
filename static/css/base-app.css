@@ -55,7 +55,11 @@ body {
   width: 31.25rem;
 }
 
+/* flow-root keeps the last card's bottom margin inside the content, or
+   it escapes through <body> past the full-height <html> and the page
+   ends flush with the last card */
 .content {
+  display: flow-root;
   padding-top: 1.5rem;
 }
 

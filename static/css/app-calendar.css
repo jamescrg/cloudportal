@@ -614,3 +614,9 @@
     display: none;
   }
 }
+
+/* The calendar's card closes as tightly below the grid as it sits round
+   it on the other sides; the space goes below the card instead */
+body[data-page="calendar"] .content > .card {
+  padding-bottom: 1rem;
+}
