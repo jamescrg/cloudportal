@@ -99,3 +99,24 @@ def test_the_sync_command_visits_only_users_with_sync_on(user, other_user, monke
 
     assert visited == [user]
     assert CustomUser.objects.filter(calendar_sync=True).count() == 1
+
+
+def test_one_user_s_failed_sync_leaves_the_rest_syncing(user, other_user, monkeypatch):
+    for u in (user, other_user):
+        u.google_credentials = '{"token": "x"}'
+        u.calendar_sync = True
+        u.save()
+    visited = []
+
+    def fake_sync(u):
+        visited.append(u)
+        if u == user:
+            raise RuntimeError("Google is down")
+        return {"reconciled": {}}
+
+    monkeypatch.setattr(sync, "scheduled_sync", fake_sync)
+
+    result = sync.sync_all()
+
+    assert set(visited) == {user, other_user}
+    assert result == {"synced": 1, "failed": 1}

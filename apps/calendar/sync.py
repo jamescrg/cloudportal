@@ -84,7 +84,7 @@ def reconcile(user):
     deletions.
 
     Idempotent and safe to run repeatedly — called on (re)connect and from the
-    sync_calendar cron (before the pull). No-op when not connected.
+    calendar-sync schedule (before the pull). No-op when not connected.
     """
     summary = {"pushed": 0, "deleted": 0, "failed": 0}
     if not google.check_credentials(user):
@@ -136,3 +136,29 @@ def scheduled_sync(user):
     pulled = google.sync_from_google(user)
 
     return {"reconciled": reconciled, "pulled": pulled}
+
+
+def sync_all():
+    """The scheduled job: sync every user who has sync on and a Google
+    account connected. One user's failure is logged and the rest still
+    sync. Returns {"synced", "failed"}."""
+    from accounts.models import CustomUser
+
+    users = (
+        CustomUser.objects.filter(is_active=True, calendar_sync=True)
+        .exclude(google_credentials__isnull=True)
+        .exclude(google_credentials="")
+    )
+    summary = {"synced": 0, "failed": 0}
+    for user in users:
+        # Push local changes + drain queued deletions first, so local
+        # removals reach Google before the pull (which would otherwise
+        # re-create them) and any previously failed pushes get retried.
+        try:
+            scheduled_sync(user)
+        except Exception:
+            logger.exception("Calendar sync failed for %s", user)
+            summary["failed"] += 1
+        else:
+            summary["synced"] += 1
+    return summary

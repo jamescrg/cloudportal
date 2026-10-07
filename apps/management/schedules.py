@@ -23,6 +23,40 @@ class ScheduleSpec:
 def schedule_specs():
     return (
         ScheduleSpec(
+            "event-reminders",
+            "apps.calendar.reminders.send_due",
+            "*/5 * * * *",
+            description="Emails the event notifications that have come due.",
+        ),
+        ScheduleSpec(
+            "task-reminders",
+            "apps.tasks.reminders.send_all",
+            "*/5 * * * *",
+            description=(
+                "Emails the task notifications that have come due, and once a "
+                "day each user's digest of past-due tasks if they turned it on."
+            ),
+        ),
+        ScheduleSpec(
+            "recurring-tasks",
+            "apps.tasks.recurring.create_instances",
+            "0 1 * * *",
+            description=(
+                "Gives each recurring task a new open instance when its day "
+                "comes round and the last one is done."
+            ),
+        ),
+        ScheduleSpec(
+            "calendar-sync",
+            "apps.calendar.sync.sync_all",
+            "*/5 * * * *",
+            description=(
+                "Two-way Google Calendar sync for every user who has it on: "
+                "pushes pending local changes and deletions, then pulls "
+                "changes from Google."
+            ),
+        ),
+        ScheduleSpec(
             "extend-event-series",
             "apps.calendar.recurrence.extend_all",
             "0 2 * * *",

@@ -27,17 +27,17 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 ### Calendar
 - Year, month, week, and day views with drag-and-drop rescheduling, plus a sortable list view
 - Events carry a type (Zoom, Virtual, Phone, In-person) and a meeting link or address, and can run over several days
-- Optional two-way sync with Google Calendar (switched on under Settings → Calendar): saves push immediately, and `sync_calendar` (via cron) pulls changes and retries failed pushes
+- Optional two-way sync with Google Calendar (switched on under Settings → Calendar): saves push immediately, and the background worker pulls changes and retries failed pushes
 - Forward a calendar invitation to your own forwarding address and it is posted as an event; forwarded updates and cancellations follow (see Forwarding invitations)
 - Repeating events (daily, every weekday, weekly on chosen days, monthly by day or by weekday, yearly; every N; ending never, on a day or after a number of times). Occurrences are real events made a year ahead and topped up daily by the background worker; an edit or delete applies to "this event" or "this and following events"
-- Email notifications per event, any number of them, set as "N minutes/hours/days/weeks before" (with a time of day for all-day events), sent by `send_event_reminders` via cron
+- Email notifications per event, any number of them, set as "N minutes/hours/days/weeks before" (with a time of day for all-day events), sent by the background worker
 - Time zone aware: each timed event is a fixed moment, and the browser reports where you are, so times are entered, shown, and notified in your current zone while travelling
 
 ### Tasks
 - Folder-based task lists with due dates and optional due times
 - Recurring tasks (daily, weekly, monthly, yearly) with automatic instance generation
 - Share task folders with other users for collaborative lists
-- Email notifications per task, set on the task as "N minutes/hours/days/weeks before" like event notifications; recurring tasks pass theirs on to each instance. A daily past-due digest can be switched on in Settings. Both are sent by `send_task_reminders` via cron
+- Email notifications per task, set on the task as "N minutes/hours/days/weeks before" like event notifications; recurring tasks pass theirs on to each instance. A daily past-due digest can be switched on in Settings. Both are sent by the background worker
 - Time zone aware due times: a task with a due time is a fixed moment, shown and notified where you are now
 - Quick-filter for tasks due soon; archive completed tasks
 
@@ -175,28 +175,35 @@ See `.env.example` for the full list. Key variables:
 | `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` | SMTP settings |
 | `ZIP_PRIMARY` | Default zip code for weather |
 
-### Cron Jobs (Production)
-
-```
-0 1 * * * /path/to/.venv/bin/python /path/to/manage.py create_recurring_tasks
-*/5 * * * * /path/to/.venv/bin/python /path/to/manage.py send_task_reminders
-*/5 * * * * /path/to/.venv/bin/python /path/to/manage.py send_event_reminders
-```
-
 ### Background Worker (Production)
 
-Scheduled jobs are moving from cron to a Django-Q2 cluster, which uses the
-database as its broker. The jobs are listed in `apps/management/schedules.py`;
-so far it runs:
+Scheduled jobs run on a Django-Q2 cluster, which uses the database as its
+broker, so no cron is needed. The jobs are listed in
+`apps/management/schedules.py`:
 
 | Schedule | When | Job |
 | --- | --- | --- |
+| `event-reminders` | Every 5 minutes | Emails event notifications that are due |
+| `task-reminders` | Every 5 minutes | Emails task notifications that are due, and the daily past-due digest |
+| `calendar-sync` | Every 5 minutes | Two-way Google Calendar sync for users who have it on |
+| `recurring-tasks` | 1:00 daily | Makes the next instance of each recurring task |
 | `extend-event-series` | 2:00 daily | Tops up repeating events' occurrences to a year ahead |
+
+Each job can also be run by hand with its management command
+(`send_event_reminders`, `send_task_reminders`, `sync_calendar`,
+`create_recurring_tasks`, `extend_event_series`).
 
 Write the schedules to the database after each migrate (safe to repeat):
 
 ```
 /path/to/.venv/bin/python /path/to/manage.py setup_schedules
+```
+
+A machine that must not send email or sync with Google (a dev copy of the
+database, say) installs only the jobs it should run, and drops the rest:
+
+```
+/path/to/.venv/bin/python /path/to/manage.py setup_schedules --only extend-event-series
 ```
 
 Run the cluster beside Gunicorn. `deploy/systemd/cpl-qcluster.service` is a

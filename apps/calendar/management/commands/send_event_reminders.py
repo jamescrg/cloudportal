@@ -1,8 +1,8 @@
 """
 Send email notifications for calendar events.
 
-Run every 5 minutes via cron:
-    */5 * * * * /path/to/.venv/bin/python /path/to/manage.py send_event_reminders
+The Django-Q cluster runs this every 5 minutes (the "event-reminders"
+schedule in apps/management/schedules.py); this command runs it by hand.
 """
 
 from django.core.management.base import BaseCommand

@@ -39,3 +39,23 @@ def test_the_recurring_events_job_tops_up_the_series():
     from apps.calendar.recurrence import extend_all
 
     assert extend_all() == 0
+
+
+def test_only_installs_the_named_and_removes_the_rest():
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    call_command("setup_schedules", stdout=StringIO())
+    call_command("setup_schedules", "--only", "extend-event-series", stdout=StringIO())
+
+    assert list(Schedule.objects.values_list("name", flat=True)) == [
+        "extend-event-series"
+    ]
+
+
+def test_an_unknown_name_is_refused():
+    from django.core.management import CommandError, call_command
+
+    with pytest.raises(CommandError):
+        call_command("setup_schedules", "--only", "nonsense")
