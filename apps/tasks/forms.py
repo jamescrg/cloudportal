@@ -1,22 +1,19 @@
 from django import forms
 
-from apps.common.forms import ReminderFormBase
+from apps.common.forms import ReminderFormBase, RepeatFields
+from apps.common.recurrence import form_initial
 from config.settings import CustomFormRenderer
 
 from .models import Task, TaskReminder
 
 
-class TaskForm(forms.ModelForm):
+class TaskForm(RepeatFields, forms.ModelForm):
+    """A task, with how it recurs (RepeatFields, counted from its due date,
+    or from today for one without)."""
+
     default_renderer = CustomFormRenderer
     use_required_attribute = False
-
-    RECURRENCE_CHOICES = [
-        ("", "None"),
-        ("daily", "Daily"),
-        ("weekly", "Weekly"),
-        ("monthly", "Monthly"),
-        ("yearly", "Yearly"),
-    ]
+    repeat_start_field = "due_date"
 
     archived = forms.TypedChoiceField(
         choices=[(False, "No"), (True, "Yes")],
@@ -38,12 +35,6 @@ class TaskForm(forms.ModelForm):
         label="Priority",
     )
 
-    recurrence = forms.ChoiceField(
-        choices=RECURRENCE_CHOICES,
-        required=False,
-        label="Repeat",
-    )
-
     class Meta:
         model = Task
         fields = (
@@ -59,20 +50,30 @@ class TaskForm(forms.ModelForm):
             "title": forms.TextInput(
                 attrs={"tabindex": "1", "autofocus": True, "class": "span3"}
             ),
-            "due_date": forms.DateInput(attrs={"type": "date"}),
+            # The repeat labels ("Monthly on the second Tuesday") follow it
+            "due_date": forms.DateInput(attrs={"type": "date", "x-model": "date"}),
             "due_time": forms.TimeInput(attrs={"type": "time"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Set initial value for recurrence dropdown based on model fields
-        if self.instance and self.instance.pk:
-            if self.instance.is_recurring and self.instance.recurrence_type:
-                self.fields["recurrence"].initial = self.instance.recurrence_type
+        if self.is_bound:
+            return
+        # An instance of a recurring task opens on its template's rule; any
+        # other task's weekly repeat would start on its due date's weekday
+        template = self.instance.parent_task if self.instance.pk else None
+        rule = template.rule if template else None
+        if rule:
+            self.initial.update(form_initial(rule))
+        else:
+            due = self.initial.get("due_date") or self.instance.due_date
+            if due:
+                self.initial.setdefault("weekdays", [str(due.weekday())])
 
     def __iter__(self):
-        skip = {"folder", "status", "archived"}
+        # The modal lays these out itself (the repeat fields through
+        # components/repeat-fields.html)
+        skip = {"folder", "status", "archived", *self.REPEAT_FIELDS}
         for field in super().__iter__():
             if field.name not in skip:
                 yield field

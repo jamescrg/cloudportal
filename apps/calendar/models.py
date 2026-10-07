@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from accounts.models import CustomUser
 from apps.common.models import ReminderMixin, TimestampMixin, is_zone, zone_or_default
+from apps.common.recurrence import Rule, describe
 
 __all__ = [
     "Event",
@@ -78,15 +79,22 @@ class EventSeries(TimestampMixin, models.Model):
         return f"{self.description} ({self.frequency}) : {self.id}"
 
     @property
-    def weekday_list(self):
-        return [int(day) for day in self.weekdays.split(",") if day.strip()]
+    def rule(self):
+        """How the series repeats, as the shared Rule."""
+        return Rule(
+            frequency=self.frequency,
+            start=self.start,
+            interval=self.interval,
+            weekdays=self.weekdays,
+            monthly_by=self.monthly_by,
+            until=self.until,
+            count=self.count,
+        )
 
     @property
     def summary(self):
         """The rule in words ("Weekly on Tuesday and Thursday")."""
-        from apps.calendar.recurrence import describe
-
-        return describe(self)
+        return describe(self.rule)
 
     class Meta:
         db_table = "app_event_series"

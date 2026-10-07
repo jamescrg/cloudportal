@@ -1,4 +1,5 @@
-<div class="modal-dialog modal-md">
+<div class="modal-dialog modal-md"
+     x-data="repeatFields({ repeat: '{{ form.repeat.value|default_if_none:'' }}', ends: '{{ form.ends.value|default:'never' }}', date: '{{ form.due_date.value|default_if_none:''|stringformat:'s' }}' })">
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">
@@ -13,6 +14,11 @@
             </a>
         </div>
         <div class="modal-body">
+            {% if task.repeat_summary %}
+                <p class="form-note repeat-summary">
+                    <i class="icon-repeat"></i> {{ task.repeat_summary }}
+                </p>
+            {% endif %}
             <form id="task-form"
                   hx-post="{{ action }}"
                   hx-target="#htmx-modal-container"
@@ -41,6 +47,7 @@
                     <div>{{ form.archived }}</div>
                 </div>
                 {{ form }}
+                {% include "components/repeat-fields.html" %}
             </form>
             {% include "components/reminders.html" %}
         </div>

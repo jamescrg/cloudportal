@@ -11,7 +11,7 @@ from accounts.models import CustomUser
 from apps.folders.folders import get_folders_for_page, get_task_folders, select_folder
 from apps.folders.models import Folder
 from apps.management.pagination import CustomPaginator
-from apps.tasks import reminders
+from apps.tasks import recurring, reminders
 from apps.tasks.filter import TasksFilter
 from apps.tasks.forms import TaskForm, TaskReminderForm
 from apps.tasks.models import Task
@@ -202,102 +202,14 @@ def edit(request, id):
         except ObjectDoesNotExist:
             raise Http404("Record not found.")
 
-        # Check if this task was already recurring before the edit
-        was_recurring = task.is_recurring
-        parent_task = task.parent_task  # Capture before form.save()
-
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             task = form.save(commit=False)
             task.user = user
             task.time_zone = user.time_zone
             task.title = task.title[0].upper() + task.title[1:]
-            recurrence = form.cleaned_data.get("recurrence")
-
-            # If editing a recurring instance, sync changes to the template
-            if parent_task:
-                task.save()
-                parent_task.folder = task.folder
-                parent_task.title = task.title
-                parent_task.priority = task.priority
-                parent_task.due_time = task.due_time
-                parent_task.time_zone = task.time_zone
-                if recurrence:
-                    parent_task.recurrence_type = recurrence
-                    if task.due_date:
-                        if recurrence == "daily":
-                            parent_task.recurrence_day = None
-                        elif recurrence == "monthly":
-                            parent_task.recurrence_day = task.due_date.day
-                        elif recurrence == "weekly":
-                            parent_task.recurrence_day = task.due_date.weekday()
-                        elif recurrence == "yearly":
-                            parent_task.recurrence_day = task.due_date.day
-                            parent_task.recurrence_month = task.due_date.month
-                    parent_task.save()
-                else:
-                    # Recurrence removed - delete the template
-                    parent_task.delete()
-                    task.parent_task = None
-                    task.save()
-
-            # Editing a regular task or a template
-            else:
-                if recurrence:
-                    task.is_recurring = True
-                    task.recurrence_type = recurrence
-
-                    # Set recurrence_day based on due_date
-                    if task.due_date:
-                        if recurrence == "daily":
-                            task.recurrence_day = None
-                        elif recurrence == "monthly":
-                            task.recurrence_day = task.due_date.day
-                        elif recurrence == "weekly":
-                            task.recurrence_day = task.due_date.weekday()
-                        elif recurrence == "yearly":
-                            task.recurrence_day = task.due_date.day
-                            task.recurrence_month = task.due_date.month
-                else:
-                    task.is_recurring = False
-                    task.recurrence_type = None
-                    task.recurrence_day = None
-                    task.recurrence_month = None
-
-                task.save()
-
-                # If task just became recurring, create the first instance immediately
-                if task.is_recurring and not was_recurring:
-                    from datetime import date
-
-                    Task.objects.create(
-                        user=task.user,
-                        folder=task.folder,
-                        title=task.title,
-                        priority=task.priority,
-                        status=0,
-                        due_date=task.due_date,
-                        due_time=task.due_time,
-                        time_zone=task.time_zone,
-                        parent_task=task,
-                    ).copy_reminders_from(task)
-                    task.last_generated = date.today()
-                    task.save(update_fields=["last_generated"])
-
-                # If editing a recurring template, update the most recent incomplete instance
-                elif task.is_recurring and was_recurring:
-                    latest_instance = (
-                        Task.objects.filter(parent_task=task, status=0)
-                        .order_by("-due_date")
-                        .first()
-                    )
-                    if latest_instance:
-                        latest_instance.folder = task.folder
-                        latest_instance.title = task.title
-                        latest_instance.priority = task.priority
-                        latest_instance.due_time = task.due_time
-                        latest_instance.time_zone = task.time_zone
-                        latest_instance.save()
+            task.save()
+            recurring.apply_edit(task, form.rule(), form.repeat_start())
 
         return redirect("tasks")
 
@@ -315,10 +227,6 @@ def edit(request, id):
             form = TaskForm(instance=task)
 
         form.fields["folder"].queryset = folders
-
-        # For recurring instances, show recurrence field with parent's value
-        if task.parent_task:
-            form.fields["recurrence"].initial = task.parent_task.recurrence_type
 
         context = {
             "page": "tasks",
@@ -531,9 +439,6 @@ def task_form(request, id):
     folders = get_task_folders(request)
 
     if request.method == "POST":
-        # Check if this task was already recurring before the edit
-        was_recurring = task.is_recurring
-        parent_task = task.parent_task
         old_status = task.status
 
         form = TaskForm(request.POST, instance=task, use_required_attribute=False)
@@ -543,7 +448,6 @@ def task_form(request, id):
             task.user = user
             task.time_zone = user.time_zone
             task.title = task.title[0].upper() + task.title[1:]
-            recurrence = form.cleaned_data.get("recurrence")
 
             # Update completed_date when status changes
             if task.status == 1 and old_status != 1:
@@ -551,83 +455,11 @@ def task_form(request, id):
             elif task.status != 1 and old_status == 1:
                 task.completed_date = None
 
-            # If editing a recurring instance, sync changes to the template
-            if parent_task:
-                task.save()
-                parent_task.folder = task.folder
-                parent_task.title = task.title
-                parent_task.priority = task.priority
-                parent_task.due_time = task.due_time
-                parent_task.time_zone = task.time_zone
-                if recurrence:
-                    parent_task.recurrence_type = recurrence
-                    if task.due_date:
-                        if recurrence == "daily":
-                            parent_task.recurrence_day = None
-                        elif recurrence == "monthly":
-                            parent_task.recurrence_day = task.due_date.day
-                        elif recurrence == "weekly":
-                            parent_task.recurrence_day = task.due_date.weekday()
-                        elif recurrence == "yearly":
-                            parent_task.recurrence_day = task.due_date.day
-                            parent_task.recurrence_month = task.due_date.month
-                    parent_task.save()
-                else:
-                    parent_task.delete()
-                    task.parent_task = None
-                    task.save()
-            else:
-                if recurrence:
-                    task.is_recurring = True
-                    task.recurrence_type = recurrence
-                    if task.due_date:
-                        if recurrence == "daily":
-                            task.recurrence_day = None
-                        elif recurrence == "monthly":
-                            task.recurrence_day = task.due_date.day
-                        elif recurrence == "weekly":
-                            task.recurrence_day = task.due_date.weekday()
-                        elif recurrence == "yearly":
-                            task.recurrence_day = task.due_date.day
-                            task.recurrence_month = task.due_date.month
-                else:
-                    task.is_recurring = False
-                    task.recurrence_type = None
-                    task.recurrence_day = None
-                    task.recurrence_month = None
-
-                task.save()
-
-                if task.is_recurring and not was_recurring:
-                    from datetime import date
-
-                    Task.objects.create(
-                        user=task.user,
-                        folder=task.folder,
-                        title=task.title,
-                        priority=task.priority,
-                        status=0,
-                        due_date=task.due_date,
-                        due_time=task.due_time,
-                        time_zone=task.time_zone,
-                        parent_task=task,
-                    ).copy_reminders_from(task)
-                    task.last_generated = date.today()
-                    task.save(update_fields=["last_generated"])
-                elif task.is_recurring and was_recurring:
-                    latest_instance = (
-                        Task.objects.filter(parent_task=task, status=0)
-                        .order_by("-due_date")
-                        .first()
-                    )
-                    if latest_instance:
-                        latest_instance.folder = task.folder
-                        latest_instance.title = task.title
-                        latest_instance.priority = task.priority
-                        latest_instance.due_time = task.due_time
-                        latest_instance.time_zone = task.time_zone
-                        latest_instance.save()
-
+            task.save()
+            recurring.apply_edit(task, form.rule(), form.repeat_start())
+            # A recurring task's instance marked done here brings on the next
+            if task.status == 1 and old_status != 1:
+                recurring.after_completion(task)
             return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
         # Form validation failed - re-render form with errors
@@ -640,9 +472,6 @@ def task_form(request, id):
             initial=vars(task.in_zone(user.time_zone)),
             use_required_attribute=False,
         )
-
-        if task.parent_task:
-            form.fields["recurrence"].initial = task.parent_task.recurrence_type
 
     context = {
         "page": "tasks",
@@ -718,27 +547,10 @@ def status_htmx(request, id):
                 task.archived = True
             task.save()
 
-    # Generate next recurring instance on completion
-    if task.status == 1 and task.parent_task:
-        parent = task.parent_task
-        if parent.is_recurring and not parent.archived:
-            has_pending = Task.objects.filter(
-                parent_task=parent, status=0, archived=False
-            ).exists()
-            if not has_pending:
-                Task.objects.create(
-                    user=parent.user,
-                    folder=parent.folder,
-                    title=parent.title,
-                    priority=parent.priority,
-                    status=0,
-                    due_date=date.today(),
-                    due_time=parent.due_time,
-                    time_zone=parent.time_zone,
-                    parent_task=parent,
-                ).copy_reminders_from(parent)
-                parent.last_generated = date.today()
-                parent.save(update_fields=["last_generated"])
+    # A recurring task's instance done brings on the next, due on its
+    # rule's next day
+    if task.status == 1:
+        recurring.after_completion(task)
 
     context = _get_task_list_context(request)
     response = render(request, "tasks/list.html", context)

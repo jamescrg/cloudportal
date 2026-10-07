@@ -1,5 +1,5 @@
 <div class="modal-dialog modal-lg"
-     x-data="eventRepeat({ repeat: '{{ form.repeat.value|default_if_none:'' }}', ends: '{{ form.ends.value|default:'never' }}', date: '{{ form.date.value|default_if_none:''|stringformat:'s' }}' })">
+     x-data="repeatFields({ repeat: '{{ form.repeat.value|default_if_none:'' }}', ends: '{{ form.ends.value|default:'never' }}', date: '{{ form.date.value|default_if_none:''|stringformat:'s' }}' })">
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">
@@ -45,52 +45,7 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-                {# How the event repeats: each part shows once it applies #}
-                <div class="form-group field-repeat">
-                    <label for="{{ form.repeat.id_for_label }}">Repeat</label>
-                    <div>
-                        {{ form.repeat }}
-                        {{ form.repeat.errors }}
-                    </div>
-                </div>
-                <div class="form-group field-interval"
-                     x-show="repeat && repeat !== 'weekdays'">
-                    <label for="{{ form.interval.id_for_label }}">Every</label>
-                    <div class="repeat-every">
-                        {{ form.interval }}
-                        <span x-text="{ daily: 'days', weekly: 'weeks', monthly: 'months', monthly_weekday: 'months', yearly: 'years' }[repeat]"></span>
-                        {{ form.interval.errors }}
-                    </div>
-                </div>
-                <div class="form-group field-ends" x-show="repeat">
-                    <label for="{{ form.ends.id_for_label }}">Ends</label>
-                    <div>
-                        {{ form.ends }}
-                        {{ form.ends.errors }}
-                    </div>
-                </div>
-                <div class="form-group field-until" x-show="repeat && ends === 'on'">
-                    <label for="{{ form.until.id_for_label }}">Last day</label>
-                    <div>
-                        {{ form.until }}
-                        {{ form.until.errors }}
-                    </div>
-                </div>
-                <div class="form-group field-count" x-show="repeat && ends === 'after'">
-                    <label for="{{ form.count.id_for_label }}">Times</label>
-                    <div>
-                        {{ form.count }}
-                        {{ form.count.errors }}
-                    </div>
-                </div>
-                <div class="form-group field-weekdays repeat-weekdays"
-                     x-show="repeat === 'weekly'">
-                    <label>On</label>
-                    <div>
-                        {{ form.weekdays }}
-                        {{ form.weekdays.errors }}
-                    </div>
-                </div>
+                {% include "components/repeat-fields.html" %}
             </form>
             {% if edit %}
                 {% include "components/reminders.html" %}

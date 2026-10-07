@@ -14,9 +14,8 @@ a request with one call per occurrence; the new ones reach Google the same
 way, as events never pushed.
 """
 
-from datetime import datetime, time, timedelta
+from datetime import time, timedelta
 
-from dateutil import rrule
 from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
@@ -27,28 +26,10 @@ from apps.calendar.models import (
     EventSeries,
     PendingGoogleDeletion,
 )
+from apps.common import recurrence as rules
+from apps.common.recurrence import REPEAT_CHOICES, WEEKDAYS, nth_weekday  # noqa: F401
 
 HORIZON = timedelta(days=365)
-
-WEEKDAYS = "0,1,2,3,4"  # Monday to Friday
-
-FREQUENCIES = {
-    "daily": rrule.DAILY,
-    "weekly": rrule.WEEKLY,
-    "monthly": rrule.MONTHLY,
-    "yearly": rrule.YEARLY,
-}
-
-# The form's Repeat choices, each a frequency and what it fixes
-REPEAT_CHOICES = [
-    ("", "Does not repeat"),
-    ("daily", "Daily"),
-    ("weekdays", "Every weekday (Monday to Friday)"),
-    ("weekly", "Weekly"),
-    ("monthly", "Monthly on the same day"),
-    ("monthly_weekday", "Monthly on the same weekday"),
-    ("yearly", "Yearly"),
-]
 
 
 def horizon(today=None):
@@ -56,105 +37,35 @@ def horizon(today=None):
     return (today or timezone.localdate()) + HORIZON
 
 
-def nth_weekday(day):
-    """Which of its weekday in the month a day is: 1 for the first Tuesday.
-    A fifth is the month's last, and repeats as the last (-1), since most
-    months have no fifth."""
-    nth = (day.day - 1) // 7 + 1
-    return -1 if nth == 5 else nth
+# The rule arithmetic is shared with recurring tasks (apps.common.recurrence);
+# these take a series, as the calendar's code and tests do.
 
-
-def rule_for(repeat, interval, weekdays, start, until=None, count=None):
-    """A rule (the fields an EventSeries keeps) from the form's choices, or
-    None for an event that does not repeat. A weekly rule with no days
-    chosen falls on the start's weekday."""
-    if not repeat:
-        return None
-    rule = {
-        "frequency": repeat,
-        "interval": interval or 1,
-        "weekdays": "",
-        "monthly_by": "day",
-        "until": until,
-        "count": count,
-    }
-    if repeat == "weekdays":
-        rule.update(frequency="weekly", interval=1, weekdays=WEEKDAYS)
-    elif repeat == "weekly":
-        days = sorted({int(d) for d in weekdays or []}) or [start.weekday()]
-        rule["weekdays"] = ",".join(str(d) for d in days)
-    elif repeat == "monthly_weekday":
-        rule.update(frequency="monthly", monthly_by="weekday")
-    return rule
+rule_for = rules.pattern_for
 
 
 def rule_of(series):
-    """The rule a series keeps, in the shape rule_for gives."""
-    return {
-        "frequency": series.frequency,
-        "interval": series.interval,
-        "weekdays": series.weekdays,
-        "monthly_by": series.monthly_by,
-        "until": series.until,
-        "count": series.count,
-    }
+    """The pattern a series keeps, in the shape rule_for gives."""
+    return series.rule.pattern()
 
 
 def repeat_of(series):
     """The form's Repeat choice for a series."""
-    if (
-        series.frequency == "weekly"
-        and series.interval == 1
-        and series.weekdays == WEEKDAYS
-    ):
-        return "weekdays"
-    if series.frequency == "monthly" and series.monthly_by == "weekday":
-        return "monthly_weekday"
-    return series.frequency
+    return rules.repeat_of(series.rule)
 
 
 def form_initial(series):
     """The Repeat fields' starting values for an occurrence of a series."""
-    if series.until:
-        ends = "on"
-    elif series.count:
-        ends = "after"
-    else:
-        ends = "never"
-    return {
-        "repeat": repeat_of(series),
-        "interval": series.interval,
-        "weekdays": [str(d) for d in series.weekday_list],
-        "ends": ends,
-        "until": series.until,
-        "count": series.count,
-    }
-
-
-def _rrule(series):
-    options = {
-        "freq": FREQUENCIES[series.frequency],
-        "interval": series.interval,
-        "dtstart": datetime.combine(series.start, time.min),
-    }
-    if series.frequency == "weekly":
-        options["byweekday"] = series.weekday_list or [series.start.weekday()]
-    elif series.frequency == "monthly" and series.monthly_by == "weekday":
-        weekday = rrule.weekdays[series.start.weekday()]
-        options["byweekday"] = weekday(nth_weekday(series.start))
-    if series.until:
-        options["until"] = datetime.combine(series.until, time.max)
-    elif series.count:
-        options["count"] = series.count
-    return rrule.rrule(**options)
+    return rules.form_initial(series.rule)
 
 
 def days_between(series, after, through):
     """The days the series falls on after one day and up to another."""
-    rule = _rrule(series)
-    first = datetime.combine(after + timedelta(days=1), time.min)
-    last = datetime.combine(through, time.max)
-    return [moment.date() for moment in rule.between(first, last, inc=True)]
+    return rules.days_between(series.rule, after, through)
+
+
+def describe(series):
+    """The series' rule in words ("Weekly on Tuesday and Thursday")."""
+    return rules.describe(series.rule)
 
 
 def _reminder_template(event):
@@ -373,59 +284,3 @@ def update_following(series, event):
             setattr(series, name, value)
         series.span_days = span
         series.save()
-
-
-WEEKDAY_NAMES = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-]
-ORDINALS = {1: "first", 2: "second", 3: "third", 4: "fourth", -1: "last"}
-UNITS = {"daily": "day", "weekly": "week", "monthly": "month", "yearly": "year"}
-
-
-def _and(items):
-    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
-
-
-def describe(series):
-    """The rule in words: "Weekly on Tuesday and Thursday", "Every 2 months
-    on the second Tuesday", "Annually on October 6, 10 times"."""
-    start = series.start
-    unit = UNITS[series.frequency]
-    if series.interval == 1:
-        lead = {
-            "daily": "Daily",
-            "weekly": "Weekly",
-            "monthly": "Monthly",
-            "yearly": "Annually",
-        }[series.frequency]
-    else:
-        lead = f"Every {series.interval} {unit}s"
-
-    if series.frequency == "weekly":
-        if series.interval == 1 and series.weekdays == WEEKDAYS:
-            text = "Every weekday"
-        else:
-            days = series.weekday_list or [start.weekday()]
-            text = f"{lead} on {_and([WEEKDAY_NAMES[d] for d in days])}"
-    elif series.frequency == "monthly":
-        if series.monthly_by == "weekday":
-            nth = ORDINALS[nth_weekday(start)]
-            text = f"{lead} on the {nth} {WEEKDAY_NAMES[start.weekday()]}"
-        else:
-            text = f"{lead} on day {start.day}"
-    elif series.frequency == "yearly":
-        text = f"{lead} on {start.strftime('%B')} {start.day}"
-    else:
-        text = lead
-
-    if series.until:
-        text += f", until {series.until.strftime('%b')} {series.until.day}, {series.until.year}"
-    elif series.count:
-        text += f", {series.count} times"
-    return text

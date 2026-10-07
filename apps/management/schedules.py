@@ -42,8 +42,9 @@ def schedule_specs():
             "apps.tasks.recurring.create_instances",
             "0 1 * * *",
             description=(
-                "Gives each recurring task a new open instance when its day "
-                "comes round and the last one is done."
+                "Gives any recurring task left without an open instance (one "
+                "completed in bulk, say, or deleted) its next one, due on the "
+                "rule's next day."
             ),
         ),
         ScheduleSpec(

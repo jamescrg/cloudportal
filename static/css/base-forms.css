@@ -125,3 +125,75 @@ input[type="file"]::file-selector-button {
 input[type="file"]::file-selector-button:hover {
   background: var(--background-control);
 }
+
+
+/* ------------------------------------------------------------------------- */
+/* Repeat fields (templates/components/repeat-fields.html), for events and   */
+/* tasks alike                                                               */
+/* ------------------------------------------------------------------------- */
+
+/* A quiet note at the head of a form: how a recurring task repeats */
+.form-note {
+  color: var(--color-muted);
+  margin: 0 0 1rem;
+}
+
+.repeat-summary i {
+  margin-right: 0.25rem;
+}
+
+/* Repeat: the interval with its unit beside it ("2 weeks") */
+.repeat-every {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* The number fills its column, the unit beside it */
+.repeat-every input {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-compact .repeat-count {
+  width: 4rem;
+}
+
+/* The weekday boxes read across in a row. The form's checkbox rule
+   centres a lone box in a column (and outranks a plain class, hence the
+   :has here); these are a set. */
+.form-compact .form-group.repeat-weekdays:has(input) {
+  align-items: stretch;
+  display: block;
+}
+
+.repeat-weekdays [id$="weekdays"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.repeat-weekdays label {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.form-compact .repeat-weekdays > label {
+  margin-bottom: 0.5rem;
+}
+
+/* In a three-column form (the task form): Repeat, Every and Ends share a
+   row, the last day or the count sits under Ends, and the weekdays have a
+   row of their own */
+@media (width >= 768px) {
+  .col3 .field-until,
+  .col3 .field-count {
+    grid-column: 3;
+  }
+
+  .col3 .field-weekdays {
+    grid-column: 1 / -1;
+  }
+}

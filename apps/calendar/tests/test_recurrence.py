@@ -639,4 +639,4 @@ def test_the_edit_form_says_how_the_event_repeats(client, user):
     ).content.decode()
 
     assert series.summary in page
-    assert "eventRepeat(" in page
+    assert "repeatFields(" in page

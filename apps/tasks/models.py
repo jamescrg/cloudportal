@@ -6,6 +6,7 @@ from django.db import models
 
 from accounts.models import CustomUser
 from apps.common.models import ReminderMixin, TimestampMixin, zone_or_default
+from apps.common.recurrence import FREQUENCY_CHOICES, MONTHLY_BY_CHOICES, Rule, describe
 from apps.folders.models import Folder
 
 
@@ -20,14 +21,12 @@ class Task(TimestampMixin, models.Model):
         status (int): whether the task has been completed
             0: not completed
             1: completed
-    """
 
-    RECURRENCE_CHOICES = [
-        ("daily", "Daily"),
-        ("weekly", "Weekly"),
-        ("monthly", "Monthly"),
-        ("yearly", "Yearly"),
-    ]
+    A recurring task is a hidden template (is_recurring) holding the rule it
+    repeats by (the repeat_ fields; see apps.common.recurrence) and what each
+    instance is; its instances are ordinary tasks (parent_task), one open
+    at a time, the next made on the rule's next day (apps.tasks.recurring).
+    """
 
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -44,13 +43,19 @@ class Task(TimestampMixin, models.Model):
     time_zone = models.CharField(max_length=64, default=settings.TIME_ZONE)
     reminder_sent_date = models.DateField(blank=True, null=True)
 
-    # Recurrence fields
+    # A recurring task's template: the rule it repeats by
     is_recurring = models.BooleanField(default=False)
-    recurrence_type = models.CharField(
-        max_length=20, blank=True, null=True, choices=RECURRENCE_CHOICES
+    repeat_frequency = models.CharField(
+        max_length=10, choices=FREQUENCY_CHOICES, blank=True
     )
-    recurrence_day = models.IntegerField(blank=True, null=True)
-    recurrence_month = models.IntegerField(blank=True, null=True)
+    repeat_interval = models.PositiveIntegerField(default=1)
+    repeat_weekdays = models.CharField(max_length=20, blank=True)
+    repeat_monthly_by = models.CharField(
+        max_length=10, choices=MONTHLY_BY_CHOICES, default="day"
+    )
+    repeat_start = models.DateField(blank=True, null=True)
+    repeat_until = models.DateField(blank=True, null=True)
+    repeat_count = models.PositiveIntegerField(blank=True, null=True)
     parent_task = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
@@ -62,6 +67,41 @@ class Task(TimestampMixin, models.Model):
 
     def __str__(self):
         return f"{self.title} : {self.id}"
+
+    @property
+    def rule(self):
+        """How a recurring template repeats, as the shared Rule; None for
+        any other task."""
+        if not self.is_recurring or not self.repeat_frequency or not self.repeat_start:
+            return None
+        return Rule(
+            frequency=self.repeat_frequency,
+            start=self.repeat_start,
+            interval=self.repeat_interval,
+            weekdays=self.repeat_weekdays,
+            monthly_by=self.repeat_monthly_by,
+            until=self.repeat_until,
+            count=self.repeat_count,
+        )
+
+    def set_rule(self, pattern, start):
+        """Give a template a rule: a pattern (apps.common.recurrence's
+        pattern_for) counted from a day."""
+        self.repeat_frequency = pattern["frequency"]
+        self.repeat_interval = pattern["interval"]
+        self.repeat_weekdays = pattern["weekdays"]
+        self.repeat_monthly_by = pattern["monthly_by"]
+        self.repeat_until = pattern["until"]
+        self.repeat_count = pattern["count"]
+        self.repeat_start = start
+
+    @property
+    def repeat_summary(self):
+        """How a recurring task repeats, in words, from its template
+        ("Weekly on Monday and Thursday"); empty for a task that does not."""
+        template = self if self.is_recurring else self.parent_task
+        rule = template.rule if template else None
+        return describe(rule) if rule else ""
 
     @property
     def due_at(self):

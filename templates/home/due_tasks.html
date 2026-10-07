@@ -34,7 +34,7 @@
                 </div>
                 {% if task.parent_task %}
                     <div class="tasks-recurring">
-                        <i class="icon-refresh-cw"></i>
+                        <i class="icon-refresh-cw" title="{{ task.repeat_summary }}"></i>
                     </div>
                 {% endif %}
             </li>

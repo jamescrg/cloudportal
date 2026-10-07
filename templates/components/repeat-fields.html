@@ -1,0 +1,50 @@
+{% comment %}
+How it repeats (apps.common.forms.RepeatFields): each part shows once it
+applies. Needs the repeatFields Alpine component on an ancestor
+(static/js/alpine-components.js), with the date field bound to its date.
+{% endcomment %}
+<div class="form-group field-repeat">
+    <label for="{{ form.repeat.id_for_label }}">Repeat</label>
+    <div>
+        {{ form.repeat }}
+        {{ form.repeat.errors }}
+    </div>
+</div>
+<div class="form-group field-interval"
+     x-show="repeat && repeat !== 'weekdays'">
+    <label for="{{ form.interval.id_for_label }}">Every</label>
+    <div class="repeat-every">
+        {{ form.interval }}
+        <span x-text="{ daily: 'days', weekly: 'weeks', monthly: 'months', monthly_weekday: 'months', yearly: 'years' }[repeat]"></span>
+        {{ form.interval.errors }}
+    </div>
+</div>
+<div class="form-group field-ends" x-show="repeat">
+    <label for="{{ form.ends.id_for_label }}">Ends</label>
+    <div>
+        {{ form.ends }}
+        {{ form.ends.errors }}
+    </div>
+</div>
+<div class="form-group field-until" x-show="repeat && ends === 'on'">
+    <label for="{{ form.until.id_for_label }}">Last day</label>
+    <div>
+        {{ form.until }}
+        {{ form.until.errors }}
+    </div>
+</div>
+<div class="form-group field-count" x-show="repeat && ends === 'after'">
+    <label for="{{ form.count.id_for_label }}">Times</label>
+    <div>
+        {{ form.count }}
+        {{ form.count.errors }}
+    </div>
+</div>
+<div class="form-group field-weekdays repeat-weekdays"
+     x-show="repeat === 'weekly'">
+    <label>On</label>
+    <div>
+        {{ form.weekdays }}
+        {{ form.weekdays.errors }}
+    </div>
+</div>

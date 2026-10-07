@@ -132,48 +132,18 @@
   }
 }
 
-/* Repeat: the interval with its unit beside it ("2 weeks") */
-.repeat-every {
-  align-items: center;
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* The number fills its column, the unit beside it */
-.repeat-every input {
-  flex: 1;
-  min-width: 0;
-}
-
-.form-compact .repeat-count {
-  width: 4rem;
-}
-
-/* The weekday boxes read across in a row. The form's checkbox rule
-   centres a lone box in a column (and outranks a plain class, hence the
-   :has here); these are a set. */
-.form-compact .form-group.repeat-weekdays:has(input) {
-  align-items: stretch;
-  display: block;
-}
-
-.repeat-weekdays [id$="weekdays"],
+/* The Apply to choices read across in a row */
 .repeat-scope [id$="scope"] {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
 }
 
-.repeat-weekdays label,
 .repeat-scope label {
   align-items: center;
   display: inline-flex;
   gap: 0.25rem;
   margin: 0;
-}
-
-.form-compact .repeat-weekdays > label {
-  margin-bottom: 0.5rem;
 }
 
 /* Apply to, in the footer between Delete and Save: centred in the space
