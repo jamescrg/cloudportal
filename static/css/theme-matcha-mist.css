@@ -82,13 +82,13 @@
   --atmos-ink: var(--stone-700);
   --atmos-grain: 0.07;
 
-  /* The bar runs from stone into the tea's green and ends in the shade,
-     a little translucent so the wash carries on up under it */
+  /* The bar stays stone, warming only faintly toward the shade at the
+     right, and is a little translucent so the wash carries on up under
+     it */
   --atmos-nav: linear-gradient(
     100deg,
-    color-mix(in oklab, var(--background-nav) 82%, transparent) 30%,
-    color-mix(in oklab, color-mix(in oklab, var(--background-nav) 84%, var(--lime-300)) 82%, transparent) 72%,
-    color-mix(in oklab, color-mix(in oklab, var(--background-nav) 78%, var(--mist-shade)) 82%, transparent)
+    color-mix(in oklab, var(--background-nav) 82%, transparent) 40%,
+    color-mix(in oklab, color-mix(in oklab, var(--background-nav) 92%, var(--mist-shade)) 82%, transparent)
   );
 
   /* The active tab is lit at the top by the light's own green */
