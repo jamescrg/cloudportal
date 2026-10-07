@@ -1,41 +1,186 @@
 /* ==========================================================================
  Hojicha Steam: Hojicha's colours (theme-hojicha.css, loaded first) with
  the atmosphere (atmosphere.css) on top. Late evening over a cup of
- roasted tea: an ember glow low in the page breathes slowly, and wisps of
- steam rise through it, widen and are gone. The cards are lit warm from
- the top left, as if by the same glow.
+ roasted tea. The same system as Matcha Mist (theme-matcha-mist.css),
+ turned for the dark: where the mist's light is tea green and its shade
+ lavender, here the light is the ember and the shade is plum, Hojicha's
+ own purple.
 ========================================================================== */
 
+/* --------------------------------------------------------------------------
+ The light. Every gradient in the theme is the same light: it falls from
+ the top left, carrying the ember's warmth, and where it runs out the
+ shade is plum. Surfaces keep their own colours and take a sheen, the
+ light laid over them as a translucent layer. Cards are the exception:
+ they take no sheen, and let the wash through. On a dark ground colour
+ tells far more than on a light one, so every strength here is a good
+ deal lower than the mist's. Turn these dials and every surface follows.
+-------------------------------------------------------------------------- */
+
 :root {
+  --steam-light: var(--gb-faded-orange);
+  --steam-shade: var(--gb-faded-purple);
+
+  /* The sheens: a pool of light in the lit corner and a pool of shade in
+     the far one, each a fixed size, so a tall surface is lit like a
+     short one. Soft for menus, plain for dialogs and the mobile
+     drawer. */
+  --steam-sheen-soft:
+    radial-gradient(
+      24rem 12rem at 0% 0%,
+      color-mix(in oklab, var(--steam-light) 10%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      20rem 10rem at 100% 100%,
+      color-mix(in oklab, var(--steam-shade) 9%, transparent),
+      transparent
+    );
+  --steam-sheen:
+    radial-gradient(
+      48rem 18rem at 0% 0%,
+      color-mix(in oklab, var(--steam-light) 16%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      40rem 16rem at 100% 100%,
+      color-mix(in oklab, var(--steam-shade) 14%, transparent),
+      transparent
+    );
+
+  /* Gloss: a breath of light down the top half, for raised controls; a
+     dark button takes far less than the mist's half-white */
+  --steam-gloss: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 7%),
+    rgb(255 255 255 / 0%) 60%
+  );
+
+  /* Shadows on a dark ground are near black, or they don't show */
+  --steam-shadow: rgb(0 0 0 / 45%);
+
+  /* The page: a still wash of the same light, ember and plum only. Ember
+     along the top left and low on the left, plum high on the right and
+     gathering in the far corner, the ember's red underfoot. The top is
+     the strongest, so the bar over it runs ember to plum. It sits under
+     the moving steam (paused for now), runs up under the bar, and the
+     active tab shows it too (atmosphere.css). */
+  --atmos-wash:
+    radial-gradient(55vmax 20vmax at 15% 0%, color-mix(in oklab, var(--steam-light) 24%, transparent), transparent 70%),
+    radial-gradient(60vmax 45vmax at 10% 55%, color-mix(in oklab, var(--steam-light) 18%, transparent), transparent 70%),
+    radial-gradient(50vmax 40vmax at 95% 10%, color-mix(in oklab, var(--steam-shade) 26%, transparent), transparent 70%),
+    radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--steam-shade) 20%, transparent), transparent 70%),
+    radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--gb-faded-red) 16%, transparent), transparent 70%);
+
+  /* ------------------------------------------------------------------
+     The atmosphere's dials, drawn from the light
+     ------------------------------------------------------------------ */
   --atmos-ink: var(--gb-light);
   --atmos-grain: 0.06;
 
-  /* The bar glows faintly toward the right, the ember's side */
-  --atmos-nav: linear-gradient(
-    100deg,
-    var(--background-nav) 35%,
-    color-mix(in oklab, var(--background-nav) 86%, var(--gb-faded-orange))
-  );
-  --atmos-tab-glow: color-mix(in oklab, var(--gb-dark3) 45%, transparent);
+  /* The bar is the wash carried on up, a step lighter (Hojicha's bar is
+     lighter than its page, where Matcha's is darker): a thin veil of the
+     card's gray over the page's own light */
+  --atmos-nav: color-mix(in oklab, var(--gb-dark2) 40%, transparent);
 
-  --atmos-card: linear-gradient(
-    165deg,
-    color-mix(in oklab, var(--background-section) 86%, var(--gb-dark3)) 0%,
-    var(--background-section) 42%,
-    color-mix(in oklab, var(--background-section) 82%, var(--background-body)) 100%
-  );
-  --atmos-card-rim: color-mix(in oklab, var(--gb-light) 7%, transparent);
-  --atmos-card-shadow: rgb(0 0 0 / 55%);
+  /* The active tab is lit faintly at the top by the ember */
+  --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--gb-dark3) 80%, var(--steam-light)) 30%, transparent);
 
-  /* The still wash under the moving layers: the ember's glow, held at its
-     middle breath, so the page stays warm while the motion is paused */
-  --atmos-wash: radial-gradient(
-    60vmax 38vmax at 50% 112%,
-    color-mix(in oklab, var(--gb-faded-orange) 26%, transparent),
-    color-mix(in oklab, var(--gb-faded-red) 9%, transparent) 55%,
-    transparent
-  );
+  /* Cards: the plain card colour, let through so the wash shows behind
+     them. Over the dark page a see-through card only darkens, so the
+     text against it gains contrast rather than losing it. */
+  --steam-card-opacity: 72%;
+  --atmos-card: color-mix(in srgb, var(--background-section) var(--steam-card-opacity), transparent);
+  --atmos-card-rim: transparent;
+  --atmos-card-shadow: rgb(0 0 0 / 35%);
+
+  /* Text a touch lighter than Hojicha's, halfway to the next light, to
+     hold against the wash through the cards */
+  --color-primary: color-mix(in oklab, var(--gb-light4) 50%, var(--gb-light3));
+
+  /* What is selected is marked in plum, as the mist marks it in
+     lavender: Hojicha's own purple folded into the card's gray (Hojicha
+     marks it in the card's gray alone, which a see-through card loses) */
+  --selected-background: color-mix(in oklab, var(--gb-dark1) 72%, var(--gb-faded-purple));
+
+  /* Borders a touch lighter than Hojicha's, so the lines in the cards
+     hold against the wash */
+  --border-medium: color-mix(in oklab, var(--gb-dark2) 75%, var(--gb-dark3));
+  --border-dark: color-mix(in oklab, var(--gb-dark3) 85%, var(--gb-dark4));
+
+  /* Calendar chips a step lighter than Hojicha's, to hold on the cards */
+  --calendar-chip: color-mix(in oklab, var(--gb-dark2) 75%, var(--gb-dark3));
+
+  /* Table heads: Hojicha's gray, let through as the cards are */
+  --background-table-header: color-mix(in srgb, var(--gb-dark2) var(--steam-card-opacity), transparent);
 }
+
+/* --------------------------------------------------------------------------
+ The surfaces. Each keeps its own colour and takes a sheen over it.
+-------------------------------------------------------------------------- */
+
+.modal-content {
+  background-image: var(--steam-sheen);
+  box-shadow: 0 1.5rem 3rem -1rem var(--steam-shadow), 0 0.25rem 0.5rem var(--shadow-color);
+}
+
+/* Menus: the sheen on the menu, so the items are cleared to let it
+   through (the hovered one still lights up) */
+.dropdown-menu {
+  background-image: var(--steam-sheen-soft);
+  box-shadow: 0 0.75rem 1.5rem -0.75rem var(--steam-shadow);
+}
+
+.dropdown-menu li {
+  background-color: transparent;
+}
+
+@media (max-width: 991.98px) {
+  .nav-drawer {
+    background-image: var(--steam-sheen);
+  }
+}
+
+/* Buttons: raised, so glossed. No coloured sheen on any of them: the
+   ember over Hojicha's aqua or red would only muddy it. */
+.btn-primary,
+.btn-success,
+.btn-secondary,
+.btn-danger {
+  background-image: var(--steam-gloss);
+  box-shadow: 0 1px 2px var(--steam-shadow);
+}
+
+/* The selected folder or contact: the selected plum, a little let
+   through so it sits in the card */
+.active-item {
+  background: color-mix(in srgb, var(--selected-background) 85%, transparent);
+}
+
+/* The calendar's weekday headings: FullCalendar paints its header row in
+   the solid page colour; here it is Hojicha's gray laid over the card,
+   a band a step lighter than the cells */
+.fc .fc-scrollgrid .fc-scrollgrid-section-header > * {
+  background: color-mix(in oklab, var(--gb-dark2) 70%, transparent);
+}
+
+/* The home page's search box and engine picker sit on the wash as the
+   cards do, so they take the cards' shadow (atmosphere.css) */
+body[data-page="home"] :is(.search-input, .search-engine-btn) {
+  box-shadow:
+    0 1px 2px var(--shadow-color),
+    0 14px 32px -18px var(--atmos-card-shadow);
+}
+
+/* The task list's bulk actions sit flat under the list */
+.archive-buttons .btn {
+  background-image: none;
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+ The weather in motion, over the wash. Paused for now (atmosphere.css).
+-------------------------------------------------------------------------- */
 
 /* The ember: a wide warm glow from below the page's foot, breathing */
 .atmos-glow {
