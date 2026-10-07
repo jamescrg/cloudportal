@@ -9,6 +9,7 @@
  where it runs out the shade is lavender. Surfaces are not given colours
  of their own; they take a sheen, the light laid as a translucent layer
  over whatever colour the surface already has, at one of three strengths.
+ Cards are the exception: they take no sheen, and let the wash through.
  Turn these dials and every surface follows.
 -------------------------------------------------------------------------- */
 
@@ -21,7 +22,7 @@
   /* The sheens: a pool of light in the lit corner and a pool of shade
      in the far one, each a fixed size, so a tall card is lit like a
      short one rather than stretched into a band. Soft for menus and
-     other quiet surfaces, plain for cards and dialogs. */
+     other quiet surfaces, plain for dialogs and the mobile drawer. */
   --mist-sheen-soft:
     radial-gradient(
       24rem 12rem at 0% 0%,
@@ -95,16 +96,18 @@
   --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, var(--mist-light)) 85%, transparent);
   --atmos-tab-hover: color-mix(in oklab, var(--stone-50) 28%, transparent);
 
-  --atmos-card: var(--mist-sheen), var(--background-section);
+  /* Cards carry no light of their own: they are the plain card colour,
+     let through a little so the wash shows behind them. At 75% body text
+     keeps 6.5:1 against them (7:1 solid); the cards stop reading as
+     panels long before the text suffers. */
+  --mist-card-opacity: 75%;
+  --atmos-card: color-mix(in srgb, var(--background-section) var(--mist-card-opacity), transparent);
   --atmos-card-rim: color-mix(in oklab, white 70%, transparent);
   --atmos-card-shadow: var(--mist-shadow);
 
-  /* Table heads: lit from above, so a row of cells reads as one band */
-  --background-table-header: linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--background-control) 70%, var(--stone-50)),
-    var(--background-control)
-  );
+  /* Table heads: the control colour, let through as the cards are, or
+     the head would sit on a card as a solid band */
+  --background-table-header: color-mix(in srgb, var(--background-control) var(--mist-card-opacity), transparent);
 }
 
 /* --------------------------------------------------------------------------
