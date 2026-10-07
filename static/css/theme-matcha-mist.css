@@ -1,20 +1,23 @@
 /* ==========================================================================
  Matcha Mist: Matcha's colours (theme-matcha.css, always loaded) with the
- atmosphere (atmosphere.css) on top. Morning mist over a tea field: banks
- of pale green and cream drift across the page over a minute or two, and
- a patch of sun comes and goes through them. The cards are lit from the
- top left, faintly green where the light falls.
+ atmosphere (atmosphere.css) on top. Morning mist over a tea field:
+ banks of pale green, cream and lavender drift across the page over a
+ minute or two, and a patch of sun comes and goes through them. The cards
+ are lit from the top left, faintly green where the light falls, and
+ shade to lavender at the far corner.
 ========================================================================== */
 
 :root {
   --atmos-ink: var(--stone-700);
   --atmos-grain: 0.07;
 
-  /* The bar warms into the tea's green toward the right */
+  /* The bar warms into the tea's green toward the right, and ends in
+     lavender */
   --atmos-nav: linear-gradient(
     100deg,
     var(--background-nav) 30%,
-    color-mix(in oklab, var(--background-nav) 82%, var(--lime-300))
+    color-mix(in oklab, var(--background-nav) 84%, var(--lime-300)) 72%,
+    color-mix(in oklab, var(--background-nav) 78%, var(--violet-200))
   );
   --atmos-tab: linear-gradient(
     to bottom,
@@ -27,7 +30,7 @@
     165deg,
     color-mix(in oklab, var(--stone-50) 88%, var(--lime-100)) 0%,
     var(--background-section) 40%,
-    color-mix(in oklab, var(--background-section) 90%, var(--stone-300)) 100%
+    color-mix(in oklab, var(--background-section) 88%, var(--violet-100)) 100%
   );
   --atmos-card-rim: color-mix(in oklab, white 70%, transparent);
   --atmos-card-shadow: color-mix(in oklab, var(--lime-950) 30%, transparent);
@@ -72,9 +75,10 @@
   width: 60vmax;
 }
 
+/* A bank of lavender, the one cool colour in the field */
 .atmos-cloud-5 {
   animation: mist-a 160s ease-in-out infinite alternate -100s;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--lime-50) 60%, transparent), color-mix(in oklab, color-mix(in oklab, var(--lime-50) 60%, transparent) 50%, transparent) 50%, transparent);
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--violet-200) 55%, transparent), color-mix(in oklab, color-mix(in oklab, var(--violet-200) 55%, transparent) 50%, transparent) 50%, transparent);
   height: 40vmax;
   left: 35vw;
   top: 35vh;
