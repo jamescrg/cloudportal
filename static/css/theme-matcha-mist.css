@@ -65,14 +65,16 @@
   --mist-shadow: color-mix(in oklab, var(--lime-950) 28%, transparent);
 
   /* The page: a still wash of the same light, pooled where it would fall
-     in a misty field: green and lavender only. Green low on the left,
-     lavender high on the right and gathering in the far corner, a little
-     sea-green underfoot.
+     in a misty field: green and lavender only. Green along the top left
+     and low on the left, lavender high on the right and gathering in the
+     far corner, a little sea-green underfoot. The top is the strongest,
+     so the bar over it runs green to lavender.
      It sits under the moving mist (paused for now), runs up under the
      bar, and the active tab shows it too (atmosphere.css). */
   --atmos-wash:
+    radial-gradient(55vmax 20vmax at 15% 0%, color-mix(in oklab, var(--mist-light) 55%, transparent), transparent 70%),
     radial-gradient(60vmax 45vmax at 10% 55%, color-mix(in oklab, var(--mist-light) 60%, transparent), transparent 70%),
-    radial-gradient(50vmax 40vmax at 95% 15%, color-mix(in oklab, var(--mist-shade) 40%, transparent), transparent 70%),
+    radial-gradient(50vmax 40vmax at 95% 10%, color-mix(in oklab, var(--mist-shade) 55%, transparent), transparent 70%),
     radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--mist-shade) 45%, transparent), transparent 70%),
     radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--emerald-100) 50%, transparent), transparent 70%);
 
