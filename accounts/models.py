@@ -18,6 +18,15 @@ class CustomUser(AbstractUser):
     sms_notifications = models.BooleanField(default=False)
     email_reminders = models.BooleanField(default=False)
     notification_email = models.EmailField(blank=True, default="")
+    # How notifications reach the user: by email, or pushed to the ntfy app
+    # (apps.common.notify). ntfy delivers to anyone subscribed to a topic on
+    # a server, so the topic is long and random; a server that is not open
+    # to all wants an access token.
+    NOTIFY_CHOICES = (("email", "Email"), ("ntfy", "ntfy"))
+    notify_by = models.CharField(max_length=10, choices=NOTIFY_CHOICES, default="email")
+    ntfy_server = models.URLField(default="https://ntfy.sh")
+    ntfy_topic = models.CharField(max_length=64, blank=True, default="")
+    ntfy_token = models.CharField(max_length=128, blank=True, default="")
     google_credentials = models.TextField(null=True, blank=True)
     # Whether the calendar syncs with Google Calendar. Separate from linking
     # a Google account, which contacts and the home page also use.

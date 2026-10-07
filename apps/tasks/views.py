@@ -5,9 +5,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
 
 from accounts.models import CustomUser
+from apps.common import notify
 from apps.folders.folders import get_folders_for_page, get_task_folders, select_folder
 from apps.folders.models import Folder
 from apps.management.pagination import CustomPaginator
@@ -526,6 +528,41 @@ def reminder_delete(request, id, reminder_id):
     task = get_object_or_404(Task, pk=id, user=request.user)
     reminders.remove_reminder(task, reminder_id)
     return render(request, "components/reminders.html", _reminders_context(task))
+
+
+def _complete(task, user):
+    """Mark a task done the way the user has chosen (keep it, archive it,
+    or delete it) and bring on a recurring task's next instance."""
+    task.status = 1
+    task.completed_date = date.today()
+    mode = user.task_completion_mode
+    if mode == "delete":
+        task.delete()
+    else:
+        if mode == "archive":
+            task.archived = True
+        task.save()
+    recurring.after_completion(task)
+
+
+@csrf_exempt
+@require_POST
+def notify_done(request, token):
+    """A notification's Done button (apps.common.notify.done_link): marks the
+    task done without a login, the signed token standing for one. Pressing
+    it again, or on a task done another way, changes nothing."""
+    found = notify.read_done_link(token)
+    if found is None:
+        return HttpResponse("This link has expired.", status=403)
+    task_id, user_id = found
+    task = (
+        Task.objects.filter(pk=task_id, user_id=user_id).select_related("user").first()
+    )
+    if task is None:
+        return HttpResponse("This task is gone.", status=404)
+    if task.status != 1:
+        _complete(task, task.user)
+    return HttpResponse("Done.")
 
 
 @login_required

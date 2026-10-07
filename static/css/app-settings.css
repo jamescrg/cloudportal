@@ -25,6 +25,49 @@
   padding-bottom: 1rem;
 }
 
+/* A control and its button on one line (Send by, Email to) */
+.inline-form {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.setting-input {
+  max-width: 100%;
+  width: 20rem;
+}
+
+.setting-error {
+  color: var(--urgent);
+  margin: 0.25rem 0 0;
+}
+
+.setting-ok {
+  color: var(--color-success);
+}
+
+.setting-note {
+  color: var(--color-muted);
+}
+
+.setting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ntfy's setup, step by step */
+.setup-steps {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.setup-steps li {
+  margin-bottom: 0.25rem;
+}
+
 
 /* ==========================================================================
 Section Layout (rail / body)

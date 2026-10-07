@@ -2,44 +2,138 @@
 {% block subcontent %}
     <div class="card">
         <div class="card-title">
-            <h1>Notifications</h1>
+            <h1>Delivery</h1>
         </div>
         <p class="card-text">
-            Notifications for events and tasks are set on each one. The daily digest of past-due tasks is switched on here.
+            Notifications for events and tasks are set on each one. Here you choose how they reach you: by email, or pushed to the ntfy app on your phone, where they arrive in seconds with buttons to open the task or mark it done. If ntfy cannot be reached, a notification goes by email instead.
         </p>
         <table class="options">
             <tr>
-                <td class="setting-label">Past Due Digest:</td>
+                <td class="setting-label">Send by:</td>
                 <td class="setting-control">
-                    {% if user.email_reminders %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-notification-options' option='email_reminders' value='disable' %}">Disable</a>
-                    {% else %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-notification-options' option='email_reminders' value='enable' %}">Enable</a>
-                    {% endif %}
+                    <form method="post"
+                          action="{% url 'settings-notify-by' %}"
+                          class="inline-form">
+                        {% csrf_token %}
+                        <button class="btn {% if user.notify_by == 'email' %}btn-primary{% else %}btn-secondary{% endif %}"
+                                name="notify_by"
+                                value="email">Email</button>
+                        <button class="btn {% if user.notify_by == 'ntfy' %}btn-primary{% else %}btn-secondary{% endif %}"
+                                name="notify_by"
+                                value="ntfy">ntfy</button>
+                    </form>
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Send To:</td>
+                <td class="setting-label">Email to:</td>
                 <td class="setting-control">
-                    {% if user.notification_email and not edit_email %}
-                        <span>{{ user.notification_email }}</span>
-                        <a class="btn btn-primary"
-                           style="margin-left: 0.5rem"
-                           href="{% url 'settings-notifications' %}?edit_email=1">Edit</a>
-                    {% else %}
-                        <form method="post" action="{% url 'settings-notification-email' %}">
-                            {% csrf_token %}
-                            <input type="email"
-                                   name="notification_email"
-                                   value="{{ user.notification_email }}"
-                                   placeholder="{{ user.email }}"
-                                   style="width: 20rem">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </form>
-                        {% if email_error %}<p style="color: var(--urgent); margin: 0.25rem 0 0;">{{ email_error }}</p>{% endif %}
-                    {% endif %}
+                    <form method="post"
+                          action="{% url 'settings-notification-email' %}"
+                          class="inline-form">
+                        {% csrf_token %}
+                        <input type="email"
+                               name="notification_email"
+                               value="{{ user.notification_email }}"
+                               placeholder="{{ user.email }}"
+                               class="setting-input">
+                        <button type="submit" class="btn btn-secondary">Save</button>
+                    </form>
+                    {% if email_error %}<p class="setting-error">{{ email_error }}</p>{% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+    {% if user.notify_by == "ntfy" %}
+        <div class="card">
+            <div class="card-title">
+                <h1>ntfy</h1>
+            </div>
+            <ol class="card-text setup-steps">
+                <li>
+                    Install <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">ntfy</a> on your phone.
+                </li>
+                <li>
+                    On the phone, open <a href="{{ ntfy_subscribe_link }}">this link</a> to subscribe to your topic, or add it in the app by hand: the server and topic below.
+                </li>
+                <li>Send a test, and the notification should arrive.</li>
+            </ol>
+            {% if test_result == "sent" %}
+                <p class="card-text setting-ok">Test sent.</p>
+            {% elif test_result == "failed" %}
+                <p class="setting-error">The test could not be sent: {{ test_error }}</p>
+            {% endif %}
+            <form method="post" action="{% url 'settings-ntfy' %}">
+                {% csrf_token %}
+                <table class="options">
+                    <tr>
+                        <td class="setting-label">
+                            <label for="id_ntfy_server">Server:</label>
+                        </td>
+                        <td class="setting-control">
+                            <input type="url"
+                                   id="id_ntfy_server"
+                                   name="ntfy_server"
+                                   value="{{ user.ntfy_server }}"
+                                   class="setting-input">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="setting-label">Topic:</td>
+                        <td class="setting-control">
+                            <code id="ntfy-topic">{{ user.ntfy_topic }}</code>
+                            <button class="btn btn-secondary copy-btn"
+                                    type="button"
+                                    data-copy-target="#ntfy-topic"
+                                    title="Copy">
+                                <i class="icon-copy"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="setting-label">
+                            <label for="id_ntfy_token">Access token:</label>
+                        </td>
+                        <td class="setting-control">
+                            <input type="password"
+                                   id="id_ntfy_token"
+                                   name="ntfy_token"
+                                   value="{{ user.ntfy_token }}"
+                                   placeholder="Only for a server that asks for one"
+                                   autocomplete="off"
+                                   class="setting-input">
+                        </td>
+                    </tr>
+                </table>
+                {% if ntfy_error %}<p class="setting-error">{{ ntfy_error }}</p>{% endif %}
+                <div class="setting-actions">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit"
+                            class="btn btn-secondary"
+                            formaction="{% url 'settings-ntfy-test' %}">Send a test</button>
+                    <button type="submit"
+                            class="btn btn-secondary"
+                            formaction="{% url 'settings-ntfy-new-topic' %}"
+                            formnovalidate>New topic</button>
+                </div>
+            </form>
+            <p class="card-text setting-note">
+                Anyone who knows the topic can read what is sent to it, so it is long and random; keep it to yourself. A new topic stops the old one, and the phone needs subscribing again.
+            </p>
+        </div>
+    {% endif %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Past-Due Digest</h1>
+        </div>
+        <p class="card-text">Once a day, a list of your tasks that are past due.</p>
+        <table class="options">
+            <tr>
+                <td class="setting-label">Digest:</td>
+                <td class="setting-control">
+                    <a class="btn {% if user.email_reminders %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-notification-options' option='email_reminders' value='enable' %}">On</a>
+                    <a class="btn {% if not user.email_reminders %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-notification-options' option='email_reminders' value='disable' %}">Off</a>
                 </td>
             </tr>
         </table>

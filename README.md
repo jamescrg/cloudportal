@@ -30,6 +30,7 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 - Optional two-way sync with Google Calendar (switched on under Settings → Calendar): saves push immediately, and the background worker pulls changes and retries failed pushes
 - Forward a calendar invitation to your own forwarding address and it is posted as an event; forwarded updates and cancellations follow (see Forwarding invitations)
 - Repeating events (daily, every weekday, weekly on chosen days, monthly by day or by weekday, yearly; every N; ending never, on a day or after a number of times). Occurrences are real events made a year ahead and topped up daily by the background worker; an edit or delete applies to "this event" or "this and following events"
+- Notifications by email or pushed to the ntfy app on your phone (Settings → Notifications), with Open and Done buttons; a push that fails goes by email instead
 - Email notifications per event, any number of them, set as "N minutes/hours/days/weeks before" (with a time of day for all-day events), sent by the background worker
 - Time zone aware: each timed event is a fixed moment, and the browser reports where you are, so times are entered, shown, and notified in your current zone while travelling
 
@@ -185,8 +186,8 @@ broker, so no cron is needed. The jobs are listed in
 
 | Schedule | When | Job |
 | --- | --- | --- |
-| `event-reminders` | Every 5 minutes | Emails event notifications that are due |
-| `task-reminders` | Every 5 minutes | Emails task notifications that are due, and the daily past-due digest |
+| `event-reminders` | Every minute | Sends event notifications that are due, by email or ntfy |
+| `task-reminders` | Every minute | Sends task notifications that are due, and the daily past-due digest |
 | `calendar-sync` | Every 5 minutes | Two-way Google Calendar sync for users who have it on |
 | `recurring-tasks` | 1:00 daily | Gives any recurring task left without an open instance its next one |
 | `extend-event-series` | 2:00 daily | Tops up repeating events' occurrences to a year ahead |

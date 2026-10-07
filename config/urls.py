@@ -165,6 +165,7 @@ urlpatterns = [
     path("tasks/add-htmx", tasks.add_htmx, name="tasks-add-htmx"),
     path("tasks/<int:id>/form", tasks.task_form, name="tasks-form"),
     path("tasks/<int:id>/status", tasks.status_htmx, name="tasks-status"),
+    path("tasks/notify/<str:token>/done", tasks.notify_done, name="tasks-notify-done"),
     path("tasks/<int:id>/priority", tasks.priority_htmx, name="tasks-priority"),
     path("tasks/<int:id>/delete-htmx", tasks.delete_htmx, name="tasks-delete-htmx"),
     path("tasks/<int:id>/reminders/add", tasks.reminder_add, name="tasks-reminder-add"),
@@ -336,6 +337,14 @@ urlpatterns = [
         "settings/notification-email",
         settings.notification_email,
         name="settings-notification-email",
+    ),
+    path("settings/notify-by", settings.notify_by, name="settings-notify-by"),
+    path("settings/ntfy", settings.ntfy_settings, name="settings-ntfy"),
+    path("settings/ntfy/test", settings.ntfy_test, name="settings-ntfy-test"),
+    path(
+        "settings/ntfy/new-topic",
+        settings.ntfy_new_topic,
+        name="settings-ntfy-new-topic",
     ),
     path(
         "settings/encryption/",

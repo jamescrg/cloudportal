@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from apps.calendar import invitations, sync as calendar_sync
@@ -123,14 +124,118 @@ def session_index(request):
     return render(request, "settings/session.html", context)
 
 
-@login_required
-def notifications_index(request):
-    context = {
+def _ntfy_subscribe_link(user):
+    """The link that opens the ntfy app on a phone, subscribing it to the
+    user's topic (ntfy://server/topic)."""
+    from urllib.parse import urlsplit
+
+    server = urlsplit(user.ntfy_server)
+    link = f"ntfy://{server.netloc}{server.path.rstrip('/')}/{user.ntfy_topic}"
+    if server.scheme == "http":
+        link += "?secure=false"
+    return link
+
+
+def _notifications_context(request, **extra):
+    return {
         "page": "settings",
         "subapp": "notifications",
-        "edit_email": request.GET.get("edit_email"),
-    }
-    return render(request, "settings/notifications.html", context)
+        "ntfy_subscribe_link": _ntfy_subscribe_link(request.user),
+        "test_result": request.GET.get("test"),
+        "test_error": request.session.pop("ntfy_test_error", ""),
+    } | extra
+
+
+def _new_ntfy_topic():
+    """A topic no one will guess: ntfy delivers a topic's messages to
+    anyone who names it."""
+    import secrets
+
+    return "cpl-" + secrets.token_urlsafe(24)
+
+
+@login_required
+def notifications_index(request):
+    return render(
+        request, "settings/notifications.html", _notifications_context(request)
+    )
+
+
+@login_required
+@require_POST
+def notify_by(request):
+    """Choose email or ntfy for notifications. Choosing ntfy the first time
+    gives the user their topic."""
+    user = request.user
+    choice = request.POST.get("notify_by")
+    if choice in dict(user.NOTIFY_CHOICES):
+        user.notify_by = choice
+        if choice == "ntfy" and not user.ntfy_topic:
+            user.ntfy_topic = _new_ntfy_topic()
+        user.save(update_fields=["notify_by", "ntfy_topic"])
+    return redirect("settings-notifications")
+
+
+def _save_ntfy(request):
+    """Save the ntfy server and access token from the form. Returns an
+    error message, or "" when saved."""
+    from django.core.exceptions import ValidationError
+    from django.core.validators import URLValidator
+
+    user = request.user
+    server = request.POST.get("ntfy_server", "").strip() or "https://ntfy.sh"
+    try:
+        URLValidator(schemes=["http", "https"])(server)
+    except ValidationError:
+        return "Enter the server's address, like https://ntfy.sh."
+    user.ntfy_server = server.rstrip("/")
+    user.ntfy_token = request.POST.get("ntfy_token", "").strip()
+    user.save(update_fields=["ntfy_server", "ntfy_token"])
+    return ""
+
+
+@login_required
+@require_POST
+def ntfy_settings(request):
+    error = _save_ntfy(request)
+    if error:
+        return render(
+            request,
+            "settings/notifications.html",
+            _notifications_context(request, ntfy_error=error),
+        )
+    return redirect("settings-notifications")
+
+
+@login_required
+@require_POST
+def ntfy_new_topic(request):
+    """A new topic, for one that has got out: the old one stops."""
+    request.user.ntfy_topic = _new_ntfy_topic()
+    request.user.save(update_fields=["ntfy_topic"])
+    return redirect("settings-notifications")
+
+
+@login_required
+@require_POST
+def ntfy_test(request):
+    """Save the form as it stands, then push a test to the topic."""
+    from apps.common import notify
+
+    error = _save_ntfy(request)
+    if error:
+        return render(
+            request,
+            "settings/notifications.html",
+            _notifications_context(request, ntfy_error=error),
+        )
+    result = notify.test_message(request.user)
+    if not result["success"]:
+        request.session["ntfy_test_error"] = result.get("error", "")
+    return redirect(
+        reverse("settings-notifications")
+        + ("?test=sent" if result["success"] else "?test=failed")
+    )
 
 
 @login_required
@@ -156,12 +261,9 @@ def notification_email(request):
             try:
                 validate_email(email)
             except ValidationError:
-                context = {
-                    "page": "settings",
-                    "subapp": "notifications",
-                    "edit_email": True,
-                    "email_error": "Please enter a valid email address.",
-                }
+                context = _notifications_context(
+                    request, email_error="Please enter a valid email address."
+                )
                 return render(request, "settings/notifications.html", context)
         request.user.notification_email = email
         request.user.save(update_fields=["notification_email"])

@@ -4,9 +4,9 @@ recurring task's template in step, and sending the ones that are due."""
 from collections import defaultdict
 from datetime import date
 
+from apps.common import notify
 from apps.common.reminders import send_due as _send_due
 from apps.tasks.models import Task, TaskReminder
-from config.email import send_past_due_digest_email, send_task_notification_email
 
 
 def add_reminder(task, amount, unit, time):
@@ -37,7 +37,7 @@ def send_due(now=None):
     queryset = TaskReminder.objects.filter(
         task__status=0, task__archived=False, task__is_recurring=False
     ).select_related("task", "task__user", "task__folder")
-    return _send_due(queryset, send_task_notification_email, now)
+    return _send_due(queryset, notify.task_reminder, now)
 
 
 def send_past_due_digests(today=None):
@@ -62,7 +62,7 @@ def send_past_due_digests(today=None):
 
     digests = errors = 0
     for user, tasks in overdue_by_user.items():
-        result = send_past_due_digest_email(user, tasks)
+        result = notify.past_due_digest(user, tasks)
         if result["success"]:
             for task in tasks:
                 task.reminder_sent_date = today

@@ -45,6 +45,12 @@ ENV = env("ENV")
 
 # urls to which the application will respond
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+# The site's address, for links in notifications sent from the background
+# worker (which has no request to read it from): the first allowed host,
+# unless SITE_URL says otherwise
+SITE_URL = env(
+    "SITE_URL", default=f"https://{ALLOWED_HOSTS[0]}" if ALLOWED_HOSTS else ""
+).rstrip("/")
 
 # trusted origins for CSRF
 CSRF_TRUSTED_ORIGINS = [
