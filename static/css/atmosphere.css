@@ -15,6 +15,11 @@
   --atmos-card: var(--background-section);
   --atmos-card-rim: transparent;
   --atmos-card-shadow: transparent;
+
+  /* The grain's average, for what is drawn over the wash but can't carry
+     the grain itself: a flat veil of its ink at the grain's strength
+     times its mean cover, measured at 0.203 */
+  --atmos-grain-tone: color-mix(in srgb, var(--atmos-ink) calc(var(--atmos-grain) * 20.3%), transparent);
 }
 
 /* --------------------------------------------------------------------------
@@ -77,13 +82,10 @@ body {
 }
 
 /* The grain can't follow the tab (its corners are masks already), so
-   the tab takes the grain's average instead: a flat veil of its ink at
-   the grain's strength times its mean cover, measured at 0.203 */
+   the tab takes the grain's average instead (--atmos-grain-tone) */
 .navbar .active,
 .navbar .active::before,
 .navbar .active::after {
-  --atmos-grain-tone: color-mix(in srgb, var(--atmos-ink) calc(var(--atmos-grain) * 20.3%), transparent);
-
   background-attachment: fixed;
   background-color: var(--background-body);
   background-image:
@@ -125,6 +127,50 @@ body {
   from {
     opacity: 0;
     transform: translateY(0.375rem);
+  }
+}
+
+/* --------------------------------------------------------------------------
+ The settings section: its rail of side tabs is the top bar's veil over
+ the wash, and its body is the card, see-through, with the cards inside it
+ cleared to sections of it. Rail and body lift together under one shadow,
+ so none falls where the active side tab joins the body. That tab, which
+ sits on the rail, is painted as the body is (the card's colour over the
+ grain's average over the wash, pinned to the viewport) so it joins the
+ body seamlessly. Phones keep their drawer.
+-------------------------------------------------------------------------- */
+
+@media (min-width: 992px) {
+  .section:has(> .section-nav) {
+    border-radius: var(--radius-md);
+    box-shadow:
+      0 1px 2px var(--shadow-color),
+      0 14px 32px -18px var(--atmos-card-shadow);
+  }
+
+  .section-nav {
+    background: var(--atmos-nav);
+  }
+
+  .section-body {
+    background: var(--atmos-card);
+  }
+
+  .section-body .card {
+    animation: none;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .section-nav .active a,
+  .section-nav .active a::before,
+  .section-nav .active a::after {
+    background-attachment: fixed;
+    background-color: var(--background-body);
+    background-image:
+      linear-gradient(var(--atmos-card), var(--atmos-card)),
+      linear-gradient(var(--atmos-grain-tone), var(--atmos-grain-tone)),
+      var(--atmos-wash);
   }
 }
 
