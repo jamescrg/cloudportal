@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from apps.calendar import invitations, sync as calendar_sync
+from apps.common import notify
 from apps.finance.forms import CryptoSymbolForm, SecuritiesSymbolForm
 from apps.finance.models import CryptoSymbol, SecuritiesSymbol
 from apps.notes.models import Note
@@ -130,7 +131,7 @@ def _ntfy_subscribe_link(user):
     from urllib.parse import urlsplit
 
     server = urlsplit(user.ntfy_server)
-    link = f"ntfy://{server.netloc}{server.path.rstrip('/')}/{user.ntfy_topic}"
+    link = f"ntfy://{server.netloc}{server.path.rstrip('/')}/{notify.topic(user)}"
     if server.scheme == "http":
         link += "?secure=false"
     return link
@@ -141,6 +142,10 @@ def _notifications_context(request, **extra):
         "page": "settings",
         "subapp": "notifications",
         "ntfy_subscribe_link": _ntfy_subscribe_link(request.user),
+        "ntfy_topic_here": notify.topic(request.user),
+        "ntfy_suffix": settings.NTFY_TOPIC_SUFFIX,
+        "not_production": settings.NOT_PRODUCTION,
+        "email_notifications": settings.EMAIL_NOTIFICATIONS,
         "test_result": request.GET.get("test"),
         "test_error": request.session.pop("ntfy_test_error", ""),
     } | extra
@@ -220,8 +225,6 @@ def ntfy_new_topic(request):
 @require_POST
 def ntfy_test(request):
     """Save the form as it stands, then push a test to the topic."""
-    from apps.common import notify
-
     error = _save_ntfy(request)
     if error:
         return render(

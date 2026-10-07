@@ -246,3 +246,54 @@ def test_pressing_done_twice_is_harmless(ntfy_user):
 
     assert _done(Client(), token).status_code == 200
     assert _done(Client(), token).status_code == 200
+
+
+# --- the dev machine ---------------------------------------------------------
+
+
+@pytest.fixture
+def as_dev(settings):
+    settings.NTFY_TOPIC_SUFFIX = "-dev"
+    settings.NOTIFY_TITLE_PREFIX = "[dev] "
+    settings.EMAIL_NOTIFICATIONS = False
+
+
+def test_dev_pushes_to_a_channel_of_its_own_marked_as_dev(as_dev, ntfy_user, ntfy):
+    task = Task.objects.create(
+        user=ntfy_user, title="Call the dentist", due_date=date(2030, 3, 4)
+    )
+
+    notify.task_reminder(ntfy_user, task)
+
+    message = ntfy.sent[0]["json"]
+    assert message["topic"] == "cpl-secret-topic-dev"
+    assert message["title"] == "[dev] Call the dentist"
+
+
+def test_dev_sends_no_email_and_counts_it_handled(as_dev, user, ntfy, mailoutbox):
+    task = Task.objects.create(
+        user=user, title="Call the dentist", due_date=date(2030, 3, 4)
+    )
+
+    assert notify.task_reminder(user, task)["success"]
+
+    assert mailoutbox == []
+    assert ntfy.sent == []
+
+
+def test_dev_does_not_fall_back_to_email(as_dev, ntfy_user, monkeypatch, mailoutbox):
+    monkeypatch.setattr(notify.requests, "post", FakeNtfy(fail=True).post)
+    task = Task.objects.create(
+        user=ntfy_user, title="Call the dentist", due_date=date(2030, 3, 4)
+    )
+
+    assert not notify.task_reminder(ntfy_user, task)["success"]
+
+    assert mailoutbox == []
+
+
+def test_dev_settings_offer_the_dev_topic(as_dev, client, ntfy_user):
+    page = client.get(reverse("settings-notifications")).content.decode()
+
+    assert "ntfy://ntfy.sh/cpl-secret-topic-dev" in page
+    assert "none are emailed" in page

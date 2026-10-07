@@ -10,6 +10,13 @@ instead, so one is not lost to an outage.
 
 By email, it is the message config.email has always sent.
 
+A machine other than production (settings.NOT_PRODUCTION) pushes to each
+topic with a suffix (settings.NTFY_TOPIC_SUFFIX), so it has a channel of
+its own even with a copy of production's data, marks its titles
+(NOTIFY_TITLE_PREFIX), and sends no notification email
+(EMAIL_NOTIFICATIONS): a refreshed dev machine never doubles production's
+notifications.
+
 Each sender returns {"success": bool, "error": str}, as the email senders
 do, for apps.common.reminders.send_due.
 """
@@ -37,12 +44,18 @@ def ntfy_ready(user):
     return user.notify_by == "ntfy" and bool(user.ntfy_topic)
 
 
+def topic(user):
+    """The topic this machine pushes the user's notifications to: theirs,
+    with this machine's suffix (-dev on the dev machine)."""
+    return user.ntfy_topic + settings.NTFY_TOPIC_SUFFIX
+
+
 def push(user, title, message, *, priority=3, tags=(), click=None, actions=()):
     """Publish one message to the user's ntfy topic. Returns
     {"success": bool, "error": str}."""
     body = {
-        "topic": user.ntfy_topic,
-        "title": title,
+        "topic": topic(user),
+        "title": settings.NOTIFY_TITLE_PREFIX + title,
         "message": message,
         "priority": priority,
         "tags": list(tags),
@@ -71,12 +84,19 @@ def _site(path):
 
 def _by_ntfy_or_email(user, pushed, emailed):
     """Push when the user chose ntfy, falling back to email if the push
-    fails; otherwise email."""
+    fails; otherwise email. Where email notifications are off (the dev
+    machine), nothing is emailed, and the notification counts as handled so
+    it is not tried again every minute."""
     if ntfy_ready(user):
         result = pushed()
         if result["success"]:
             return result
+        if not settings.EMAIL_NOTIFICATIONS:
+            return result
         logger.info("Falling back to email for %s", user)
+    if not settings.EMAIL_NOTIFICATIONS:
+        logger.info("Email notifications are off here; not emailing %s", user)
+        return {"success": True, "skipped": "email off"}
     return emailed()
 
 

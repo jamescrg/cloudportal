@@ -7,6 +7,16 @@
         <p class="card-text">
             Notifications for events and tasks are set on each one. Here you choose how they reach you: by email, or pushed to the ntfy app on your phone, where they arrive in seconds with buttons to open the task or mark it done. If ntfy cannot be reached, a notification goes by email instead.
         </p>
+        {% if not_production %}
+            <p class="card-text setting-note">
+                This is not the production server, so its notifications keep to themselves: they push to your topic with "{{ ntfy_suffix }}" on the end, marked in the title,
+                {% if email_notifications %}
+                    and email as usual.
+                {% else %}
+                    and none are emailed.
+                {% endif %}
+            </p>
+        {% endif %}
         <table class="options">
             <tr>
                 <td class="setting-label">Send by:</td>
@@ -80,7 +90,7 @@
                     <tr>
                         <td class="setting-label">Topic:</td>
                         <td class="setting-control">
-                            <code id="ntfy-topic">{{ user.ntfy_topic }}</code>
+                            <code id="ntfy-topic">{{ ntfy_topic_here }}</code>
                             <button class="btn btn-secondary copy-btn"
                                     type="button"
                                     data-copy-target="#ntfy-topic"

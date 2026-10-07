@@ -43,6 +43,18 @@ DEBUG = env("DEBUG")
 # check dev v. production environment
 ENV = env("ENV")
 
+# Notifications from a machine that is not production (the dev machine,
+# whose data is refreshed from production's, users' settings and all) must
+# never land where production's do. So by default dev pushes to each ntfy
+# topic with a suffix (a channel of its own), marks its titles, and sends
+# no notification email. Each can be set in .env.
+NOT_PRODUCTION = ENV != "prod"
+NTFY_TOPIC_SUFFIX = env("NTFY_TOPIC_SUFFIX", default="-dev" if NOT_PRODUCTION else "")
+NOTIFY_TITLE_PREFIX = env(
+    "NOTIFY_TITLE_PREFIX", default="[dev] " if NOT_PRODUCTION else ""
+)
+EMAIL_NOTIFICATIONS = env.bool("EMAIL_NOTIFICATIONS", default=not NOT_PRODUCTION)
+
 # urls to which the application will respond
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 # The site's address, for links in notifications sent from the background
