@@ -75,12 +75,12 @@
   /* The active tab is lit at the top by the light's own green */
   --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, var(--mist-light)) 50%, transparent);
 
-  /* Cards carry no light of their own: they are the plain card colour,
-     let through so the wash shows behind them. At 65% body text keeps
-     about 6.3:1 against them (7:1 solid); the cards stop reading as
+  /* Cards carry no light of their own: they are the card colour taken
+     halfway to white, let through so the wash shows behind them. Body
+     text keeps better than 6:1 against them; the cards stop reading as
      panels, somewhere under 60%, long before the text suffers. */
   --mist-card-opacity: 65%;
-  --atmos-card: color-mix(in srgb, var(--background-section) var(--mist-card-opacity), transparent);
+  --atmos-card: color-mix(in srgb, color-mix(in oklab, var(--background-section) 50%, white) var(--mist-card-opacity), transparent);
   /* No rim of light along the top; a soft shadow, lighter than the one
      under dialogs */
   --atmos-card-rim: transparent;
