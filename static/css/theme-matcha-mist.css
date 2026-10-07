@@ -147,6 +147,12 @@
   box-shadow: 0 1px 2px var(--mist-shadow);
 }
 
+/* The task list's bulk actions sit flat under the list: glossed, but
+   not raised */
+.archive-buttons .btn {
+  box-shadow: none;
+}
+
 /* --------------------------------------------------------------------------
  The weather in motion, over the wash. Paused for now (atmosphere.css).
 -------------------------------------------------------------------------- */
