@@ -61,6 +61,9 @@ def edit(request, id):
 def delete(request, id):
     quote = get_object_or_404(Quote, id=id, user=request.user)
     quote.delete()
+    if request.headers.get("HX-Request"):
+        quotes_left = Quote.objects.filter(user=request.user)
+        return render(request, "settings/quotes_list.html", {"quotes": quotes_left})
     return redirect(SETTINGS_URL)
 
 

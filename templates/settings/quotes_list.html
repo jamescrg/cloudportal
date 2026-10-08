@@ -1,0 +1,49 @@
+{% comment %}
+The list of the user's quotes, or the note that there are none: the
+card's body, swapped whole when a quote is deleted so the list (and the
+note, when the last goes) is as the server has it.
+{% endcomment %}
+{% if quotes %}
+    <p class="card-text">
+        A quote marked Always is shown every day, before the day's
+        own quote.
+    </p>
+    <div class="table-container">
+        <table class="table quotes-table">
+            <tr>
+                <th class="quote-col-text">Quote</th>
+                <th class="quote-col-always">Always</th>
+                <th class="quote-col-edit"></th>
+                <th class="quote-col-delete"></th>
+            </tr>
+            {% for quote in quotes %}
+                <tr>
+                    <td class="quote-col-text">
+                        {{ quote.text }}
+                        {% if quote.author %}<span class="quote-table-author">— {{ quote.author }}</span>{% endif %}
+                    </td>
+                    <td class="quote-col-always">{% include "settings/quote_always.html" %}</td>
+                    <td class="quote-col-edit">
+                        <a class="btn-icon quote-edit"
+                           href="{% url 'settings-quotes-edit' quote.id %}"
+                           title="Edit">
+                            <i class="icon-pencil"></i>
+                        </a>
+                    </td>
+                    <td class="quote-col-delete">
+                        <button type="button"
+                                class="btn-icon quote-delete"
+                                hx-post="{% url 'settings-quotes-delete' quote.id %}"
+                                hx-target="#quotes-list"
+                                hx-swap="innerHTML"
+                                title="Delete">
+                            <i class="icon-trash-2"></i>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% else %}
+    <p class="card-text">You have no quotes yet.</p>
+{% endif %}

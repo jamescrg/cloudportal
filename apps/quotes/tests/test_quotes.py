@@ -110,8 +110,21 @@ def test_settings_tab_adds_marks_and_deletes(client, user):
     user.refresh_from_db()
     assert user.quotes_mode == "serial"
 
-    client.post(reverse("settings-quotes-delete", args=[two.id]))
+    response = client.post(
+        reverse("settings-quotes-delete", args=[two.id]), HTTP_HX_REQUEST="true"
+    )
     assert not Quote.objects.filter(id=two.id).exists()
+    # from the page's button, the list comes back without it
+    page = response.content.decode()
+    assert response.status_code == 200 and "One" in page and "Two" not in page
+
+    response = client.post(
+        reverse("settings-quotes-delete", args=[one.id]), HTTP_HX_REQUEST="true"
+    )
+    assert "no quotes yet" in response.content.decode()
+    assert (
+        client.post(reverse("settings-quotes-delete", args=[one.id])).status_code == 404
+    )
 
 
 def test_another_users_quote_cannot_be_touched(client, user):

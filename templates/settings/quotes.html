@@ -45,47 +45,6 @@
         <div class="card-title">
             <h1>Your Quotes</h1>
         </div>
-        {% if quotes %}
-            <p class="card-text">
-                A quote marked Always is shown every day, before the day's
-                own quote.
-            </p>
-            <div class="table-container">
-                <table class="table quotes-table">
-                    <tr>
-                        <th class="quote-col-text">Quote</th>
-                        <th class="quote-col-always">Always</th>
-                        <th class="quote-col-edit"></th>
-                        <th class="quote-col-delete"></th>
-                    </tr>
-                    {% for quote in quotes %}
-                        <tr>
-                            <td class="quote-col-text">
-                                {{ quote.text }}
-                                {% if quote.author %}<span class="quote-table-author">— {{ quote.author }}</span>{% endif %}
-                            </td>
-                            <td class="quote-col-always">{% include "settings/quote_always.html" %}</td>
-                            <td class="quote-col-edit">
-                                <a class="btn-icon quote-edit"
-                                   href="{% url 'settings-quotes-edit' quote.id %}"
-                                   title="Edit">
-                                    <i class="icon-pencil"></i>
-                                </a>
-                            </td>
-                            <td class="quote-col-delete">
-                                <form method="post" action="{% url 'settings-quotes-delete' quote.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-icon quote-delete" title="Delete">
-                                        <i class="icon-trash-2"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        {% else %}
-            <p class="card-text">You have no quotes yet.</p>
-        {% endif %}
+        <div id="quotes-list">{% include "settings/quotes_list.html" %}</div>
     </div>
 {% endblock subcontent %}
