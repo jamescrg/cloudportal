@@ -52,3 +52,15 @@ li {
   margin: 1.5rem 0;
   text-align: center;
 }
+
+/* A message for the whole form (a wrong password, the cooldown, a wrong
+   code): a plain line with room below it, not a bulleted list */
+.account-form .errorlist.nonfield,
+.card-body > .errorlist.nonfield {
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.errorlist.nonfield li {
+  list-style: none;
+}
