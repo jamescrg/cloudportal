@@ -159,12 +159,6 @@ td.tasks-col-checkbox a:hover {
   padding-right: 2rem;
 }
 
-/* The columns are ruled apart, in the same weight as the rows */
-.tasks-table th + th,
-.tasks-table td + td {
-  border-left: solid 1px var(--border-medium);
-}
-
 .tasks-table td {
   vertical-align: top;
   white-space: nowrap;
