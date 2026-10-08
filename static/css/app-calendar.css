@@ -200,8 +200,8 @@
 
 /* The panel is outlined in the grid's own rule, and the grid runs out to
    the panel's edges and down to its bottom (the card's padding pulled
-   back on those three sides), so the grid's lines meet the outline. The
-   grid keeps only its top rule; the outline is its other three sides.
+   back on its sides), so the grid's lines meet the outline. The grid
+   keeps its top and bottom rules; the outline is its two sides.
    FullCalendar's toolbar sits inside the same container, so it takes
    the padding the card gave up. */
 .card.calendar {
@@ -209,9 +209,10 @@
 }
 
 .card.calendar .fullcalendar-container {
-  /* a little of the card's bottom padding is kept, so the last row of
-     days breathes against the outline as the last task row does */
-  margin: 0 -1rem -1rem;
+  /* the grid keeps its bottom rule here, with 1rem of the card's padding
+     under it, so the last row of days closes and then breathes before
+     the outline */
+  margin: 0 -1rem -0.5rem;
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
@@ -219,7 +220,7 @@
 }
 
 .fc .fc-scrollgrid {
-  border-bottom-width: 0 !important;
+  border-bottom-width: 1px !important;
   border-left-width: 0 !important;
   border-radius: 0;
   border-right-width: 0 !important;
@@ -498,7 +499,6 @@
    month view so a month fits in a third of the width, and the chips are
    trimmed to a line of text. */
 .fc .fc-multimonth {
-  border-bottom: 0;
   border-left: 0;
   border-radius: 0;
   border-right: 0;
@@ -549,7 +549,6 @@
    read at 1rem, and the time cell shrinks to its text so the title gets
    the rest of the row. */
 .fc .fc-list {
-  border-bottom: 0;
   border-left: 0;
   border-right: 0;
 }
