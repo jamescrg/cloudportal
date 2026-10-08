@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     {# -- events -- #}
-    {% if show_events and events %}
+    {% if show_events and week_count %}
         {% include "home/events.html" %}
     {% endif %}
     {# -- tasks -- #}
@@ -9,7 +9,7 @@
         {% include "home/tasks.html" %}
     {% endif %}
     {# -- due tasks -- #}
-    {% if show_due_tasks and due_tasks %}
+    {% if show_due_tasks and due_task_groups %}
         {% include "home/due_tasks.html" %}
     {% endif %}
     {# -- search -- #}

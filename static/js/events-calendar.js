@@ -20,6 +20,13 @@ function onPhone() {
   return window.innerWidth <= PHONE_WIDTH;
 }
 
+// The day the page was asked to open on (the home page's week strip
+// links each day here as ?date=YYYY-MM-DD); null when it was not.
+function requestedDate() {
+  const date = new URLSearchParams(window.location.search).get("date");
+  return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
+}
+
 // If a phone lands on the table (the saved view is the list), fetch the
 // calendar partial in its place; the saved view is left alone for the
 // desktop. The partial's x-init then builds the agenda.
@@ -107,6 +114,7 @@ document.addEventListener("alpine:init", () => {
         // pared to navigation; wider screens get the full set of views,
         // the agenda among them.
         initialView: phone ? "listMonth" : this.savedView(),
+        ...(requestedDate() ? { initialDate: requestedDate() } : {}),
         headerToolbar: phone
           ? { left: "prev,next", center: "title", right: "today" }
           : {

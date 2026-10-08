@@ -5,24 +5,48 @@
             <i class="icon-x"></i>
         </a>
     </div>
-    <div class="table-responsive">
-        <table class="table">
-            <tr>
-                <th>Date</th>
-                <th>Month</th>
-                <th>Weekday</th>
-                <th>Summary</th>
-                <th>Time</th>
-            </tr>
-            {% for event in events %}
-                <tr>
-                    <td class="event-date {{ event.soon }}">{{ event.date }}</td>
-                    <td class="event-date {{ event.soon }}">{{ event.month }}</td>
-                    <td class="event-date {{ event.soon }}">{{ event.weekday }}</td>
-                    <td class="description {{ event.soon }}">{{ event.summary }}</td>
-                    <td class="event-date {{ event.soon }}">{{ event.time }}</td>
-                </tr>
-            {% endfor %}
-        </table>
+    {% comment %}
+    The next seven days as a strip of columns, today first. Each column
+    heads with the day and opens the calendar on it; under it the day's
+    events, and its tasks when the calendar shows those, all-day entries
+    first. A day with nothing on it keeps its column (a free day is worth
+    seeing); on a phone the strip stacks and empty days drop out.
+    {% endcomment %}
+    <div class="week-strip">
+        {% for day in week %}
+            <div class="week-day{% if day.is_today %} is-today{% endif %}{% if not day.count %} is-empty{% endif %}">
+                <a class="week-day-head"
+                   href="{% url 'calendar:index' %}?date={{ day.date|date:'Y-m-d' }}">
+                    <span class="week-day-name">{{ day.label }}</span>
+                    <span class="week-day-date">{{ day.date|date:"M j" }}</span>
+                </a>
+                <ul class="week-entries">
+                    {% for entry in day.entries %}
+                        <li class="week-entry week-entry-{{ entry.kind }}">
+                            {% if entry.time %}<span class="week-entry-time">{{ entry.time|time:"g:i A" }}</span>{% endif %}
+                            <span class="week-entry-title">
+                                {% if entry.kind == "task" %}<i class="icon-circle-check-big" title="Task"></i>{% endif %}
+                                {% if entry.kind == "task" %}
+                                    <a href="{% url 'tasks-edit' entry.id %}">{{ entry.title }}</a>
+                                {% else %}
+                                    {{ entry.title }}
+                                {% endif %}
+                                {% if entry.repeat_summary %}
+                                    <i class="icon-repeat week-entry-repeat"
+                                       title="{{ entry.repeat_summary }}"></i>
+                                {% endif %}
+                            </span>
+                        </li>
+                    {% empty %}
+                        <li class="week-empty">–</li>
+                    {% endfor %}
+                    {% if day.more %}
+                        <li class="week-more">
+                            <a href="{% url 'calendar:index' %}?date={{ day.date|date:'Y-m-d' }}">{{ day.more }} more</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endfor %}
     </div>
 </div>

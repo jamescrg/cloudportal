@@ -16,6 +16,226 @@
 
 
 /*------------------------------------------------
+ * from your calendar: the week strip
+ * ------------------------------------------------*/
+
+/* Seven equal columns, today first. A column's top rule is the day's
+   marker; today's takes the accent. */
+.week-strip {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.week-day {
+  border-top: 2px solid var(--border-medium);
+  min-width: 0;
+  padding-top: 0.5rem;
+}
+
+.week-day.is-today {
+  border-top-color: var(--color-accent-strong);
+}
+
+.week-day-head {
+  color: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+
+.week-day-head:hover .week-day-name {
+  text-decoration: underline;
+}
+
+.week-day-name {
+  font-weight: 500;
+}
+
+.is-today .week-day-name {
+  color: var(--color-accent-strong);
+}
+
+.week-day-date {
+  color: var(--color-secondary);
+  font-size: 0.85rem;
+}
+
+.week-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* An entry is the calendar's chip: the control gray, no border, the
+   page's text colour. A task is told by its check mark in the link's
+   colour, as on the calendar. */
+.week-entry {
+  background: var(--calendar-chip, var(--background-control));
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  padding: 0.3rem 0.5rem;
+}
+
+.week-entry-time {
+  color: var(--color-secondary);
+  display: block;
+  font-size: 0.8rem;
+}
+
+.week-entry-title i {
+  font-size: 0.85em;
+}
+
+.week-entry-task .week-entry-title > i:first-child {
+  color: var(--link);
+}
+
+.week-entry-task .week-entry-title a {
+  color: inherit;
+}
+
+.week-entry-repeat {
+  color: var(--color-muted);
+}
+
+.week-empty {
+  color: var(--color-muted);
+  padding: 0.3rem 0.5rem;
+}
+
+.week-more {
+  font-size: 0.85rem;
+  padding: 0 0.5rem;
+}
+
+/* On a phone the days stack, and a day with nothing on it drops out so
+   the list is the week's agenda rather than seven headings */
+@media (max-width: 768px) {
+  .week-strip {
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .week-day.is-empty {
+    display: none;
+  }
+
+  .week-day-head {
+    align-items: baseline;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+}
+
+
+/*------------------------------------------------
+ * scheduled tasks
+ * ------------------------------------------------*/
+
+.due-group + .due-group {
+  margin-top: 1.25rem;
+}
+
+.due-group-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0 0 0.25rem;
+  padding-left: 0.5rem;
+}
+
+.due-group-date {
+  color: var(--color-secondary);
+  font-weight: normal;
+  margin-left: 0.35rem;
+}
+
+.is-overdue .due-group-label {
+  color: var(--color-danger);
+}
+
+.due-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* A grid, not a flex row: every row shares the same columns, so the
+   check marks, titles, folders and times line up down the panel whatever
+   the folder names' lengths */
+.due-row {
+  align-items: center;
+  border-bottom: 1px solid var(--border-medium);
+  column-gap: 1rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto 1.25rem;
+  padding: 0.5rem 0 0.5rem 0.5rem;
+}
+
+.due-list .due-row:first-child {
+  border-top: 1px solid var(--border-medium);
+}
+
+.due-check,
+.due-check:hover {
+  color: var(--color-muted);
+  font-size: 1.15rem;
+}
+
+.due-check i {
+  display: block;
+}
+
+.due-title {
+  overflow-wrap: anywhere;
+}
+
+.due-folder {
+  align-items: center;
+  color: var(--color-muted);
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.due-folder a {
+  color: inherit;
+}
+
+.due-time {
+  color: var(--color-secondary);
+  font-size: 0.85rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.is-overdue .due-time {
+  color: var(--color-danger);
+}
+
+.due-repeat {
+  color: var(--color-muted);
+}
+
+/* On a phone the folder column goes; the title keeps the width */
+@media (max-width: 576px) {
+  .due-row {
+    grid-template-columns: auto minmax(0, 1fr) auto 1.25rem;
+  }
+
+  .due-folder {
+    display: none;
+  }
+}
+
+
+/*------------------------------------------------
  * search
  * ------------------------------------------------*/
 

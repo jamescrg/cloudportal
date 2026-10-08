@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 
 import requests as http_requests
 from django.conf import settings
@@ -6,10 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-import apps.home.google as google
 from apps.favorites.models import Favorite
 from apps.folders.folders import get_folders_for_page
 from apps.folders.models import Folder
+from apps.home import agenda
 from apps.home.movement import sequence
 from apps.home.toggle import show_section
 from apps.tasks.models import Task
@@ -74,22 +74,11 @@ def index(request):
     # EVENTS
     # ----------------
 
-    # check whether events are shown are hidden
+    # the next week of the user's own calendar, when the section is shown
     show_events = show_section(user, "events")
-
-    # if events are shown, load them
-    if show_events:
-
-        # only show events if the user has connected a Google account
-        if user.google_credentials:
-
-            # load the events from Google
-            events = google.get_events(user.id)
-
-        else:
-            events = None
-    else:
-        events = None
+    week = agenda.week_days(request) if show_events else []
+    # the panel is left out of a week with nothing on it
+    week_count = sum(day.count for day in week)
 
     # TASKS
     # ----------------
@@ -132,22 +121,9 @@ def index(request):
     # DUE TASKS
     # ----------------
 
-    # check whether due tasks section is shown or hidden
+    # overdue tasks and those due in the next few days, grouped by day
     show_due_tasks = show_section(user, "due_tasks")
-
-    # if due tasks are shown, load tasks due in the next 3 days
-    due_tasks = []
-    if show_due_tasks:
-        today = date.today()
-        three_days = today + timedelta(days=3)
-        due_tasks = Task.objects.filter(
-            user=user,
-            status=0,
-            is_recurring=False,
-            archived=False,
-            due_date__gte=today,
-            due_date__lte=three_days,
-        ).order_by("due_date", "due_time", "title")
+    due_task_groups = agenda.due_task_groups(user) if show_due_tasks else []
 
     # WEATHER
     # ----------------
@@ -184,8 +160,9 @@ def index(request):
         "task_folders": task_folders,
         "some_tasks": some_tasks,
         "show_due_tasks": show_due_tasks,
-        "due_tasks": due_tasks,
-        "events": events,
+        "due_task_groups": due_task_groups,
+        "week": week,
+        "week_count": week_count,
         "show_events": show_events,
         "columns": columns,
         "moved_folder": moved_folder,
