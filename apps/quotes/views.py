@@ -36,6 +36,8 @@ def toggle_always(request, id):
     quote = get_object_or_404(Quote, id=id, user=request.user)
     quote.always = not quote.always
     quote.save(update_fields=["always"])
+    if request.headers.get("HX-Request"):
+        return render(request, "settings/quote_always.html", {"quote": quote})
     return redirect(SETTINGS_URL)
 
 

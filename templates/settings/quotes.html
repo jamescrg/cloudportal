@@ -64,20 +64,7 @@
                                 {{ quote.text }}
                                 {% if quote.author %}<span class="quote-table-author">— {{ quote.author }}</span>{% endif %}
                             </td>
-                            <td class="quote-col-always">
-                                <form method="post" action="{% url 'settings-quotes-always' quote.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit"
-                                            class="btn-icon quote-always{% if quote.always %} is-on{% endif %}"
-                                            title="{% if quote.always %}Shown every day; click to show it in turn{% else %}Shown in turn; click to show it every day{% endif %}">
-                                        {% if quote.always %}
-                                            <i class="icon-square-check"></i>
-                                        {% else %}
-                                            <i class="icon-square"></i>
-                                        {% endif %}
-                                    </button>
-                                </form>
-                            </td>
+                            <td class="quote-col-always">{% include "settings/quote_always.html" %}</td>
                             <td class="quote-col-edit">
                                 <a class="btn-icon quote-edit"
                                    href="{% url 'settings-quotes-edit' quote.id %}"

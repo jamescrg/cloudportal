@@ -1,0 +1,16 @@
+{% comment %}
+The Always cell's checkbox: a click posts the toggle and swaps this cell
+alone, so the page stays put.
+{% endcomment %}
+<button type="button"
+        class="btn-icon quote-always"
+        hx-post="{% url 'settings-quotes-always' quote.id %}"
+        hx-target="closest td"
+        hx-swap="innerHTML"
+        title="{% if quote.always %}Shown every day; click to show it in turn{% else %}Shown in turn; click to show it every day{% endif %}">
+    {% if quote.always %}
+        <i class="icon-square-check"></i>
+    {% else %}
+        <i class="icon-square"></i>
+    {% endif %}
+</button>

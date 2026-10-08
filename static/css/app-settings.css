@@ -405,10 +405,7 @@ Profile Form
 }
 
 /* the Always column is a checkbox, drawn with the list icons the notes
-   page uses for its selection boxes */
-.quotes-table .quote-always.is-on {
-  color: var(--color-primary);
-}
+   page uses for its selection boxes, in the muted gray checked or not */
 
 .quotes-table .btn-icon:hover {
   color: var(--link);

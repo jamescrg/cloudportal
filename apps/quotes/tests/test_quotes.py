@@ -94,6 +94,15 @@ def test_settings_tab_adds_marks_and_deletes(client, user):
     one.refresh_from_db()
     assert one.always
 
+    # from the page's checkbox, only the cell comes back
+    response = client.post(
+        reverse("settings-quotes-always", args=[one.id]), HTTP_HX_REQUEST="true"
+    )
+    assert response.status_code == 200
+    assert 'icon-square"' in response.content.decode()
+    one.refresh_from_db()
+    assert not one.always
+
     page = client.get(reverse("settings-quotes")).content.decode()
     assert "One" in page and "Two" in page and "Random shuffle" in page
 
