@@ -1,25 +1,36 @@
-"""Forwarded calendar invitations.
+"""Calendar invitations, both ways.
 
-An invitation is an email with an iCalendar attachment. The user forwards
-it to their own address on the inbound domain; Mailgun posts the parsed
-message to the webhook (views.calendar_inbound), and the attachment is
-read here and posted as an event. The invitation's UID is kept on the
-event, so a later revision of the same invitation updates it and a
-cancellation removes it.
+Forwarded in: an invitation is an email with an iCalendar attachment. The
+user forwards it to their own address on the inbound domain; Mailgun
+posts the parsed message to the webhook (views.calendar_inbound), and the
+attachment is read here and posted as an event. The invitation's UID is
+kept on the event, so a later revision of the same invitation updates it
+and a cancellation removes it.
+
+Sent out: an event's guests (EventGuest) are emailed an invitation of the
+same kind (METHOD:REQUEST), which any calendar app shows with Yes, Maybe
+and No. The organiser named in it is the user's forwarding address, so a
+guest's answer, an email with a METHOD:REPLY attachment that their
+calendar app sends on its own, comes back through the same webhook and
+is recorded on the guest. A change to the event goes out again as a new
+revision (SEQUENCE); a deleted event, or a guest removed, gets a
+cancellation (METHOD:CANCEL).
 """
 
 import hashlib
 import hmac
 import logging
 import secrets
+import uuid
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from email.utils import parseaddr
+from email.utils import formataddr, parseaddr
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
-from django.core.mail import send_mail
-from icalendar import Calendar
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.utils import timezone
+from icalendar import Calendar, Event as VEvent, vCalAddress, vText
 
 import apps.calendar.sync as sync
 from accounts.models import CustomUser
@@ -222,6 +233,263 @@ def post_invitation(user, invitation):
     event.save()
     sync.push_event(event)
     return ("updated" if existing else "created"), event
+
+
+# --- inviting guests ------------------------------------------------------
+
+PRODID = "-//Cloud Portal//Calendar//EN"
+UTC = ZoneInfo("UTC")
+ANSWERS = {"accepted", "declined", "tentative"}
+
+
+def organiser_address(user):
+    """The address the user's invitations name as organiser, which their
+    guests' answers come back to: their forwarding address. None until
+    they have one."""
+    return inbound_address(user)
+
+
+def organiser_name(user):
+    return user.get_full_name() or user.username
+
+
+def can_invite(user):
+    return organiser_address(user) is not None
+
+
+def details(event):
+    """What the guests were told: a change to any of it sends the
+    invitation again."""
+    return (
+        event.date,
+        event.end_date,
+        event.start_time,
+        event.end_time,
+        event.time_zone,
+        event.description,
+        event.location,
+    )
+
+
+def _ensure_uid(event):
+    if not event.invite_uid:
+        domain = settings.CALENDAR_INBOUND_DOMAIN or "cloudportal"
+        event.invite_uid = f"{uuid.uuid4()}@{domain}"
+        event.save(update_fields=["invite_uid"])
+
+
+def _vevent(event, guests, method):
+    vevent = VEvent()
+    vevent.add("uid", event.invite_uid)
+    vevent.add("sequence", event.invite_sequence)
+    vevent.add("dtstamp", datetime.now(UTC))
+    vevent.add("summary", event.description or "Untitled")
+    if event.location:
+        vevent.add("location", event.location)
+    if event.start_time:
+        # A moment, given in UTC, which every calendar app reads
+        start = event.start_at
+        end = event.end_at or start + timedelta(hours=1)
+        vevent.add("dtstart", start.astimezone(UTC))
+        vevent.add("dtend", end.astimezone(UTC))
+    else:
+        # All-day: the iCalendar end is the day after the last day
+        vevent.add("dtstart", event.date)
+        vevent.add("dtend", event.last_date + timedelta(days=1))
+    vevent.add("status", "CANCELLED" if method == "CANCEL" else "CONFIRMED")
+    organiser = vCalAddress(f"mailto:{organiser_address(event.user)}")
+    organiser.params["CN"] = vText(organiser_name(event.user))
+    vevent.add("organizer", organiser, encode=0)
+    for guest in guests:
+        attendee = vCalAddress(f"mailto:{guest.email}")
+        if guest.name:
+            attendee.params["CN"] = vText(guest.name)
+        attendee.params["ROLE"] = vText("REQ-PARTICIPANT")
+        attendee.params["PARTSTAT"] = vText(guest.status.upper())
+        attendee.params["RSVP"] = vText("TRUE")
+        vevent.add("attendee", attendee, encode=0)
+    return vevent
+
+
+def calendar_text_for(event, guests, method):
+    """The iCalendar text sent to the guests: a request, or a
+    cancellation."""
+    calendar = Calendar()
+    calendar.add("prodid", PRODID)
+    calendar.add("version", "2.0")
+    calendar.add("method", method)
+    calendar.add_component(_vevent(event, guests, method))
+    return calendar.to_ical().decode()
+
+
+def _when(event):
+    shown = event.in_zone(event.time_zone)
+    when = shown.date.strftime("%A, %B %-d, %Y")
+    if shown.end_date:
+        when += shown.end_date.strftime(" to %A, %B %-d, %Y")
+    if shown.start_time:
+        when += " at " + shown.start_time.strftime("%-I:%M %p")
+        if shown.end_time:
+            when += " – " + shown.end_time.strftime("%-I:%M %p")
+        when += f" ({event.time_zone})"
+    return when
+
+
+def _send(event, guests, method, subject, intro):
+    """Email each guest the calendar text, as the alternative part a mail
+    client reads as an invitation and as an attachment. Sent from the
+    site's address in the user's name, with replies to the organiser
+    address. Returns how many were sent; a failure is logged."""
+    text = calendar_text_for(event, guests, method)
+    sender = formataddr(
+        (
+            f"{organiser_name(event.user)} ({settings.SITE_NAME})",
+            parseaddr(settings.DEFAULT_FROM_EMAIL)[1],
+        )
+    )
+    lines = [intro, "", event.description or "Untitled", _when(event)]
+    if event.location:
+        lines.append(event.location)
+    lines += ["", f"-- {organiser_name(event.user)}, via {settings.SITE_NAME}"]
+    sent = 0
+    for guest in guests:
+        message = EmailMultiAlternatives(
+            subject,
+            "\n".join(lines),
+            sender,
+            [guest.email],
+            reply_to=[organiser_address(event.user)],
+        )
+        message.attach_alternative(text, f"text/calendar; method={method}")
+        message.attach("invite.ics", text, "application/ics")
+        try:
+            message.send(fail_silently=False)
+            sent += 1
+        except Exception:
+            logger.exception("Could not send the invitation to %s", guest.email)
+    return sent
+
+
+def send_invitation(event, guests):
+    """Invite the guests (the full guest list goes in the calendar text,
+    so each sees who else is asked)."""
+    _ensure_uid(event)
+    return _send(
+        event,
+        guests,
+        "REQUEST",
+        f"Invitation: {event.description or 'Untitled'}",
+        f"{organiser_name(event.user)} has invited you to:",
+    )
+
+
+def send_update(event):
+    """The event changed: raise the revision, forget the answers, and send
+    it to every guest again. Returns how many were sent."""
+    guests = list(event.guests.all())
+    if not guests:
+        return 0
+    _ensure_uid(event)
+    event.invite_sequence += 1
+    event.save(update_fields=["invite_sequence"])
+    event.guests.update(status="needs-action", responded_at=None)
+    for guest in guests:
+        guest.status = "needs-action"
+    return _send(
+        event,
+        guests,
+        "REQUEST",
+        f"Updated invitation: {event.description or 'Untitled'}",
+        f"{organiser_name(event.user)} has changed this event:",
+    )
+
+
+def send_cancellation(event, guests):
+    """Tell the guests the event is off, or that they are no longer asked
+    to it."""
+    if not guests or not event.invite_uid:
+        return 0
+    event.invite_sequence += 1
+    event.save(update_fields=["invite_sequence"])
+    return _send(
+        event,
+        guests,
+        "CANCEL",
+        f"Cancelled: {event.description or 'Untitled'}",
+        f"{organiser_name(event.user)} has cancelled this event:",
+    )
+
+
+def after_change(event, before):
+    """After an event is saved: if what its guests were told has changed,
+    send the invitation again."""
+    if before != details(event) and event.guests.exists():
+        send_update(event)
+
+
+# --- a guest's answer -------------------------------------------------------
+
+
+@dataclass
+class Reply:
+    uid: str
+    email: str
+    status: str
+    sequence: int
+
+
+def read_reply(text):
+    """A guest's answer in iCalendar text (METHOD:REPLY, with the guest as
+    the attendee and their answer as its PARTSTAT), or None for text that
+    is not one."""
+    calendar = Calendar.from_ical(text)
+    if str(calendar.get("METHOD", "")).upper() != "REPLY":
+        return None
+    for vevent in calendar.walk("VEVENT"):
+        attendees = vevent.get("ATTENDEE")
+        if attendees is None:
+            continue
+        if not isinstance(attendees, list):
+            attendees = [attendees]
+        for attendee in attendees:
+            email = str(attendee).lower().removeprefix("mailto:")
+            status = str(attendee.params.get("PARTSTAT", "NEEDS-ACTION")).lower()
+            return Reply(
+                uid=str(vevent.get("UID", "")).strip(),
+                email=email,
+                status=status,
+                sequence=int(vevent.get("SEQUENCE", 0) or 0),
+            )
+    return None
+
+
+def record_reply(user, reply):
+    """Put a guest's answer on the guest. Returns (outcome, guest):
+    'answered' with the guest; 'missing' when the event is not here,
+    'unknown' when the address is not a guest of it, 'stale' for an
+    answer to an older revision than the one sent."""
+    event = None
+    if reply.uid:
+        event = Event.objects.filter(user=user, invite_uid=reply.uid).first()
+    if event is None:
+        return "missing", None
+    guest = event.guests.filter(email__iexact=reply.email).first()
+    if guest is None:
+        return "unknown", None
+    if reply.sequence < event.invite_sequence:
+        return "stale", guest
+    guest.status = reply.status if reply.status in ANSWERS else "needs-action"
+    guest.responded_at = timezone.now()
+    guest.save(update_fields=["status", "responded_at"])
+    return "answered", guest
+
+
+def answer_words(guest):
+    return {
+        "accepted": "accepted",
+        "declined": "declined",
+        "tentative": "replied maybe to",
+    }.get(guest.status, "has not answered")
 
 
 # --- telling the user -----------------------------------------------------

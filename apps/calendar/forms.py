@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 
 from apps.common.forms import ReminderFormBase, RepeatFields
 
-from .models import Event, EventReminder
+from .models import Event, EventGuest, EventReminder
 
 SCOPE_CHOICES = [
     ("this", "This event"),
@@ -108,3 +108,27 @@ class ReminderForm(ReminderFormBase):
     def __init__(self, *args, event, **kwargs):
         super().__init__(*args, timed=bool(event.start_time), user=event.user, **kwargs)
         self.event = event
+
+
+class GuestForm(forms.ModelForm):
+    """One guest to invite: an address, and a name if the user gives one."""
+
+    use_required_attribute = False
+
+    class Meta:
+        model = EventGuest
+        fields = ("email", "name")
+        widgets = {
+            "email": forms.EmailInput(attrs={"placeholder": "Email address"}),
+            "name": forms.TextInput(attrs={"placeholder": "Name (optional)"}),
+        }
+
+    def __init__(self, *args, event, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = event
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if self.event.guests.filter(email__iexact=email).exists():
+            raise forms.ValidationError("Already invited.")
+        return email

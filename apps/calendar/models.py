@@ -12,6 +12,7 @@ from apps.common.recurrence import Rule, describe
 __all__ = [
     "Event",
     "EventSeries",
+    "EventGuest",
     "EventReminder",
     "CalendarSyncState",
     "PendingGoogleDeletion",
@@ -119,6 +120,11 @@ class Event(TimestampMixin, models.Model):
         ical_uid (str): the identifier of the invitation the event came from,
             so an updated or cancelled invitation finds it again
         ical_sequence (int): the invitation's revision; an older one is stale
+        invite_uid (str): the identifier of the invitations this event sends
+            to its guests (apps.calendar.invitations), set when the first
+            goes out
+        invite_sequence (int): the revision of those invitations, raised
+            each time a change goes out
         google_synced_at (datetime): when the event was last pushed to Google
         series (int): the repeating event this is one occurrence of, if any
     """
@@ -147,6 +153,8 @@ class Event(TimestampMixin, models.Model):
     google_synced_at = models.DateTimeField(null=True, blank=True)
     ical_uid = models.CharField(max_length=255, blank=True, null=True)
     ical_sequence = models.IntegerField(default=0)
+    invite_uid = models.CharField(max_length=255, blank=True, default="")
+    invite_sequence = models.IntegerField(default=0)
     series = models.ForeignKey(
         EventSeries,
         on_delete=models.SET_NULL,
@@ -220,6 +228,41 @@ class Event(TimestampMixin, models.Model):
             models.Index(fields=["user", "date"]),
             models.Index(fields=["user", "ical_uid"]),
         ]
+
+
+class EventGuest(models.Model):
+    """Someone invited to an event (apps.calendar.invitations): their
+    address, and how they answered the invitation, if they have."""
+
+    STATUS_CHOICES = [
+        ("needs-action", "Invited"),
+        ("accepted", "Accepted"),
+        ("declined", "Declined"),
+        ("tentative", "Maybe"),
+    ]
+
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="guests")
+    email = models.EmailField()
+    name = models.CharField(max_length=100, blank=True, default="")
+    status = models.CharField(
+        max_length=12, choices=STATUS_CHOICES, default="needs-action"
+    )
+    invited_at = models.DateTimeField(default=timezone.now)
+    responded_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        db_table = "app_event_guest"
+        ordering = ["invited_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["event", "email"], name="guest_once")
+        ]
+
+    def __str__(self):
+        return f"{self.email} ({self.status}) : {self.event_id}"
+
+    @property
+    def answered(self):
+        return self.status != "needs-action"
 
 
 class EventReminder(ReminderMixin):

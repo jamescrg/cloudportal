@@ -19,6 +19,12 @@ urlpatterns = [
         views.reminder_delete,
         name="reminder-delete",
     ),
+    path("<int:id>/guests/add", views.guest_add, name="guest-add"),
+    path(
+        "<int:id>/guests/<int:guest_id>/delete",
+        views.guest_delete,
+        name="guest-delete",
+    ),
     path("view/<str:mode>", views.events_view_mode, name="view-mode"),
     path("tasks/<str:state>", views.events_show_tasks, name="show-tasks"),
     path("filter/", views.events_filter, name="filter"),

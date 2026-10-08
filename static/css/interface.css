@@ -110,13 +110,15 @@ i.icon-plus {
  * notifications (below the event and task edit forms)
  * ------------------------------------------------*/
 
-.reminders {
+.reminders,
+.guests {
   border-top: solid 1px var(--border-medium);
   margin-top: 1.5rem;
   padding-top: 1rem;
 }
 
-.reminder-list li {
+.reminder-list li,
+.guest-list li {
   align-items: center;
   display: flex;
   gap: 0.5rem;
@@ -153,9 +155,53 @@ i.icon-plus {
   width: 5rem;
 }
 
-.reminders .errorlist {
+.reminders .errorlist,
+.guests .errorlist {
   color: var(--urgent);
   list-style: none;
   margin: 0.5rem 0 0;
   padding: 0;
+}
+
+
+/*------------------------------------------------
+ * guests (below the notifications on the event form)
+ * ------------------------------------------------*/
+
+.guest-list .btn-icon {
+  color: var(--color-muted);
+}
+
+.guest-list .btn-icon:hover {
+  color: var(--urgent);
+}
+
+/* How each guest answered, after their name: muted until they do */
+.guest-status {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.guest-accepted {
+  color: var(--color-success);
+}
+
+.guest-declined {
+  color: var(--urgent);
+}
+
+.guest-add {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.guest-add input[type="email"] {
+  width: 16rem;
+}
+
+.guest-add input[type="text"] {
+  width: 10rem;
 }

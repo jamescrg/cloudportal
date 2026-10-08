@@ -1,0 +1,48 @@
+{% comment %}
+The Guests section of an event's edit form (apps.calendar.invitations):
+who is invited, with each one's answer, and the row that invites
+another. Like the Notifications section it stands outside the main form
+and every change re-renders it in place. Context: guests (each with a
+delete_url), guest_form (None when the user cannot invite yet),
+guest_add_url, guests_note (why not), event.
+{% endcomment %}
+<div id="guests" class="guests">
+    <h2>Guests</h2>
+    <ul class="guest-list">
+        {% for guest in guests %}
+            <li>
+                <span>{{ guest.name|default:guest.email }}</span>
+                <span class="guest-status guest-{{ guest.status }}">{{ guest.get_status_display }}</span>
+                <button type="button"
+                        class="btn-icon"
+                        title="Remove, and cancel their invitation"
+                        hx-post="{{ guest.delete_url }}"
+                        hx-target="#guests"
+                        hx-swap="outerHTML">
+                    <i class="icon-x"></i>
+                </button>
+            </li>
+        {% empty %}
+            <li class="reminder-none">No guests.</li>
+        {% endfor %}
+    </ul>
+    {% if guest_form %}
+        <form class="guest-add"
+              hx-post="{{ guest_add_url }}"
+              hx-target="#guests"
+              hx-swap="outerHTML">
+            {% csrf_token %}
+            {{ guest_form.email }}
+            {{ guest_form.name }}
+            <button type="submit" class="btn btn-secondary">Invite</button>
+        </form>
+        {{ guest_form.email.errors }}
+        {{ guest_form.name.errors }}
+        <p class="reminder-none">
+            An invitation is emailed at once; a guest's answer in their calendar app shows here.
+            {% if event.series %}Guests are invited to this occurrence only.{% endif %}
+        </p>
+    {% elif guests_note %}
+        <p class="reminder-none">{{ guests_note }}</p>
+    {% endif %}
+</div>

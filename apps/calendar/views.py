@@ -15,7 +15,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 import apps.calendar.invitations as invitations
 import apps.calendar.recurrence as recurrence
 import apps.calendar.sync as sync
-from apps.calendar.forms import EventForm, ReminderForm
+from apps.calendar.forms import EventForm, GuestForm, ReminderForm
 from apps.calendar.models import Event, EventReminder, is_zone
 
 from .events import (
@@ -263,6 +263,8 @@ def events_edit(request, id):
     series = event.series
 
     if request.method == "POST":
+        # what the guests were told, to send again if it changes
+        before = invitations.details(event)
         form = EventForm(request.POST, instance=event, series=series)
         if form.is_valid():
             if series is None:
@@ -272,6 +274,7 @@ def events_edit(request, id):
                     recurrence.start_series(event, rule)
             else:
                 result = _save_occurrence(form, event, series, request.user)
+            invitations.after_change(event, before)
             return _event_change_response(result)
     else:
         # The form opens on the event as seen from where the user is now;
@@ -283,16 +286,71 @@ def events_edit(request, id):
             initial = vars(shown) | {"weekdays": [str(shown.date.weekday())]}
         form = EventForm(instance=event, initial=initial, series=series)
 
-    context = {
-        "page": "calendar",
-        "edit": True,
-        "action": f"/calendar/{id}/edit",
-        "event": event,
-        "sync_on": request.user.calendar_sync,
-        "google_connected": bool(request.user.google_credentials),
-        "form": form,
-    } | _reminders_context(event)
+    context = (
+        {
+            "page": "calendar",
+            "edit": True,
+            "action": f"/calendar/{id}/edit",
+            "event": event,
+            "sync_on": request.user.calendar_sync,
+            "google_connected": bool(request.user.google_credentials),
+            "form": form,
+        }
+        | _reminders_context(event)
+        | _guests_context(event)
+    )
     return render(request, "calendar/form.html", context)
+
+
+def _guests_context(event, guest_form=None):
+    """The Guests section of the edit form: who is invited and how they
+    answered, and the row that invites one (components/guests.html). A
+    user with no forwarding address cannot invite: it is the address the
+    answers come back to."""
+    guests = list(event.guests.all())
+    for guest in guests:
+        guest.delete_url = reverse("calendar:guest-delete", args=[event.id, guest.id])
+    if invitations.can_invite(event.user):
+        form = guest_form or GuestForm(event=event)
+        note = ""
+    else:
+        form = None
+        note = "To invite guests, create your calendar address in Settings."
+    return {
+        "guests": guests,
+        "guest_form": form,
+        "guest_add_url": reverse("calendar:guest-add", args=[event.id]),
+        "guests_note": note,
+    }
+
+
+@login_required
+@require_POST
+def guest_add(request, id):
+    """Invite a guest to the event: the invitation goes out at once, and
+    the section is re-rendered with them on it."""
+    event = _event_for_user(id, request.user)
+    form = GuestForm(request.POST, event=event)
+    if invitations.can_invite(request.user) and form.is_valid():
+        guest = form.save(commit=False)
+        guest.event = event
+        guest.save()
+        invitations.send_invitation(event, [guest])
+        form = None
+    return render(request, "components/guests.html", _guests_context(event, form))
+
+
+@login_required
+@require_http_methods(["POST", "DELETE"])
+def guest_delete(request, id, guest_id):
+    """Take a guest off the event, telling them the invitation is
+    cancelled."""
+    event = _event_for_user(id, request.user)
+    guest = event.guests.filter(pk=guest_id).first()
+    if guest is not None:
+        invitations.send_cancellation(event, [guest])
+        guest.delete()
+    return render(request, "components/guests.html", _guests_context(event))
 
 
 def _reminders_context(event, reminder_form=None):
@@ -357,7 +415,9 @@ def events_delete(request, id):
         recurrence.end_before(event.series, event.date)
         return HttpResponse(status=204, headers={"HX-Trigger": TRIGGER_KEY})
 
-    # Remove from Google (queues a retry on failure) before deleting locally.
+    # The guests hear it is off, then it goes from Google (queuing a retry
+    # on failure) before it is deleted here.
+    invitations.send_cancellation(event, list(event.guests.all()))
     result = sync.delete_event_remote(event)
     if result == "failed":
         logger.warning("Event deleted, but couldn't remove it from Google Calendar")
@@ -558,6 +618,10 @@ def calendar_inbound(request):
     200 takes the message. 406 refuses it for good (Mailgun does not retry
     it): an address or sender that is not a user's, or a message with no
     invitation in it. A post without Mailgun's signature is refused outright.
+
+    A guest's answer to one of the user's own invitations comes to the
+    same address, from the guest: it is told apart by its calendar text
+    (METHOD:REPLY) and recorded on the guest, whoever sent it.
     """
     if not invitations.signature_is_valid(request.POST):
         return HttpResponse("Bad signature", status=403)
@@ -567,13 +631,23 @@ def calendar_inbound(request):
         logger.info("Forwarded invitation to an unknown address was dropped")
         return HttpResponse("Unknown address", status=406)
 
+    text = invitations.calendar_text(request)
+    reply = None
+    if text is not None:
+        try:
+            reply = invitations.read_reply(text)
+        except Exception:
+            # not an answer, then; the forwarded-invitation path reports it
+            reply = None
+    if reply is not None:
+        return _record_guest_reply(user, reply)
+
     sender = parseaddr(request.POST.get("from") or request.POST.get("sender", ""))[1]
     if sender.lower() not in invitations.allowed_senders(user):
         logger.info("Forwarded invitation from %s was dropped", sender)
         return HttpResponse("Sender not allowed", status=406)
 
     subject = request.POST.get("subject", "").strip() or "(no subject)"
-    text = invitations.calendar_text(request)
     invitation = None
     if text is not None:
         try:
@@ -604,4 +678,21 @@ def calendar_inbound(request):
     if outcome in notes:
         note_subject, note = notes[outcome]
         invitations.notify(user, note_subject, note.format(invitations.describe(event)))
+    return HttpResponse("OK")
+
+
+def _record_guest_reply(user, reply):
+    """A guest's answer: put it on the guest and tell the user. An answer
+    that matches nothing is dropped for good."""
+    outcome, guest = invitations.record_reply(user, reply)
+    if outcome != "answered":
+        logger.info("A guest's reply (%s) was dropped: %s", reply.email, outcome)
+        return HttpResponse("No matching invitation", status=406)
+    who = guest.name or guest.email
+    words = invitations.answer_words(guest)
+    invitations.notify(
+        user,
+        f"Calendar: {who} {words} your invitation",
+        f"{who} {words} {invitations.describe(guest.event)}.",
+    )
     return HttpResponse("OK")
