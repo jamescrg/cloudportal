@@ -340,6 +340,14 @@ SMS_RECIPIENT = env("SMS_RECIPIENT", default="")
 # feature is off.
 CALENDAR_INBOUND_DOMAIN = env("CALENDAR_INBOUND_DOMAIN", default="")
 MAILGUN_WEBHOOK_SIGNING_KEY = env("MAILGUN_WEBHOOK_SIGNING_KEY", default="")
+# The forwarding addresses' prefix. A machine other than production marks
+# its own (calendar-dev-<token>@<domain>), so a Mailgun route can send
+# mail for them here while everything else on the domain goes to
+# production, as the ntfy topic suffix does for push.
+CALENDAR_INBOUND_PREFIX = env(
+    "CALENDAR_INBOUND_PREFIX",
+    default="calendar-dev-" if NOT_PRODUCTION else "calendar-",
+)
 
 # set cookies (sessions) to last for two months
 # default is two weeks, multiplying by four to get two months

@@ -39,8 +39,6 @@ from apps.calendar.models import Event, is_zone
 
 logger = logging.getLogger(__name__)
 
-ADDRESS_PREFIX = "calendar-"
-
 
 @dataclass
 class Invitation:
@@ -62,16 +60,24 @@ def new_token():
     return secrets.token_hex(8)
 
 
+def address_prefix():
+    """What a forwarding address starts with on this machine (settings
+    .CALENDAR_INBOUND_PREFIX): calendar- on production, calendar-dev-
+    elsewhere, so each machine's mail can be routed to it."""
+    return settings.CALENDAR_INBOUND_PREFIX
+
+
 def inbound_address(user):
     """The address this user forwards invitations to, or None until the
     server has a domain and the user an address."""
     if not settings.CALENDAR_INBOUND_DOMAIN or not user.calendar_inbound_token:
         return None
-    return f"{ADDRESS_PREFIX}{user.calendar_inbound_token}@{settings.CALENDAR_INBOUND_DOMAIN}"
+    return f"{address_prefix()}{user.calendar_inbound_token}@{settings.CALENDAR_INBOUND_DOMAIN}"
 
 
 def user_for_recipient(recipient):
-    """The user whose forwarding address a message was sent to, or None."""
+    """The user whose forwarding address a message was sent to, or None:
+    one with another machine's prefix is not this machine's."""
     address = parseaddr(recipient)[1].lower()
     local, _, domain = address.partition("@")
     if (
@@ -79,9 +85,10 @@ def user_for_recipient(recipient):
         and domain != settings.CALENDAR_INBOUND_DOMAIN.lower()
     ):
         return None
-    if not local.startswith(ADDRESS_PREFIX):
+    prefix = address_prefix().lower()
+    if not local.startswith(prefix):
         return None
-    token = local.removeprefix(ADDRESS_PREFIX)
+    token = local.removeprefix(prefix)
     if not token:
         return None
     return CustomUser.objects.filter(calendar_inbound_token=token).first()

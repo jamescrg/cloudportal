@@ -12,3 +12,4 @@ def notifications_as_in_production(settings):
     settings.NTFY_TOPIC_SUFFIX = ""
     settings.NOTIFY_TITLE_PREFIX = ""
     settings.EMAIL_NOTIFICATIONS = True
+    settings.CALENDAR_INBOUND_PREFIX = "calendar-"

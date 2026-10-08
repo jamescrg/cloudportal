@@ -9,6 +9,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
+from apps.calendar import invitations
 from apps.calendar.models import Event
 from apps.calendar.tests.test_invitations import TIMED, ics
 
@@ -162,3 +163,17 @@ def test_an_unreadable_attachment_gets_a_note_back(client, mailoutbox):
 
 def test_only_post_is_accepted(client):
     assert client.get(reverse("calendar:inbound")).status_code == 405
+
+
+# --- the dev machine ---------------------------------------------------------
+
+
+def test_dev_marks_its_addresses_and_takes_only_those(settings, client, user):
+    settings.CALENDAR_INBOUND_PREFIX = "calendar-dev-"
+
+    assert invitations.inbound_address(user) == "calendar-dev-abc@in.example.com"
+    assert invitations.user_for_recipient("calendar-dev-abc@in.example.com") == user
+    assert invitations.user_for_recipient("calendar-abc@in.example.com") is None
+
+    response = _post(client, _signed(**{"attachment-1": _attachment()}))
+    assert response.status_code == 406
