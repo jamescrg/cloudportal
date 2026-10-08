@@ -119,6 +119,18 @@ td.tasks-col-checkbox a:hover {
   padding-right: 1rem;
 }
 
+/* The check and priority columns are centred, so they take the same
+   padding each side rather than the edge padding above, which would
+   push the circles right and the flags left. These selectors match the
+   edge rules' weight and come after them, so they win. */
+.tasks-table th.tasks-col-checkbox,
+.tasks-table td.tasks-col-checkbox,
+.tasks-table th.tasks-col-priority,
+.tasks-table td.tasks-col-priority {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
 /* The columns are ruled apart, in the same weight as the rows */
 .tasks-table th + th,
 .tasks-table td + td {
@@ -133,11 +145,6 @@ td.tasks-col-checkbox a:hover {
 /* The check column is centred here with enough weight to beat the base
    cells' left alignment, which a bare .tasks-col-checkbox did not. */
 .tasks-table .tasks-col-checkbox {
-  /* the same padding each side, so the circle sits centred between the
-     card's edge and the column's rule (the edge padding the first
-     column otherwise gets would push it off centre) */
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
   text-align: center;
 }
 
