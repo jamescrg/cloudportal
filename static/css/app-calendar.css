@@ -198,12 +198,56 @@
   --fc-neutral-bg-color: var(--background-light);
 }
 
-/* Ensure calendar borders are visible and rounded */
+/* The panel is outlined in the grid's own rule, and the grid runs out to
+   the panel's edges and down to its bottom (the card's padding pulled
+   back on those three sides), so the grid's lines meet the outline. The
+   grid keeps only its top rule; the outline is its other three sides.
+   FullCalendar's toolbar sits inside the same container, so it takes
+   the padding the card gave up. */
+.card.calendar {
+  border: 1px solid var(--border-medium);
+}
+
+.card.calendar .fullcalendar-container {
+  margin: 0 -1rem -1.5rem;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+  padding: 0 1rem;
+}
+
 .fc .fc-scrollgrid {
-  border-bottom-width: 1px !important;
-  border-radius: var(--radius-md);
-  border-right-width: 1px !important;
-  overflow: hidden;
+  border-bottom-width: 0 !important;
+  border-left-width: 0 !important;
+  border-radius: 0;
+  border-right-width: 0 !important;
+}
+
+/* The list (table) view, in the panel's edges the same way: it runs to
+   the bottom when nothing follows it, and keeps its last rule above a
+   pagination row */
+.card.calendar .table-container {
+  margin: 0 -1rem;
+  max-width: none;
+}
+
+.card.calendar .table-container:last-child {
+  margin-bottom: -1.5rem;
+}
+
+.card.calendar .table-container:last-child tr:last-child td {
+  border-bottom: none;
+  padding-bottom: 0.75rem;
+}
+
+.events-table th:first-child,
+.events-table td:first-child {
+  padding-left: 1rem;
+}
+
+.events-table th:last-child,
+.events-table td:last-child {
+  padding-right: 1rem;
 }
 
 /* Button styling */
@@ -452,7 +496,10 @@
    month view so a month fits in a third of the width, and the chips are
    trimmed to a line of text. */
 .fc .fc-multimonth {
-  border-radius: var(--radius-md);
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: 0;
+  border-right: 0;
 }
 
 .fc .fc-multimonth-title {
@@ -500,8 +547,9 @@
    read at 1rem, and the time cell shrinks to its text so the title gets
    the rest of the row. */
 .fc .fc-list {
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
 }
 
 .fc .fc-list-table td {
