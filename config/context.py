@@ -30,14 +30,10 @@ RENAMED_THEMES = {
 
 
 def theme(request):
-    if hasattr(request, "session") and "theme" in request.session:
-        name = request.session["theme"]
-    elif hasattr(request, "user") and request.user.is_authenticated:
-        name = request.user.theme
-    else:
-        name = ""
-    # Nothing chosen (a new session, or one just signed in) follows the
-    # device: light or dark as it is set
+    """The theme is chosen per device, so it lives in the session alone.
+    Nothing chosen (a new device, or one just signed in) follows the
+    device: light or dark as it is set."""
+    name = request.session.get("theme", "") if hasattr(request, "session") else ""
     name = RENAMED_THEMES.get(name, name) or "auto"
     return {
         "theme": name,

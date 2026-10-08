@@ -45,7 +45,6 @@ class CustomUser(AbstractUser):
     extension_token = models.CharField(
         max_length=64, blank=True, null=True, unique=True
     )
-    theme = models.TextField(default="", blank=True)
     search_engine = models.TextField(default="google", blank=True)
     home_events = models.IntegerField(default=0)
     home_events_hidden = models.DateField(null=True, blank=True)

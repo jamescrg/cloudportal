@@ -540,16 +540,13 @@ def tasks_options(request, option, value):
 
 @login_required
 def theme(request):
-    """Sets the user's theme, for this session and on the account, so it
-    holds at the next sign-in and on other devices. Only a theme there is:
-    any other name would point the page at a stylesheet that isn't."""
+    """Sets the theme for this device, in its session. Only a theme there
+    is: any other name would point the page at a stylesheet that isn't."""
 
     name = request.POST.get("theme", "")
     name = RENAMED_THEMES.get(name, name)
     if name in THEMES:
         request.session["theme"] = name
-        request.user.theme = name
-        request.user.save(update_fields=["theme"])
     return redirect("/settings/")
 
 

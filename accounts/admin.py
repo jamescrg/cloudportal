@@ -13,7 +13,6 @@ class CustomUserAdmin(UserAdmin):
         "email",
         "username",
         "is_staff",
-        "theme",
         "search_engine",
         "home_events",
         "home_events_hidden",
@@ -36,7 +35,6 @@ class CustomUserAdmin(UserAdmin):
             "Preferences",
             {
                 "fields": (
-                    "theme",
                     "search_engine",
                     "zip",
                 )
