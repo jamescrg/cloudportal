@@ -33,7 +33,9 @@ def theme(request):
         name = request.user.theme
     else:
         name = ""
-    name = RENAMED_THEMES.get(name, name)
+    # Nothing chosen (a new session, or one just signed in) follows the
+    # device: light or dark as it is set
+    name = RENAMED_THEMES.get(name, name) or "auto"
     return {
         "theme": name,
         "theme_base": THEME_VARIANTS.get(name, name),

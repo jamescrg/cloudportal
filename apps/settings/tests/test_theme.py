@@ -47,3 +47,10 @@ def test_variants_are_offered(client):
     html = page_for(client, "matcha")
     assert "Matcha Lavender" in html
     assert "Hojicha Steam" in html
+
+
+def test_with_no_theme_chosen_it_follows_the_device(client, user):
+    user.theme = ""
+    user.save()
+    html = client.get(reverse("settings")).content.decode()
+    assert "css/theme-auto.css" in html

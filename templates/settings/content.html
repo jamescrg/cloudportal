@@ -34,7 +34,7 @@
                                 <i class="icon-chevron-down"></i>
                             </button>
                             <ul class="dropdown-menu" x-ref="menu" x-show="open">
-                                <li {% if theme == "matcha" or theme == "" %}class="active"{% endif %}>
+                                <li {% if theme == "matcha" %}class="active"{% endif %}>
                                     <a class="dropdown-item"
                                        href="#"
                                        @click.prevent="$el.closest('form').querySelector('[name=theme]').value='matcha'; $el.closest('form').submit();">Matcha</a>
