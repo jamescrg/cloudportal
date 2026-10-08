@@ -100,19 +100,16 @@ body {
 }
 
 /* --------------------------------------------------------------------------
- Cards: a gradient lit from the top left, a rim of light along the top
- edge, and a soft shadow that lifts them off the weather. The page's
- cards settle in as they arrive. Backwards fill only, so once it has
+ Cards: a gradient lit from the top left and a rim of light along the
+ top edge; they sit flat on the weather, outlined, with no shadow. The
+ page's cards settle in as they arrive. Backwards fill only, so once it has
  played no transform is left on the card (a transform would trap the
  fixed-position menus inside it).
 -------------------------------------------------------------------------- */
 
 .card {
   background: var(--atmos-card);
-  box-shadow:
-    inset 0 1px 0 var(--atmos-card-rim),
-    0 1px 2px var(--shadow-color),
-    0 14px 32px -18px var(--atmos-card-shadow);
+  box-shadow: inset 0 1px 0 var(--atmos-card-rim);
 }
 
 .content .card {
@@ -133,8 +130,7 @@ body {
 /* --------------------------------------------------------------------------
  The settings section: its rail of side tabs is the top bar's veil over
  the wash, and its body is the card, see-through, with the cards inside it
- cleared to sections of it. Rail and body lift together under one shadow,
- so none falls where the active side tab joins the body. That tab, which
+ cleared to sections of it. That tab, which
  sits on the rail, is painted as the body is (the card's colour over the
  grain's average over the wash, pinned to the viewport) so it joins the
  body seamlessly. Phones keep their drawer.
@@ -143,9 +139,6 @@ body {
 @media (min-width: 992px) {
   .section:has(> .section-nav) {
     border-radius: var(--radius-md);
-    box-shadow:
-      0 1px 2px var(--shadow-color),
-      0 14px 32px -18px var(--atmos-card-shadow);
   }
 
   .section-nav {
