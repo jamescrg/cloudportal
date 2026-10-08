@@ -404,8 +404,10 @@ Profile Form
   font-size: 1.1rem;
 }
 
+/* the Always column is a checkbox, drawn with the list icons the notes
+   page uses for its selection boxes */
 .quotes-table .quote-always.is-on {
-  color: var(--color-accent-strong);
+  color: var(--color-primary);
 }
 
 .quotes-table .btn-icon:hover {
