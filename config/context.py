@@ -21,6 +21,9 @@ THEME_VARIANTS = {
 }
 
 # Renamed themes, so a session still holding the old name keeps its theme
+# Every theme a user may choose
+THEMES = {"matcha", "hojicha", "auto", *THEME_VARIANTS}
+
 RENAMED_THEMES = {
     "matcha-mist": "matcha-lavender",
 }

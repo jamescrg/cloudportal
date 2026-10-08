@@ -54,3 +54,24 @@ def test_with_no_theme_chosen_it_follows_the_device(client, user):
     user.save()
     html = client.get(reverse("settings")).content.decode()
     assert "css/theme-auto.css" in html
+
+
+def test_a_chosen_theme_is_kept_on_the_account(client, user):
+    client.post(reverse("settings-theme"), {"theme": "auto"})
+    user.refresh_from_db()
+    assert user.theme == "auto"
+
+
+def test_the_account_theme_holds_at_the_next_sign_in(client, user):
+    client.post(reverse("settings-theme"), {"theme": "hojicha"})
+    client.logout()
+    client.force_login(user)
+    html = client.get(reverse("settings")).content.decode()
+    assert "css/theme-hojicha.css" in html
+
+
+def test_a_theme_that_isnt_one_is_ignored(client, user):
+    client.post(reverse("settings-theme"), {"theme": "../../secrets"})
+    user.refresh_from_db()
+    assert user.theme == ""
+    assert client.get(reverse("settings")).status_code == 200
