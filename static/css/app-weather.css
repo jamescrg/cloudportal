@@ -57,6 +57,13 @@
   padding-bottom: 0.75rem;
 }
 
+/* Current Conditions has its headers down the side, not across the top,
+   and only a header cell carries the table's top rule; the value cells
+   in its first row take one too, so the rule spans the table */
+.card > .table tr:first-child td {
+  border-top: solid 1px var(--border-medium);
+}
+
 .card > .table th:first-child,
 .card > .table td:first-child {
   padding-left: 1rem;
