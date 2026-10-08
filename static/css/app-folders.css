@@ -110,18 +110,42 @@
  * folder list display
  * ------------------------------------------------*/
 
-/* The folder list is ruled horizontally only, by its rows' own lines */
+/* The panel is outlined in the rule its rows use, and the list runs out
+   to the panel's edges and down to its bottom (the card's padding pulled
+   back on those three sides), so each row's rule meets the outline and a
+   selected row's highlight fills the width. The card's bottom edge
+   closes the list; the last row's own rule would double it. */
+.card.folders {
+  border: 1px solid var(--border-medium);
+}
+
 .folder-tree {
   list-style: none;
-  margin: 0;
+  margin: 0 -1rem -1.5rem;
   padding: 0;
+}
+
+.folder-tree > li:last-child {
+  border-bottom: none;
 }
 
 .folder-row {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+/* In the drawer the card has no outline or side padding of its own
+   (drawer.css), so the list spans the drawer's padding instead */
+@media (max-width: 991.98px) {
+  [data-drawer] .card.folders .folder-tree {
+    margin: 0 -0.5rem;
+  }
+
+  [data-drawer] .card.folders .folder-tree > li:last-child {
+    border-bottom: solid 1px var(--border-medium);
+  }
 }
 
 .folder-item {
