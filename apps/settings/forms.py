@@ -13,6 +13,11 @@ class ProfileForm(forms.ModelForm):
             "email",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Sign-in is by email, so it can't be emptied
+        self.fields["email"].required = True
+
 
 class ChangePasswordForm(forms.ModelForm):
     old_password = forms.CharField(widget=forms.PasswordInput)

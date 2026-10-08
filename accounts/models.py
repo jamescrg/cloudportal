@@ -1,11 +1,24 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Q
+from django.db.models.functions import Lower
 
 from accounts.managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
     objects = CustomUserManager()
+
+    class Meta(AbstractUser.Meta):
+        constraints = [
+            # Sign-in is by email (accounts.backends), so no two accounts
+            # may share one, in any case
+            models.UniqueConstraint(
+                Lower("email"),
+                name="accounts_customuser_email_unique",
+                condition=~Q(email=""),
+            ),
+        ]
 
     ROLE_OPTIONS = (
         ("ADMIN", "Admin"),
@@ -83,12 +96,12 @@ class CustomUser(AbstractUser):
 
 
 class LoginThrottle(models.Model):
-    """Failed sign-ins for one username, so repeated guessing has to wait
-    (accounts.throttle). Keyed on the name as typed, folded to lower case,
-    whether or not an account has it, so the waits don't reveal which
-    names are real."""
+    """Failed sign-ins for one email address, so repeated guessing has to
+    wait (accounts.throttle). Keyed on the address as typed, folded to
+    lower case, whether or not an account has it, so the waits don't
+    reveal which addresses are real."""
 
-    username = models.CharField(max_length=150, unique=True)
+    login = models.CharField(max_length=254, unique=True)
     failures = models.PositiveIntegerField(default=0)
     last_failure = models.DateTimeField()
     locked_until = models.DateTimeField(null=True, blank=True)

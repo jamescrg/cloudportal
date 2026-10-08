@@ -2,7 +2,6 @@ import time
 
 from django.conf import settings
 from django.contrib.auth import login
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
@@ -11,7 +10,7 @@ from django.views import View
 from django.views.generic import CreateView
 
 from . import throttle, totp
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, EmailLoginForm
 from .models import CustomUser
 
 # How long the second step waits for its code before the password has to
@@ -48,7 +47,7 @@ def admin_login(request):
 
 
 class LoginView(View):
-    """Sign in with a username and password, under the failed-attempt
+    """Sign in with an email address and password, under the failed-attempt
     cooldown (accounts.throttle). A user with an authenticator app goes on
     to give a code from it (VerifyCodeView) before being signed in."""
 
@@ -57,19 +56,19 @@ class LoginView(View):
     def get(self, request):
         if request.user.is_authenticated:
             return redirect(settings.LOGIN_REDIRECT_URL)
-        return render(request, self.template_name, {"form": AuthenticationForm()})
+        return render(request, self.template_name, {"form": EmailLoginForm()})
 
     def post(self, request):
-        username = request.POST.get("username", "")
-        wait = throttle.cooldown_remaining(username)
+        email = request.POST.get("email", "")
+        wait = throttle.cooldown_remaining(email)
         if wait:
             # While the wait runs no password is checked, so guessing through
             # it learns nothing
             return self._cooling(request, wait)
 
-        form = AuthenticationForm(request, data=request.POST)
+        form = EmailLoginForm(request, data=request.POST)
         if not form.is_valid():
-            wait = throttle.record_failure(username)
+            wait = throttle.record_failure(email)
             if wait:
                 return self._cooling(request, wait)
             return render(request, self.template_name, {"form": form})
@@ -86,12 +85,12 @@ class LoginView(View):
             request.session["login_next_url"] = next_url
             return redirect("login-verify")
 
-        throttle.record_success(username)
+        throttle.record_success(email)
         login(request, user)
         return redirect(next_url or settings.LOGIN_REDIRECT_URL)
 
     def _cooling(self, request, wait):
-        form = AuthenticationForm(initial={"username": request.POST.get("username")})
+        form = EmailLoginForm(initial={"email": request.POST.get("email")})
         error = f"Too many attempts. Try again in {throttle.describe(wait)}."
         return render(request, self.template_name, {"form": form, "error": error})
 
@@ -129,22 +128,24 @@ class VerifyCodeView(View):
             _forget_pending(request)
             return redirect("login")
 
-        wait = throttle.cooldown_remaining(user.username)
+        wait = throttle.cooldown_remaining(user.email)
         if wait:
             return self._cooling(request, wait)
 
         if not totp.accept(user, request.POST.get("code", "")):
-            wait = throttle.record_failure(user.username)
+            wait = throttle.record_failure(user.email)
             if wait:
                 return self._cooling(request, wait)
             return render(
                 request, self.template_name, {"error": "That code didn't work."}
             )
 
-        throttle.record_success(user.username)
+        throttle.record_success(user.email)
         next_url = request.session.get("login_next_url", "")
         _forget_pending(request)
-        login(request, user)
+        # Fetched here, not handed over by authenticate(), so it carries no
+        # backend: name the one that took the password
+        login(request, user, backend="accounts.backends.EmailBackend")
         return redirect(next_url or settings.LOGIN_REDIRECT_URL)
 
     def _cooling(self, request, wait):

@@ -95,17 +95,17 @@ def disable(request):
     if not user.totp_secret:
         return redirect("settings-security")
 
-    wait = throttle.cooldown_remaining(user.username)
+    wait = throttle.cooldown_remaining(user.email)
     if wait:
         return _render(
             request,
             disable_error=f"Too many attempts. Try again in {throttle.describe(wait)}.",
         )
     if not user.check_password(request.POST.get("password", "")):
-        throttle.record_failure(user.username)
+        throttle.record_failure(user.email)
         return _render(request, disable_error="That password isn't right.")
     if not totp.accept(user, request.POST.get("code", "")):
-        throttle.record_failure(user.username)
+        throttle.record_failure(user.email)
         return _render(request, disable_error="That code didn't work.")
 
     totp.disable(user)

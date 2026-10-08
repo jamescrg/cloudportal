@@ -36,7 +36,7 @@ def protected(user):
 
 def sign_in(client, next_url=""):
     url = reverse("login") + (f"?next={next_url}" if next_url else "")
-    return client.post(url, {"username": "ollie", "password": PASSWORD})
+    return client.post(url, {"email": "ollie@example.com", "password": PASSWORD})
 
 
 def give_code(client, value):
