@@ -504,6 +504,18 @@
   border-right: 0;
 }
 
+/* Each mini month is closed top and bottom. The app's table rules strip
+   a header cell's top rule and a body cell's bottom rule (the month grid
+   draws those edges itself), so they are put back on the weekday header
+   and the last week of every month here. */
+.fc-multiMonthYear-view .fc-multimonth-header-table th {
+  border-top: solid 1px var(--border-medium);
+}
+
+.fc-multiMonthYear-view .fc-multimonth-daygrid-table tr:last-child td {
+  border-bottom: solid 1px var(--border-medium);
+}
+
 .fc .fc-multimonth-title {
   color: var(--color-primary);
   font-size: 1rem;
