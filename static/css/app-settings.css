@@ -51,6 +51,40 @@
   color: var(--color-muted);
 }
 
+/* Profile: the icon that stands for the user in the top bar */
+.profile-icon {
+  margin-top: 2rem;
+}
+
+.icon-picker {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, 2.75rem);
+}
+
+.icon-choice {
+  align-items: center;
+  aspect-ratio: 1;
+  background: none;
+  border: solid 1px transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  cursor: pointer;
+  display: flex;
+  font-size: 1.35rem;
+  justify-content: center;
+}
+
+.icon-choice:hover {
+  border-color: var(--border-medium);
+}
+
+.icon-choice.chosen {
+  background: var(--selected-background);
+  border-color: var(--selected-border);
+  color: var(--selected-color);
+}
+
 /* Security: two-step sign-in */
 .security-heading {
   font-size: 1.1rem;

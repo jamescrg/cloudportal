@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from accounts.models import NAV_ICONS
 from apps.calendar import invitations, sync as calendar_sync
 from apps.common import notify
 from apps.finance.forms import CryptoSymbolForm, SecuritiesSymbolForm
@@ -34,8 +35,21 @@ def profile_index(request):
     context = {
         "page": "settings",
         "subapp": "profile",
+        "nav_icons": NAV_ICONS,
     }
     return render(request, "settings/profile/index.html", context)
+
+
+@login_required
+@require_POST
+def nav_icon(request):
+    """Choose the icon that stands for the user in the top bar. Only one
+    of the set: any other name would point at an icon that isn't."""
+    icon = request.POST.get("icon", "")
+    if icon in dict(NAV_ICONS):
+        request.user.nav_icon = icon
+        request.user.save(update_fields=["nav_icon"])
+    return redirect("settings-profile")
 
 
 @login_required

@@ -6,6 +6,42 @@ from django.utils.crypto import salted_hmac
 
 from accounts.managers import CustomUserManager
 
+# The icons a user may choose to stand for them in the top bar (Lucide
+# names), the plain person first, as the default
+NAV_ICONS = [
+    ("user", "Person"),
+    ("chess-king", "King"),
+    ("chess-queen", "Queen"),
+    ("chess-rook", "Rook"),
+    ("chess-bishop", "Bishop"),
+    ("chess-knight", "Knight"),
+    ("chess-pawn", "Pawn"),
+    ("hamburger", "Hamburger"),
+    ("toolbox", "Toolbox"),
+    ("smile", "Smile"),
+    ("laugh", "Laugh"),
+    ("face-grinning", "Grin"),
+    ("meh", "Meh"),
+    ("annoyed", "Annoyed"),
+    ("frown", "Frown"),
+    ("face-slightly-frowning", "Slight frown"),
+    ("angry", "Angry"),
+    ("face-angry", "Cross"),
+    ("cat", "Cat"),
+    ("dog", "Dog"),
+    ("rabbit", "Rabbit"),
+    ("squirrel", "Squirrel"),
+    ("panda", "Panda"),
+    ("turtle", "Turtle"),
+    ("feather", "Feather"),
+    ("bird", "Bird"),
+    ("birdhouse", "Birdhouse"),
+    ("rat", "Rat"),
+    ("origami", "Origami"),
+    ("rose", "Rose"),
+    ("snail", "Snail"),
+]
+
 
 class CustomUser(AbstractUser):
     objects = CustomUserManager()
@@ -103,6 +139,9 @@ class CustomUser(AbstractUser):
     # the hash every session is checked against, so each session made
     # before the bump stops matching and is signed out
     sessions_ended = models.PositiveIntegerField(default=0)
+    # The icon that stands for the user in the top bar, opening the account
+    # menu (one of NAV_ICONS)
+    nav_icon = models.CharField(max_length=40, choices=NAV_ICONS, default="user")
     task_completion_mode = models.CharField(
         max_length=10,
         choices=[

@@ -65,3 +65,39 @@ def test_sign_out_everywhere_twice_still_keeps_this_one(user):
     here.post(reverse("settings-security-sign-out"))
     here.post(reverse("settings-security-sign-out"))
     assert here.get(reverse("home")).status_code == 200
+
+
+def test_the_person_is_the_icon_until_another_is_chosen(user):
+    html = signed_in_client(user).get(reverse("home")).content.decode()
+    assert re.search(r'class="account-button"[^>]*>\s*<i class="icon-user">', html)
+
+
+def test_a_chosen_icon_stands_in_the_bar(user):
+    client = signed_in_client(user)
+    response = client.post(reverse("settings-nav-icon"), {"icon": "chess-knight"})
+    assert response.url == reverse("settings-profile")
+    user.refresh_from_db()
+    assert user.nav_icon == "chess-knight"
+    html = client.get(reverse("home")).content.decode()
+    assert re.search(
+        r'class="account-button"[^>]*>\s*<i class="icon-chess-knight">', html
+    )
+
+
+def test_an_icon_not_in_the_set_is_ignored(user):
+    client = signed_in_client(user)
+    client.post(reverse("settings-nav-icon"), {"icon": 'x" onmouseover="alert(1)'})
+    user.refresh_from_db()
+    assert user.nav_icon == "user"
+
+
+def test_the_profile_offers_every_icon_and_marks_the_chosen(user):
+    from accounts.models import NAV_ICONS
+
+    html = signed_in_client(user).get(reverse("settings-profile")).content.decode()
+    for name, _ in NAV_ICONS:
+        assert f'<i class="icon-{name}"></i>' in html
+    assert re.search(
+        r'icon-choice chosen"[^>]*\n?[^>]*value="user"|value="user"\s+class="icon-choice chosen"',
+        html,
+    )

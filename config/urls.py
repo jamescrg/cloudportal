@@ -298,6 +298,7 @@ urlpatterns = [
     ),
     # settings
     path("settings/profile/", settings.profile_index, name="settings-profile"),
+    path("settings/profile/icon", settings.nav_icon, name="settings-nav-icon"),
     path(
         "settings/profile/personal/",
         settings.personal_profile,
