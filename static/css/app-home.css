@@ -167,6 +167,12 @@
   padding: 0.7rem 1rem;
 }
 
+/* There is no header row, so the first heading row draws the table's
+   top rule */
+.due-table tr:first-child td {
+  border-top: solid 1px var(--border-medium);
+}
+
 .due-group-date {
   color: var(--color-secondary);
   font-weight: normal;

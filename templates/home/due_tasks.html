@@ -8,21 +8,13 @@
     </div>
     {% comment %}
     Open tasks due in the next few days, in the tasks page's own table
-    (its classes and styles), with a column for the folder added and a
-    heading row for each day; anything overdue is under its own heading
-    at the top. The check mark completes the task and the title opens it.
+    (its classes and styles) without its header row, with the folder as a
+    first column and a heading row for each day; anything overdue is
+    under its own heading at the top. The check mark completes the task
+    and the title opens it.
     {% endcomment %}
     <div class="table-container">
         <table class="table tasks-table due-table">
-            <tr>
-                <th class="tasks-col-checkbox"></th>
-                <th class="tasks-col-title">Task</th>
-                <th class="tasks-col-folder">Folder</th>
-                <th class="tasks-col-due">Due</th>
-                <th class="tasks-col-priority">
-                    <i class="icon-flag" title="Priority"></i>
-                </th>
-            </tr>
             {% for group in due_task_groups %}
                 <tr class="due-group-row{% if group.overdue %} is-overdue{% endif %}">
                     <td colspan="5">
@@ -32,6 +24,12 @@
                 </tr>
                 {% for task in group.tasks %}
                     <tr class="priority-{{ task.level.slug }}{% if group.overdue %} past-due{% endif %}">
+                        <td class="tasks-col-folder">
+                            {% if task.folder %}
+                                <i class="icon-folder"></i>
+                                <a href="{% url 'folder-select' task.folder.id 'tasks' %}">{{ task.folder.name }}</a>
+                            {% endif %}
+                        </td>
                         <td class="tasks-col-checkbox">
                             <a href="{% if origin %}{% url 'tasks-complete' task.id origin %}{% else %}{% url 'tasks-complete' task.id %}{% endif %}"
                                title="Complete">
@@ -58,12 +56,6 @@
                                     {% if task.parent_task %}<i class="icon-refresh-cw" title="{{ task.repeat_summary }}"></i>{% endif %}
                                 </span>
                             </div>
-                        </td>
-                        <td class="tasks-col-folder">
-                            {% if task.folder %}
-                                <i class="icon-folder"></i>
-                                <a href="{% url 'folder-select' task.folder.id 'tasks' %}">{{ task.folder.name }}</a>
-                            {% endif %}
                         </td>
                         <td class="tasks-col-due">
                             <span class="task-date-link">{{ task.shown.due_date|date:"Y-m-d" }}</span>
