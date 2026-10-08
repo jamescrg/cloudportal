@@ -161,6 +161,14 @@
   padding-right: var(--radius-lg);
 }
 
+/* The bar's height was set by the old 1.25rem gear, the tallest thing in
+   it, and every tab stretched to match. The icons here are the standard
+   size now, so the run keeps the gear's line height, and the bar and its
+   tabs the height they had. */
+.navbar .navbar-right li {
+  line-height: 1.85rem;
+}
+
 
 /* ==========================================================================
  Responsive - Tighter spacing on mobile
