@@ -102,8 +102,11 @@ td.tasks-col-checkbox a:hover {
   margin-bottom: -1.5rem;
 }
 
+/* The last row sits on the card's edge, so it gets a little more room
+   under it than the rows above, to breathe against the outline */
 .card.tasks .table-container:last-child tr:last-child td {
   border-bottom: none;
+  padding-bottom: 0.75rem;
 }
 
 .tasks-table th:first-child,
