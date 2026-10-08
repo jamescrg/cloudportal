@@ -31,7 +31,7 @@ def test_the_menu_shows_who_is_signed_in_and_logs_out(user):
     assert "James Craig" in html
     assert "james@example.com" in html
     assert f'action="{reverse("logout")}"' in html
-    assert re.search(r'account-initials">\s*JC\s*<', html)
+    assert re.search(r'class="account-button"[^>]*>\s*<i class="icon-user">', html)
 
 
 def test_log_out_signs_out(user):

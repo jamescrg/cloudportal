@@ -1,5 +1,0 @@
-{% if user.first_name %}
-    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
-{% else %}
-    {{ user.username|first|upper }}
-{% endif %}

@@ -52,36 +52,17 @@
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L0,8 L8,8 A8,8 0 0,1 0,0 Z' fill='white'/%3E%3C/svg%3E");
 }
 
-/* The account menu: a round button with the user's initials, in the
-   gear's place, opening Settings and Log out */
+/* The account menu: a person icon in the gear's place, styled as the bar's
+   other icons, opening Settings and Log out */
 .account-button {
   background: none;
   border: none;
+  color: var(--color-nav);
   cursor: pointer;
+  font: inherit;
   padding: 0;
   position: relative;
-  top: 0.05rem;
-}
-
-.account-initials {
-  align-items: center;
-  background: var(--background-control);
-  border: solid 1px var(--border-medium);
-  border-radius: 50%;
-  color: var(--color-primary);
-  display: inline-flex;
-  font-size: 0.8rem;
-  font-weight: 600;
-  height: 1.75rem;
-  justify-content: center;
-  letter-spacing: 0.02em;
-  width: 1.75rem;
-}
-
-.account-button:hover .account-initials,
-.account-button[aria-expanded="true"] .account-initials {
-  border-color: var(--border-dark);
-  color: var(--color-strong);
+  top: 0.1rem;
 }
 
 /* The menu sits inside the bar's list, so it undoes the bar's tab styles */
