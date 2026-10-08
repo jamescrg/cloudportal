@@ -19,17 +19,18 @@
  * from your calendar: the week strip
  * ------------------------------------------------*/
 
-/* Seven equal columns, today first, ruled like the site's tables and
-   lists: a line over each day and one between neighbours, in the same
-   weight. Today's top rule takes the accent. */
+/* Seven equal columns, today first, in one bordered, rounded box, ruled
+   between neighbours in the same weight as the site's tables and lists.
+   Today carries an accent line along its top, inside the box's border. */
 .week-strip {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
+  overflow: hidden;
 }
 
 .week-day {
-  border-bottom: 1px solid var(--border-medium);
-  border-top: 1px solid var(--border-medium);
   min-width: 0;
   padding: 0.5rem 0.6rem;
 }
@@ -39,7 +40,7 @@
 }
 
 .week-day.is-today {
-  border-top-color: var(--color-accent-strong);
+  box-shadow: inset 0 2px 0 var(--color-accent-strong);
 }
 
 .week-day-head {
@@ -124,17 +125,12 @@
    the list is the week's agenda rather than seven headings */
 @media (max-width: 768px) {
   .week-strip {
-    gap: 1rem;
     grid-template-columns: minmax(0, 1fr);
   }
 
   .week-day + .week-day {
     border-left: none;
-  }
-
-  .week-day {
-    padding-left: 0;
-    padding-right: 0;
+    border-top: 1px solid var(--border-medium);
   }
 
   .week-day.is-empty {
