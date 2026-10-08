@@ -48,6 +48,7 @@
     /* Selection */
     --selected-background: var(--background-control);
     --switch-on: var(--selected-background);
+    --switch-on-border: var(--selected-border);
     --selected-color: var(--gb-bright-purple);
     --selected-border: var(--gb-purple);
 

@@ -54,11 +54,11 @@
    wash (Matcha does), or leave it to the wash */
 .switch.is-on {
   background: var(--switch-on, var(--selected-background));
-  border-color: var(--selected-border);
+  border-color: var(--switch-on-border, var(--selected-border));
 }
 
 .switch.is-on .switch-knob {
-  border-color: var(--selected-border);
+  border-color: var(--switch-on-border, var(--selected-border));
   left: calc(100% - 1.125rem - 0.125rem - 2px);
 }
 
