@@ -82,6 +82,37 @@ td.tasks-col-checkbox a:hover {
   margin-right: 0.25rem;
 }
 
+/* The panel is outlined in the rule the table's rows use, and the table
+   runs out to the panel's edges, so the header band and each row's rule
+   meet the outline. When the table is the last thing in the panel (no
+   pagination or archive row under it) it runs down to the bottom too,
+   and the card's edge closes it in place of the last row's rule. */
+.card.tasks {
+  border: 1px solid var(--border-medium);
+}
+
+.card.tasks .table-container {
+  margin: 0 -1rem;
+}
+
+.card.tasks .table-container:last-child {
+  margin-bottom: -1.5rem;
+}
+
+.card.tasks .table-container:last-child tr:last-child td {
+  border-bottom: none;
+}
+
+.tasks-table th:first-child,
+.tasks-table td:first-child {
+  padding-left: 1rem;
+}
+
+.tasks-table th:last-child,
+.tasks-table td:last-child {
+  padding-right: 1rem;
+}
+
 .tasks-table td {
   vertical-align: top;
   white-space: nowrap;
@@ -124,6 +155,11 @@ td.tasks-col-checkbox a:hover {
   .tasks-table .tasks-col-due,
   .tasks-secondary-wide {
     display: none;
+  }
+
+  /* the title is then the last column shown, and takes its edge padding */
+  .tasks-table .tasks-col-title {
+    padding-right: 1rem;
   }
 
   .tasks-secondary-phone {
