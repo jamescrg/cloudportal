@@ -19,14 +19,19 @@
  * from your calendar: the week strip
  * ------------------------------------------------*/
 
-/* Seven equal columns, today first, in one bordered, rounded box, ruled
-   between neighbours in the same weight as the site's tables and lists.
-   Today carries an accent line along its top, inside the box's border. */
+/* Seven equal columns, today first, ruled between neighbours in the same
+   weight as the site's tables and lists. The strip runs out to the card's
+   edges and down to its bottom: the card's padding is pulled back on
+   those three sides, so the strip's top and bottom rules span the card
+   and its bottom corners follow the card's own. Today carries an accent
+   line along its top, inside the rule. */
 .week-strip {
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
+  border-bottom: 1px solid var(--border-medium);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-top: 1px solid var(--border-medium);
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin: 0 -1rem -1.5rem;
   overflow: hidden;
 }
 
