@@ -228,8 +228,17 @@
   flex: 1 1 24rem;
 }
 
-.push-setup .qr-code {
-  margin-top: 0.5rem;
+/* The code with its caption under it, raised to sit level with the top
+   of the fields beside it */
+.qr-figure {
+  margin: -0.5rem 0 0;
+  text-align: center;
+}
+
+.qr-figure figcaption {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 
 
@@ -362,14 +371,6 @@ Profile Form
   color: var(--urgent);
   margin-top: 1rem;
 }
-
-
-/* ==========================================================================
- Mobile Responsive
-========================================================================== */
-
-}
-
 
 
 /* ------------------------------------------------------------------------- */

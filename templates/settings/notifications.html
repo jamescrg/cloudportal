@@ -130,7 +130,10 @@
                             </td>
                         </tr>
                     </table>
-                    <div class="qr-code">{{ ntfy_qr }}</div>
+                    <figure class="qr-figure">
+                        <div class="qr-code">{{ ntfy_qr }}</div>
+                        <figcaption>Scan to subscribe</figcaption>
+                    </figure>
                 </div>
                 {% if ntfy_error %}<p class="setting-error">{{ ntfy_error }}</p>{% endif %}
                 <div class="setting-actions">
