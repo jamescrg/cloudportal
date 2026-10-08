@@ -208,6 +208,12 @@
   padding: 0.5rem 1rem;
 }
 
+/* The last row sits on the card's edge, so it gets a little more room
+   under it than the rows above, to breathe against the outline */
+.due-group:last-child .due-row:last-child {
+  padding-bottom: 0.75rem;
+}
+
 .due-check,
 .due-check:hover {
   color: var(--color-muted);
