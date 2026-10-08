@@ -81,11 +81,11 @@
                           rows="3"
                           placeholder="One address per line">{{ user.calendar_forward_from }}</textarea>
                 <p class="form-text">
-                    Your account address
                     {% if user.email %}
-                        , {{ user.email }},
+                        Your account address, {{ user.email }}, is always accepted.
+                    {% else %}
+                        Your account address is always accepted.
                     {% endif %}
-                    is always accepted.
                 </p>
                 <button type="submit" class="btn btn-primary">Save</button>
             </form>
