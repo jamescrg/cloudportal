@@ -362,6 +362,7 @@
  * ------------------------------------------------*/
 
 .folder {
+  border: 1px solid var(--border-medium);
   padding: 0.5rem 1rem;
 }
 
