@@ -1,4 +1,3 @@
-__init__.py
 *.pyc
 config/settings_local.py
 .env
