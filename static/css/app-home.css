@@ -19,18 +19,22 @@
  * from your calendar: the week strip
  * ------------------------------------------------*/
 
-/* Seven equal columns, today first. A column's top rule is the day's
-   marker; today's takes the accent. */
+/* Seven equal columns, today first, ruled like the site's tables and
+   lists: a line over each day and one between neighbours, in the same
+   weight. Today's top rule takes the accent. */
 .week-strip {
   display: grid;
-  gap: 0.75rem;
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .week-day {
-  border-top: 2px solid var(--border-medium);
+  border-top: 1px solid var(--border-medium);
   min-width: 0;
-  padding-top: 0.5rem;
+  padding: 0.5rem 0.6rem 0;
+}
+
+.week-day + .week-day {
+  border-left: 1px solid var(--border-medium);
 }
 
 .week-day.is-today {
@@ -121,6 +125,15 @@
   .week-strip {
     gap: 1rem;
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .week-day + .week-day {
+    border-left: none;
+  }
+
+  .week-day {
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .week-day.is-empty {
