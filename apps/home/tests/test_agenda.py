@@ -135,6 +135,9 @@ def test_home_page_renders_both_panels(client, user):
     assert "Overdue" in page
     assert "Forgotten" in page
     assert "Pay rent" in page
+    # the rows carry the tasks page's priority classes and flag icons
+    assert 'class="priority-normal' in page
+    assert "icon-equal priority-normal" in page
 
 
 def test_home_page_leaves_an_empty_week_out(client):

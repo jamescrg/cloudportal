@@ -48,6 +48,18 @@ td.tasks-col-checkbox a:hover {
   width: 3rem;
 }
 
+/* The folder column (the home page's scheduled tasks): as narrow as its
+   names, the folder icon before each in the folder list's gray */
+.tasks-table .tasks-col-folder {
+  white-space: nowrap;
+  width: 1%;
+}
+
+.tasks-table .tasks-col-folder i {
+  color: var(--color-muted);
+  margin-right: 0.5rem;
+}
+
 /* The folder's icon before the list's title, set off from the text by the
    same gap the folder list uses (.folder-icon); phones drop it for room */
 .card-title-icon {
@@ -177,6 +189,7 @@ td.tasks-col-checkbox a:hover {
 @media (width <= 768px) {
   .tasks-table .tasks-col-priority,
   .tasks-table .tasks-col-due,
+  .tasks-table .tasks-col-folder,
   .tasks-secondary-wide {
     display: none;
   }

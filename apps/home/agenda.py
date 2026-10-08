@@ -17,6 +17,7 @@ from apps.calendar import recurrence
 from apps.calendar.events import show_tasks
 from apps.calendar.models import Event
 from apps.tasks.models import Task
+from apps.tasks.priority import level_for
 
 # How many days the calendar strip shows, today first
 WEEK_DAYS = 7
@@ -159,6 +160,8 @@ def due_task_groups(user, today=None):
         if shown.due_date > last:
             continue
         task.shown_here = shown
+        # the priority as the tasks page shows it: a slug, name and icon
+        task.level = level_for(task.priority)
         key = max(shown.due_date, overdue)
         groups.setdefault(key, []).append(task)
 

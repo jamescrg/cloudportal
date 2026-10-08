@@ -1,4 +1,4 @@
-<div class="card panel">
+<div class="card panel tasks">
     <div class="card-title flex-start-space">
         <h1>Scheduled Tasks</h1>
         <a class="square-button close-button"
@@ -7,43 +7,74 @@
         </a>
     </div>
     {% comment %}
-    Open tasks due in the next few days, under a heading for each day, with
-    anything overdue in its own group at the top. The rows are a grid, so
-    the check marks, titles, folders and times line up down the panel
-    whatever the folder names' lengths.
+    Open tasks due in the next few days, in the tasks page's own table
+    (its classes and styles), with a column for the folder added and a
+    heading row for each day; anything overdue is under its own heading
+    at the top. The check mark completes the task and the title opens it.
     {% endcomment %}
-    <div class="due-groups">
-        {% for group in due_task_groups %}
-            <div class="due-group{% if group.overdue %} is-overdue{% endif %}">
-                <h2 class="due-group-label">
-                    {{ group.label }}
-                    {% if not group.overdue %}<span class="due-group-date">{{ group.date|date:"M j" }}</span>{% endif %}
-                </h2>
-                <ul class="due-list">
-                    {% for task in group.tasks %}
-                        <li class="due-row">
-                            <a class="due-check"
-                               href="{% if origin %}{% url 'tasks-complete' task.id origin %}{% else %}{% url 'tasks-complete' task.id %}{% endif %}">
+    <div class="table-container">
+        <table class="table tasks-table due-table">
+            <tr>
+                <th class="tasks-col-checkbox"></th>
+                <th class="tasks-col-title">Task</th>
+                <th class="tasks-col-folder">Folder</th>
+                <th class="tasks-col-due">Due</th>
+                <th class="tasks-col-priority">
+                    <i class="icon-flag" title="Priority"></i>
+                </th>
+            </tr>
+            {% for group in due_task_groups %}
+                <tr class="due-group-row{% if group.overdue %} is-overdue{% endif %}">
+                    <td colspan="5">
+                        {{ group.label }}
+                        {% if not group.overdue %}<span class="due-group-date">{{ group.date|date:"M j" }}</span>{% endif %}
+                    </td>
+                </tr>
+                {% for task in group.tasks %}
+                    <tr class="priority-{{ task.level.slug }}{% if group.overdue %} past-due{% endif %}">
+                        <td class="tasks-col-checkbox">
+                            <a href="{% if origin %}{% url 'tasks-complete' task.id origin %}{% else %}{% url 'tasks-complete' task.id %}{% endif %}"
+                               title="Complete">
                                 <i class="icon-circle"></i>
                             </a>
-                            <a class="due-title" href="{% url 'tasks-edit' task.id %}">{{ task.title }}</a>
-                            <span class="due-folder">
-                                {% if task.folder %}
-                                    <i class="icon-folder"></i>
-                                    <a href="{% url 'folder-select' task.folder.id 'tasks' %}">{{ task.folder.name }}</a>
-                                {% endif %}
-                            </span>
-                            <span class="due-time">
-                                {% if group.overdue %}{{ task.shown.due_date|date:"M j" }}{% endif %}
-                                {% if task.shown.due_time %}{{ task.shown.due_time|time:"g:i A" }}{% endif %}
-                            </span>
-                            <span class="due-repeat">
-                                {% if task.parent_task %}<i class="icon-refresh-cw" title="{{ task.repeat_summary }}"></i>{% endif %}
-                            </span>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endfor %}
+                        </td>
+                        <td class="tasks-col-title">
+                            <div class="tasks-title-row">
+                                <a href="{% url 'tasks-edit' task.id %}">{{ task.title }}</a>
+                                <span class="tasks-secondary tasks-secondary-wide">
+                                    {% if task.shown.due_time %}
+                                        {{ task.shown.due_time|time:"g:i A" }}
+                                    {% elif task.parent_task %}
+                                        <i class="icon-refresh-cw" title="{{ task.repeat_summary }}"></i>
+                                    {% endif %}
+                                </span>
+                                <span class="tasks-secondary tasks-secondary-phone">
+                                    {% if task.level.slug != "normal" %}
+                                        <i class="{{ task.level.icon }} priority-{{ task.level.slug }}"
+                                           title="{{ task.level.name }}"></i>
+                                    {% endif %}
+                                    {{ task.shown.due_date|date:"M j" }}
+                                    {% if task.shown.due_time %}{{ task.shown.due_time|time:"g:i A" }}{% endif %}
+                                    {% if task.parent_task %}<i class="icon-refresh-cw" title="{{ task.repeat_summary }}"></i>{% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="tasks-col-folder">
+                            {% if task.folder %}
+                                <i class="icon-folder"></i>
+                                <a href="{% url 'folder-select' task.folder.id 'tasks' %}">{{ task.folder.name }}</a>
+                            {% endif %}
+                        </td>
+                        <td class="tasks-col-due">
+                            <span class="task-date-link">{{ task.shown.due_date|date:"Y-m-d" }}</span>
+                        </td>
+                        <td class="tasks-col-priority">
+                            <i class="{{ task.level.icon }} priority-{{ task.level.slug }}"
+                               title="{{ task.level.name }}"></i>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </table>
     </div>
 </div>

@@ -157,26 +157,13 @@
  * scheduled tasks
  * ------------------------------------------------*/
 
-/* The groups run out to the card's edges and down to its bottom, as the
-   week strip does: each day's heading is a row of its own, and the rows
-   under it are ruled apart in the same weight as the site's tables and
-   lists. No rule closes the bottom; the card's edge does. */
-.due-groups {
-  border-top: 1px solid var(--border-medium);
-  margin: 0 -1rem -1.5rem;
-}
-
-.due-group + .due-group {
-  border-top: 1px solid var(--border-medium);
-}
-
-/* A heading row stands a little taller than the task rows under it,
-   which the check mark's larger icon already makes taller than their
-   text alone would */
-.due-group-label {
-  font-size: 0.95rem;
+/* The tasks page's table (app-tasks.css) with a day's heading row before
+   each day's tasks: a label a step heavier, taller than a task row, on
+   the header band's wash. The overdue heading and its dates are in the
+   urgent colour. */
+.due-table .due-group-row td {
+  background: var(--background-table-header, var(--background-control));
   font-weight: 500;
-  margin: 0;
   padding: 0.7rem 1rem;
 }
 
@@ -186,84 +173,12 @@
   margin-left: 0.35rem;
 }
 
-.is-overdue .due-group-label {
-  color: var(--color-danger);
+.due-table .due-group-row.is-overdue td {
+  color: var(--urgent);
 }
 
-.due-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* A grid, not a flex row: every row shares the same columns, so the
-   check marks, titles, folders and times line up down the panel whatever
-   the folder names' lengths */
-.due-row {
-  align-items: center;
-  border-top: 1px solid var(--border-medium);
-  column-gap: 1rem;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto 1.25rem;
-  padding: 0.5rem 1rem;
-}
-
-/* The last row sits on the card's edge, so it gets a little more room
-   under it than the rows above, to breathe against the outline */
-.due-group:last-child .due-row:last-child {
-  padding-bottom: 0.75rem;
-}
-
-.due-check,
-.due-check:hover {
-  color: var(--color-muted);
-  font-size: 1.15rem;
-}
-
-.due-check i {
-  display: block;
-}
-
-.due-title {
-  overflow-wrap: anywhere;
-}
-
-.due-folder {
-  align-items: center;
-  color: var(--color-muted);
-  display: flex;
-  gap: 0.5rem;
-  white-space: nowrap;
-}
-
-.due-folder a {
-  color: inherit;
-}
-
-.due-time {
-  color: var(--color-secondary);
-  font-size: 0.85rem;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.is-overdue .due-time {
-  color: var(--color-danger);
-}
-
-.due-repeat {
-  color: var(--color-muted);
-}
-
-/* On a phone the folder column goes; the title keeps the width */
-@media (max-width: 576px) {
-  .due-row {
-    grid-template-columns: auto minmax(0, 1fr) auto 1.25rem;
-  }
-
-  .due-folder {
-    display: none;
-  }
+.due-table .tasks-col-title a {
+  color: var(--link);
 }
 
 
