@@ -24,6 +24,32 @@
   color: var(--color-darker);
 }
 
+/* The contacts panel is outlined in the rule its rows use, and the list
+   runs out to the panel's edges, so each row's rule meets the outline
+   and the selected contact's highlight fills the width. When the list is
+   the last thing in the panel it runs down to the bottom too, and the
+   card's edge closes it; above a pagination row it keeps its own last
+   rule. */
+.card.contacts {
+  border: 1px solid var(--border-medium);
+}
+
+.card.contacts .list-group {
+  margin: 0 -1rem;
+}
+
+.card.contacts .list-group:last-child {
+  margin-bottom: -1.5rem;
+}
+
+.card.contacts .list-group:last-child > li:last-child {
+  border-bottom: none;
+}
+
+.card.contacts .list-group-item {
+  padding: 0.5rem 1rem;
+}
+
 .no-contacts {
   color: var(--color-muted);
   font-size: 3rem;
