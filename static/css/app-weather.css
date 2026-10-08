@@ -37,8 +37,34 @@
 .edit-link {
 }
 
-.table {
-  margin-bottom: 0;
+/* Every card is outlined in the rule its table's rows use, and a table
+   runs out to its card's edges and down to its bottom (the card's
+   padding pulled back on those three sides), so the rules meet the
+   outline and the card's edge closes the table in place of the last
+   row's rule, with a little more room under that row to breathe */
+.card {
+  border: 1px solid var(--border-medium);
+}
+
+.card > .table {
+  margin: 0 -1rem -1.5rem;
+  width: calc(100% + 2rem);
+}
+
+.card > .table tr:last-child th,
+.card > .table tr:last-child td {
+  border-bottom: none;
+  padding-bottom: 0.75rem;
+}
+
+.card > .table th:first-child,
+.card > .table td:first-child {
+  padding-left: 1rem;
+}
+
+.card > .table th:last-child,
+.card > .table td:last-child {
+  padding-right: 1rem;
 }
 
 .card-title h1 {

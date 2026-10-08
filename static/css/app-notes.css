@@ -403,6 +403,41 @@
    Notes List Table Styles
    ============================================================================= */
 
+/* The panel is outlined in the rule the table's rows use, and the table
+   runs out to the panel's edges, so the header band and each row's rule
+   meet the outline. When the table is the last thing in the panel (no
+   pagination row under it) it runs down to the bottom too, and the
+   card's edge closes it in place of the last row's rule, with a little
+   more room under that row to breathe. */
+.card.notes {
+  border: 1px solid var(--border-medium);
+}
+
+.card.notes .table-container {
+  margin: 0 -1rem;
+  /* the base rule caps the container at the card's content width */
+  max-width: none;
+}
+
+.card.notes .table-container:last-child {
+  margin-bottom: -1.5rem;
+}
+
+.card.notes .table-container:last-child tr:last-child td {
+  border-bottom: none;
+  padding-bottom: 0.75rem;
+}
+
+.notes-list th:first-child,
+.notes-list td:first-child {
+  padding-left: 1rem;
+}
+
+.notes-list th:last-child,
+.notes-list td:last-child {
+  padding-right: 1rem;
+}
+
 .notes-list {
   min-width: 40rem;
 }
