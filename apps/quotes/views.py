@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from apps.quotes import quotes
+from apps.quotes.forms import QuoteForm
 from apps.quotes.models import Quote
 
 SETTINGS_URL = "/settings/quotes/"
@@ -36,6 +37,21 @@ def toggle_always(request, id):
     quote.always = not quote.always
     quote.save(update_fields=["always"])
     return redirect(SETTINGS_URL)
+
+
+@login_required
+def edit(request, id):
+    """Change a quote's text, author or whether it shows every day."""
+    quote = get_object_or_404(Quote, id=id, user=request.user)
+    if request.method == "POST":
+        form = QuoteForm(request.POST, instance=quote)
+        if form.is_valid():
+            form.save()
+            return redirect(SETTINGS_URL)
+    else:
+        form = QuoteForm(instance=quote)
+    context = {"page": "settings", "subapp": "quotes", "form": form, "quote": quote}
+    return render(request, "settings/quote_form.html", context)
 
 
 @login_required

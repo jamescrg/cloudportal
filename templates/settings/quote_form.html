@@ -1,0 +1,24 @@
+{% extends "settings/main.html" %}
+{% block subcontent %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Edit Quote</h1>
+        </div>
+        <form method="post" class="quote-edit-form">
+            {% csrf_token %}
+            <table class="options">
+                {% for field in form %}
+                    <tr>
+                        <td class="setting-label">{{ field.label }}:</td>
+                        <td class="setting-control">
+                            {{ field }}
+                            {% if field.errors %}<div class="text-danger">{{ field.errors }}</div>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-secondary" href="{% url 'settings-quotes' %}">Cancel</a>
+        </form>
+    </div>
+{% endblock subcontent %}
