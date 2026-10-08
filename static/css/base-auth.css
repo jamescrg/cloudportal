@@ -64,3 +64,32 @@ li {
 .errorlist.nonfield li {
   list-style: none;
 }
+
+/* The eye button inside a password field (password-reveal.js) */
+.password-reveal {
+  position: relative;
+}
+
+.password-reveal input {
+  padding-right: 2.75rem;
+}
+
+.password-reveal-button {
+  align-items: center;
+  background: none;
+  border: none;
+  bottom: 0;
+  color: var(--color-muted);
+  cursor: pointer;
+  display: flex;
+  font-size: 1.1rem;
+  padding: 0 0.75rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.password-reveal-button:hover,
+.password-reveal-button[aria-pressed="true"] {
+  color: var(--color-primary);
+}
