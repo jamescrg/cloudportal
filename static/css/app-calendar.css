@@ -211,7 +211,7 @@
 .card.calendar .fullcalendar-container {
   /* a little of the card's bottom padding is kept, so the last row of
      days breathes against the outline as the last task row does */
-  margin: 0 -1rem -1.25rem;
+  margin: 0 -1rem -1rem;
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
