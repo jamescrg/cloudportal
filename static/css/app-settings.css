@@ -29,11 +29,11 @@
   border: 1px solid var(--border-medium);
   border-radius: 1rem;
   cursor: pointer;
-  height: 1.5rem;
+  height: 1.25rem;
   padding: 0;
   position: relative;
   transition: background 0.15s;
-  width: 2.75rem;
+  width: 2.25rem;
 }
 
 .switch-knob {
@@ -41,13 +41,13 @@
   border: 1px solid var(--border-dark);
   border-radius: 50%;
   display: block;
-  height: 1.125rem;
+  height: 0.875rem;
   left: 0.125rem;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   transition: left 0.15s;
-  width: 1.125rem;
+  width: 0.875rem;
 }
 
 /* the track when on: a theme may name a deeper tint than its selected
@@ -59,7 +59,7 @@
 
 .switch.is-on .switch-knob {
   border-color: var(--switch-on-border, var(--selected-border));
-  left: calc(100% - 1.125rem - 0.125rem - 2px);
+  left: calc(100% - 0.875rem - 0.125rem - 2px);
 }
 
 .switch:disabled {
