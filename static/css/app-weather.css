@@ -64,6 +64,11 @@
   border-top: solid 1px var(--border-medium);
 }
 
+/* and its two columns, the labels and their values, are ruled apart */
+.current-conditions .table td {
+  border-left: solid 1px var(--border-medium);
+}
+
 .card > .table th:first-child,
 .card > .table td:first-child {
   padding-left: 1rem;
