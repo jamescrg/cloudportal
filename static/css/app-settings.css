@@ -50,8 +50,10 @@
   width: 1.125rem;
 }
 
+/* the track when on: a theme may name a deeper tint than its selected
+   wash (Matcha does), or leave it to the wash */
 .switch.is-on {
-  background: var(--selected-background);
+  background: var(--switch-on, var(--selected-background));
   border-color: var(--selected-border);
 }
 
