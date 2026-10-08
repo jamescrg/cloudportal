@@ -65,6 +65,20 @@
   top: 0.1rem;
 }
 
+/* The icon a little larger than the bar's others, as it stands for a
+   person; the tab's fixed line height keeps the bar as it is */
+.account-button {
+  align-items: center;
+  display: inline-flex;
+  height: 1.85rem;
+  vertical-align: top;
+}
+
+.account-button i {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
 /* The menu sits inside the bar's list, so it undoes the bar's tab styles */
 .navbar .account-dropdown li {
   display: block;
