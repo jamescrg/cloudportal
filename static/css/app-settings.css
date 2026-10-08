@@ -80,6 +80,14 @@
   padding-bottom: 1rem;
 }
 
+/* A label beside a control with a note under it sits level with the
+   control's first line, not the middle of the two (the selector outranks
+   the table's cell padding below) */
+.section-body .options td.setting-label-top {
+  padding-top: 0.75rem;
+  vertical-align: top;
+}
+
 /* A control and its button on one line (Send by, Email to) */
 .inline-form {
   align-items: center;
