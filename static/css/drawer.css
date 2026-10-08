@@ -13,6 +13,7 @@
   background: var(--background-subnav);
   border: solid 1px var(--border-medium);
   border-radius: 50%;
+  box-shadow: 0 0.125rem 0.5rem var(--shadow-color);
   color: var(--color-primary);
   cursor: pointer;
   display: none;
@@ -88,6 +89,7 @@
   .nav-drawer {
     background: var(--background-section);
     border-right: solid 1px var(--border-medium);
+    box-shadow: 0.25rem 0 1rem var(--shadow-color-heavy);
     display: block;
     height: 100%;
     left: 0;
@@ -152,6 +154,7 @@
   [data-drawer] {
     background: var(--background-section);
     border-left: solid 1px var(--border-medium);
+    box-shadow: -0.25rem 0 1rem var(--shadow-color-heavy);
     height: 100%;
     max-width: 20rem;
     overflow-y: auto;

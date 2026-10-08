@@ -53,6 +53,7 @@
   background: var(--background-section);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
+  box-shadow: 0 0.5rem 1rem var(--shadow-color);
 }
 
 .modal-header {
@@ -156,6 +157,7 @@ body.modal-open .confirm-modal-overlay {
   background: var(--background-section);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
+  box-shadow: 0 0.5rem 1rem var(--shadow-color);
   max-width: 28rem;
   min-width: 20rem;
   overflow: hidden;
