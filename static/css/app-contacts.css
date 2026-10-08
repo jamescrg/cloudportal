@@ -97,21 +97,30 @@
 /* contact detail cards                                                      */
 /* ------------------------------------------------------------------------- */
 
-.contact-tab-content {
-  padding-top: 0.5rem;
+/* The contact's panel is outlined, and its sections (address, email,
+   phones, website, map, notes) are stacked rows inside it rather than
+   boxes with space between: each is ruled off from the one above, and
+   the stack runs out to the panel's edges and down to its bottom (the
+   card's padding pulled back on those three sides), so the rules meet
+   the outline and the card's edge closes the last row. */
+.card.contact {
+  border: 1px solid var(--border-medium);
 }
 
-.contact-tab-content > *:last-child {
-  margin-bottom: 0;
+.contact-tab-content {
+  margin: 0 -1rem -1.5rem;
 }
 
 .contact-card {
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
+  border-top: 1px solid var(--border-medium);
   line-height: 1.6;
-  margin-bottom: 1rem;
-  padding: 1.25rem;
+  padding: 1rem;
   position: relative;
+}
+
+/* the last row breathes a little against the card's bottom edge */
+.contact-tab-content > :last-child {
+  padding-bottom: 1.25rem;
 }
 
 .contact-card-content-with-copy {
@@ -216,10 +225,9 @@
   color: var(--color-darker);
 }
 
-/* Notes Section */
+/* Notes Section: the last row of the stack */
 .contact-notes {
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
+  border-top: 1px solid var(--border-medium);
   line-height: 1.6;
   padding: 1rem;
 }
