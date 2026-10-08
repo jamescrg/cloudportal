@@ -449,6 +449,11 @@ li {
   border: none;
 }
 
+/* A close button sits on the heading's line, with no padding to drop it */
+.square-button.close-button {
+  padding: 0;
+}
+
 .square-button.filter-button {
   color: var(--color-primary);
 }

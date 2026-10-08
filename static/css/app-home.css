@@ -167,11 +167,14 @@
   border-top: 1px solid var(--border-medium);
 }
 
+/* A heading row stands a little taller than the task rows under it,
+   which the check mark's larger icon already makes taller than their
+   text alone would */
 .due-group-label {
   font-size: 0.95rem;
   font-weight: 500;
   margin: 0;
-  padding: 0.5rem 1rem;
+  padding: 0.7rem 1rem;
 }
 
 .due-group-date {
