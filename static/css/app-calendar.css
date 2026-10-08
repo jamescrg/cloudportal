@@ -209,10 +209,10 @@
 }
 
 .card.calendar .fullcalendar-container {
-  /* the grid keeps its bottom rule here, with 1rem of the card's padding
+  /* the grid keeps its bottom rule here, and the card's full padding
      under it, so the last row of days closes and then breathes before
      the outline */
-  margin: 0 -1rem -0.5rem;
+  margin: 0 -1rem;
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
