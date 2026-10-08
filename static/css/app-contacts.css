@@ -114,13 +114,13 @@
 .contact-card {
   border-top: 1px solid var(--border-medium);
   line-height: 1.6;
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   position: relative;
 }
 
 /* the last row breathes a little against the card's bottom edge */
 .contact-tab-content > :last-child {
-  padding-bottom: 1.25rem;
+  padding-bottom: 1.5rem;
 }
 
 .contact-card-content-with-copy {
@@ -229,7 +229,7 @@
 .contact-notes {
   border-top: 1px solid var(--border-medium);
   line-height: 1.6;
-  padding: 1rem;
+  padding: 1.25rem 1rem;
 }
 
 .contact-notes :last-child {
