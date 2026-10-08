@@ -154,8 +154,9 @@
   margin: 1.25rem 0 0.5rem;
 }
 
-/* The QR code stays dark on white in every theme, so a camera reads it */
-.totp-qr {
+/* A QR code (the authenticator's, the ntfy topic's) stays dark on white
+   in every theme, so a camera reads it */
+.qr-code {
   background: #fff;
   border-radius: var(--radius-md);
   display: inline-block;
@@ -211,6 +212,20 @@
 
 .setup-steps li {
   margin-bottom: 0.25rem;
+}
+
+/* The push setup steps with the topic's QR code beside them; on a phone
+   the code drops under the steps */
+.push-setup {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+}
+
+.push-setup .setup-steps {
+  flex: 1 1 20rem;
+  margin: 0;
 }
 
 

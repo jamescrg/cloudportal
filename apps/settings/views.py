@@ -8,8 +8,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 
+from accounts import totp
 from accounts.models import NAV_ICONS
 from apps.calendar import invitations, sync as calendar_sync
 from apps.common import notify
@@ -146,6 +148,8 @@ def _notifications_context(request, **extra):
         "page": "settings",
         "subapp": "notifications",
         "ntfy_subscribe_link": _ntfy_subscribe_link(request.user),
+        # the link as a QR code too, for the phone's camera to read
+        "ntfy_qr": mark_safe(totp.qr_svg(_ntfy_subscribe_link(request.user))),
         "ntfy_topic_here": notify.topic(request.user),
         "ntfy_suffix": settings.NTFY_TOPIC_SUFFIX,
         "not_production": settings.NOT_PRODUCTION,

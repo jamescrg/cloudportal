@@ -73,15 +73,18 @@
                 <button type="submit" class="btn btn-primary">Set up push</button>
             </form>
         {% else %}
-            <ol class="card-text setup-steps">
-                <li>
-                    Install <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">ntfy</a> on your phone.
-                </li>
-                <li>
-                    On the phone, open <a href="{{ ntfy_subscribe_link }}">this link</a> to subscribe to your topic, or add it in the app by hand: the server and topic below.
-                </li>
-                <li>Send a test, and the notification should arrive.</li>
-            </ol>
+            <div class="push-setup">
+                <ol class="card-text setup-steps">
+                    <li>
+                        Install <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">ntfy</a> on your phone.
+                    </li>
+                    <li>
+                        Subscribe to your topic: scan this code with the phone's camera, or open <a href="{{ ntfy_subscribe_link }}">this link</a> on the phone, or add the server and topic below in the app by hand.
+                    </li>
+                    <li>Send a test, and the notification should arrive.</li>
+                </ol>
+                <div class="qr-code">{{ ntfy_qr }}</div>
+            </div>
             {% if test_result == "sent" %}
                 <p class="card-text setting-ok">Test sent.</p>
             {% elif test_result == "failed" %}

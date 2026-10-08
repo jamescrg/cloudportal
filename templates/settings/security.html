@@ -34,7 +34,7 @@
         {% elif setup %}
             <h2 class="security-heading">1. Scan this with your app</h2>
             <p class="card-text">In the app, add an account and scan the code. If you can't scan it, enter this key instead:</p>
-            <div class="totp-qr">{{ setup.qr }}</div>
+            <div class="qr-code">{{ setup.qr }}</div>
             <p class="totp-key">{{ setup.key }}</p>
             <h2 class="security-heading">2. Enter the code it shows</h2>
             <form method="post"
