@@ -133,6 +133,11 @@ td.tasks-col-checkbox a:hover {
 /* The check column is centred here with enough weight to beat the base
    cells' left alignment, which a bare .tasks-col-checkbox did not. */
 .tasks-table .tasks-col-checkbox {
+  /* the same padding each side, so the circle sits centred between the
+     card's edge and the column's rule (the edge padding the first
+     column otherwise gets would push it off centre) */
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
   text-align: center;
 }
 
