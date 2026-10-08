@@ -66,6 +66,12 @@ class CustomUser(AbstractUser):
     tasks_folders = models.JSONField(default=list)
     tasks_active_folder = models.IntegerField(default=0)
     encryption_salt = models.CharField(max_length=44, blank=True, default="")
+    # Two-step sign-in with an authenticator app (accounts.totp): the shared
+    # secret, set once the user has confirmed a code from the app (empty
+    # means it is off), and the last 30-second step whose code was taken,
+    # so a code can't be used twice
+    totp_secret = models.CharField(max_length=32, blank=True, default="")
+    totp_last_step = models.BigIntegerField(null=True, blank=True)
     task_completion_mode = models.CharField(
         max_length=10,
         choices=[
@@ -87,3 +93,15 @@ class LoginThrottle(models.Model):
     failures = models.PositiveIntegerField(default=0)
     last_failure = models.DateTimeField()
     locked_until = models.DateTimeField(null=True, blank=True)
+
+
+class RecoveryCode(models.Model):
+    """A one-time code that stands in for the authenticator app, for when
+    the phone is lost. Only a hash is kept; the codes themselves are shown
+    once, when they are made."""
+
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="recovery_codes"
+    )
+    code_hash = models.CharField(max_length=64)
+    used_at = models.DateTimeField(null=True, blank=True)

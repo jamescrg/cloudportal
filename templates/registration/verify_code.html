@@ -1,0 +1,39 @@
+{% extends "registration/base.html" %}
+{% block content %}
+    {% if ended %}
+        <ul class="errorlist nonfield">
+            <li>{{ error }}</li>
+        </ul>
+        <p class="card-text">
+            <a href="{% url 'login' %}">Back to sign in</a>
+        </p>
+    {% else %}
+        <p class="card-text">Enter the 6-digit code from your authenticator app, or one of your recovery codes.</p>
+        <form id="login-form" class="account-form" method="post">
+            {% csrf_token %}
+            {% if error %}
+                <ul class="errorlist nonfield">
+                    <li>{{ error }}</li>
+                </ul>
+            {% endif %}
+            <label for="id_code">Code:</label>
+            <input type="text"
+                   name="code"
+                   id="id_code"
+                   autocomplete="one-time-code"
+                   autocapitalize="off"
+                   spellcheck="false"
+                   maxlength="20"
+                   required
+                   autofocus>
+            <div class="flex-container login-bottom">
+                <div class="login-bottom-left">
+                    <button class="btn btn-success" type="submit">Verify</button>
+                </div>
+                <div class="login-bottom-right">
+                    <a href="{% url 'login' %}">Back to sign in</a>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+{% endblock content %}

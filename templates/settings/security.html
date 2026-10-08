@@ -1,0 +1,132 @@
+{% extends "settings/main.html" %}
+{% block subcontent %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Two-Step Sign-In</h1>
+        </div>
+        <p class="card-text">
+            After your password, signing in asks for a 6-digit code from an authenticator app on your phone, such as Google Authenticator, Microsoft Authenticator, Authy, 1Password or Bitwarden. Someone who learns your password still can't get in without your phone.
+        </p>
+        {% if turned_off %}<p class="card-text setting-ok">Two-step sign-in is off.</p>{% endif %}
+        {% if new_codes %}
+            <p class="card-text setting-ok">Two-step sign-in is on.</p>
+            <h2 class="security-heading">Your recovery codes</h2>
+            <p class="card-text">
+                If you lose your phone, each of these signs you in once in place of a code. Keep them somewhere safe, away from your phone. They won't be shown again.
+            </p>
+            <ul class="recovery-codes">
+                {% for code in new_codes %}<li>{{ code }}</li>{% endfor %}
+            </ul>
+        {% elif enabled %}
+            <table class="options">
+                <tr>
+                    <td class="setting-label">Status:</td>
+                    <td class="setting-control">On</td>
+                </tr>
+                <tr>
+                    <td class="setting-label">Recovery codes:</td>
+                    <td class="setting-control">
+                        {{ codes_left }} left
+                        {% if codes_left <= 3 %}<span class="setting-note">· make a new set soon</span>{% endif %}
+                    </td>
+                </tr>
+            </table>
+        {% elif setup %}
+            <h2 class="security-heading">1. Scan this with your app</h2>
+            <p class="card-text">In the app, add an account and scan the code. If you can't scan it, enter this key instead:</p>
+            <div class="totp-qr">{{ setup.qr }}</div>
+            <p class="totp-key">{{ setup.key }}</p>
+            <h2 class="security-heading">2. Enter the code it shows</h2>
+            <form method="post"
+                  action="{% url 'settings-security-confirm' %}"
+                  class="inline-form">
+                {% csrf_token %}
+                <input type="text"
+                       name="code"
+                       class="setting-input totp-code"
+                       autocomplete="one-time-code"
+                       inputmode="numeric"
+                       maxlength="7"
+                       placeholder="123456"
+                       required
+                       autofocus>
+                <button type="submit" class="btn btn-primary">Turn On</button>
+            </form>
+            {% if setup_error %}<p class="setting-error">{{ setup_error }}</p>{% endif %}
+            <form method="post"
+                  action="{% url 'settings-security-cancel' %}"
+                  class="security-cancel">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary">Cancel</button>
+            </form>
+        {% else %}
+            <table class="options">
+                <tr>
+                    <td class="setting-label">Status:</td>
+                    <td class="setting-control">
+                        <form method="post"
+                              action="{% url 'settings-security-start' %}"
+                              class="inline-form">
+                            {% csrf_token %}
+                            Off
+                            <button type="submit" class="btn btn-primary">Set Up</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        {% endif %}
+    </div>
+    {% if enabled %}
+        <div class="card">
+            <div class="card-title">
+                <h1>New Recovery Codes</h1>
+            </div>
+            <p class="card-text">
+                Replace your recovery codes with a new set, for a current code from your app. The old ones stop working.
+            </p>
+            <form method="post"
+                  action="{% url 'settings-security-recovery' %}"
+                  class="inline-form">
+                {% csrf_token %}
+                <input type="text"
+                       name="code"
+                       class="setting-input totp-code"
+                       autocomplete="one-time-code"
+                       inputmode="numeric"
+                       maxlength="7"
+                       placeholder="123456"
+                       required>
+                <button type="submit" class="btn btn-secondary">Make New Codes</button>
+            </form>
+            {% if codes_error %}<p class="setting-error">{{ codes_error }}</p>{% endif %}
+        </div>
+        <div class="card">
+            <div class="card-title">
+                <h1>Turn Off</h1>
+            </div>
+            <p class="card-text">
+                Signing in will take your password alone. Give your password and a code from your app, or a recovery code.
+            </p>
+            <form method="post"
+                  action="{% url 'settings-security-disable' %}"
+                  class="security-disable">
+                {% csrf_token %}
+                <input type="password"
+                       name="password"
+                       class="setting-input"
+                       autocomplete="current-password"
+                       placeholder="Password"
+                       required>
+                <input type="text"
+                       name="code"
+                       class="setting-input totp-code"
+                       autocomplete="one-time-code"
+                       maxlength="20"
+                       placeholder="Code"
+                       required>
+                <button type="submit" class="btn btn-danger">Turn Off</button>
+            </form>
+            {% if disable_error %}<p class="setting-error">{{ disable_error }}</p>{% endif %}
+        </div>
+    {% endif %}
+{% endblock subcontent %}

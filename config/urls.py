@@ -11,7 +11,7 @@ from apps.home import views as home
 from apps.lab import views as lab
 from apps.management.pagination import change_page
 from apps.search import views as search
-from apps.settings import views as settings
+from apps.settings import security as security_settings, views as settings
 from apps.settings.users import views as user_settings
 from apps.tasks import views as tasks
 from apps.weather import views as weather
@@ -28,6 +28,11 @@ urlpatterns = [
     # Ahead of Django's own, which it replaces: the same URL and name, with
     # the failed-attempt cooldown
     path("accounts/login/", account_views.LoginView.as_view(), name="login"),
+    path(
+        "accounts/login/verify/",
+        account_views.VerifyCodeView.as_view(),
+        name="login-verify",
+    ),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     # folders
@@ -329,6 +334,32 @@ urlpatterns = [
     path("settings/homepage/", settings.homepage_index, name="settings-homepage"),
     path("settings/google/", settings.google_index, name="settings-google"),
     path("settings/session/", settings.session_index, name="settings-session"),
+    path("settings/security/", security_settings.index, name="settings-security"),
+    path(
+        "settings/security/start",
+        security_settings.start,
+        name="settings-security-start",
+    ),
+    path(
+        "settings/security/cancel",
+        security_settings.cancel,
+        name="settings-security-cancel",
+    ),
+    path(
+        "settings/security/confirm",
+        security_settings.confirm,
+        name="settings-security-confirm",
+    ),
+    path(
+        "settings/security/recovery-codes",
+        security_settings.recovery_codes,
+        name="settings-security-recovery",
+    ),
+    path(
+        "settings/security/disable",
+        security_settings.disable,
+        name="settings-security-disable",
+    ),
     path(
         "settings/notifications/",
         settings.notifications_index,

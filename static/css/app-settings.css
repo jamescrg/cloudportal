@@ -51,6 +51,54 @@
   color: var(--color-muted);
 }
 
+/* Security: two-step sign-in */
+.security-heading {
+  font-size: 1.1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+/* The QR code stays dark on white in every theme, so a camera reads it */
+.totp-qr {
+  background: #fff;
+  border-radius: var(--radius-md);
+  display: inline-block;
+  line-height: 0;
+  padding: 0.25rem;
+}
+
+.totp-key,
+.recovery-codes {
+  font-family: "Courier Prime", monospace;
+  letter-spacing: 0.05em;
+}
+
+.totp-key {
+  margin: 0.75rem 0 0;
+}
+
+.totp-code {
+  width: 9rem;
+}
+
+.recovery-codes {
+  display: grid;
+  gap: 0.25rem 2rem;
+  grid-template-columns: repeat(2, max-content);
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.security-cancel {
+  margin-top: 1rem;
+}
+
+.security-disable {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .setting-actions {
   display: flex;
   flex-wrap: wrap;
