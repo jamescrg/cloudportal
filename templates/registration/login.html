@@ -3,6 +3,11 @@
     <p class="card-text">Log in to your account.</p>
     <form id="login-form" class="account-form" method="post">
         {% csrf_token %}
+        {% if error %}
+            <ul class="errorlist nonfield">
+                <li>{{ error }}</li>
+            </ul>
+        {% endif %}
         {{ form }}
         <div class="flex-container login-bottom">
             <div class="login-bottom-left">

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 
+from accounts import views as account_views
 from apps.contacts import views as contacts
 from apps.favorites import views as favorites
 from apps.finance import views as finance
@@ -16,12 +17,17 @@ from apps.tasks import views as tasks
 from apps.weather import views as weather
 
 urlpatterns = [
+    # The admin signs in through the site's own sign-in (accounts.views)
+    path("admin/login/", account_views.admin_login),
     path("admin/", admin.site.urls),
     path(
         "pagination/change-page/<str:session_key>/<str:trigger_key>/<int:page>/",
         change_page,
         name="change-page",
     ),
+    # Ahead of Django's own, which it replaces: the same URL and name, with
+    # the failed-attempt cooldown
+    path("accounts/login/", account_views.LoginView.as_view(), name="login"),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     # folders

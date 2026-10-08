@@ -75,3 +75,15 @@ class CustomUser(AbstractUser):
         ],
         default="complete",
     )
+
+
+class LoginThrottle(models.Model):
+    """Failed sign-ins for one username, so repeated guessing has to wait
+    (accounts.throttle). Keyed on the name as typed, folded to lower case,
+    whether or not an account has it, so the waits don't reveal which
+    names are real."""
+
+    username = models.CharField(max_length=150, unique=True)
+    failures = models.PositiveIntegerField(default=0)
+    last_failure = models.DateTimeField()
+    locked_until = models.DateTimeField(null=True, blank=True)
