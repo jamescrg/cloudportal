@@ -146,22 +146,17 @@ td.tasks-col-checkbox a:hover {
   padding-right: 0.75rem;
 }
 
+/* the check column takes the standard cell padding, the same each side */
 .tasks-table th.tasks-col-checkbox,
 .tasks-table td.tasks-col-checkbox {
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 /* The folder column keeps the edge padding on its left and sits further
    off its rule on the right than the other columns */
 .tasks-table td.tasks-col-folder {
   padding-right: 2rem;
-}
-
-/* The columns are ruled apart, in the same weight as the rows */
-.tasks-table th + th,
-.tasks-table td + td {
-  border-left: solid 1px var(--border-medium);
 }
 
 .tasks-table td {
