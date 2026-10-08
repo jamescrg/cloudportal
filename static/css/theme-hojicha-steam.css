@@ -147,6 +147,14 @@
   background: color-mix(in oklab, var(--gb-dark2) 70%, transparent);
 }
 
+/* The home page's search box and engine picker sit on the wash as the
+   cards do, so they take the cards' shadow (atmosphere.css) */
+body[data-page="home"] :is(.search-input, .search-engine-btn) {
+  box-shadow:
+    0 1px 2px var(--shadow-color),
+    0 14px 32px -18px var(--atmos-card-shadow);
+}
+
 /* --------------------------------------------------------------------------
  The weather in motion, over the wash. Paused for now (atmosphere.css).
 -------------------------------------------------------------------------- */
