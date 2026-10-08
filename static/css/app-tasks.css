@@ -143,11 +143,10 @@ td.tasks-col-checkbox a:hover {
   padding-right: 0.75rem;
 }
 
-/* The folder column, where it leads, sits a little further in from the
-   edge and from its rule than the other columns */
+/* The folder column keeps the edge padding on its left and sits further
+   off its rule on the right than the other columns */
 .tasks-table td.tasks-col-folder {
-  padding-left: 1.25rem;
-  padding-right: 0.75rem;
+  padding-right: 1rem;
 }
 
 /* The columns are ruled apart, in the same weight as the rows */
