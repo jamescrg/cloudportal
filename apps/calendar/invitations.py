@@ -257,7 +257,10 @@ def organiser_address(user):
 
 
 def organiser_name(user):
-    return user.get_full_name() or user.username
+    """The name the invitations go out in: the user's full name, or their
+    username with its first letter up, so "james" reads as James."""
+    name = user.get_full_name() or user.username
+    return name[:1].upper() + name[1:]
 
 
 def can_invite(user):

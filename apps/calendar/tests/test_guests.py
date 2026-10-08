@@ -102,6 +102,20 @@ def test_inviting_a_guest_emails_an_invitation(client, dinner, mailoutbox):
     assert [name for name, *_ in message.attachments] == ["invite.ics"]
 
 
+def test_without_a_full_name_the_username_is_capitalised(
+    client, user, dinner, mailoutbox
+):
+    user.first_name = user.last_name = ""
+    user.save()
+
+    _invite(client, dinner)
+
+    message = mailoutbox[0]
+    assert message.from_email.startswith('"Ollie (Cloud Portal)"')
+    assert "Ollie has invited you to:" in message.body
+    assert "ORGANIZER;CN=Ollie:" in _calendar_part(message)
+
+
 def test_an_all_day_invitation_ends_the_day_after(client, user, mailoutbox):
     trip = Event.objects.create(
         user=user, date=date(2030, 3, 4), end_date=date(2030, 3, 6), description="Trip"
