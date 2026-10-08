@@ -386,9 +386,16 @@ Profile Form
 }
 
 .quotes-table .quote-col-always,
+.quotes-table .quote-col-edit,
 .quotes-table .quote-col-delete {
   text-align: center;
   width: 3.5rem;
+}
+
+.quote-edit-form textarea,
+.quote-edit-form input[type="text"] {
+  max-width: 40rem;
+  width: 100%;
 }
 
 .quotes-table .btn-icon {

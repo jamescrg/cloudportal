@@ -55,6 +55,7 @@
                     <tr>
                         <th class="quote-col-text">Quote</th>
                         <th class="quote-col-always">Always</th>
+                        <th class="quote-col-edit"></th>
                         <th class="quote-col-delete"></th>
                     </tr>
                     {% for quote in quotes %}
@@ -76,6 +77,13 @@
                                         {% endif %}
                                     </button>
                                 </form>
+                            </td>
+                            <td class="quote-col-edit">
+                                <a class="btn-icon quote-edit"
+                                   href="{% url 'settings-quotes-edit' quote.id %}"
+                                   title="Edit">
+                                    <i class="icon-pencil"></i>
+                                </a>
                             </td>
                             <td class="quote-col-delete">
                                 <form method="post" action="{% url 'settings-quotes-delete' quote.id %}">

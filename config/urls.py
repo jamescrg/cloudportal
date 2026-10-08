@@ -335,6 +335,7 @@ urlpatterns = [
         quotes.toggle_always,
         name="settings-quotes-always",
     ),
+    path("settings/quotes/<int:id>/edit", quotes.edit, name="settings-quotes-edit"),
     path(
         "settings/quotes/<int:id>/delete", quotes.delete, name="settings-quotes-delete"
     ),

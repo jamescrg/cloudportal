@@ -135,3 +135,23 @@ def test_home_tab_switches_the_section_off(client, user):
     client.get(reverse("settings-home-options", args=["quotes", "disable"]))
     user.refresh_from_db()
     assert user.home_quotes == 0
+
+
+def test_a_quote_can_be_edited(client, user):
+    quote = Quote.objects.create(user=user, text="Draft", author="")
+    page = client.get(reverse("settings-quotes-edit", args=[quote.id]))
+    assert page.status_code == 200
+    assert "Draft" in page.content.decode()
+    response = client.post(
+        reverse("settings-quotes-edit", args=[quote.id]),
+        {"text": "Final", "author": "Someone", "always": "on"},
+    )
+    assert response.status_code == 302
+    quote.refresh_from_db()
+    assert (quote.text, quote.author, quote.always) == ("Final", "Someone", True)
+
+    other = CustomUser.objects.create_user("Nico", "nico@gmail.com", "clawboy")
+    theirs = Quote.objects.create(user=other, text="Theirs")
+    assert (
+        client.get(reverse("settings-quotes-edit", args=[theirs.id])).status_code == 404
+    )
