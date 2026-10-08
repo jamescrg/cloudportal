@@ -109,7 +109,7 @@ class CustomUser(AbstractUser):
     home_tasks_hidden = models.DateField(null=True, blank=True)
     home_due_tasks = models.IntegerField(default=0)
     home_due_tasks_hidden = models.DateField(null=True, blank=True)
-    # Quote of the Day: shown on the home page (and hidden for a day by its
+    # The Quotes panel: shown on the home page (and hidden for a day by its
     # close button, like the other sections); picked at random (a shuffle
     # that comes round once before repeating) or in order; and the user's
     # place in their quotes, with the day it was last moved on

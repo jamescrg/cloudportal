@@ -120,15 +120,15 @@ def test_another_users_quote_cannot_be_touched(client, user):
 
 
 def test_home_page_shows_the_quotes_and_hides_without_any(client, user):
-    assert "Quote of the Day" not in client.get(reverse("home")).content.decode()
+    assert "<h1>Quotes</h1>" not in client.get(reverse("home")).content.decode()
     quotes.add(user, "Pinned — P\nThe day's")
     Quote.objects.filter(text="Pinned").update(always=True)
     page = client.get(reverse("home")).content.decode()
-    assert "Quote of the Day" in page
+    assert "<h1>Quotes</h1>" in page
     assert page.index("Pinned") < page.index("The day&#x27;s")
     # the close button hides it for the day
     client.get(reverse("home-toggle", args=["quotes"]))
-    assert "Quote of the Day" not in client.get(reverse("home")).content.decode()
+    assert "<h1>Quotes</h1>" not in client.get(reverse("home")).content.decode()
 
 
 def test_home_tab_switches_the_section_off(client, user):

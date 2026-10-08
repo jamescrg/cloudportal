@@ -4,7 +4,7 @@ from accounts.models import CustomUser
 
 
 class Quote(models.Model):
-    """A quote the user keeps for the home page's Quote of the Day.
+    """A quote the user keeps for the home page's Quotes panel.
 
     Attributes:
         user (int): whose quote it is
