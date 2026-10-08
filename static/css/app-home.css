@@ -154,13 +154,13 @@
  * scheduled tasks
  * ------------------------------------------------*/
 
-/* The groups sit in one bordered, rounded box, as the week strip does:
-   each day's heading is a row of its own, and the rows under it are
-   ruled apart in the same weight as the site's tables and lists */
+/* The groups run out to the card's edges and down to its bottom, as the
+   week strip does: each day's heading is a row of its own, and the rows
+   under it are ruled apart in the same weight as the site's tables and
+   lists. No rule closes the bottom; the card's edge does. */
 .due-groups {
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  border-top: 1px solid var(--border-medium);
+  margin: 0 -1rem -1.5rem;
 }
 
 .due-group + .due-group {
@@ -171,7 +171,7 @@
   font-size: 0.95rem;
   font-weight: 500;
   margin: 0;
-  padding: 0.5rem 0.6rem;
+  padding: 0.5rem 1rem;
 }
 
 .due-group-date {
@@ -199,7 +199,7 @@
   column-gap: 1rem;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto 1.25rem;
-  padding: 0.5rem 0.6rem;
+  padding: 0.5rem 1rem;
 }
 
 .due-check,
