@@ -2,10 +2,10 @@
 {% block subcontent %}
     <div class="card">
         <div class="card-title">
-            <h1>Delivery</h1>
+            <h1>Notifications</h1>
         </div>
         <p class="card-text">
-            Notifications for events and tasks are set on each one, and each says how it reaches you: by email; pushed to the ntfy app on your phone, where it arrives in seconds with buttons to open the task or mark it done; or as a card on your homepage that stays until you close it. Here you choose the default for new ones, and the way the past-due digest goes. If ntfy cannot be reached, a notification goes by email instead.
+            A notification is added to an event or task on its own form, and each one says how it reaches you: by email, by push to the ntfy app on your phone, or as a card on your homepage that stays until you close it. This page sets what those need: the choice offered first when you add one, where email goes, the phone for push, and the past-due digest.
         </p>
         {% if not_production %}
             <p class="card-text setting-note">
@@ -19,7 +19,7 @@
         {% endif %}
         <table class="options">
             <tr>
-                <td class="setting-label">Send by:</td>
+                <td class="setting-label">Offer first:</td>
                 <td class="setting-control">
                     <form method="post"
                           action="{% url 'settings-notify-by' %}"
@@ -35,6 +35,9 @@
                                 name="notify_by"
                                 value="home">Homepage</button>
                     </form>
+                    <p class="setting-note">
+                        The way a new notification goes unless you pick another, and the way the past-due digest goes.
+                    </p>
                 </td>
             </tr>
             <tr>
@@ -56,14 +59,20 @@
             </tr>
         </table>
     </div>
-    {% if user.ntfy_topic %}
-        <div class="card">
-            <div class="card-title">
-                <h1>Push: ntfy</h1>
-            </div>
-            <p class="card-text">
-                Notifications can go by push once your phone is set up here. Choosing Push above the first time makes your topic.
-            </p>
+    <div class="card">
+        <div class="card-title">
+            <h1>Push: ntfy</h1>
+        </div>
+        <p class="card-text">
+            A notification arrives on the phone in seconds, with buttons to open the task or mark it done. If ntfy cannot be reached it goes by email instead.
+        </p>
+        {% if not user.ntfy_topic %}
+            <p class="card-text">Push is offered on a notification once your phone is set up here.</p>
+            <form method="post" action="{% url 'settings-ntfy-new-topic' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Set up push</button>
+            </form>
+        {% else %}
             <ol class="card-text setup-steps">
                 <li>
                     Install <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">ntfy</a> on your phone.
@@ -135,13 +144,13 @@
             <p class="card-text setting-note">
                 Anyone who knows the topic can read what is sent to it, so it is long and random; keep it to yourself. A new topic stops the old one, and the phone needs subscribing again.
             </p>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
     <div class="card">
         <div class="card-title">
             <h1>Past-Due Digest</h1>
         </div>
-        <p class="card-text">Once a day, a list of your tasks that are past due, sent the way chosen above.</p>
+        <p class="card-text">Once a day, a list of your tasks that are past due, by the choice offered first above.</p>
         <table class="options">
             <tr>
                 <td class="setting-label">Digest:</td>
