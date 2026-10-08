@@ -202,6 +202,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 /* ntfy's setup, step by step */
@@ -214,8 +215,8 @@
   margin-bottom: 0.25rem;
 }
 
-/* The push setup steps with the topic's QR code beside them; on a phone
-   the code drops under the steps */
+/* The ntfy server, topic and token with the topic's QR code at their
+   right; on a phone the code drops under them */
 .push-setup {
   align-items: flex-start;
   display: flex;
@@ -223,9 +224,12 @@
   gap: 1rem 2rem;
 }
 
-.push-setup .setup-steps {
-  flex: 1 1 20rem;
-  margin: 0;
+.push-setup .options {
+  flex: 1 1 24rem;
+}
+
+.push-setup .qr-code {
+  margin-top: 0.5rem;
 }
 
 

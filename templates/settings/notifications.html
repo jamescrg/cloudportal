@@ -73,18 +73,15 @@
                 <button type="submit" class="btn btn-primary">Set up push</button>
             </form>
         {% else %}
-            <div class="push-setup">
-                <ol class="card-text setup-steps">
-                    <li>
-                        Install <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">ntfy</a> on your phone.
-                    </li>
-                    <li>
-                        Subscribe to your topic: scan this code with the phone's camera, or open <a href="{{ ntfy_subscribe_link }}">this link</a> on the phone, or add the server and topic below in the app by hand.
-                    </li>
-                    <li>Send a test, and the notification should arrive.</li>
-                </ol>
-                <div class="qr-code">{{ ntfy_qr }}</div>
-            </div>
+            <ol class="card-text setup-steps">
+                <li>
+                    Install <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">ntfy</a> on your phone.
+                </li>
+                <li>
+                    Subscribe to your topic: scan the code below with the phone's camera, or open <a href="{{ ntfy_subscribe_link }}">this link</a> on the phone, or add the server and topic in the app by hand.
+                </li>
+                <li>Send a test, and the notification should arrive.</li>
+            </ol>
             {% if test_result == "sent" %}
                 <p class="card-text setting-ok">Test sent.</p>
             {% elif test_result == "failed" %}
@@ -92,46 +89,49 @@
             {% endif %}
             <form method="post" action="{% url 'settings-ntfy' %}">
                 {% csrf_token %}
-                <table class="options">
-                    <tr>
-                        <td class="setting-label">
-                            <label for="id_ntfy_server">Server:</label>
-                        </td>
-                        <td class="setting-control">
-                            <input type="url"
-                                   id="id_ntfy_server"
-                                   name="ntfy_server"
-                                   value="{{ user.ntfy_server }}"
-                                   class="setting-input">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="setting-label">Topic:</td>
-                        <td class="setting-control">
-                            <code id="ntfy-topic">{{ ntfy_topic_here }}</code>
-                            <button class="btn btn-secondary copy-btn"
-                                    type="button"
-                                    data-copy-target="#ntfy-topic"
-                                    title="Copy">
-                                <i class="icon-copy"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="setting-label">
-                            <label for="id_ntfy_token">Access token:</label>
-                        </td>
-                        <td class="setting-control">
-                            <input type="password"
-                                   id="id_ntfy_token"
-                                   name="ntfy_token"
-                                   value="{{ user.ntfy_token }}"
-                                   placeholder="Only for a server that asks for one"
-                                   autocomplete="off"
-                                   class="setting-input">
-                        </td>
-                    </tr>
-                </table>
+                <div class="push-setup">
+                    <table class="options">
+                        <tr>
+                            <td class="setting-label">
+                                <label for="id_ntfy_server">Server:</label>
+                            </td>
+                            <td class="setting-control">
+                                <input type="url"
+                                       id="id_ntfy_server"
+                                       name="ntfy_server"
+                                       value="{{ user.ntfy_server }}"
+                                       class="setting-input">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="setting-label">Topic:</td>
+                            <td class="setting-control">
+                                <code id="ntfy-topic">{{ ntfy_topic_here }}</code>
+                                <button class="btn btn-secondary copy-btn"
+                                        type="button"
+                                        data-copy-target="#ntfy-topic"
+                                        title="Copy">
+                                    <i class="icon-copy"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="setting-label">
+                                <label for="id_ntfy_token">Access token:</label>
+                            </td>
+                            <td class="setting-control">
+                                <input type="password"
+                                       id="id_ntfy_token"
+                                       name="ntfy_token"
+                                       value="{{ user.ntfy_token }}"
+                                       placeholder="Only for a server that asks for one"
+                                       autocomplete="off"
+                                       class="setting-input">
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="qr-code">{{ ntfy_qr }}</div>
+                </div>
                 {% if ntfy_error %}<p class="setting-error">{{ ntfy_error }}</p>{% endif %}
                 <div class="setting-actions">
                     <button type="submit" class="btn btn-primary">Save</button>
