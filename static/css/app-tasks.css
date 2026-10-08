@@ -10,6 +10,9 @@
 .tasks-add .form-control {
   box-shadow: none;
   outline: none;
+  /* a touch taller than the site's inputs */
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
 }
 
 @media (max-width: 576px) {
@@ -141,6 +144,12 @@ td.tasks-col-checkbox a:hover {
 .tasks-table td.tasks-col-priority {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
+}
+
+.tasks-table th.tasks-col-checkbox,
+.tasks-table td.tasks-col-checkbox {
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 /* The folder column keeps the edge padding on its left and sits further
