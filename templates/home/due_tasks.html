@@ -11,36 +11,38 @@
     the check marks, titles, folders and times line up down the panel
     whatever the folder names' lengths.
     {% endcomment %}
-    {% for group in due_task_groups %}
-        <div class="due-group{% if group.overdue %} is-overdue{% endif %}">
-            <h2 class="due-group-label">
-                {{ group.label }}
-                {% if not group.overdue %}<span class="due-group-date">{{ group.date|date:"M j" }}</span>{% endif %}
-            </h2>
-            <ul class="due-list">
-                {% for task in group.tasks %}
-                    <li class="due-row">
-                        <a class="due-check"
-                           href="{% if origin %}{% url 'tasks-complete' task.id origin %}{% else %}{% url 'tasks-complete' task.id %}{% endif %}">
-                            <i class="icon-circle"></i>
-                        </a>
-                        <a class="due-title" href="{% url 'tasks-edit' task.id %}">{{ task.title }}</a>
-                        <span class="due-folder">
-                            {% if task.folder %}
-                                <i class="icon-folder"></i>
-                                <a href="{% url 'folder-select' task.folder.id 'tasks' %}">{{ task.folder.name }}</a>
-                            {% endif %}
-                        </span>
-                        <span class="due-time">
-                            {% if group.overdue %}{{ task.shown.due_date|date:"M j" }}{% endif %}
-                            {% if task.shown.due_time %}{{ task.shown.due_time|time:"g:i A" }}{% endif %}
-                        </span>
-                        <span class="due-repeat">
-                            {% if task.parent_task %}<i class="icon-refresh-cw" title="{{ task.repeat_summary }}"></i>{% endif %}
-                        </span>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endfor %}
+    <div class="due-groups">
+        {% for group in due_task_groups %}
+            <div class="due-group{% if group.overdue %} is-overdue{% endif %}">
+                <h2 class="due-group-label">
+                    {{ group.label }}
+                    {% if not group.overdue %}<span class="due-group-date">{{ group.date|date:"M j" }}</span>{% endif %}
+                </h2>
+                <ul class="due-list">
+                    {% for task in group.tasks %}
+                        <li class="due-row">
+                            <a class="due-check"
+                               href="{% if origin %}{% url 'tasks-complete' task.id origin %}{% else %}{% url 'tasks-complete' task.id %}{% endif %}">
+                                <i class="icon-circle"></i>
+                            </a>
+                            <a class="due-title" href="{% url 'tasks-edit' task.id %}">{{ task.title }}</a>
+                            <span class="due-folder">
+                                {% if task.folder %}
+                                    <i class="icon-folder"></i>
+                                    <a href="{% url 'folder-select' task.folder.id 'tasks' %}">{{ task.folder.name }}</a>
+                                {% endif %}
+                            </span>
+                            <span class="due-time">
+                                {% if group.overdue %}{{ task.shown.due_date|date:"M j" }}{% endif %}
+                                {% if task.shown.due_time %}{{ task.shown.due_time|time:"g:i A" }}{% endif %}
+                            </span>
+                            <span class="due-repeat">
+                                {% if task.parent_task %}<i class="icon-refresh-cw" title="{{ task.repeat_summary }}"></i>{% endif %}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
 </div>
