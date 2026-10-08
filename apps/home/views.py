@@ -12,6 +12,7 @@ from apps.folders.models import Folder
 from apps.home import agenda
 from apps.home.movement import sequence
 from apps.home.toggle import show_section
+from apps.quotes import quotes as quotes_of_the_day
 from apps.tasks.models import Task
 
 
@@ -79,6 +80,13 @@ def index(request):
     week = agenda.week_days(request) if show_events else []
     # the panel is left out of a week with nothing on it
     week_count = sum(day.count for day in week)
+
+    # QUOTES
+    # ----------------
+
+    # every quote marked always, then the day's own, when the section is shown
+    show_quotes = show_section(user, "quotes")
+    quotes = quotes_of_the_day.todays(user) if show_quotes else []
 
     # TASKS
     # ----------------
@@ -164,6 +172,8 @@ def index(request):
         "week": week,
         "week_count": week_count,
         "show_events": show_events,
+        "show_quotes": show_quotes,
+        "quotes": quotes,
         "columns": columns,
         "moved_folder": moved_folder,
         "show_weather": show_weather,

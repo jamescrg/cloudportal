@@ -10,6 +10,7 @@ from apps.folders import views as folders
 from apps.home import views as home
 from apps.lab import views as lab
 from apps.management.pagination import change_page
+from apps.quotes import views as quotes
 from apps.search import views as search
 from apps.settings import security as security_settings, views as settings
 from apps.settings.users import views as user_settings
@@ -326,6 +327,22 @@ urlpatterns = [
         name="settings-calendar-forward-from",
     ),
     path("settings/tasks/", settings.tasks_settings_index, name="settings-tasks"),
+    # settings — quotes
+    path("settings/quotes/", quotes.settings_index, name="settings-quotes"),
+    path("settings/quotes/add", quotes.add, name="settings-quotes-add"),
+    path(
+        "settings/quotes/<int:id>/always",
+        quotes.toggle_always,
+        name="settings-quotes-always",
+    ),
+    path(
+        "settings/quotes/<int:id>/delete", quotes.delete, name="settings-quotes-delete"
+    ),
+    path(
+        "settings/quotes-options/<str:option>/<str:value>",
+        quotes.options,
+        name="settings-quotes-options",
+    ),
     path(
         "settings/tasks-options/<str:option>/<str:value>",
         settings.tasks_options,

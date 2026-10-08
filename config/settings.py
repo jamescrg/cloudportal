@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     "apps.lab",
     "apps.management",
     "apps.notes",
+    "apps.quotes",
     "apps.search",
     "apps.settings",
 ]

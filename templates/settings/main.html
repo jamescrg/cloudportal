@@ -23,6 +23,9 @@
                 <li {% if subapp == "tasks" %}class="active"{% endif %}>
                     <a href="{% url 'settings-tasks' %}">Tasks</a>
                 </li>
+                <li {% if subapp == "quotes" %}class="active"{% endif %}>
+                    <a href="{% url 'settings-quotes' %}">Quotes</a>
+                </li>
                 <li {% if subapp == "calendar" %}class="active"{% endif %}>
                     <a href="{% url 'settings-calendar' %}">Calendar</a>
                 </li>

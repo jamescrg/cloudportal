@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
+    {# -- quote of the day -- #}
+    {% if show_quotes and quotes %}
+        {% include "home/quotes.html" %}
+    {% endif %}
     {# -- events -- #}
     {% if show_events and week_count %}
         {% include "home/events.html" %}

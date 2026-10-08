@@ -43,6 +43,18 @@
                 </td>
             </tr>
             <tr>
+                <td class="setting-label">Quote of the Day:</td>
+                <td class="setting-control">
+                    {% if user.home_quotes %}
+                        <a class="btn btn-primary"
+                           href="{% url 'settings-home-options' option='quotes' value='disable' %}">Disable</a>
+                    {% else %}
+                        <a class="btn btn-primary"
+                           href="{% url 'settings-home-options' option='quotes' value='enable' %}">Enable</a>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
                 <td class="setting-label">Weather:</td>
                 <td class="setting-control">
                     {% if user.home_weather %}

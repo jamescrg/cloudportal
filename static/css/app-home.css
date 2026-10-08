@@ -189,6 +189,43 @@
 
 
 /*------------------------------------------------
+ * quote of the day
+ * ------------------------------------------------*/
+
+/* The quotes are rows run out to the panel's edges and ruled apart, the
+   text a step larger than the page's and the author under it in the
+   secondary colour */
+.quote-list {
+  border-top: 1px solid var(--border-medium);
+  margin: 0 -1rem -1.5rem;
+}
+
+.quote {
+  margin: 0;
+  padding: 1rem 1rem 1.25rem;
+}
+
+.quote + .quote {
+  border-top: 1px solid var(--border-medium);
+}
+
+.quote-text {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.quote-author {
+  color: var(--color-secondary);
+  margin-top: 0.35rem;
+}
+
+.quote-author::before {
+  content: "— ";
+}
+
+
+/*------------------------------------------------
  * search
  * ------------------------------------------------*/
 

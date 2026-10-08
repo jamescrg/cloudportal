@@ -354,3 +354,53 @@ Profile Form
     border-radius: var(--radius-md);
   }
 }
+
+
+/* ==========================================================================
+   Quotes
+   ========================================================================== */
+
+.quotes-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quotes-form textarea {
+  max-width: 40rem;
+  width: 100%;
+}
+
+.quotes-form .btn {
+  align-self: flex-start;
+}
+
+.quotes-table .quote-col-text {
+  white-space: normal;
+}
+
+.quote-table-author {
+  color: var(--color-secondary);
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.quotes-table .quote-col-always,
+.quotes-table .quote-col-delete {
+  text-align: center;
+  width: 3.5rem;
+}
+
+.quotes-table .btn-icon {
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.quotes-table .quote-always.is-on {
+  color: var(--color-accent-strong);
+}
+
+.quotes-table .btn-icon:hover {
+  color: var(--link);
+}

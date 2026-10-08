@@ -1,0 +1,96 @@
+{% extends "settings/main.html" %}
+{% block subcontent %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Quote of the Day</h1>
+        </div>
+        <p class="card-text">
+            One of your quotes is shown on the home page each day. Choose
+            whether the days run through them in a random shuffle or in
+            the order you gave them.
+        </p>
+        <table class="options">
+            <tr>
+                <td class="setting-label">Order:</td>
+                <td class="setting-control">
+                    <a class="btn {% if user.quotes_mode == 'random' %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-quotes-options' option='mode' value='random' %}">Random shuffle</a>
+                    <a class="btn {% if user.quotes_mode == 'serial' %}btn-primary{% else %}btn-secondary{% endif %}"
+                       href="{% url 'settings-quotes-options' option='mode' value='serial' %}">In order</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="card">
+        <div class="card-title">
+            <h1>Add Quotes</h1>
+        </div>
+        <form class="quotes-form"
+              method="post"
+              action="{% url 'settings-quotes-add' %}">
+            {% csrf_token %}
+            <label for="id_quotes_text">Paste quotes, one per line</label>
+            <textarea id="id_quotes_text"
+                      name="text"
+                      rows="6"
+                      placeholder="The unexamined life is not worth living — Socrates"></textarea>
+            <p class="form-text">
+                To give the author, put a dash with a space each side
+                after the quote: — or -- both work.
+            </p>
+            <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+    </div>
+    <div class="card">
+        <div class="card-title">
+            <h1>Your Quotes</h1>
+        </div>
+        {% if quotes %}
+            <p class="card-text">
+                A quote marked Always is shown every day, before the day's
+                own quote.
+            </p>
+            <div class="table-container">
+                <table class="table quotes-table">
+                    <tr>
+                        <th class="quote-col-text">Quote</th>
+                        <th class="quote-col-always">Always</th>
+                        <th class="quote-col-delete"></th>
+                    </tr>
+                    {% for quote in quotes %}
+                        <tr>
+                            <td class="quote-col-text">
+                                {{ quote.text }}
+                                {% if quote.author %}<span class="quote-table-author">— {{ quote.author }}</span>{% endif %}
+                            </td>
+                            <td class="quote-col-always">
+                                <form method="post" action="{% url 'settings-quotes-always' quote.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="btn-icon quote-always{% if quote.always %} is-on{% endif %}"
+                                            title="{% if quote.always %}Shown every day; click to show it in turn{% else %}Shown in turn; click to show it every day{% endif %}">
+                                        {% if quote.always %}
+                                            <i class="icon-pin"></i>
+                                        {% else %}
+                                            <i class="icon-pin-off"></i>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                            <td class="quote-col-delete">
+                                <form method="post" action="{% url 'settings-quotes-delete' quote.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon quote-delete" title="Delete">
+                                        <i class="icon-trash-2"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <p class="card-text">You have no quotes yet.</p>
+        {% endif %}
+    </div>
+{% endblock subcontent %}

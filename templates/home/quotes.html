@@ -1,0 +1,25 @@
+<div class="card panel quotes">
+    <div class="card-title flex-start-space">
+        <h1>Quote of the Day</h1>
+        <a class="square-button close-button"
+           href="{% url 'home-toggle' section='quotes' %}">
+            <i class="icon-x"></i>
+        </a>
+    </div>
+    {% comment %}
+    The quotes marked always, then the day's own quote, as rows ruled
+    apart and run out to the panel's edges like the other panels' lists.
+    {% endcomment %}
+    <div class="quote-list">
+        {% for quote in quotes %}
+            <blockquote class="quote">
+                <p class="quote-text">{{ quote.text }}</p>
+                {% if quote.author %}
+                    <footer class="quote-author">
+                        {{ quote.author }}
+                    </footer>
+                {% endif %}
+            </blockquote>
+        {% endfor %}
+    </div>
+</div>
