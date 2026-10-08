@@ -93,6 +93,9 @@ td.tasks-col-checkbox a:hover {
 
 .card.tasks .table-container {
   margin: 0 -1rem;
+  /* the base rule caps the container at the card's content width, which
+     would leave it shifted left rather than widened to both edges */
+  max-width: none;
 }
 
 .card.tasks .table-container:last-child {
