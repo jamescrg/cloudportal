@@ -36,6 +36,7 @@ guest_add_url, guests_note (why not), event.
             {{ guest_form.name }}
             <button type="submit" class="btn btn-secondary">Invite</button>
         </form>
+        {{ guest_form.non_field_errors }}
         {{ guest_form.email.errors }}
         {{ guest_form.name.errors }}
         <p class="reminder-none">

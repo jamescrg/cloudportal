@@ -136,6 +136,22 @@ def test_without_a_forwarding_address_no_one_can_be_invited(
     assert not dinner.guests.exists() and mailoutbox == []
 
 
+def test_a_guest_whose_invitation_cannot_be_sent_is_not_added(
+    client, dinner, mailoutbox, monkeypatch
+):
+    from django.core.mail import EmailMultiAlternatives
+
+    def down(self, *args, **kwargs):
+        raise TimeoutError("timed out")
+
+    monkeypatch.setattr(EmailMultiAlternatives, "send", down)
+
+    response = _invite(client, dinner)
+
+    assert "could not be emailed" in response.content.decode()
+    assert not dinner.guests.exists()
+
+
 def test_the_edit_form_lists_the_guests_and_their_answers(client, dinner):
     EventGuest.objects.create(
         event=dinner, email="wife@example.com", name="Katie", status="accepted"

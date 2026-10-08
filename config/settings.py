@@ -248,9 +248,13 @@ INTERNAL_IPS = [
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = env("EMAIL_HOST")
 EMAIL_USE_TLS = True
-EMAIL_PORT = 587
+# Mailgun also listens on 2525, for a machine whose way out on 587 is shut
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+# A mail server that does not answer fails the send in seconds rather
+# than holding a request until gunicorn kills it
+EMAIL_TIMEOUT = 10
 SERVER_EMAIL = env("SERVER_EMAIL")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=SERVER_EMAIL)
 ADMINS = [(env("ADMINS_NAME"), env("ADMINS_EMAIL"))]

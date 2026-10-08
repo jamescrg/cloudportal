@@ -335,8 +335,17 @@ def guest_add(request, id):
         guest = form.save(commit=False)
         guest.event = event
         guest.save()
-        invitations.send_invitation(event, [guest])
-        form = None
+        if invitations.send_invitation(event, [guest]):
+            form = None
+        else:
+            # Not invited after all: the guest goes, and the user can try
+            # again once the mail server answers
+            guest.delete()
+            form.add_error(
+                None,
+                "The invitation could not be emailed, so they were not added. "
+                "Try again in a little while.",
+            )
     return render(request, "components/guests.html", _guests_context(event, form))
 
 
