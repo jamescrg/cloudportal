@@ -173,8 +173,9 @@ def notifications_index(request):
 @login_required
 @require_POST
 def notify_by(request):
-    """Choose email or ntfy for notifications. Choosing ntfy the first time
-    gives the user their topic."""
+    """Choose the default channel for notifications: email, ntfy (push) or
+    the home page. Choosing ntfy the first time gives the user their
+    topic."""
     user = request.user
     choice = request.POST.get("notify_by")
     if choice in dict(user.NOTIFY_CHOICES):

@@ -123,6 +123,11 @@ i.icon-plus {
   padding: 0.25rem 0;
 }
 
+/* How it goes, after the words: muted, so the timing reads first */
+.reminder-channel {
+  color: var(--color-muted);
+}
+
 .reminder-list .btn-icon {
   color: var(--color-muted);
 }

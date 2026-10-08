@@ -5,7 +5,7 @@
             <h1>Delivery</h1>
         </div>
         <p class="card-text">
-            Notifications for events and tasks are set on each one. Here you choose how they reach you: by email, or pushed to the ntfy app on your phone, where they arrive in seconds with buttons to open the task or mark it done. If ntfy cannot be reached, a notification goes by email instead.
+            Notifications for events and tasks are set on each one, and each says how it reaches you: by email; pushed to the ntfy app on your phone, where it arrives in seconds with buttons to open the task or mark it done; or as a card on your homepage that stays until you close it. Here you choose the default for new ones, and the way the past-due digest goes. If ntfy cannot be reached, a notification goes by email instead.
         </p>
         {% if not_production %}
             <p class="card-text setting-note">
@@ -30,7 +30,10 @@
                                 value="email">Email</button>
                         <button class="btn {% if user.notify_by == 'ntfy' %}btn-primary{% else %}btn-secondary{% endif %}"
                                 name="notify_by"
-                                value="ntfy">ntfy</button>
+                                value="ntfy">Push</button>
+                        <button class="btn {% if user.notify_by == 'home' %}btn-primary{% else %}btn-secondary{% endif %}"
+                                name="notify_by"
+                                value="home">Homepage</button>
                     </form>
                 </td>
             </tr>
@@ -53,11 +56,14 @@
             </tr>
         </table>
     </div>
-    {% if user.notify_by == "ntfy" %}
+    {% if user.ntfy_topic %}
         <div class="card">
             <div class="card-title">
-                <h1>ntfy</h1>
+                <h1>Push: ntfy</h1>
             </div>
+            <p class="card-text">
+                Notifications can go by push once your phone is set up here. Choosing Push above the first time makes your topic.
+            </p>
             <ol class="card-text setup-steps">
                 <li>
                     Install <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">ntfy</a> on your phone.
@@ -135,7 +141,7 @@
         <div class="card-title">
             <h1>Past-Due Digest</h1>
         </div>
-        <p class="card-text">Once a day, a list of your tasks that are past due.</p>
+        <p class="card-text">Once a day, a list of your tasks that are past due, sent the way chosen above.</p>
         <table class="options">
             <tr>
                 <td class="setting-label">Digest:</td>

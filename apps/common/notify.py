@@ -1,5 +1,8 @@
-"""Notifications: an event or task reminder, or the past-due digest, sent the
-way the user chose in Settings (CustomUser.notify_by).
+"""Notifications: an event or task reminder, or the past-due digest, sent
+by one of three channels (apps.common.models.CHANNEL_CHOICES). Each
+notification on an event or task names its own; the user's choice in
+Settings (CustomUser.notify_by) is the default for new ones and the way
+the digest goes.
 
 By ntfy, a notification is pushed to the topic the user's ntfy app is
 subscribed to (https://docs.ntfy.sh/publish/), arriving in seconds, with
@@ -9,6 +12,9 @@ the calendar. When ntfy cannot be reached the notification goes by email
 instead, so one is not lost to an outage.
 
 By email, it is the message config.email has always sent.
+
+To the home page, it is a card (apps.home.notices) that stays there until
+the user closes it.
 
 A machine other than production (settings.NOT_PRODUCTION) pushes to each
 topic with a suffix (settings.NTFY_TOPIC_SUFFIX), so it has a channel of
@@ -28,6 +34,7 @@ from django.conf import settings
 from django.core import signing
 from django.urls import reverse
 
+from apps.home import notices
 from config import email
 
 logger = logging.getLogger(__name__)
@@ -41,7 +48,9 @@ DONE_SALT = "notify-task-done"
 
 
 def ntfy_ready(user):
-    return user.notify_by == "ntfy" and bool(user.ntfy_topic)
+    """Whether the user has a topic to push to: one is made when they first
+    choose Push in Settings."""
+    return bool(user.ntfy_topic)
 
 
 def topic(user):
@@ -82,12 +91,17 @@ def _site(path):
     return settings.SITE_URL + path if settings.SITE_URL else None
 
 
-def _by_ntfy_or_email(user, pushed, emailed):
-    """Push when the user chose ntfy, falling back to email if the push
-    fails; otherwise email. Where email notifications are off (the dev
-    machine), nothing is emailed, and the notification counts as handled so
-    it is not tried again every minute."""
-    if ntfy_ready(user):
+def _deliver(user, channel, *, pushed, emailed, posted):
+    """Send one notification the way its channel says: to the home page it
+    is posted as a card; by ntfy it is pushed, falling back to email if the
+    push fails or ntfy is not set up; by email it is emailed. Where email
+    notifications are off (the dev machine), nothing is emailed, and the
+    notification counts as handled so it is not tried again every
+    minute."""
+    if channel == "home":
+        posted()
+        return {"success": True}
+    if channel == "ntfy" and ntfy_ready(user):
         result = pushed()
         if result["success"]:
             return result
@@ -127,14 +141,31 @@ def _when(day, at):
     return text
 
 
-def task_reminder(user, task):
-    """A task's notification."""
+def _task_lines(user, task):
+    shown = task.in_zone(user.time_zone)
+    lines = [f"Due {_when(shown.due_date, shown.due_time)}"]
+    if task.folder:
+        lines.append(f"Folder: {task.folder.name}")
+    return lines
+
+
+def _event_lines(user, event):
+    shown = event.in_zone(user.time_zone)
+    lines = [_when(shown.date, shown.start_time)]
+    if shown.start_time and shown.end_time:
+        lines[0] += " – " + shown.end_time.strftime("%-I:%M %p")
+    if shown.end_date:
+        lines.append(f"Through {shown.end_date.strftime('%A, %B %-d')}")
+    if event.location:
+        lines.append(event.location)
+    return lines
+
+
+def task_reminder(user, task, channel=None):
+    """A task's notification, by the channel named or the user's default."""
+    lines = _task_lines(user, task)
 
     def pushed():
-        shown = task.in_zone(user.time_zone)
-        lines = [f"Due {_when(shown.due_date, shown.due_time)}"]
-        if task.folder:
-            lines.append(f"Folder: {task.folder.name}")
         tasks_page = _site(reverse("tasks"))
         actions = []
         if tasks_page:
@@ -158,23 +189,20 @@ def task_reminder(user, task):
             actions=actions,
         )
 
-    return _by_ntfy_or_email(
-        user, pushed, lambda: email.send_task_notification_email(user, task)
+    return _deliver(
+        user,
+        channel or user.notify_by,
+        pushed=pushed,
+        emailed=lambda: email.send_task_notification_email(user, task),
+        posted=lambda: notices.post_task(user, task, lines),
     )
 
 
-def event_reminder(user, event):
-    """An event's notification."""
+def event_reminder(user, event, channel=None):
+    """An event's notification, by the channel named or the user's default."""
+    lines = _event_lines(user, event)
 
     def pushed():
-        shown = event.in_zone(user.time_zone)
-        lines = [_when(shown.date, shown.start_time)]
-        if shown.start_time and shown.end_time:
-            lines[0] += " – " + shown.end_time.strftime("%-I:%M %p")
-        if shown.end_date:
-            lines.append(f"Through {shown.end_date.strftime('%A, %B %-d')}")
-        if event.location:
-            lines.append(event.location)
         calendar_page = _site(reverse("calendar:index"))
         actions = (
             [{"action": "view", "label": "Open", "url": calendar_page}]
@@ -191,36 +219,49 @@ def event_reminder(user, event):
             actions=actions,
         )
 
-    return _by_ntfy_or_email(
-        user, pushed, lambda: email.send_event_reminder_email(user, event)
+    return _deliver(
+        user,
+        channel or user.notify_by,
+        pushed=pushed,
+        emailed=lambda: email.send_event_reminder_email(user, event),
+        posted=lambda: notices.post_event(user, event, lines),
     )
 
 
+def _digest_lines(tasks, limit=None):
+    lines = []
+    for task in tasks[:limit]:
+        line = f"• {task.title}"
+        if task.due_date:
+            line += f" (due {task.due_date.strftime('%b %-d')})"
+        lines.append(line)
+    if limit and len(tasks) > limit:
+        lines.append(f"… and {len(tasks) - limit} more")
+    return lines
+
+
 def past_due_digest(user, tasks):
-    """The daily digest of the user's past-due tasks."""
+    """The daily digest of the user's past-due tasks, the way they chose in
+    Settings."""
     tasks = list(tasks)
+    title = f"{len(tasks)} past-due task{'s' if len(tasks) != 1 else ''}"
 
     def pushed():
-        lines = []
-        for task in tasks[:20]:
-            line = f"• {task.title}"
-            if task.due_date:
-                line += f" (due {task.due_date.strftime('%b %-d')})"
-            lines.append(line)
-        if len(tasks) > 20:
-            lines.append(f"… and {len(tasks) - 20} more")
-        tasks_page = _site(reverse("tasks"))
         return push(
             user,
-            f"{len(tasks)} past-due task{'s' if len(tasks) != 1 else ''}",
-            "\n".join(lines),
+            title,
+            "\n".join(_digest_lines(tasks, limit=20)),
             priority=3,
             tags=["warning"],
-            click=tasks_page,
+            click=_site(reverse("tasks")),
         )
 
-    return _by_ntfy_or_email(
-        user, pushed, lambda: email.send_past_due_digest_email(user, tasks)
+    return _deliver(
+        user,
+        user.notify_by,
+        pushed=pushed,
+        emailed=lambda: email.send_past_due_digest_email(user, tasks),
+        posted=lambda: notices.post_digest(user, title, _digest_lines(tasks)),
     )
 
 

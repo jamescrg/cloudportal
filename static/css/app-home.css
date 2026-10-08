@@ -22,6 +22,54 @@
 
 
 /*------------------------------------------------
+ * notifications sent to the home page
+ * ------------------------------------------------*/
+
+/* A notification card is outlined like the other panels and carries the
+   accent down its left edge, so it reads as something that arrived
+   rather than a fixture of the page */
+.card.notice {
+  box-shadow: inset 4px 0 0 var(--color-accent-strong);
+  padding-bottom: 1rem;
+}
+
+.notice .card-title {
+  margin-bottom: 0.5rem;
+}
+
+.notice .card-title h1 {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.notice .card-title h1 a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notice .card-title .icon-bell {
+  color: var(--color-accent-strong);
+  flex-shrink: 0;
+}
+
+.notice-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notice-lines li {
+  padding: 0.25rem 0;
+}
+
+.notice-actions {
+  margin-top: 0.5rem;
+}
+
+
+/*------------------------------------------------
  * from your calendar: the week strip
  * ------------------------------------------------*/
 

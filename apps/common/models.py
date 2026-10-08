@@ -32,10 +32,17 @@ def is_zone(name):
     return bool(name)
 
 
+# How a notification reaches the user (apps.common.notify): by email,
+# pushed to the ntfy app, or as a card on the home page that stays until
+# they close it. The user's choice in Settings is the default for new ones.
+CHANNEL_CHOICES = (("email", "Email"), ("ntfy", "Push"), ("home", "Homepage"))
+
+
 class ReminderMixin(models.Model):
     """A notification for something with a date: an event, a task.
 
     Attributes:
+        channel (str): how it reaches the user (CHANNEL_CHOICES)
         amount (int): how many of the unit before the thing
         unit (str): minutes, hours, days or weeks
         time (time): for a thing with no time of its own, the time of day
@@ -60,6 +67,7 @@ class ReminderMixin(models.Model):
     ALL_DAY_UNITS = ("days", "weeks")
     DEFAULT_TIME = time(9, 0)
 
+    channel = models.CharField(max_length=10, choices=CHANNEL_CHOICES, default="email")
     amount = models.PositiveIntegerField(default=0)
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default="minutes")
     time = models.TimeField(null=True, blank=True)
@@ -101,6 +109,17 @@ class ReminderMixin(models.Model):
             tzinfo=zone_or_default(self.target_user.time_zone),
         )
         return moment - self.offset
+
+    @property
+    def template(self):
+        """The notification as plain data, for copying it to a recurring
+        thing's later instances: {"channel", "amount", "unit", "time"}."""
+        return {
+            "channel": self.channel,
+            "amount": self.amount,
+            "unit": self.unit,
+            "time": self.time.isoformat() if self.time else None,
+        }
 
     def describe(self):
         """The notification in words: "30 minutes before", "1 day before

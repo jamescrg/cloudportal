@@ -516,7 +516,9 @@ def reminder_add(request, id):
     form = TaskReminderForm(request.POST, task=task)
     if task.due_date and form.is_valid():
         data = form.cleaned_data
-        reminders.add_reminder(task, data["amount"], data["unit"], data["time"])
+        reminders.add_reminder(
+            task, data["amount"], data["unit"], data["time"], data["channel"]
+        )
         form = None
     return render(request, "components/reminders.html", _reminders_context(task, form))
 
@@ -530,7 +532,7 @@ def reminder_delete(request, id, reminder_id):
     return render(request, "components/reminders.html", _reminders_context(task))
 
 
-def _complete(task, user):
+def complete_task(task, user):
     """Mark a task done the way the user has chosen (keep it, archive it,
     or delete it) and bring on a recurring task's next instance."""
     task.status = 1
@@ -561,7 +563,7 @@ def notify_done(request, token):
     if task is None:
         return HttpResponse("This task is gone.", status=404)
     if task.status != 1:
-        _complete(task, task.user)
+        complete_task(task, task.user)
     return HttpResponse("Done.")
 
 

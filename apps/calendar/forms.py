@@ -106,5 +106,5 @@ class ReminderForm(ReminderFormBase):
         model = EventReminder
 
     def __init__(self, *args, event, **kwargs):
-        super().__init__(*args, timed=bool(event.start_time), **kwargs)
+        super().__init__(*args, timed=bool(event.start_time), user=event.user, **kwargs)
         self.event = event

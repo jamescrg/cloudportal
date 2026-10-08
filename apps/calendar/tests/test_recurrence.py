@@ -463,14 +463,16 @@ def test_a_notification_added_to_an_occurrence_goes_on_the_later_ones(client, us
 
     client.post(
         reverse("calendar:reminder-add", args=[occurrences[2].id]),
-        {"amount": 1, "unit": "days", "time": "09:00"},
+        {"amount": 1, "unit": "days", "time": "09:00", "channel": "home"},
     )
 
     assert not occurrences[1].reminders.exists()
     assert occurrences[2].reminders.count() == 1
-    assert occurrences[-1].reminders.count() == 1
+    assert occurrences[-1].reminders.get().channel == "home"
     series.refresh_from_db()
-    assert series.reminders == [{"amount": 1, "unit": "days", "time": "09:00:00"}]
+    assert series.reminders == [
+        {"channel": "home", "amount": 1, "unit": "days", "time": "09:00:00"}
+    ]
 
 
 def test_a_notification_removed_from_an_occurrence_leaves_the_later_ones(client, user):

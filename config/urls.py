@@ -73,6 +73,12 @@ urlpatterns = [
     ),
     path("home/toggle/<str:section>", home.toggle, name="home-toggle"),
     path(
+        "home/notices/<int:id>/dismiss",
+        home.notice_dismiss,
+        name="home-notice-dismiss",
+    ),
+    path("home/notices/<int:id>/done", home.notice_done, name="home-notice-done"),
+    path(
         "home/update-folder-column/",
         home.update_folder_column,
         name="home-update-folder-column",

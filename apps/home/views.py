@@ -3,17 +3,20 @@ from datetime import date
 import requests as http_requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from apps.favorites.models import Favorite
 from apps.folders.folders import get_folders_for_page
 from apps.folders.models import Folder
 from apps.home import agenda
+from apps.home.models import HomeNotice
 from apps.home.movement import sequence
 from apps.home.toggle import show_section
 from apps.quotes import quotes as quotes_of_the_day
 from apps.tasks.models import Task
+from apps.tasks.views import complete_task
 
 
 def fetch_current_weather(user):
@@ -71,6 +74,12 @@ def index(request):
     """
 
     user = request.user
+
+    # NOTIFICATIONS
+    # ----------------
+
+    # the cards notifications sent to the home page, until each is closed
+    notices = HomeNotice.objects.open_for(user)
 
     # EVENTS
     # ----------------
@@ -164,6 +173,7 @@ def index(request):
     context = {
         "page": "home",
         "origin": "home",
+        "notices": notices,
         "show_tasks": show_tasks,
         "task_folders": task_folders,
         "some_tasks": some_tasks,
@@ -184,6 +194,31 @@ def index(request):
     context.update(search_context)
 
     return render(request, "home/content.html", context)
+
+
+@login_required
+@require_POST
+def notice_dismiss(request, id):
+    """Close a notification card. The card is swapped away in place, so
+    nothing comes back."""
+    notice = get_object_or_404(HomeNotice, pk=id, user=request.user)
+    notice.dismiss()
+    return HttpResponse("")
+
+
+@login_required
+@require_POST
+def notice_done(request, id):
+    """A task card's Done: marks the task done the way the user has chosen
+    and closes the card."""
+    notice = get_object_or_404(HomeNotice, pk=id, user=request.user, kind="task")
+    if notice.task and notice.task.status != 1:
+        complete_task(notice.task, request.user)
+    # a deleted task takes its card with it; one kept or archived leaves
+    # the card to be closed here
+    if HomeNotice.objects.filter(pk=id).exists():
+        notice.dismiss()
+    return HttpResponse("")
 
 
 @login_required

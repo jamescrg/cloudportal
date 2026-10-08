@@ -1,26 +1,37 @@
 from django import forms
 from django.utils import timezone
 
-from apps.common.models import ReminderMixin
+from apps.common.models import CHANNEL_CHOICES, ReminderMixin
 from apps.common.recurrence import REPEAT_CHOICES, pattern_for
 
 
 class ReminderFormBase(forms.ModelForm):
-    """One notification: an amount, a unit, and for something with no time
-    of its own the time of day. ``timed`` decides which units are offered:
-    something with only a day counts back in days or weeks."""
+    """One notification: an amount, a unit, for something with no time of
+    its own the time of day, and the channel it goes by. ``timed`` decides
+    which units are offered: something with only a day counts back in days
+    or weeks. ``user`` sets the channel offered first (their default in
+    Settings) and whether Push is offered at all (once ntfy is set up)."""
 
     use_required_attribute = False
 
     class Meta:
-        fields = ("amount", "unit", "time")
+        fields = ("amount", "unit", "time", "channel")
         widgets = {
             "amount": forms.NumberInput(attrs={"min": 0}),
             "time": forms.TimeInput(attrs={"type": "time"}),
         }
 
-    def __init__(self, *args, timed, **kwargs):
+    def __init__(self, *args, timed, user, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
+        self.fields["channel"].choices = [
+            choice
+            for choice in CHANNEL_CHOICES
+            if choice[0] != "ntfy" or user.ntfy_topic
+        ]
+        # Left out, the channel is the user's default
+        self.fields["channel"].required = False
+        self.initial.setdefault("channel", user.notify_by)
         self.all_day = not timed
         if self.all_day:
             self.fields["unit"].choices = [
@@ -37,6 +48,8 @@ class ReminderFormBase(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if not cleaned_data.get("channel"):
+            cleaned_data["channel"] = self.user.notify_by
         if self.all_day:
             if cleaned_data.get("unit") not in ReminderMixin.ALL_DAY_UNITS:
                 self.add_error("unit", "With no time set, count back in days or weeks.")

@@ -86,5 +86,5 @@ class TaskReminderForm(ReminderFormBase):
         model = TaskReminder
 
     def __init__(self, *args, task, **kwargs):
-        super().__init__(*args, timed=bool(task.due_time), **kwargs)
+        super().__init__(*args, timed=bool(task.due_time), user=task.user, **kwargs)
         self.task = task

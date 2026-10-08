@@ -11,6 +11,7 @@ reminder_add_url, reminders_note (why nothing can be added).
         {% for reminder in reminders %}
             <li>
                 <span>{{ reminder.describe }}</span>
+                <span class="reminder-channel">{{ reminder.get_channel_display }}</span>
                 <button type="button"
                         class="btn-icon"
                         title="Remove"
@@ -37,12 +38,15 @@ reminder_add_url, reminders_note (why nothing can be added).
                 <span>at</span>
                 {{ reminder_form.time }}
             {% endif %}
+            <span>by</span>
+            {{ reminder_form.channel }}
             <button type="submit" class="btn btn-secondary">Add</button>
         </form>
         {{ reminder_form.non_field_errors }}
         {{ reminder_form.amount.errors }}
         {{ reminder_form.unit.errors }}
         {{ reminder_form.time.errors }}
+        {{ reminder_form.channel.errors }}
     {% elif reminders_note %}
         <p class="reminder-none">{{ reminders_note }}</p>
     {% endif %}

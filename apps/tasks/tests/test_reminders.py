@@ -130,6 +130,35 @@ def test_adding_and_removing_a_notification(client, timed):
     assert not timed.reminders.exists()
 
 
+def test_a_notification_goes_by_the_channel_chosen(client, timed):
+    response = client.post(
+        reverse("tasks-reminder-add", args=[timed.id]),
+        {"amount": 1, "unit": "days", "channel": "home"},
+    )
+
+    assert "Homepage" in response.content.decode()
+    assert timed.reminders.get().channel == "home"
+
+
+def test_the_users_default_channel_is_offered_first_and_push_once_set_up(
+    client, user, timed
+):
+    html = client.get(reverse("tasks-form", args=[timed.id])).content.decode()
+    assert '<option value="email" selected>Email</option>' in html
+    assert 'value="ntfy"' not in html
+
+    user.notify_by = "ntfy"
+    user.ntfy_topic = "cpl-secret-topic"
+    user.save()
+    html = client.get(reverse("tasks-form", args=[timed.id])).content.decode()
+    assert '<option value="ntfy" selected>Push</option>' in html
+
+    client.post(
+        reverse("tasks-reminder-add", args=[timed.id]), {"amount": 1, "unit": "days"}
+    )
+    assert timed.reminders.get().channel == "ntfy"
+
+
 def test_a_dated_task_refuses_minutes(client, dated):
     response = client.post(
         reverse("tasks-reminder-add", args=[dated.id]),
@@ -209,9 +238,9 @@ def test_an_instances_notification_passes_to_its_template_and_onward(client, use
 
     client.post(
         reverse("tasks-reminder-add", args=[instance.id]),
-        {"amount": 1, "unit": "hours"},
+        {"amount": 1, "unit": "hours", "channel": "home"},
     )
-    assert template.reminders.filter(amount=1, unit="hours").exists()
+    assert template.reminders.filter(amount=1, unit="hours", channel="home").exists()
 
     next_instance = Task.objects.create(
         user=user,
@@ -222,6 +251,7 @@ def test_an_instances_notification_passes_to_its_template_and_onward(client, use
     )
     next_instance.copy_reminders_from(template)
     assert next_instance.reminders.get().describe() == "1 hour before"
+    assert next_instance.reminders.get().channel == "home"
 
     reminder = instance.reminders.get()
     client.post(reverse("tasks-reminder-delete", args=[instance.id, reminder.id]))

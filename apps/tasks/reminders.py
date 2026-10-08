@@ -9,12 +9,13 @@ from apps.common.reminders import send_due as _send_due
 from apps.tasks.models import Task, TaskReminder
 
 
-def add_reminder(task, amount, unit, time):
+def add_reminder(task, amount, unit, time, channel):
     """Add a notification to the task. A recurring task's instance passes it
     on to its template, so every later instance has it too."""
-    reminder = task.reminders.create(amount=amount, unit=unit, time=time)
+    fields = {"channel": channel, "amount": amount, "unit": unit, "time": time}
+    reminder = task.reminders.create(**fields)
     if task.parent_task_id:
-        task.parent_task.reminders.get_or_create(amount=amount, unit=unit, time=time)
+        task.parent_task.reminders.get_or_create(**fields)
     return reminder
 
 
@@ -26,14 +27,18 @@ def remove_reminder(task, reminder_id):
         return
     if task.parent_task_id:
         task.parent_task.reminders.filter(
-            amount=reminder.amount, unit=reminder.unit, time=reminder.time
+            channel=reminder.channel,
+            amount=reminder.amount,
+            unit=reminder.unit,
+            time=reminder.time,
         ).delete()
     reminder.delete()
 
 
 def send_due(now=None):
-    """Send every task notification that is due: for open, unarchived
-    tasks that are not recurring templates. Returns (sent, errors)."""
+    """Send every task notification that is due, each the way it says: for
+    open, unarchived tasks that are not recurring templates. Returns
+    (sent, errors)."""
     queryset = TaskReminder.objects.filter(
         task__status=0, task__archived=False, task__is_recurring=False
     ).select_related("task", "task__user", "task__folder")
@@ -41,8 +46,9 @@ def send_due(now=None):
 
 
 def send_past_due_digests(today=None):
-    """Send each user who turned Email Reminders on one digest of their
-    past-due tasks, once a day. Returns (digests, errors)."""
+    """Send each user who turned the digest on one digest of their past-due
+    tasks, once a day, the way they chose for notifications in Settings.
+    Returns (digests, errors)."""
     today = today or date.today()
     overdue = (
         Task.objects.filter(

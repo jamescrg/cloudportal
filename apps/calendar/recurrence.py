@@ -69,26 +69,29 @@ def describe(series):
 
 
 def _reminder_template(event):
-    return [
-        {
-            "amount": reminder.amount,
-            "unit": reminder.unit,
-            "time": reminder.time.isoformat() if reminder.time else None,
-        }
-        for reminder in event.reminders.all()
-    ]
+    return [reminder.template for reminder in event.reminders.all()]
 
 
 def _reminders_from(template, event):
     return [
         EventReminder(
             event=event,
+            channel=item.get("channel", "email"),
             amount=item["amount"],
             unit=item["unit"],
             time=time.fromisoformat(item["time"]) if item.get("time") else None,
         )
         for item in template
     ]
+
+
+def _template_key(item):
+    return (
+        item.get("channel", "email"),
+        item["amount"],
+        item["unit"],
+        item.get("time"),
+    )
 
 
 def generate(series, through):
@@ -185,11 +188,7 @@ def add_reminder(event, reminder):
     series = event.series
     if series is None:
         return
-    template = {
-        "amount": reminder.amount,
-        "unit": reminder.unit,
-        "time": reminder.time.isoformat() if reminder.time else None,
-    }
+    template = reminder.template
     series.reminders = [*series.reminders, template]
     series.save(update_fields=["reminders", "updated_at"])
     later = series.occurrences.filter(date__gt=event.date)
@@ -204,14 +203,10 @@ def remove_reminder(event, reminder):
     series = event.series
     if series is None:
         return
-    key = (
-        reminder.amount,
-        reminder.unit,
-        reminder.time.isoformat() if reminder.time else None,
-    )
+    key = _template_key(reminder.template)
     kept, dropped = [], False
     for item in series.reminders:
-        if not dropped and (item["amount"], item["unit"], item.get("time")) == key:
+        if not dropped and _template_key(item) == key:
             dropped = True
             continue
         kept.append(item)
@@ -220,6 +215,7 @@ def remove_reminder(event, reminder):
     EventReminder.objects.filter(
         event__series=series,
         event__date__gt=event.date,
+        channel=reminder.channel,
         amount=reminder.amount,
         unit=reminder.unit,
         time=reminder.time,

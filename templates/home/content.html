@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
+    {# -- notifications sent to the home page -- #}
+    {% if notices %}
+        {% include "home/notices.html" %}
+    {% endif %}
     {# -- quote of the day -- #}
     {% if show_quotes and quotes %}
         {% include "home/quotes.html" %}

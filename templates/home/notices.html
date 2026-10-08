@@ -1,0 +1,39 @@
+{% comment %}
+The notifications sent to the home page (apps.home.notices): a card for
+each task's or event's, and for the past-due digest when it goes here.
+A card stays until it is closed; closing swaps it away in place. The
+title opens the task, the calendar on the event's day, or the tasks
+page; a task's Done marks it done and closes the card.
+{% endcomment %}
+<div class="notices">
+    {% for notice in notices %}
+        <div class="card panel notice notice-{{ notice.kind }}">
+            <div class="card-title flex-start-space">
+                <h1>
+                    <i class="icon-bell"></i>
+                    <a href="{{ notice.link }}">{{ notice.title }}</a>
+                </h1>
+                <button type="button"
+                        class="square-button close-button"
+                        title="Close"
+                        hx-post="{% url 'home-notice-dismiss' notice.id %}"
+                        hx-target="closest .notice"
+                        hx-swap="outerHTML">
+                    <i class="icon-x"></i>
+                </button>
+            </div>
+            <ul class="notice-lines">
+                {% for line in notice.line_list %}<li>{{ line }}</li>{% endfor %}
+            </ul>
+            {% if notice.kind == "task" %}
+                <div class="notice-actions">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            hx-post="{% url 'home-notice-done' notice.id %}"
+                            hx-target="closest .notice"
+                            hx-swap="outerHTML">Done</button>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>

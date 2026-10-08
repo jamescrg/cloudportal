@@ -61,6 +61,13 @@ def test_choosing_ntfy_gives_a_long_random_topic(client, user):
     assert user.ntfy_topic.startswith("cpl-") and len(user.ntfy_topic) > 30
 
 
+def test_choosing_the_home_page(client, user):
+    client.post(reverse("settings-notify-by"), {"notify_by": "home"})
+
+    user.refresh_from_db()
+    assert user.notify_by == "home"
+
+
 def test_choosing_ntfy_again_keeps_the_topic(client, ntfy_user):
     client.post(reverse("settings-notify-by"), {"notify_by": "email"})
     client.post(reverse("settings-notify-by"), {"notify_by": "ntfy"})
@@ -171,6 +178,20 @@ def test_a_failed_push_goes_by_email(ntfy_user, monkeypatch, mailoutbox):
     assert notify.task_reminder(ntfy_user, task)["success"]
 
     assert mailoutbox[0].subject.startswith("Call the dentist")
+
+
+def test_a_notification_set_to_push_is_pushed_whatever_the_default(
+    ntfy_user, ntfy, mailoutbox
+):
+    ntfy_user.notify_by = "email"
+    ntfy_user.save()
+    task = Task.objects.create(
+        user=ntfy_user, title="Call the dentist", due_date=date(2030, 3, 4)
+    )
+
+    notify.task_reminder(ntfy_user, task, "ntfy")
+
+    assert len(ntfy.sent) == 1 and mailoutbox == []
 
 
 def test_by_email_nothing_is_pushed(user, ntfy, mailoutbox):

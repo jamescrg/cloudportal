@@ -26,14 +26,14 @@ def schedule_specs():
             "event-reminders",
             "apps.calendar.reminders.send_due",
             "* * * * *",
-            description="Emails the event notifications that have come due.",
+            description="Sends the event notifications that have come due.",
         ),
         ScheduleSpec(
             "task-reminders",
             "apps.tasks.reminders.send_all",
             "* * * * *",
             description=(
-                "Emails the task notifications that have come due, and once a "
+                "Sends the task notifications that have come due, and once a "
                 "day each user's digest of past-due tasks if they turned it on."
             ),
         ),

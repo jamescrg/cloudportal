@@ -33,10 +33,10 @@ def due_reminders(queryset, now=None):
 
 def send_due(queryset, send, now=None):
     """Send every notification in the queryset that is due, with
-    ``send(user, target)``. Returns (sent, errors)."""
+    ``send(user, target, channel)``. Returns (sent, errors)."""
     sent = errors = 0
     for reminder, fire_at in due_reminders(queryset, now):
-        result = send(reminder.target_user, reminder.target)
+        result = send(reminder.target_user, reminder.target, reminder.channel)
         if result["success"]:
             queryset.model.objects.filter(pk=reminder.pk).update(sent_for=fire_at)
             sent += 1

@@ -130,7 +130,10 @@ class Task(TimestampMixin, models.Model):
         """Give this task the notifications its recurring template has."""
         for reminder in template.reminders.all():
             self.reminders.create(
-                amount=reminder.amount, unit=reminder.unit, time=reminder.time
+                channel=reminder.channel,
+                amount=reminder.amount,
+                unit=reminder.unit,
+                time=reminder.time,
             )
 
     class Meta:
