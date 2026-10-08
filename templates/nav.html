@@ -12,10 +12,40 @@
                         <i class="icon-search"></i>
                     </a>
                 </li>
-                <li {% if page == 'settings' %}class="active"{% endif %}>
-                    <a class="settings-link" href="{% url 'settings' %}">
-                        <i class="icon-settings"></i>
-                    </a>
+                {% comment %}
+                    The account menu: who is signed in, Settings and Log out.
+                    On a settings page it stands as the active tab, as the gear
+                    did. Log out is a form: Django logs out by POST alone.
+                {% endcomment %}
+                <li class="account-menu {% if page == 'settings' %}active{% endif %}">
+                    <div class="dropdown" x-data="dropdown()">
+                        <button class="account-button"
+                                type="button"
+                                x-ref="button"
+                                @click="toggle()"
+                                :aria-expanded="open"
+                                aria-haspopup="menu"
+                                aria-label="Account">
+                            <span class="account-initials">{% include "account-initials.html" %}</span>
+                        </button>
+                        <ul class="dropdown-menu account-dropdown" x-ref="menu" x-show="open">
+                            <li class="account-who">
+                                <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                <span>{{ user.email }}</span>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'settings' %}"><i class="icon-settings"></i> Settings</a>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="icon-log-out"></i> Log out
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
             </ul>
         </div>

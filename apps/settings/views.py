@@ -115,17 +115,6 @@ def google_index(request):
     return render(request, "settings/google.html", context)
 
 
-@login_required
-def session_index(request):
-    """Show the Session settings tab."""
-
-    context = {
-        "page": "settings",
-        "subapp": "session",
-    }
-    return render(request, "settings/session.html", context)
-
-
 def _ntfy_subscribe_link(user):
     """The link that opens the ntfy app on a phone, subscribing it to the
     user's topic (ntfy://server/topic)."""

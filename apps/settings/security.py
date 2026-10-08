@@ -4,14 +4,19 @@
 Setting it up keeps the new secret in the session until a code from the
 app confirms it, so a half-finished setup never locks anyone out. Turning
 it off asks for the password and a code; the password tries count against
-the sign-in cooldown, so a borrowed session can't be used to guess it."""
+the sign-in cooldown, so a borrowed session can't be used to guess it.
 
+Sign out everywhere ends every session on the account but this one."""
+
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 from django.shortcuts import redirect, render
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 
 from accounts import throttle, totp
+from accounts.models import CustomUser
 
 SETUP_KEY = "totp_setup_secret"
 
@@ -110,3 +115,16 @@ def disable(request):
 
     totp.disable(user)
     return _render(request, turned_off=True)
+
+
+@login_required
+@require_POST
+def sign_out_everywhere(request):
+    """End every other session on the account: bumping the count changes
+    the hash each session is checked against (CustomUser), so they stop
+    matching; this one is stamped with the new hash and stays."""
+    user = request.user
+    CustomUser.objects.filter(pk=user.pk).update(sessions_ended=F("sessions_ended") + 1)
+    user.refresh_from_db(fields=["sessions_ended"])
+    update_session_auth_hash(request, user)
+    return _render(request, signed_out_elsewhere=True)

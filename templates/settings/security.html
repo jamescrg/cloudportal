@@ -129,4 +129,17 @@
             {% if disable_error %}<p class="setting-error">{{ disable_error }}</p>{% endif %}
         </div>
     {% endif %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Sign Out Everywhere</h1>
+        </div>
+        <p class="card-text">
+            Sign out on every other device and browser where you're signed in, such as a lost phone or a shared computer. You stay signed in here.
+        </p>
+        <form method="post" action="{% url 'settings-security-sign-out' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">Sign Out Everywhere Else</button>
+        </form>
+        {% if signed_out_elsewhere %}<p class="setting-ok">Every other session is signed out.</p>{% endif %}
+    </div>
 {% endblock subcontent %}

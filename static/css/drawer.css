@@ -124,6 +124,32 @@
     color: var(--selected-color);
   }
 
+  /* The account at the foot of the drawer */
+  .drawer-account {
+    border-top: solid 1px var(--border-medium);
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+  }
+
+  .drawer-account .account-who {
+    padding: 0.5rem 1.5rem;
+  }
+
+  .drawer-logout {
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: 1.1rem;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    width: 100%;
+  }
+
   /* Side panel: out of flow, off-screen right until opened */
   [data-drawer] {
     background: var(--background-section);

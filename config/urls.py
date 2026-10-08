@@ -333,7 +333,6 @@ urlpatterns = [
     path("settings/", settings.index, name="settings"),
     path("settings/homepage/", settings.homepage_index, name="settings-homepage"),
     path("settings/google/", settings.google_index, name="settings-google"),
-    path("settings/session/", settings.session_index, name="settings-session"),
     path("settings/security/", security_settings.index, name="settings-security"),
     path(
         "settings/security/start",
@@ -359,6 +358,11 @@ urlpatterns = [
         "settings/security/disable",
         security_settings.disable,
         name="settings-security-disable",
+    ),
+    path(
+        "settings/security/sign-out-everywhere",
+        security_settings.sign_out_everywhere,
+        name="settings-security-sign-out",
     ),
     path(
         "settings/notifications/",

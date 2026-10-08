@@ -2,12 +2,27 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Q
 from django.db.models.functions import Lower
+from django.utils.crypto import salted_hmac
 
 from accounts.managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
     objects = CustomUserManager()
+
+    def _get_session_auth_hash(self, secret=None):
+        # Django's own hash, with the sign-out-everywhere count mixed in once
+        # there is one; at nought it is exactly Django's, so adding it
+        # signed no one out
+        value = self.password
+        if self.sessions_ended:
+            value = f"{value}:{self.sessions_ended}"
+        return salted_hmac(
+            "django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash",
+            value,
+            secret=secret,
+            algorithm="sha256",
+        ).hexdigest()
 
     class Meta(AbstractUser.Meta):
         constraints = [
@@ -84,6 +99,10 @@ class CustomUser(AbstractUser):
     # so a code can't be used twice
     totp_secret = models.CharField(max_length=32, blank=True, default="")
     totp_last_step = models.BigIntegerField(null=True, blank=True)
+    # Bumped by "Sign out everywhere" (Settings > Security). It goes into
+    # the hash every session is checked against, so each session made
+    # before the bump stops matching and is signed out
+    sessions_ended = models.PositiveIntegerField(default=0)
     task_completion_mode = models.CharField(
         max_length=10,
         choices=[

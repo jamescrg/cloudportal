@@ -96,6 +96,19 @@
                            hx-target="#htmx-modal-container">Search</a>
                     </li>
                 </ul>
+                <!-- The account, at the foot of the drawer: who is signed in, and Log out -->
+                <div class="drawer-account">
+                    <div class="account-who">
+                        <strong>{{ user.get_full_name|default:user.username }}</strong>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="drawer-logout">
+                            <i class="icon-log-out"></i> Log out
+                        </button>
+                    </form>
+                </div>
             </nav>
         </div>
         <!-- Mobile side panel: a floating button, upper right, opens the page's
