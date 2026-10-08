@@ -284,7 +284,6 @@ tr.complete .btn-priority {
   background: var(--background-section);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
-  box-shadow: 0 0.25rem 0.75rem var(--shadow-color);
   color: var(--color-primary);
 }
 
