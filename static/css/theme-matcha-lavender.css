@@ -143,9 +143,9 @@
 
 /* The calendar's weekday headings: FullCalendar paints its header row in
    the solid page colour, which reads whitish on a see-through card; here
-   it is a darker gray laid over the card */
+   it is left clear, so it sits on the card like the day cells */
 .fc .fc-scrollgrid .fc-scrollgrid-section-header > * {
-  background: color-mix(in oklab, var(--stone-300) 85%, transparent);
+  background: transparent;
 }
 
 /* The home page's search box and engine picker sit on the wash as the

@@ -141,10 +141,10 @@
 }
 
 /* The calendar's weekday headings: FullCalendar paints its header row in
-   the solid page colour; here it is Hojicha's gray laid over the card,
-   a band a step lighter than the cells */
+   the solid page colour; here it is left clear, so it sits on the card
+   like the day cells */
 .fc .fc-scrollgrid .fc-scrollgrid-section-header > * {
-  background: color-mix(in oklab, var(--gb-dark2) 70%, transparent);
+  background: transparent;
 }
 
 /* The home page's search box and engine picker sit on the wash as the

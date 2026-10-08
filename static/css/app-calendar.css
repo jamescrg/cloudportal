@@ -455,16 +455,20 @@
   background-color: transparent !important;
 }
 
+/* The circle with its margin stands as tall as the other numbers with
+   their padding (2.5rem), so today's events start on the same line as
+   its neighbours' and a bar spanning the days keeps clear of them */
 .fc .fc-day-today .fc-daygrid-day-number {
   background-color: var(--selected-background);
   border-radius: 50%;
   color: var(--selected-color);
   font-weight: 600;
-  height: 1.75rem;
-  line-height: 1.75rem;
+  height: 2rem;
+  line-height: 2rem;
+  margin: 0.25rem;
   padding: 0;
   text-align: center;
-  width: 1.75rem;
+  width: 2rem;
 }
 
 /* Week/Day view time slots */
@@ -492,6 +496,11 @@
 .fc th {
   background: transparent;
   border-top: 0;
+}
+
+/* The weekday row is ruled off from the days under it */
+.fc .fc-scrollgrid-section-header > * {
+  border-bottom: 1px solid var(--fc-border-color);
 }
 
 
