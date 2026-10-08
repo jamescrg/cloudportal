@@ -36,6 +36,11 @@ def test_right_password_signs_in(client, user):
     assert client.session["_auth_user_id"] == str(user.pk)
 
 
+def test_a_wrong_password_says_so(client, user):
+    response = attempt(client, "ollie", "wrong")
+    assert b"Please enter a correct username and password" in response.content
+
+
 def test_free_attempts_have_no_wait(client, user):
     fail(client, "ollie", throttle.FREE_ATTEMPTS)
     assert not throttle.cooldown_remaining("ollie")
