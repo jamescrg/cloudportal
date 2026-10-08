@@ -25,7 +25,7 @@
 }
 
 .switch {
-  background: var(--background-control);
+  background: var(--background-subnav);
   border: 1px solid var(--border-medium);
   border-radius: 1rem;
   cursor: pointer;
