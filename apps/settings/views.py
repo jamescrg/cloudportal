@@ -17,7 +17,7 @@ from apps.finance.forms import CryptoSymbolForm, SecuritiesSymbolForm
 from apps.finance.models import CryptoSymbol, SecuritiesSymbol
 from apps.notes.models import Note
 from apps.settings.forms import ChangePasswordForm, ProfileForm
-from config.context import RENAMED_THEMES, THEMES
+from config.context import RENAMED_THEMES, THEME_VARIANTS, THEMES, VARIANT_OF
 
 
 def _get_form_errors(form):
@@ -541,15 +541,39 @@ def tasks_options(request, option, value):
     return redirect("/settings/tasks/")
 
 
+def _current_theme(request):
+    name = request.session.get("theme", "")
+    return RENAMED_THEMES.get(name, name) or "auto"
+
+
 @login_required
 def theme(request):
     """Sets the theme for this device, in its session. Only a theme there
-    is: any other name would point the page at a stylesheet that isn't."""
+    is: any other name would point the page at a stylesheet that isn't.
+    The page offers the base themes; choosing one keeps the atmosphere
+    as it is, so a device on Hojicha Steam that picks Matcha gets Matcha
+    Lavender."""
 
     name = request.POST.get("theme", "")
     name = RENAMED_THEMES.get(name, name)
     if name in THEMES:
+        atmosphere = _current_theme(request) in THEME_VARIANTS
+        if atmosphere and name in VARIANT_OF:
+            name = VARIANT_OF[name]
         request.session["theme"] = name
+    return redirect("/settings/")
+
+
+@login_required
+@require_POST
+def theme_atmosphere(request):
+    """Turns the atmosphere on or off for this device: the theme's
+    atmospheric variant, or its base. Auto has no variant and is left
+    as it is."""
+    current = _current_theme(request)
+    base = THEME_VARIANTS.get(current, current)
+    on = request.POST.get("atmosphere") == "on"
+    request.session["theme"] = VARIANT_OF[base] if on and base in VARIANT_OF else base
     return redirect("/settings/")
 
 

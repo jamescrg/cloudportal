@@ -11,7 +11,7 @@
                 <td class="setting-control">
                     <form action="{% url 'settings-theme' %}" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="theme" value="{{ theme }}">
+                        <input type="hidden" name="theme" value="{{ theme_base }}">
                         <div class="dropdown theme-select" x-data="dropdown()">
                             <button class="btn btn-secondary"
                                     type="button"
@@ -19,13 +19,9 @@
                                     @click="toggle()"
                                     :aria-expanded="open">
                                 <span>
-                                    {% if theme == "hojicha" %}
+                                    {% if theme_base == "hojicha" %}
                                         Hojicha
-                                    {% elif theme == "matcha-lavender" %}
-                                        Matcha Lavender
-                                    {% elif theme == "hojicha-steam" %}
-                                        Hojicha Steam
-                                    {% elif theme == "auto" %}
+                                    {% elif theme_base == "auto" %}
                                         Auto
                                     {% else %}
                                         Matcha
@@ -34,33 +30,58 @@
                                 <i class="icon-chevron-down"></i>
                             </button>
                             <ul class="dropdown-menu" x-ref="menu" x-show="open">
-                                <li {% if theme == "matcha" %}class="active"{% endif %}>
+                                <li {% if theme_base == "matcha" %}class="active"{% endif %}>
                                     <a class="dropdown-item"
                                        href="#"
                                        @click.prevent="$el.closest('form').querySelector('[name=theme]').value='matcha'; $el.closest('form').submit();">Matcha</a>
                                 </li>
-                                <li {% if theme == "hojicha" %}class="active"{% endif %}>
+                                <li {% if theme_base == "hojicha" %}class="active"{% endif %}>
                                     <a class="dropdown-item"
                                        href="#"
                                        @click.prevent="$el.closest('form').querySelector('[name=theme]').value='hojicha'; $el.closest('form').submit();">Hojicha</a>
                                 </li>
-                                <li {% if theme == "matcha-lavender" %}class="active"{% endif %}>
-                                    <a class="dropdown-item"
-                                       href="#"
-                                       @click.prevent="$el.closest('form').querySelector('[name=theme]').value='matcha-lavender'; $el.closest('form').submit();">Matcha Lavender</a>
-                                </li>
-                                <li {% if theme == "hojicha-steam" %}class="active"{% endif %}>
-                                    <a class="dropdown-item"
-                                       href="#"
-                                       @click.prevent="$el.closest('form').querySelector('[name=theme]').value='hojicha-steam'; $el.closest('form').submit();">Hojicha Steam</a>
-                                </li>
-                                <li {% if theme == "auto" %}class="active"{% endif %}>
+                                <li {% if theme_base == "auto" %}class="active"{% endif %}>
                                     <a class="dropdown-item"
                                        href="#"
                                        @click.prevent="$el.closest('form').querySelector('[name=theme]').value='auto'; $el.closest('form').submit();">Auto</a>
                                 </li>
                             </ul>
                         </div>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td class="setting-label">Atmosphere:</td>
+                <td class="setting-control">
+                    {% comment %}
+                    A switch: on, the theme takes its atmospheric variant
+                    (Matcha Lavender, Hojicha Steam) with the gradient wash
+                    and the weather. Auto has none, so the switch rests.
+                    {% endcomment %}
+                    <form action="{% url 'settings-theme-atmosphere' %}"
+                          method="post"
+                          class="atmosphere-form">
+                        {% csrf_token %}
+                        <input type="hidden"
+                               name="atmosphere"
+                               value="{% if theme_variant %}off{% else %}on{% endif %}">
+                        <button type="submit"
+                                class="switch{% if theme_variant %} is-on{% endif %}"
+                                role="switch"
+                                aria-checked="{% if theme_variant %}true{% else %}false{% endif %}"
+                                aria-label="Atmosphere"
+                                {% if theme_base == "auto" %}disabled{% endif %}>
+                            <span class="switch-knob"></span>
+                        </button>
+                        <span class="switch-label">
+                            {% if theme_base == "auto" %}
+                                Not with Auto
+                            {% elif theme_variant %}
+                                On
+                            {% else %}
+                                Off
+                            {% endif %}
+                        </span>
                     </form>
                 </td>
             </tr>

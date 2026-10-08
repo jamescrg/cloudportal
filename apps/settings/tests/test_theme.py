@@ -43,10 +43,36 @@ def test_hojicha_steam_builds_on_hojicha(client):
     assert 'class="atmos"' in html
 
 
-def test_variants_are_offered(client):
+def test_the_page_offers_the_base_themes_and_an_atmosphere_switch(client):
     html = page_for(client, "matcha")
-    assert "Matcha Lavender" in html
-    assert "Hojicha Steam" in html
+    assert "Matcha" in html and "Hojicha" in html and "Auto" in html
+    assert "Matcha Lavender" not in html
+    assert 'role="switch"' in html and 'aria-checked="false"' in html
+
+
+def test_the_atmosphere_switch_turns_the_variant_on_and_off(client):
+    client.post(reverse("settings-theme"), {"theme": "matcha"})
+    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": "on"})
+    assert client.session["theme"] == "matcha-lavender"
+    html = client.get(reverse("settings")).content.decode()
+    assert 'aria-checked="true"' in html
+    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": "off"})
+    assert client.session["theme"] == "matcha"
+
+
+def test_choosing_a_base_keeps_the_atmosphere(client):
+    client.post(reverse("settings-theme"), {"theme": "hojicha-steam"})
+    client.post(reverse("settings-theme"), {"theme": "matcha"})
+    assert client.session["theme"] == "matcha-lavender"
+    client.post(reverse("settings-theme"), {"theme": "auto"})
+    assert client.session["theme"] == "auto"
+
+
+def test_auto_has_no_atmosphere(client):
+    client.post(reverse("settings-theme"), {"theme": "auto"})
+    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": "on"})
+    assert client.session["theme"] == "auto"
+    assert "disabled" in client.get(reverse("settings")).content.decode()
 
 
 def test_with_no_theme_chosen_it_follows_the_device(client, user):

@@ -438,6 +438,11 @@ urlpatterns = [
     ),
     path("settings/theme", settings.theme, name="settings-theme"),
     path(
+        "settings/theme/atmosphere",
+        settings.theme_atmosphere,
+        name="settings-theme-atmosphere",
+    ),
+    path(
         "settings/search-engine", settings.search_engine, name="settings-search-engine"
     ),
     path(

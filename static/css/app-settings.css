@@ -16,6 +16,59 @@
   font-size: 0.75rem;
 }
 
+/* A switch: a pill with a knob that slides right when it is on, in the
+   selected colour; the word beside it says which */
+.atmosphere-form {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.switch {
+  background: var(--background-control);
+  border: 1px solid var(--border-medium);
+  border-radius: 1rem;
+  cursor: pointer;
+  height: 1.5rem;
+  padding: 0;
+  position: relative;
+  transition: background 0.15s;
+  width: 2.75rem;
+}
+
+.switch-knob {
+  background: var(--background-section);
+  border: 1px solid var(--border-dark);
+  border-radius: 50%;
+  display: block;
+  height: 1.125rem;
+  left: 0.125rem;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: left 0.15s;
+  width: 1.125rem;
+}
+
+.switch.is-on {
+  background: var(--selected-background);
+  border-color: var(--selected-border);
+}
+
+.switch.is-on .switch-knob {
+  border-color: var(--selected-border);
+  left: calc(100% - 1.125rem - 0.125rem - 2px);
+}
+
+.switch:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.switch-label {
+  color: var(--color-secondary);
+}
+
 .setting-label {
   padding-bottom: 1rem;
   width: 12.5rem;

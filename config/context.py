@@ -20,9 +20,14 @@ THEME_VARIANTS = {
     "hojicha-steam": "hojicha",
 }
 
-# Renamed themes, so a session still holding the old name keeps its theme
+# The same the other way about: the atmospheric variant of each base
+# theme that has one (Auto has none)
+VARIANT_OF = {base: variant for variant, base in THEME_VARIANTS.items()}
+
 # Every theme a user may choose
 THEMES = {"matcha", "hojicha", "auto", *THEME_VARIANTS}
+
+# Renamed themes, so a session still holding the old name keeps its theme
 
 RENAMED_THEMES = {
     "matcha-mist": "matcha-lavender",
