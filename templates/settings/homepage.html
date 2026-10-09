@@ -4,66 +4,46 @@
         <div class="card-title">
             <h1>Home Page Features</h1>
         </div>
-        <p class="card-text">Enable or disable optional home page features.</p>
+        <p class="card-text">What the home page shows.</p>
         <table class="options">
             <tr>
-                <td class="setting-label">Task Folders:</td>
+                <td class="setting-label">Task folders</td>
                 <td class="setting-control">
-                    {% if user.home_tasks %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='tasks' value='disable' %}">Disable</a>
-                    {% else %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='tasks' value='enable' %}">Enable</a>
-                    {% endif %}
+                    {% url 'settings-home-options' option='tasks' value='enable' as url_on %}
+                    {% url 'settings-home-options' option='tasks' value='disable' as url_off %}
+                    {% include "components/setting-switch.html" with on=user.home_tasks url_on=url_on url_off=url_off label="Task folders" %}
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Due Tasks:</td>
+                <td class="setting-label">Due tasks</td>
                 <td class="setting-control">
-                    {% if user.home_due_tasks %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='due_tasks' value='disable' %}">Disable</a>
-                    {% else %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='due_tasks' value='enable' %}">Enable</a>
-                    {% endif %}
+                    {% url 'settings-home-options' option='due_tasks' value='enable' as url_on %}
+                    {% url 'settings-home-options' option='due_tasks' value='disable' as url_off %}
+                    {% include "components/setting-switch.html" with on=user.home_due_tasks url_on=url_on url_off=url_off label="Due tasks" %}
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Events:</td>
+                <td class="setting-label">Events</td>
                 <td class="setting-control">
-                    {% if user.home_events %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='events' value='disable' %}">Disable</a>
-                    {% else %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='events' value='enable' %}">Enable</a>
-                    {% endif %}
+                    {% url 'settings-home-options' option='events' value='enable' as url_on %}
+                    {% url 'settings-home-options' option='events' value='disable' as url_off %}
+                    {% include "components/setting-switch.html" with on=user.home_events url_on=url_on url_off=url_off label="Events" %}
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Quotes:</td>
+                <td class="setting-label">Quotes</td>
                 <td class="setting-control">
-                    {% if user.home_quotes %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='quotes' value='disable' %}">Disable</a>
-                    {% else %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='quotes' value='enable' %}">Enable</a>
-                    {% endif %}
+                    {% url 'settings-home-options' option='quotes' value='enable' as url_on %}
+                    {% url 'settings-home-options' option='quotes' value='disable' as url_off %}
+                    {% include "components/setting-switch.html" with on=user.home_quotes url_on=url_on url_off=url_off label="Quotes" %}
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Weather:</td>
+                <td class="setting-label">Weather</td>
                 <td class="setting-control">
-                    {% if user.home_weather %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='weather' value='disable' %}">Disable</a>
-                    {% else %}
-                        <a class="btn btn-primary"
-                           href="{% url 'settings-home-options' option='weather' value='enable' %}">Enable</a>
-                    {% endif %}
+                    {% url 'settings-home-options' option='weather' value='enable' as url_on %}
+                    {% url 'settings-home-options' option='weather' value='disable' as url_off %}
+                    {% include "components/setting-switch.html" with on=user.home_weather url_on=url_on url_off=url_off label="Weather" %}
                 </td>
             </tr>
         </table>

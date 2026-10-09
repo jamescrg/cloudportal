@@ -24,6 +24,14 @@
   gap: 0.75rem;
 }
 
+/* The switch's form stands as tall as a line of text, so the switch sits
+   on the label's centre line */
+.switch-form {
+  align-items: center;
+  display: flex;
+  min-height: 1.5rem;
+}
+
 .switch {
   background: var(--background-subnav);
   border: 1px solid var(--border-medium);
@@ -68,19 +76,14 @@
 }
 
 .setting-label {
-  padding-bottom: 1rem;
   width: 12.5rem;
-}
-
-.setting-control {
-  padding-bottom: 1rem;
 }
 
 /* A label beside a control with a note under it sits level with the
    control's first line, not the middle of the two (the selector outranks
    the table's cell padding below) */
 .section-body .options td.setting-label-top {
-  padding-top: 0.75rem;
+  padding-top: 0.5rem;
   vertical-align: top;
 }
 
@@ -329,11 +332,39 @@ Section Layout (rail / body)
   padding: 1.25rem 1rem 1.5rem;
 }
 
+/* A setting's rows are a label beside a control, not a table: no rules,
+   and the rows a half step apart */
+.section-body .options {
+  margin-bottom: 0.5rem;
+}
+
 .section-body .options th,
 .section-body .options td {
-  border-bottom: solid 1px var(--border-medium);
-  border-top: solid 1px var(--border-medium);
-  padding: 0.5rem;
+  border: 0;
+  padding: 0.25rem 1rem 0.25rem 0;
+  vertical-align: middle;
+}
+
+/* A list on a settings page is closed in a rounded outline, like the
+   home page's panels; the rows keep their rules and the ends lose theirs */
+.section-body .table-container {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.section-body .table-container .table th {
+  border-top: 0;
+}
+
+.section-body .table-container .table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* The buttons beside a card's title */
+.card-title-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .section-body .options + .btn {
@@ -497,4 +528,89 @@ Profile Form
 
 .quotes-table .btn-icon:hover {
   color: var(--link);
+}
+
+
+/* ==========================================================================
+   Crypto and securities symbols
+   ========================================================================== */
+
+.symbols-table .symbol-col-active,
+.symbols-table .symbol-col-edit,
+.symbols-table .symbol-col-delete {
+  text-align: center;
+  width: 3.5rem;
+}
+
+.symbols-table .btn-icon {
+  color: var(--color-muted);
+  font-size: 1.1rem;
+}
+
+.symbols-table .btn-icon:hover {
+  color: var(--link);
+}
+
+.symbols-table .icon-circle-check {
+  color: var(--color-success);
+}
+
+
+/* ==========================================================================
+   Notes encryption
+   ========================================================================== */
+
+.encryption-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 20rem;
+}
+
+.encryption-progress {
+  color: var(--color-secondary);
+  margin-top: 1rem;
+}
+
+.encryption-message {
+  margin: 0.75rem 0 0;
+}
+
+.encryption-message:empty {
+  display: none;
+}
+
+.is-hidden {
+  display: none;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 2.5rem;
+  width: 100%;
+}
+
+.password-toggle {
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--color-secondary);
+  cursor: pointer;
+  display: flex;
+  padding: 0.25rem;
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover {
+  color: var(--color-primary);
+}
+
+.password-toggle i {
+  font-size: 1rem;
 }

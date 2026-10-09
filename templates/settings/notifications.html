@@ -19,7 +19,7 @@
         {% endif %}
         <table class="options">
             <tr>
-                <td class="setting-label setting-label-top">Default:</td>
+                <td class="setting-label setting-label-top">Default</td>
                 <td class="setting-control">
                     <form method="post"
                           action="{% url 'settings-notify-by' %}"
@@ -41,7 +41,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Email to:</td>
+                <td class="setting-label">Email to</td>
                 <td class="setting-control">
                     <form method="post"
                           action="{% url 'settings-notification-email' %}"
@@ -93,7 +93,7 @@
                     <table class="options">
                         <tr>
                             <td class="setting-label">
-                                <label for="id_ntfy_server">Server:</label>
+                                <label for="id_ntfy_server">Server</label>
                             </td>
                             <td class="setting-control">
                                 <input type="url"
@@ -104,7 +104,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="setting-label">Topic:</td>
+                            <td class="setting-label">Topic</td>
                             <td class="setting-control">
                                 <code id="ntfy-topic">{{ ntfy_topic_here }}</code>
                                 <button class="btn btn-secondary copy-btn"
@@ -117,7 +117,7 @@
                         </tr>
                         <tr>
                             <td class="setting-label">
-                                <label for="id_ntfy_token">Access token:</label>
+                                <label for="id_ntfy_token">Access token</label>
                             </td>
                             <td class="setting-control">
                                 <input type="password"
@@ -159,12 +159,11 @@
         <p class="card-text">Once a day, a list of your tasks that are past due, by the choice offered first above.</p>
         <table class="options">
             <tr>
-                <td class="setting-label">Digest:</td>
+                <td class="setting-label">Digest</td>
                 <td class="setting-control">
-                    <a class="btn {% if user.email_reminders %}btn-primary{% else %}btn-secondary{% endif %}"
-                       href="{% url 'settings-notification-options' option='email_reminders' value='enable' %}">On</a>
-                    <a class="btn {% if not user.email_reminders %}btn-primary{% else %}btn-secondary{% endif %}"
-                       href="{% url 'settings-notification-options' option='email_reminders' value='disable' %}">Off</a>
+                    {% url 'settings-notification-options' option='email_reminders' value='enable' as url_on %}
+                    {% url 'settings-notification-options' option='email_reminders' value='disable' as url_off %}
+                    {% include "components/setting-switch.html" with on=user.email_reminders url_on=url_on url_off=url_off label="Past-due digest" %}
                 </td>
             </tr>
         </table>

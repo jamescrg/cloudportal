@@ -9,15 +9,22 @@
         </p>
         <table class="options">
             <tr>
-                <td class="setting-label">Connection:</td>
-                <td>
+                <td class="setting-label">Connection</td>
+                <td class="setting-control">
                     {% if logged_in %}
-                        <a class="btn btn-primary" href="{% url 'settings-google-logout' %}">Disconnect</a>
+                        Connected
                     {% else %}
-                        <a class="btn btn-primary" href="{% url 'settings-google-login' %}">Connect</a>
+                        Not connected
                     {% endif %}
                 </td>
             </tr>
         </table>
+        <div class="setting-actions">
+            {% if logged_in %}
+                <a class="btn btn-secondary" href="{% url 'settings-google-logout' %}">Disconnect</a>
+            {% else %}
+                <a class="btn btn-primary" href="{% url 'settings-google-login' %}">Connect a Google account</a>
+            {% endif %}
+        </div>
     </div>
 {% endblock subcontent %}

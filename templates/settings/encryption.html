@@ -13,11 +13,11 @@
         </p>
         <table class="options">
             <tr>
-                <td class="setting-label">Status:</td>
+                <td class="setting-label">Status</td>
                 <td class="setting-control">
                     <span id="encryption-status">
                         {% if has_salt %}
-                            <span style="color:var(--green-600)">Enabled</span>
+                            <span class="setting-ok">Enabled</span>
                         {% else %}
                             Disabled
                         {% endif %}
@@ -26,63 +26,60 @@
             </tr>
             {% if has_salt %}
                 <tr>
-                    <td class="setting-label">Notes:</td>
+                    <td class="setting-label">Notes</td>
                     <td class="setting-control">
                         <span id="encryption-stats">{{ encrypted_count }} of {{ note_count }} encrypted</span>
                     </td>
                 </tr>
                 <tr>
-                    <td class="setting-label">Key:</td>
+                    <td class="setting-label">Key</td>
                     <td class="setting-control">
                         <span id="key-status"></span>
                     </td>
                 </tr>
             {% endif %}
         </table>
-        <div style="margin-top:1.25rem">
-            {% if not has_salt %}
-                <!-- State: Disabled — show passphrase + confirm to enable -->
-                <div id="enable-section">
-                    <p class="card-text" style="margin-bottom:0.75rem">Choose a passphrase to enable encryption:</p>
-                    <div style="display:flex;flex-direction:column;gap:0.5rem;max-width:20rem">
-                        <div class="password-wrapper">
-                            <input type="password"
-                                   id="enable-passphrase"
-                                   class="form-control"
-                                   placeholder="Passphrase"
-                                   autocomplete="off">
-                            <button type="button"
-                                    class="password-toggle"
-                                    tabindex="-1"
-                                    aria-label="Toggle visibility">
-                                <i class="icon-eye-off"></i>
-                            </button>
-                        </div>
-                        <div class="password-wrapper">
-                            <input type="password"
-                                   id="enable-passphrase-confirm"
-                                   class="form-control"
-                                   placeholder="Confirm passphrase"
-                                   autocomplete="off">
-                            <button type="button"
-                                    class="password-toggle"
-                                    tabindex="-1"
-                                    aria-label="Toggle visibility">
-                                <i class="icon-eye-off"></i>
-                            </button>
-                        </div>
+        {% if not has_salt %}
+            <div id="enable-section">
+                <p class="card-text">Choose a passphrase to enable encryption.</p>
+                <div class="encryption-fields">
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="enable-passphrase"
+                               class="form-control"
+                               placeholder="Passphrase"
+                               autocomplete="off">
+                        <button type="button"
+                                class="password-toggle"
+                                tabindex="-1"
+                                aria-label="Toggle visibility">
+                            <i class="icon-eye-off"></i>
+                        </button>
                     </div>
-                    <button type="button"
-                            class="btn btn-primary"
-                            style="margin-top:0.75rem"
-                            id="enable-btn">Enable Encryption</button>
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="enable-passphrase-confirm"
+                               class="form-control"
+                               placeholder="Confirm passphrase"
+                               autocomplete="off">
+                        <button type="button"
+                                class="password-toggle"
+                                tabindex="-1"
+                                aria-label="Toggle visibility">
+                            <i class="icon-eye-off"></i>
+                        </button>
+                    </div>
                 </div>
-            {% else %}
-                <!-- State: Enabled — disable button with passphrase if key not loaded -->
-                <div id="disable-section">
-                    <div id="passphrase-row" style="display:none;margin-bottom:0.75rem">
-                        <p class="card-text" style="margin-bottom:0.75rem">Enter your passphrase to decrypt all encrypted notes:</p>
-                        <div class="password-wrapper" style="max-width:20rem">
+                <div class="setting-actions">
+                    <button type="button" class="btn btn-primary" id="enable-btn">Enable Encryption</button>
+                </div>
+            </div>
+        {% else %}
+            <div id="disable-section">
+                <div id="passphrase-row" class="is-hidden">
+                    <p class="card-text">Enter your passphrase to decrypt all encrypted notes.</p>
+                    <div class="encryption-fields">
+                        <div class="password-wrapper">
                             <input type="password"
                                    id="passphrase-input"
                                    class="form-control"
@@ -96,109 +93,75 @@
                             </button>
                         </div>
                     </div>
+                </div>
+                <div class="setting-actions">
                     <button type="button" class="btn btn-danger" id="disable-btn">Disable Encryption</button>
                 </div>
-                <div id="change-section"
-                     style="margin-top:1.5rem;
-                            padding-top:1.5rem;
-                            border-top:1px solid var(--color-border)">
-                    <p class="card-text" style="margin-bottom:0.75rem">
-                        <strong>Change Passphrase</strong>
-                    </p>
-                    <div style="display:flex;flex-direction:column;gap:0.5rem;max-width:20rem">
-                        <div id="change-current-row" style="display:none">
-                            <div class="password-wrapper">
-                                <input type="password"
-                                       id="change-current-passphrase"
-                                       class="form-control"
-                                       placeholder="Current passphrase"
-                                       autocomplete="off">
-                                <button type="button"
-                                        class="password-toggle"
-                                        tabindex="-1"
-                                        aria-label="Toggle visibility">
-                                    <i class="icon-eye-off"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="password-wrapper">
-                            <input type="password"
-                                   id="change-new-passphrase"
-                                   class="form-control"
-                                   placeholder="New passphrase"
-                                   autocomplete="off">
-                            <button type="button"
-                                    class="password-toggle"
-                                    tabindex="-1"
-                                    aria-label="Toggle visibility">
-                                <i class="icon-eye-off"></i>
-                            </button>
-                        </div>
-                        <div class="password-wrapper">
-                            <input type="password"
-                                   id="change-confirm-passphrase"
-                                   class="form-control"
-                                   placeholder="Confirm new passphrase"
-                                   autocomplete="off">
-                            <button type="button"
-                                    class="password-toggle"
-                                    tabindex="-1"
-                                    aria-label="Toggle visibility">
-                                <i class="icon-eye-off"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button type="button"
-                            class="btn btn-primary"
-                            style="margin-top:0.75rem"
-                            id="change-btn">Change Passphrase</button>
-                </div>
-            {% endif %}
-            <div id="encryption-progress" style="display:none;margin-top:1rem">
-                <div style="display:flex;align-items:center;gap:0.75rem">
-                    <span id="progress-text"
-                          style="font-size:0.85rem;
-                                 color:var(--color-secondary)"></span>
-                </div>
             </div>
-            <p id="encryption-message" style="margin-top:0.75rem;font-size:0.85rem"></p>
+        {% endif %}
+        <div id="encryption-progress" class="encryption-progress is-hidden">
+            <span id="progress-text"></span>
         </div>
-        <p class="card-text"
-           style="margin-top:1.5rem;
-                  color:var(--stone-500);
-                  font-size:0.85rem">
-            <i class="icon-triangle-alert" style="font-size:0.85rem"></i>
+        <p id="encryption-message" class="encryption-message"></p>
+        <p class="card-text">
             If you clear browser data or use a different browser, you'll be prompted to re-enter your passphrase when opening an encrypted note.
             Changing your login password does not affect encryption.
         </p>
     </div>
-    <style>
-    .password-wrapper {
-        position: relative;
-    }
-    .password-wrapper input {
-        padding-right: 2.5rem;
-    }
-    .password-toggle {
-        position: absolute;
-        right: 0.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--color-secondary);
-        padding: 0.25rem;
-        display: flex;
-        align-items: center;
-    }
-    .password-toggle:hover {
-        color: var(--color-primary);
-    }
-    .password-toggle i {
-        font-size: 1rem;
-    }
-    </style>
+    {% if has_salt %}
+        <div class="card" id="change-section">
+            <div class="card-title">
+                <h1>Change Passphrase</h1>
+            </div>
+            <p class="card-text">Every encrypted note is re-encrypted under the new passphrase.</p>
+            <div class="encryption-fields">
+                <div id="change-current-row" class="is-hidden">
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="change-current-passphrase"
+                               class="form-control"
+                               placeholder="Current passphrase"
+                               autocomplete="off">
+                        <button type="button"
+                                class="password-toggle"
+                                tabindex="-1"
+                                aria-label="Toggle visibility">
+                            <i class="icon-eye-off"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="password-wrapper">
+                    <input type="password"
+                           id="change-new-passphrase"
+                           class="form-control"
+                           placeholder="New passphrase"
+                           autocomplete="off">
+                    <button type="button"
+                            class="password-toggle"
+                            tabindex="-1"
+                            aria-label="Toggle visibility">
+                        <i class="icon-eye-off"></i>
+                    </button>
+                </div>
+                <div class="password-wrapper">
+                    <input type="password"
+                           id="change-confirm-passphrase"
+                           class="form-control"
+                           placeholder="Confirm new passphrase"
+                           autocomplete="off">
+                    <button type="button"
+                            class="password-toggle"
+                            tabindex="-1"
+                            aria-label="Toggle visibility">
+                        <i class="icon-eye-off"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="setting-actions">
+                <button type="button" class="btn btn-primary" id="change-btn">Change Passphrase</button>
+            </div>
+        </div>
+    {% endif %}
     <script>
     document.querySelectorAll(".password-toggle").forEach(function(btn) {
       btn.addEventListener("click", function() {
@@ -224,16 +187,17 @@
 
     function showMessage(text, isError) {
       messageEl.textContent = text;
-      messageEl.style.color = isError ? "var(--red-600)" : "var(--green-600)";
+      messageEl.classList.toggle("setting-error", isError);
+      messageEl.classList.toggle("setting-ok", !isError);
     }
 
     function showProgress(text) {
-      progressEl.style.display = "";
+      progressEl.classList.remove("is-hidden");
       progressText.textContent = text;
     }
 
     function hideProgress() {
-      progressEl.style.display = "none";
+      progressEl.classList.add("is-hidden");
     }
 
     async function fetchNotes() {
@@ -344,7 +308,7 @@
         const raw = localStorage.getItem("notes_encryption_key");
         const stored = raw ? JSON.parse(raw) : null;
         const remaining = stored ? Math.max(0, Math.round((KEY_TTL_MS - (Date.now() - stored.timestamp)) / 60000)) : 0;
-        keyStatusEl.innerHTML = '<span style="color:var(--green-600)">Loaded (expires in ' + remaining + ' min)</span>';
+        keyStatusEl.innerHTML = '<span class="setting-ok">Loaded (expires in ' + remaining + ' min)</span>';
       } else if (hasStoredKey()) {
         keyStatusEl.textContent = "Expired — re-enter passphrase when opening an encrypted note";
       } else {
@@ -354,12 +318,12 @@
 
     // Show passphrase input if key is not loaded (needed for bulk decrypt on disable/change)
     if (passphraseRow && !keyIsLoaded) {
-      passphraseRow.style.display = "";
+      passphraseRow.classList.remove("is-hidden");
     }
 
     const changeCurrentRow = document.getElementById("change-current-row");
     if (changeCurrentRow && !hasStoredKey()) {
-      changeCurrentRow.style.display = "";
+      changeCurrentRow.classList.remove("is-hidden");
     }
 
     if (disableBtn) {

@@ -1,0 +1,17 @@
+{% comment %}
+A yes/no setting as a switch (the Theme page's Atmosphere control):
+pressing it posts to url_off when on and url_on when off. Context: on,
+url_on, url_off, label (for the screen reader).
+{% endcomment %}
+<form method="post"
+      action="{% if on %}{{ url_off }}{% else %}{{ url_on }}{% endif %}"
+      class="switch-form">
+    {% csrf_token %}
+    <button type="submit"
+            class="switch{% if on %} is-on{% endif %}"
+            role="switch"
+            aria-checked="{% if on %}true{% else %}false{% endif %}"
+            aria-label="{{ label }}">
+        <span class="switch-knob"></span>
+    </button>
+</form>

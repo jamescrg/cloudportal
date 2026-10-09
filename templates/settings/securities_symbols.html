@@ -1,40 +1,54 @@
 {% extends "settings/main.html" %}
 {% block subcontent %}
     <div class="card">
-        <div class="card-title">
+        <div class="card-title flex-center-space">
             <h1>Securities Symbols</h1>
+            <a class="square-button"
+               href="{% url 'settings-securities-symbol-add' %}"
+               title="Add a symbol">
+                <i class="icon-plus"></i>
+            </a>
         </div>
-        <p class="card-text">Manage the securities symbols you want to track.</p>
-        <table class="options">
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Name</th>
-                    <th>Exchange</th>
-                    <th>Active</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for symbol in symbols %}
+        <p class="card-text">The securities symbols you track.</p>
+        {% if symbols %}
+            <div class="table-container">
+                <table class="table symbols-table">
                     <tr>
-                        <td>{{ symbol.symbol }}</td>
-                        <td>{{ symbol.name }}</td>
-                        <td>{{ symbol.exchange }}</td>
-                        <td>{{ symbol.is_active|yesno:"Yes,No" }}</td>
-                        <td>
-                            <a href="{% url 'settings-securities-symbol-edit' symbol.id %}">Edit</a>
-                            <a href="{% url 'settings-securities-symbol-delete' symbol.id %}">Delete</a>
-                        </td>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Exchange</th>
+                        <th class="symbol-col-active">Active</th>
+                        <th class="symbol-col-edit"></th>
+                        <th class="symbol-col-delete"></th>
                     </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5">No securities symbols added yet.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a class="btn btn-primary"
-           href="{% url 'settings-securities-symbol-add' %}">Add Symbol</a>
+                    {% for symbol in symbols %}
+                        <tr>
+                            <td>{{ symbol.symbol }}</td>
+                            <td>{{ symbol.name }}</td>
+                            <td>{{ symbol.exchange }}</td>
+                            <td class="symbol-col-active">
+                                {% if symbol.is_active %}<i class="icon-circle-check" title="Active"></i>{% endif %}
+                            </td>
+                            <td class="symbol-col-edit">
+                                <a class="btn-icon"
+                                   href="{% url 'settings-securities-symbol-edit' symbol.id %}"
+                                   title="Edit">
+                                    <i class="icon-pencil"></i>
+                                </a>
+                            </td>
+                            <td class="symbol-col-delete">
+                                <a class="btn-icon"
+                                   href="{% url 'settings-securities-symbol-delete' symbol.id %}"
+                                   title="Delete">
+                                    <i class="icon-circle-x"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <p class="card-text">No symbols yet.</p>
+        {% endif %}
     </div>
 {% endblock subcontent %}

@@ -20,11 +20,11 @@
         {% elif enabled %}
             <table class="options">
                 <tr>
-                    <td class="setting-label">Status:</td>
+                    <td class="setting-label">Status</td>
                     <td class="setting-control">On</td>
                 </tr>
                 <tr>
-                    <td class="setting-label">Recovery codes:</td>
+                    <td class="setting-label">Recovery codes</td>
                     <td class="setting-control">
                         {{ codes_left }} left
                         {% if codes_left <= 3 %}<span class="setting-note">· make a new set soon</span>{% endif %}
@@ -62,7 +62,7 @@
         {% else %}
             <table class="options">
                 <tr>
-                    <td class="setting-label">Status:</td>
+                    <td class="setting-label">Status</td>
                     <td class="setting-control">
                         <form method="post"
                               action="{% url 'settings-security-start' %}"

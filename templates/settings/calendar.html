@@ -9,7 +9,7 @@
         </p>
         <table class="options">
             <tr>
-                <td class="setting-label">Current zone:</td>
+                <td class="setting-label">Current zone</td>
                 <td class="setting-control">{{ user.time_zone }}</td>
             </tr>
         </table>
@@ -23,12 +23,11 @@
         </p>
         <table class="options">
             <tr>
-                <td class="setting-label">Sync:</td>
+                <td class="setting-label">Sync</td>
                 <td class="setting-control">
-                    <a class="btn {% if user.calendar_sync %}btn-primary{% else %}btn-secondary{% endif %}"
-                       href="{% url 'settings-calendar-options' option='google_sync' value='on' %}">On</a>
-                    <a class="btn {% if not user.calendar_sync %}btn-primary{% else %}btn-secondary{% endif %}"
-                       href="{% url 'settings-calendar-options' option='google_sync' value='off' %}">Off</a>
+                    {% url 'settings-calendar-options' option='google_sync' value='on' as url_on %}
+                    {% url 'settings-calendar-options' option='google_sync' value='off' as url_off %}
+                    {% include "components/setting-switch.html" with on=user.calendar_sync url_on=url_on url_off=url_off label="Google Calendar sync" %}
                 </td>
             </tr>
         </table>
@@ -50,7 +49,7 @@
         {% else %}
             <table class="options">
                 <tr>
-                    <td class="setting-label">Address:</td>
+                    <td class="setting-label">Address</td>
                     <td class="setting-control">
                         {% if inbound_address %}
                             <code id="calendar-inbound-address">{{ inbound_address }}</code>

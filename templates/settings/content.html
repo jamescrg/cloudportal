@@ -7,7 +7,7 @@
         <p class="card-text">Set the theme for the application.</p>
         <table class="options">
             <tr>
-                <td class="setting-label">Theme:</td>
+                <td class="setting-label">Theme</td>
                 <td class="setting-control">
                     <form action="{% url 'settings-theme' %}" method="post">
                         {% csrf_token %}
@@ -51,7 +51,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Atmosphere:</td>
+                <td class="setting-label">Atmosphere</td>
                 <td class="setting-control">
                     {% comment %}
                     A switch: on, the theme takes its atmospheric variant
