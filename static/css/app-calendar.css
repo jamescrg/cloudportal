@@ -181,9 +181,12 @@
   --allday-dot: var(--calendar-allday-dot, var(--color-primary));
   /* a rule round the all-day and task chips, where the theme gives one */
   --allday-border: var(--calendar-chip-border, var(--event-border));
-  /* an event from the user's Kosmos: the border gray, as light as the
-     event chip, and a gray dot */
-  --kosmos-background: var(--calendar-kosmos, var(--border-medium));
+  /* an event from the user's Kosmos: a gray halfway from the border gray
+     to the card, and a gray dot */
+  --kosmos-background: var(
+    --calendar-kosmos,
+    color-mix(in oklch, var(--border-medium) 50%, var(--background-section))
+  );
   --kosmos-dot: var(--calendar-kosmos-dot, var(--border-dark));
   /* the accent, softened toward the card so a dot reads lighter than the
      site's lavender elsewhere. Mixed in oklab, not oklch: oklch would also
