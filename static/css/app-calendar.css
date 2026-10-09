@@ -453,10 +453,12 @@
   font-weight: normal !important;
 }
 
-/* The Kosmos button carries Kosmos's mark, drawn at the icons' size */
+/* The Kosmos button carries Kosmos's mark, a little under the icons'
+   size and softened, since its solid cut weighs more than their strokes */
 .square-button .kosmos-mark {
   display: block;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  opacity: 0.7;
   overflow: visible;
 }
 
