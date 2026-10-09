@@ -75,16 +75,16 @@
   );
 
   /* Calendar entries, in the stone itself. An all-day event is the
-     stone a step off the cell and a task a half step, each ruled round
-     in the border gray, the task told by its check mark in the text's
+     stone two steps off the cell and a task one, each ruled round a step
+     darker than its fill, the task told by its check mark in the text's
      colour; a dot, for timed entries and the agenda, is a mid stone. */
-  --calendar-allday: var(--stone-200);
+  --calendar-allday: var(--stone-300);
   --calendar-allday-color: var(--color-primary);
   --calendar-allday-dot: var(--stone-500);
-  --calendar-task: var(--stone-150);
+  --calendar-task: var(--stone-200);
   --calendar-task-color: var(--color-primary);
   --calendar-task-icon: var(--color-primary);
-  --calendar-chip-border: var(--stone-300);
+  --calendar-chip-border: var(--stone-350);
   --calendar-dot: var(--stone-500);
   /* Status */
   --color-danger: var(--red-700);
