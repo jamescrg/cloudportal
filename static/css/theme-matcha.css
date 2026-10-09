@@ -78,7 +78,8 @@
      stone two steps off the cell and a task one, each ruled round a step
      darker than its fill, the task told by its check mark in the text's
      colour; a dot, for timed entries and the agenda, is a mid stone. */
-  --calendar-allday: var(--stone-300);
+  /* stone-300's lightness with a breath of the links' lime in it */
+  --calendar-allday: oklch(0.87 0.018 131);
   --calendar-allday-color: var(--color-primary);
   --calendar-allday-dot: var(--stone-500);
   --calendar-task: var(--stone-200);
