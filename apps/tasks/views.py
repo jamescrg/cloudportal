@@ -93,8 +93,6 @@ def _get_task_list_context(request):
         "filter_label": filter_label,
         "tasks_folder_all": tasks_folder_all,
         "has_completed_tasks": any(t.status == 1 for t in task_list),
-        # The header's check toggles: all checked means the next click unchecks
-        "all_complete": bool(task_list) and all(t.status == 1 for t in task_list),
         "priority_levels": levels(),
         "date_filter_label": filter_label if filter_label in presets else "all",
         "date_filter_name": DATE_FILTER_NAMES.get(filter_label, "All Dates"),
@@ -618,26 +616,25 @@ def delete_htmx(request, id):
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
 
+def _selected_tasks(request):
+    """The tasks the user selected in the list (their ids come with each
+    bulk request, as ``ids``): theirs, open to change. None selected means
+    nothing to act on."""
+    ids = [part for part in request.POST.get("ids", "").split(",") if part.isdigit()]
+    return Task.objects.filter(
+        user=request.user, pk__in=ids, is_recurring=False, archived=False
+    )
+
+
 @login_required
+@require_POST
 def bulk_status_htmx(request):
-    """Set all visible tasks to complete or pending."""
+    """Mark the selected tasks complete (the way the user has chosen) or
+    pending."""
     new_status = int(request.GET.get("status", 0))
-    tasks_folder_all = request.session.get("tasks_all", False)
-    selected_folder = select_folder(request, "tasks")
-
-    if tasks_folder_all:
-        qs = Task.objects.filter(user=request.user, is_recurring=False, archived=False)
-    elif selected_folder:
-        qs = Task.objects.filter(
-            folder=selected_folder, is_recurring=False, archived=False
-        )
-    else:
-        qs = Task.objects.filter(
-            user=request.user, folder__isnull=True, is_recurring=False, archived=False
-        )
-
+    tasks = _selected_tasks(request)
     if new_status == 1:
-        pending = qs.filter(status=0)
+        pending = tasks.filter(status=0)
         mode = request.user.task_completion_mode
         if mode == "delete":
             pending.delete()
@@ -646,12 +643,8 @@ def bulk_status_htmx(request):
         else:
             pending.update(status=1, completed_date=date.today())
     else:
-        qs.filter(status=1).update(status=0, completed_date=None)
-
-    context = _get_task_list_context(request)
-    response = render(request, "tasks/list.html", context)
-    response["HX-Trigger"] = "tasksChanged"
-    return response
+        tasks.filter(status=1).update(status=0, completed_date=None)
+    return _list_response(request)
 
 
 @login_required
@@ -694,20 +687,6 @@ def delete_completed_htmx(request):
     return response
 
 
-def _checked_tasks(request):
-    """The checked (completed) tasks in the view the user is looking at:
-    every folder, the selected folder, or the Inbox. The bulk buttons
-    under the list act on these."""
-    if request.session.get("tasks_all", False):
-        return Task.objects.filter(user=request.user, status=1, archived=False)
-    selected_folder = select_folder(request, "tasks")
-    if selected_folder:
-        return Task.objects.filter(folder=selected_folder, status=1, archived=False)
-    return Task.objects.filter(
-        user=request.user, folder__isnull=True, status=1, archived=False
-    )
-
-
 def _list_response(request):
     context = _get_task_list_context(request)
     response = render(request, "tasks/list.html", context)
@@ -718,7 +697,7 @@ def _list_response(request):
 @login_required
 @require_POST
 def bulk_due_date_htmx(request):
-    """Give the checked tasks a due date: today, tomorrow, a week out, a
+    """Give the selected tasks a due date: today, tomorrow, a week out, a
     chosen day, or none. Clearing the date clears the time with it."""
     value = request.POST.get("due_date", "").strip()
     today = date.today()
@@ -737,7 +716,7 @@ def bulk_due_date_htmx(request):
     else:
         due_date = None
 
-    tasks = _checked_tasks(request)
+    tasks = _selected_tasks(request)
     if due_date is None:
         tasks.update(due_date=None, due_time=None)
     else:
@@ -748,36 +727,22 @@ def bulk_due_date_htmx(request):
 @login_required
 @require_POST
 def bulk_priority_htmx(request, priority_value):
-    """Give the checked tasks a priority level."""
+    """Give the selected tasks a priority level."""
     if not 1 <= priority_value <= 10:
         return HttpResponse("Unknown priority", status=400)
-    _checked_tasks(request).update(priority=priority_value)
+    _selected_tasks(request).update(priority=priority_value)
     return _list_response(request)
 
 
 @login_required
+@require_POST
 def move_folder_htmx(request):
-    """Move completed tasks to a different folder via htmx."""
-    tasks_folder_all = request.session.get("tasks_all", False)
-    selected_folder = select_folder(request, "tasks")
-
-    if tasks_folder_all:
-        qs = Task.objects.filter(user=request.user, status=1, archived=False)
-    elif selected_folder:
-        qs = Task.objects.filter(folder=selected_folder, status=1, archived=False)
-    else:
-        qs = Task.objects.filter(
-            user=request.user, folder__isnull=True, status=1, archived=False
-        )
-
+    """Move the selected tasks to a folder, or to the Inbox."""
+    tasks = _selected_tasks(request)
     folder_id = request.GET.get("folder_id", "")
     if folder_id:
         folder = get_object_or_404(Folder, pk=folder_id, user=request.user)
-        qs.update(folder=folder)
+        tasks.update(folder=folder)
     else:
-        qs.update(folder=None)
-
-    context = _get_task_list_context(request)
-    response = render(request, "tasks/list.html", context)
-    response["HX-Trigger"] = "tasksChanged"
-    return response
+        tasks.update(folder=None)
+    return _list_response(request)

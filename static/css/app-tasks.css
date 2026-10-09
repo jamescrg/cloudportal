@@ -546,3 +546,30 @@ th.tasks-col-priority .btn-sort.active {
 .tasks-delete i {
   margin-right: 0.25rem;
 }
+
+
+/* ------------------------------------------------------------------------- */
+/* selecting tasks */
+/* ------------------------------------------------------------------------- */
+
+/* The box that picks a task stands where its circle does, and a picked
+   row takes the selection wash */
+.tasks-select-box {
+  color: var(--color-muted);
+  font-size: 1.15rem;
+}
+
+.tasks-select-box[aria-pressed="true"] {
+  color: var(--color-primary);
+}
+
+.tasks-table tr.is-selected td {
+  background: var(--selected-background);
+}
+
+/* How many are picked, before the actions */
+.tasks-selected-count {
+  align-self: center;
+  color: var(--color-secondary);
+  margin-right: 0.5rem;
+}

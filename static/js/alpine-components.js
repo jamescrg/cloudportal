@@ -199,6 +199,46 @@ function repeatLabels(day) {
 }
 
 document.addEventListener('alpine:init', () => {
+  // The task list's selection: a mode the Select button turns on, and the
+  // ids picked while it is. It sits on the card, outside the list htmx
+  // swaps, so it outlives every re-render; the bulk requests carry the
+  // ids (static/js/tasks.js), and the list clears them once one is done.
+  Alpine.data("taskSelection", () => ({
+    mode: false,
+    ids: [],
+    toggleMode() {
+      this.mode = !this.mode;
+      if (!this.mode) {
+        this.ids = [];
+      }
+    },
+    picked(id) {
+      return this.ids.includes(id);
+    },
+    pick(id) {
+      if (this.picked(id)) {
+        this.ids = this.ids.filter((picked) => picked !== id);
+      } else {
+        this.ids = [...this.ids, id];
+      }
+    },
+    allIds() {
+      return [...this.$root.querySelectorAll("tr[data-task-id]")].map((row) =>
+        Number(row.dataset.taskId),
+      );
+    },
+    allPicked() {
+      const all = this.allIds();
+      return all.length > 0 && all.every((id) => this.picked(id));
+    },
+    toggleAll() {
+      this.ids = this.allPicked() ? [] : this.allIds();
+    },
+    clear() {
+      this.ids = [];
+    },
+  }));
+
   Alpine.data("repeatFields", (initial) => ({
     repeat: initial.repeat || "",
     ends: initial.ends || "never",

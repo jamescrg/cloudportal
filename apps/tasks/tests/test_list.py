@@ -1,7 +1,7 @@
 """The task list: priority as levels with icons, the Due column that edits
 in place, and the date dropdown's presets."""
 
-from datetime import date, timedelta
+from datetime import date, time, timedelta
 
 import pytest
 from django.urls import reverse
@@ -242,18 +242,22 @@ def test_a_preset_is_worked_out_afresh_each_day(client, dated):
     assert _titles(client.get(reverse("tasks-list"))) == ["Late", "Today"]
 
 
-# --- bulk date and priority ------------------------------------------------
+# --- bulk actions on the selection ------------------------------------------
 
 
 @pytest.fixture
-def checked(user):
-    """Two checked Inbox tasks and one unchecked; the bulk buttons act on
-    the checked ones."""
+def selected(user):
+    """Three Inbox tasks; a bulk action is sent the ids of the ones picked
+    (a and b here) and leaves the rest alone."""
     return {
-        "a": Task.objects.create(user=user, title="A", status=1),
-        "b": Task.objects.create(user=user, title="B", status=1),
-        "open": Task.objects.create(user=user, title="Open", status=0),
+        "a": Task.objects.create(user=user, title="A"),
+        "b": Task.objects.create(user=user, title="B"),
+        "other": Task.objects.create(user=user, title="Other"),
     }
+
+
+def _ids(*tasks):
+    return ",".join(str(task.id) for task in tasks)
 
 
 def test_new_tasks_start_at_normal_with_no_date_by_default(client):
@@ -345,91 +349,145 @@ def test_the_time_shows_under_the_title_and_the_date_in_its_column(client, user)
         ("2030-03-04", date(2030, 3, 4)),
     ],
 )
-def test_bulk_due_date_sets_the_checked_tasks(client, checked, value, expected):
-    response = client.post(reverse("tasks-bulk-due-date"), {"due_date": value})
+def test_bulk_due_date_sets_the_selected_tasks(client, selected, value, expected):
+    response = client.post(
+        reverse("tasks-bulk-due-date"),
+        {"due_date": value, "ids": _ids(selected["a"], selected["b"])},
+    )
 
     assert response.status_code == 200
     for key in ("a", "b"):
-        checked[key].refresh_from_db()
-        assert checked[key].due_date == expected
-    checked["open"].refresh_from_db()
-    assert checked["open"].due_date is None
+        selected[key].refresh_from_db()
+        assert selected[key].due_date == expected
+    selected["other"].refresh_from_db()
+    assert selected["other"].due_date is None
 
 
-def test_bulk_no_date_clears_date_and_time(client, checked):
-    checked["a"].due_date = date(2030, 3, 4)
-    checked["a"].due_time = "14:00"
-    checked["a"].save()
+def test_bulk_no_date_clears_date_and_time(client, selected):
+    selected["a"].due_date = date(2030, 3, 4)
+    selected["a"].due_time = time(9, 0)
+    selected["a"].save()
 
-    client.post(reverse("tasks-bulk-due-date"), {"due_date": ""})
+    client.post(
+        reverse("tasks-bulk-due-date"), {"due_date": "", "ids": _ids(selected["a"])}
+    )
 
-    checked["a"].refresh_from_db()
-    assert checked["a"].due_date is None
-    assert checked["a"].due_time is None
+    selected["a"].refresh_from_db()
+    assert (selected["a"].due_date, selected["a"].due_time) == (None, None)
 
 
-def test_bulk_unreadable_date_is_refused(client, checked):
-    assert (
-        client.post(reverse("tasks-bulk-due-date"), {"due_date": "soon"}).status_code
-        == 400
+def test_bulk_unreadable_date_is_refused(client, selected):
+    response = client.post(
+        reverse("tasks-bulk-due-date"), {"due_date": "soon", "ids": _ids(selected["a"])}
+    )
+    assert response.status_code == 400
+
+
+def test_bulk_priority_sets_the_selected_tasks(client, selected):
+    response = client.post(
+        reverse("tasks-bulk-priority", args=[1]),
+        {"ids": _ids(selected["a"], selected["b"])},
+    )
+
+    assert response.status_code == 200
+    for key in ("a", "b"):
+        selected[key].refresh_from_db()
+        assert selected[key].priority == 1
+    selected["other"].refresh_from_db()
+    assert selected["other"].priority == 5
+
+
+def test_bulk_priority_out_of_range_is_refused(client, selected):
+    response = client.post(
+        reverse("tasks-bulk-priority", args=[11]), {"ids": _ids(selected["a"])}
+    )
+    assert response.status_code == 400
+
+
+def test_bulk_actions_reach_only_the_tasks_sent(client, user, selected):
+    from accounts.models import CustomUser
+
+    other = CustomUser.objects.create_user("Nico", "nico@gmail.com", "clawboy")
+    theirs = Task.objects.create(user=other, title="Theirs")
+
+    client.post(
+        reverse("tasks-bulk-priority", args=[1]), {"ids": _ids(selected["a"], theirs)}
+    )
+    client.post(reverse("tasks-bulk-priority", args=[2]))
+
+    selected["a"].refresh_from_db()
+    theirs.refresh_from_db()
+    selected["b"].refresh_from_db()
+    assert (selected["a"].priority, theirs.priority, selected["b"].priority) == (
+        1,
+        5,
+        5,
     )
 
 
-def test_bulk_priority_sets_the_checked_tasks(client, checked):
-    response = client.post(reverse("tasks-bulk-priority", args=[1]))
+def test_bulk_move_puts_the_selected_tasks_in_a_folder_or_the_inbox(
+    client, user, folder, selected
+):
+    client.post(
+        reverse("tasks-move-folder-htmx") + f"?folder_id={folder.id}",
+        {"ids": _ids(selected["a"])},
+    )
+    selected["a"].refresh_from_db()
+    selected["b"].refresh_from_db()
+    assert (selected["a"].folder, selected["b"].folder) == (folder, None)
 
-    assert response.status_code == 200
-    for key in ("a", "b"):
-        checked[key].refresh_from_db()
-        assert checked[key].priority == 1
-    checked["open"].refresh_from_db()
-    assert checked["open"].priority == 5
-
-
-def test_bulk_priority_out_of_range_is_refused(client, checked):
-    assert client.post(reverse("tasks-bulk-priority", args=[11])).status_code == 400
-
-
-def test_bulk_actions_stay_in_the_folder_in_view(client, user, folder, checked):
-    in_folder = Task.objects.create(user=user, folder=folder, title="F", status=1)
-
-    client.post(reverse("tasks-bulk-priority", args=[1]))
-
-    in_folder.refresh_from_db()
-    assert in_folder.priority == 5
+    client.post(
+        reverse("tasks-move-folder-htmx") + "?folder_id=", {"ids": _ids(selected["a"])}
+    )
+    selected["a"].refresh_from_db()
+    assert selected["a"].folder is None
 
 
-def test_the_bulk_row_offers_date_and_priority(client, checked):
+def test_bulk_status_marks_the_selected_complete_or_pending(client, user, selected):
+    client.post(
+        reverse("tasks-bulk-status") + "?status=1",
+        {"ids": _ids(selected["a"], selected["b"])},
+    )
+    for key in ("a", "b", "other"):
+        selected[key].refresh_from_db()
+    assert (selected["a"].status, selected["b"].status, selected["other"].status) == (
+        1,
+        1,
+        0,
+    )
+    assert selected["a"].completed_date == date.today()
+
+    client.post(
+        reverse("tasks-bulk-status") + "?status=0", {"ids": _ids(selected["a"])}
+    )
+    selected["a"].refresh_from_db()
+    selected["b"].refresh_from_db()
+    assert (
+        selected["a"].status,
+        selected["a"].completed_date,
+        selected["b"].status,
+    ) == (0, None, 1)
+
+
+def test_bulk_complete_follows_the_completion_mode(client, user, selected):
+    user.task_completion_mode = "delete"
+    user.save()
+
+    client.post(
+        reverse("tasks-bulk-status") + "?status=1", {"ids": _ids(selected["a"])}
+    )
+
+    assert not Task.objects.filter(pk=selected["a"].pk).exists()
+    assert Task.objects.filter(pk=selected["b"].pk).exists()
+
+
+def test_the_list_offers_selecting_and_the_bulk_actions(client, selected):
     html = client.get(reverse("tasks-list")).content.decode()
 
+    assert "tasks-select-toggle" in html
+    assert f'data-task-id="{selected["a"].id}"' in html
+    assert f'pick({selected["a"].id})' in html
     assert reverse("tasks-bulk-due-date") in html
     assert reverse("tasks-bulk-priority", args=[5]) in html
-
-
-# --- the header check is a toggle ------------------------------------------
-
-
-def test_the_header_check_checks_all_then_unchecks_all(client, user):
-    a = Task.objects.create(user=user, title="A")
-    b = Task.objects.create(user=user, title="B", status=1)
-
-    response = client.get(reverse("tasks-list"))
-    assert response.context["all_complete"] is False
-    html = response.content.decode()
     assert reverse("tasks-bulk-status") + "?status=1" in html
-    assert "All Complete" not in html
-
-    response = client.post(reverse("tasks-bulk-status") + "?status=1")
-    a.refresh_from_db()
-    assert a.status == 1
-    assert response.context["all_complete"] is True
-    assert reverse("tasks-bulk-status") + "?status=0" in response.content.decode()
-
-    client.post(reverse("tasks-bulk-status") + "?status=0")
-    a.refresh_from_db()
-    b.refresh_from_db()
-    assert (a.status, b.status) == (0, 0)
-
-
-def test_an_empty_list_is_not_all_complete(client):
-    assert client.get(reverse("tasks-list")).context["all_complete"] is False
+    assert "Done" in html

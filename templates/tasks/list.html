@@ -37,6 +37,19 @@
                 hx-target="#htmx-modal-container">
             <i class="icon-list-filter"></i>
         </button>
+        {% comment %}
+        Select: the circles become boxes, rows can be picked, and the bulk
+        actions under the list act on the picked ones. Pressing it again,
+        or Done under the list, leaves the mode.
+        {% endcomment %}
+        <button type="button"
+                class="square-button filter-button tasks-select-toggle"
+                :class="{ 'toggle-active': mode }"
+                :title="mode ? 'Done selecting' : 'Select tasks'"
+                :aria-pressed="mode"
+                @click="toggleMode()">
+            <i class="icon-list-checks"></i>
+        </button>
     </div>
 </div>
 {% include "tasks/taskform.html" %}
@@ -45,20 +58,16 @@
         <tr>
             <th class="tasks-col-checkbox">
                 {% comment %}
-                One click checks every task in view; when they are all
-                checked already, it unchecks them.
+                While selecting, one click picks every task in view; when
+                they are all picked already, it clears them.
                 {% endcomment %}
-                <button class="btn-icon"
+                <button class="btn-icon tasks-select-box"
                         type="button"
-                        title="{% if all_complete %}Uncheck all{% else %}Check all{% endif %}"
-                        hx-post="{% url 'tasks-bulk-status' %}?status={% if all_complete %}0{% else %}1{% endif %}"
-                        hx-target="#tasks-container"
-                        hx-swap="innerHTML scroll:none">
-                    {% if all_complete %}
-                        <i class="icon-circle-check-big"></i>
-                    {% else %}
-                        <i class="icon-circle"></i>
-                    {% endif %}
+                        x-show="mode"
+                        x-cloak
+                        :title="allPicked() ? 'Clear the selection' : 'Select all'"
+                        @click="toggleAll()">
+                    <i :class="allPicked() ? 'icon-square-check' : 'icon-square'"></i>
                 </button>
             </th>
             <th class="tasks-col-title">
@@ -95,119 +104,154 @@
     </table>
 </div>
 {% include "pagination.html" %}
-{% if has_completed_tasks %}
-    <div class="archive">
-        <div class="archive-buttons">
-            <div class="dropdown" x-data="dropdown()">
-                <button class="btn btn-secondary"
-                        title="Move to folder"
-                        aria-label="Move to folder"
-                        type="button"
-                        x-ref="button"
-                        @click="toggle()"
-                        :aria-expanded="open">
-                    <i class="icon-folder"></i>
-                    <small><i class="icon-chevron-down"></i></small>
-                </button>
-                <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
-                    <li>
-                        <a class="dropdown-item"
-                           href="#"
-                           hx-post="{% url 'tasks-move-folder-htmx' %}?folder_id="
-                           hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">Inbox</a>
-                    </li>
-                    {% for folder in folders %}
-                        <li>
-                            <a class="dropdown-item"
-                               href="#"
-                               hx-post="{% url 'tasks-move-folder-htmx' %}?folder_id={{ folder.id }}"
-                               hx-target="#tasks-container"
-                               hx-swap="innerHTML scroll:none">{{ folder.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="dropdown" x-data="dropdown()">
-                <button class="btn btn-secondary"
-                        title="Set due date"
-                        aria-label="Set due date"
-                        type="button"
-                        x-ref="button"
-                        @click="toggle()"
-                        :aria-expanded="open">
-                    <i class="icon-calendar"></i>
-                    <small><i class="icon-chevron-down"></i></small>
-                </button>
-                <ul class="dropdown-menu bulk-date-menu"
-                    x-ref="menu"
-                    x-show="open"
-                    @click="if ($event.target.closest('a')) close()">
-                    <li>
-                        <a class="dropdown-item"
-                           href="#"
-                           hx-post="{% url 'tasks-bulk-due-date' %}"
-                           hx-vals='{"due_date": "today"}'
-                           hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">Today</a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item"
-                           href="#"
-                           hx-post="{% url 'tasks-bulk-due-date' %}"
-                           hx-vals='{"due_date": "tomorrow"}'
-                           hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">Tomorrow</a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item"
-                           href="#"
-                           hx-post="{% url 'tasks-bulk-due-date' %}"
-                           hx-vals='{"due_date": "week"}'
-                           hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">In a Week</a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item"
-                           href="#"
-                           onclick="event.preventDefault(); openTaskDatePicker(this, '{% url 'tasks-bulk-due-date' %}', '')">Choose a Date…</a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item"
-                           href="#"
-                           hx-post="{% url 'tasks-bulk-due-date' %}"
-                           hx-vals='{"due_date": ""}'
-                           hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">No Date</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="dropdown" x-data="dropdown()">
-                <button class="btn btn-secondary"
-                        title="Set priority"
-                        aria-label="Set priority"
-                        type="button"
-                        x-ref="button"
-                        @click="toggle()"
-                        :aria-expanded="open">
-                    <i class="icon-flag"></i>
-                    <small><i class="icon-chevron-down"></i></small>
-                </button>
-                <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
-                    {% for level in priority_levels %}
-                        <li>
-                            <a class="dropdown-item"
-                               href="#"
-                               hx-post="{% url 'tasks-bulk-priority' level.value %}"
-                               hx-target="#tasks-container"
-                               hx-swap="innerHTML scroll:none">
-                                <i class="{{ level.icon }} priority-{{ level.slug }}"></i> {{ level.name }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+{% comment %}
+The bulk actions, shown while selecting: each sends the picked tasks'
+ids with its request (data-bulk; see static/js/tasks.js).
+{% endcomment %}
+<div class="archive" x-show="mode" x-cloak>
+    <div class="archive-buttons">
+        <span class="tasks-selected-count"
+              x-text="ids.length === 1 ? '1 selected' : ids.length + ' selected'"></span>
+        <div class="dropdown" x-data="dropdown()">
             <button class="btn btn-secondary"
+                    title="Move to folder"
+                    aria-label="Move to folder"
+                    type="button"
+                    x-ref="button"
+                    @click="toggle()"
+                    :aria-expanded="open">
+                <i class="icon-folder"></i>
+                <small><i class="icon-chevron-down"></i></small>
+            </button>
+            <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                <li>
+                    <a class="dropdown-item"
+                       href="#"
+                       data-bulk
+                       hx-post="{% url 'tasks-move-folder-htmx' %}?folder_id="
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">Inbox</a>
+                </li>
+                {% for folder in folders %}
+                    <li>
+                        <a class="dropdown-item"
+                           href="#"
+                           data-bulk
+                           hx-post="{% url 'tasks-move-folder-htmx' %}?folder_id={{ folder.id }}"
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">{{ folder.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="dropdown" x-data="dropdown()">
+            <button class="btn btn-secondary"
+                    title="Set due date"
+                    aria-label="Set due date"
+                    type="button"
+                    x-ref="button"
+                    @click="toggle()"
+                    :aria-expanded="open">
+                <i class="icon-calendar"></i>
+                <small><i class="icon-chevron-down"></i></small>
+            </button>
+            <ul class="dropdown-menu bulk-date-menu"
+                x-ref="menu"
+                x-show="open"
+                @click="if ($event.target.closest('a')) close()">
+                <li>
+                    <a class="dropdown-item"
+                       href="#"
+                       data-bulk
+                       hx-post="{% url 'tasks-bulk-due-date' %}"
+                       hx-vals='{"due_date": "today"}'
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">Today</a>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                       href="#"
+                       data-bulk
+                       hx-post="{% url 'tasks-bulk-due-date' %}"
+                       hx-vals='{"due_date": "tomorrow"}'
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">Tomorrow</a>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                       href="#"
+                       data-bulk
+                       hx-post="{% url 'tasks-bulk-due-date' %}"
+                       hx-vals='{"due_date": "week"}'
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">In a Week</a>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                       href="#"
+                       data-bulk
+                       onclick="event.preventDefault(); openTaskDatePicker(this, '{% url 'tasks-bulk-due-date' %}', '')">Choose a Date…</a>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                       href="#"
+                       data-bulk
+                       hx-post="{% url 'tasks-bulk-due-date' %}"
+                       hx-vals='{"due_date": ""}'
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">No Date</a>
+                </li>
+            </ul>
+        </div>
+        <div class="dropdown" x-data="dropdown()">
+            <button class="btn btn-secondary"
+                    title="Set priority"
+                    aria-label="Set priority"
+                    type="button"
+                    x-ref="button"
+                    @click="toggle()"
+                    :aria-expanded="open">
+                <i class="icon-flag"></i>
+                <small><i class="icon-chevron-down"></i></small>
+            </button>
+            <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                {% for level in priority_levels %}
+                    <li>
+                        <a class="dropdown-item"
+                           href="#"
+                           data-bulk
+                           hx-post="{% url 'tasks-bulk-priority' level.value %}"
+                           hx-target="#tasks-container"
+                           hx-swap="innerHTML scroll:none">
+                            <i class="{{ level.icon }} priority-{{ level.slug }}"></i> {{ level.name }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <button class="btn btn-secondary"
+                type="button"
+                title="Mark selected complete"
+                aria-label="Mark selected complete"
+                data-bulk
+                hx-post="{% url 'tasks-bulk-status' %}?status=1"
+                hx-target="#tasks-container"
+                hx-swap="innerHTML scroll:none">
+            <i class="icon-circle-check-big"></i>
+        </button>
+        <button class="btn btn-secondary"
+                type="button"
+                title="Mark selected pending"
+                aria-label="Mark selected pending"
+                data-bulk
+                hx-post="{% url 'tasks-bulk-status' %}?status=0"
+                hx-target="#tasks-container"
+                hx-swap="innerHTML scroll:none">
+            <i class="icon-circle"></i>
+        </button>
+        {% if has_completed_tasks %}
+            <button class="btn btn-secondary"
+                    type="button"
                     title="Archive completed tasks"
                     aria-label="Archive completed tasks"
                     hx-post="{% url 'tasks-clear-htmx' %}"
@@ -216,6 +260,7 @@
                 <i class="icon-archive"></i>
             </button>
             <button class="btn btn-secondary"
+                    type="button"
                     title="Delete completed tasks"
                     aria-label="Delete completed tasks"
                     hx-post="{% url 'tasks-delete-completed-htmx' %}"
@@ -224,6 +269,9 @@
                     hx-confirm="Are you sure you want to delete all completed tasks?">
                 <i class="icon-circle-x"></i>
             </button>
-        </div>
+        {% endif %}
+        <button class="btn btn-secondary tasks-select-done"
+                type="button"
+                @click="toggleMode()">Done</button>
     </div>
-{% endif %}
+</div>

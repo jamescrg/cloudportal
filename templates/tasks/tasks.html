@@ -1,4 +1,8 @@
-<div class="card tasks">
+{% comment %}
+The selection (apps/tasks: selecting tasks) lives on the card, outside
+the list that htmx swaps, so it survives every re-render.
+{% endcomment %}
+<div class="card tasks" x-data="taskSelection()">
     <div id="tasks-container"
          hx-trigger="tasksChanged from:body"
          hx-get="{% url 'tasks-list' %}"
