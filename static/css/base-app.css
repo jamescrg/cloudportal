@@ -321,7 +321,8 @@ li {
   display: inline-block;
   font-family: inherit;
   font-size: 1rem;
-  line-height: 1.25;
+  /* the inputs' line height, so a button beside one stands as tall */
+  line-height: 1.5;
   padding: 0.5rem 0.75rem;
   text-align: center;
   text-decoration: none;

@@ -70,18 +70,9 @@
                                 role="switch"
                                 aria-checked="{% if theme_variant %}true{% else %}false{% endif %}"
                                 aria-label="Atmosphere"
-                                {% if theme_base == "auto" %}disabled{% endif %}>
+                                {% if theme_base == "auto" %}disabled title="Not with Auto"{% endif %}>
                             <span class="switch-knob"></span>
                         </button>
-                        <span class="switch-label">
-                            {% if theme_base == "auto" %}
-                                Not with Auto
-                            {% elif theme_variant %}
-                                On
-                            {% else %}
-                                Off
-                            {% endif %}
-                        </span>
                     </form>
                 </td>
             </tr>

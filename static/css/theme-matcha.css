@@ -58,8 +58,8 @@
   --selected-background: var(--violet-100);
   /* the atmosphere switch's track when on: a step deeper than the
      selected wash, so it reads as on */
-  --switch-on: var(--violet-200);
-  --switch-on-border: var(--violet-300);
+  --switch-on: var(--violet-300);
+  --switch-on-border: var(--violet-400);
   --selected-color: var(--stone-700);
   --selected-border: var(--stone-300);
 

@@ -9,17 +9,12 @@
             whether the days run through them in a random shuffle or in
             the order you gave them.
         </p>
-        <table class="options">
-            <tr>
-                <td class="setting-label">Order:</td>
-                <td class="setting-control">
-                    <a class="btn {% if user.quotes_mode == 'random' %}btn-primary{% else %}btn-secondary{% endif %}"
-                       href="{% url 'settings-quotes-options' option='mode' value='random' %}">Random shuffle</a>
-                    <a class="btn {% if user.quotes_mode == 'serial' %}btn-primary{% else %}btn-secondary{% endif %}"
-                       href="{% url 'settings-quotes-options' option='mode' value='serial' %}">In order</a>
-                </td>
-            </tr>
-        </table>
+        <div class="setting-buttons">
+            <a class="btn {% if user.quotes_mode == 'random' %}btn-primary{% else %}btn-secondary{% endif %}"
+               href="{% url 'settings-quotes-options' option='mode' value='random' %}">Random shuffle</a>
+            <a class="btn {% if user.quotes_mode == 'serial' %}btn-primary{% else %}btn-secondary{% endif %}"
+               href="{% url 'settings-quotes-options' option='mode' value='serial' %}">In order</a>
+        </div>
     </div>
     <div class="card">
         <div class="card-title">
@@ -29,15 +24,13 @@
               method="post"
               action="{% url 'settings-quotes-add' %}">
             {% csrf_token %}
-            <label for="id_quotes_text">Paste quotes, one per line</label>
+            <label for="id_quotes_text">
+                Paste quotes, one per line. To give the author, put a dash with a space each side after the quote: — or -- both work.
+            </label>
             <textarea id="id_quotes_text"
                       name="text"
                       rows="6"
                       placeholder="The unexamined life is not worth living — Socrates"></textarea>
-            <p class="form-text">
-                To give the author, put a dash with a space each side
-                after the quote: — or -- both work.
-            </p>
             <button type="submit" class="btn btn-primary">Add</button>
         </form>
     </div>

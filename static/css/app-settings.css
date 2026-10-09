@@ -17,7 +17,7 @@
 }
 
 /* A switch: a pill with a knob that slides right when it is on, in the
-   selected colour; the word beside it says which */
+   selected colour */
 .atmosphere-form {
   align-items: center;
   display: flex;
@@ -67,10 +67,6 @@
   opacity: 0.5;
 }
 
-.switch-label {
-  color: var(--color-secondary);
-}
-
 .setting-label {
   padding-bottom: 1rem;
   width: 12.5rem;
@@ -110,13 +106,10 @@
   color: var(--color-success);
 }
 
+/* A note after a control or a paragraph: the text's own colour, since a
+   muted one read as an afterthought */
 .setting-note {
-  color: var(--color-muted);
-}
-
-/* Profile: the icon that stands for the user in the top bar */
-.profile-icon {
-  margin-top: 2rem;
+  color: var(--color-primary);
 }
 
 .icon-picker {
@@ -212,6 +205,7 @@
 }
 
 .setup-steps li {
+  list-style: decimal;
   margin-bottom: 0.25rem;
 }
 
@@ -346,14 +340,25 @@ Section Layout (rail / body)
   margin-top: 1rem;
 }
 
+/* A choice made with buttons, standing under the text that explains it */
+.setting-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 
 /* ==========================================================================
 Profile Form
 ========================================================================== */
 
 .profile-form {
-  margin-bottom: 2rem;
   max-width: 25rem;
+}
+
+/* The button stands clear of the last field */
+.profile-form .form-group:last-child {
+  margin-top: 0.5rem;
 }
 
 .profile-form input[type="text"],

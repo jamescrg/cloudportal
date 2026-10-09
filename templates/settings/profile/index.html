@@ -4,10 +4,11 @@
          hx-trigger="load, profileReload from:body"
          hx-get="{% url 'personal-profile' %}"
          hx-target="this">{% include "settings/profile/profile.html" %}</div>
-    <div class="profile-icon">
-        <h2>Icon</h2>
-        <hr />
-        <p>The icon that stands for you in the top bar and opens your account menu.</p>
+    <div class="card">
+        <div class="card-title">
+            <h1>Icon</h1>
+        </div>
+        <p class="card-text">The icon that stands for you in the top bar and opens your account menu.</p>
         <form method="post"
               action="{% url 'settings-nav-icon' %}"
               class="icon-picker">
