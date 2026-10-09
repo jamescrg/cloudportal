@@ -79,17 +79,18 @@
      one step off with the same breath of lime, each ruled round in the
      stone a step darker, the task told by its check mark in the text's
      colour; a dot, for timed entries and the agenda, is the event chip's
-     colour. */
+     hue a good deal darker. */
   /* stone-300's lightness with a breath of the links' lime in it */
   --calendar-allday: oklch(0.87 0.018 131);
   --calendar-allday-color: var(--color-primary);
-  --calendar-allday-dot: var(--calendar-allday);
+  --calendar-allday-dot: var(--calendar-dot);
   /* stone-200's lightness with a breath of the links' lime in it */
   --calendar-task: oklch(0.92 0.016 131);
   --calendar-task-color: var(--color-primary);
   --calendar-task-icon: var(--color-primary);
   --calendar-chip-border: var(--stone-350);
-  --calendar-dot: var(--calendar-allday);
+  /* the event chip's hue, well darker, so a dot reads at its size */
+  --calendar-dot: oklch(0.58 0.045 131);
   /* Status */
   --color-danger: var(--red-700);
   --color-success: var(--green-600);
