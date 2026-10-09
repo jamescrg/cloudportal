@@ -456,15 +456,6 @@
   font-weight: normal !important;
 }
 
-/* The Kosmos button carries Kosmos's mark, a little under the icons'
-   size since its solid cut weighs more than their strokes, in their
-   colour */
-.square-button .kosmos-mark {
-  display: block;
-  font-size: 0.9rem;
-  overflow: visible;
-}
-
 /* An event from the user's Kosmos: a gray chip a step darker than the
    event chip, ruled round in the chip border colour, since it is
    read-only here and opens in Kosmos; a timed one has a gray dot */
