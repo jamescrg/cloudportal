@@ -2,12 +2,14 @@ from datetime import datetime, time, timedelta
 
 from django.utils import timezone
 
+from apps.calendar import kosmos
 from apps.calendar.filter import EventFilter
 from apps.management.pagination import CustomPaginator
 
 SESSION_KEY = "calendar_filter"
 VIEW_MODE_KEY = "calendar_view_mode"
 SHOW_TASKS_KEY = "calendar_show_tasks"
+SHOW_KOSMOS_KEY = "calendar_show_kosmos"
 PAGINATION_KEY = "calendar_page"
 TRIGGER_KEY = "eventsChanged"
 
@@ -41,6 +43,12 @@ def view_mode(request):
 def show_tasks(request):
     """Whether the grid shows the user's open tasks beside the events."""
     return bool(request.session.get(SHOW_TASKS_KEY, False))
+
+
+def show_kosmos(request):
+    """Whether the grid shows the user's Kosmos events beside their own:
+    it does until they hide them."""
+    return bool(request.session.get(SHOW_KOSMOS_KEY, True))
 
 
 def event_filter(request):
@@ -108,6 +116,8 @@ def toolbar_context(request):
         "page": "calendar",
         "view_mode": view_mode(request),
         "show_tasks": show_tasks(request),
+        "kosmos_connected": kosmos.connected(request.user),
+        "show_kosmos": show_kosmos(request),
         "filter_active": filter_is_active(request),
         "today": today,
         "third_day": today + timedelta(days=3),

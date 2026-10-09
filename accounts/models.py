@@ -102,6 +102,10 @@ class CustomUser(AbstractUser):
         max_length=32, blank=True, null=True, unique=True
     )
     calendar_forward_from = models.TextField(blank=True, default="")
+    # A Kosmos to overlay on the calendar (apps.calendar.kosmos): the site's
+    # address and the user's Kosmos token, from its Claude Desktop page
+    kosmos_url = models.URLField(blank=True, default="")
+    kosmos_token = models.CharField(max_length=64, blank=True, default="")
     extension_token = models.CharField(
         max_length=64, blank=True, null=True, unique=True
     )

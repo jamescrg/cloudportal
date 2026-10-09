@@ -449,6 +449,29 @@
   font-weight: normal !important;
 }
 
+/* An event from the user's Kosmos: the chip hollowed out, with a rule in
+   the chip border colour and no fill, since it is read-only here and
+   opens in Kosmos. A timed one keeps the dot, hollow too. */
+.fc-event.fc-event-kosmos:not(.fc-list-event),
+.fc-event.fc-event-kosmos.fc-daygrid-block-event {
+  background-color: transparent !important;
+  border: 1px solid var(--calendar-chip-border, var(--border-dark)) !important;
+}
+
+.fc-event.fc-event-kosmos.fc-daygrid-dot-event {
+  border-color: transparent !important;
+}
+
+.fc-event-kosmos .fc-daygrid-event-dot,
+.fc-list-event.fc-event-kosmos .fc-list-event-dot {
+  background: transparent;
+  border-width: 2px;
+}
+
+.fc-event.fc-event-kosmos {
+  cursor: pointer;
+}
+
 /* A repeating event: a small repeat mark after its title, on the grid's
    chips and in the agenda alike */
 .fc-event-repeats .fc-event-title::after,

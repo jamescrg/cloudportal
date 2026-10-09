@@ -27,6 +27,14 @@
                 title="{% if show_tasks %}Hide tasks{% else %}Show tasks{% endif %}">
             <i class="icon-list-checks"></i>
         </button>
+        {% if kosmos_connected %}
+            <button class="square-button filter-button {% if show_kosmos %}toggle-active{% endif %}"
+                    hx-post="{% if show_kosmos %}{% url 'calendar:show-kosmos' 'off' %}{% else %}{% url 'calendar:show-kosmos' 'on' %}{% endif %}"
+                    hx-swap="none"
+                    title="{% if show_kosmos %}Hide Kosmos events{% else %}Show Kosmos events{% endif %}">
+                <i class="icon-scale"></i>
+            </button>
+        {% endif %}
         <button class="square-button filter-button {% if filter_active %}toggle-active{% endif %}"
                 hx-get="{% url 'calendar:filter' %}"
                 hx-target="#htmx-modal-container"

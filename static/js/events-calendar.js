@@ -275,6 +275,13 @@ document.addEventListener("alpine:init", () => {
       // modal when the content lands in the container. A task on the grid
       // opens the task form instead.
       const props = info.event.extendedProps || {};
+      // A Kosmos event lives in Kosmos: it opens there, in a new tab
+      if (props.kind === "kosmos") {
+        if (props.url) {
+          window.open(props.url, "_blank", "noopener");
+        }
+        return;
+      }
       const url =
         props.kind === "task"
           ? `/tasks/${props.task_id}/form`

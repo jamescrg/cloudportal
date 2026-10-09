@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlsplit
 
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
@@ -13,7 +14,7 @@ from django.views.decorators.http import require_POST
 
 from accounts import totp
 from accounts.models import NAV_ICONS
-from apps.calendar import invitations, sync as calendar_sync
+from apps.calendar import invitations, kosmos, sync as calendar_sync
 from apps.common import notify
 from apps.finance.forms import CryptoSymbolForm, SecuritiesSymbolForm
 from apps.finance.models import CryptoSymbol, SecuritiesSymbol
@@ -492,16 +493,22 @@ def time_zone(request):
     return HttpResponse(status=204)
 
 
-@login_required
-def calendar_settings_index(request):
-    """Show the Calendar settings tab."""
-    context = {
+def _calendar_context(request, **extra):
+    return {
         "page": "settings",
         "subapp": "calendar",
         "inbound_domain": settings.CALENDAR_INBOUND_DOMAIN,
         "inbound_address": invitations.inbound_address(request.user),
+        "kosmos_test": request.session.pop("kosmos_test", ""),
+        "kosmos_test_error": request.session.pop("kosmos_test_error", ""),
+        **extra,
     }
-    return render(request, "settings/calendar.html", context)
+
+
+@login_required
+def calendar_settings_index(request):
+    """Show the Calendar settings tab."""
+    return render(request, "settings/calendar.html", _calendar_context(request))
 
 
 @login_required
@@ -523,6 +530,44 @@ def calendar_options(request, option, value):
         user.calendar_inbound_token = None
         user.save(update_fields=["calendar_inbound_token"])
     return redirect("/settings/calendar/")
+
+
+@login_required
+@require_POST
+def calendar_kosmos(request):
+    """Save where the user's Kosmos is and their token for it, or try the
+    connection, or forget it."""
+    user = request.user
+    action = request.POST.get("action", "save")
+    if action == "clear":
+        user.kosmos_url = ""
+        user.kosmos_token = ""
+        user.save(update_fields=["kosmos_url", "kosmos_token"])
+        return redirect("settings-calendar")
+    url = request.POST.get("kosmos_url", "").strip().rstrip("/")
+    token = request.POST.get("kosmos_token", "").strip()
+    split = urlsplit(url)
+    if not url or split.scheme not in ("http", "https") or not split.netloc:
+        return render(
+            request,
+            "settings/calendar.html",
+            _calendar_context(
+                request,
+                kosmos_error="Enter the address of your Kosmos, like https://kosmos.example.com.",
+            ),
+        )
+    user.kosmos_url = url
+    user.kosmos_token = token
+    user.save(update_fields=["kosmos_url", "kosmos_token"])
+    if action == "test":
+        result = kosmos.check(user)
+        if result["ok"]:
+            request.session["kosmos_test"] = (
+                f"Connected: Kosmos has {result['count']} event(s) for you this month."
+            )
+        else:
+            request.session["kosmos_test_error"] = result["error"]
+    return redirect("settings-calendar")
 
 
 @login_required

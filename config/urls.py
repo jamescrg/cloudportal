@@ -332,6 +332,11 @@ urlpatterns = [
         settings.calendar_forward_from,
         name="settings-calendar-forward-from",
     ),
+    path(
+        "settings/calendar/kosmos",
+        settings.calendar_kosmos,
+        name="settings-calendar-kosmos",
+    ),
     path("settings/tasks/", settings.tasks_settings_index, name="settings-tasks"),
     # settings — quotes
     path("settings/quotes/", quotes.settings_index, name="settings-quotes"),

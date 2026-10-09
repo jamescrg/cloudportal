@@ -90,4 +90,57 @@
             </form>
         {% endif %}
     </div>
+    <div class="card">
+        <div class="card-title">
+            <h1>Kosmos</h1>
+        </div>
+        <p class="card-text">
+            Show the events from your Kosmos calendar here beside your own. They are shown as they stand in Kosmos and open there; a button on the calendar hides and shows them. Give the address of your Kosmos and your Kosmos token, which its Claude Desktop settings page issues.
+        </p>
+        {% if kosmos_test %}<p class="card-text setting-ok">{{ kosmos_test }}</p>{% endif %}
+        {% if kosmos_test_error %}<p class="setting-error">{{ kosmos_test_error }}</p>{% endif %}
+        <form method="post" action="{% url 'settings-calendar-kosmos' %}">
+            {% csrf_token %}
+            <table class="options">
+                <tr>
+                    <td class="setting-label">
+                        <label for="id_kosmos_url">Address</label>
+                    </td>
+                    <td class="setting-control">
+                        <input type="url"
+                               id="id_kosmos_url"
+                               name="kosmos_url"
+                               value="{{ user.kosmos_url }}"
+                               placeholder="https://kosmos.example.com"
+                               class="setting-input">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="setting-label">
+                        <label for="id_kosmos_token">Token</label>
+                    </td>
+                    <td class="setting-control">
+                        <input type="password"
+                               id="id_kosmos_token"
+                               name="kosmos_token"
+                               value="{{ user.kosmos_token }}"
+                               autocomplete="off"
+                               class="setting-input">
+                    </td>
+                </tr>
+            </table>
+            {% if kosmos_error %}<p class="setting-error">{{ kosmos_error }}</p>{% endif %}
+            <div class="setting-actions">
+                <button type="submit" class="btn btn-primary" name="action" value="save">Save</button>
+                <button type="submit" class="btn btn-secondary" name="action" value="test">Test the connection</button>
+                {% if user.kosmos_url %}
+                    <button type="submit"
+                            class="btn btn-secondary"
+                            name="action"
+                            value="clear"
+                            formnovalidate>Disconnect</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
 {% endblock subcontent %}

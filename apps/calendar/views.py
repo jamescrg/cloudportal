@@ -15,12 +15,14 @@ from django.views.decorators.http import require_http_methods, require_POST
 import apps.calendar.invitations as invitations
 import apps.calendar.recurrence as recurrence
 import apps.calendar.sync as sync
+from apps.calendar import kosmos
 from apps.calendar.forms import EventForm, GuestForm, ReminderForm
 from apps.calendar.models import Event, EventReminder, is_zone
 
 from .events import (
     PAGINATION_KEY,
     SESSION_KEY,
+    SHOW_KOSMOS_KEY,
     SHOW_TASKS_KEY,
     TRIGGER_KEY,
     VIEW_MODE_KEY,
@@ -28,6 +30,7 @@ from .events import (
     feed_filter,
     get_table_data,
     saved_filter,
+    show_kosmos,
     show_tasks,
     toolbar_context,
     view_mode,
@@ -73,6 +76,18 @@ def events_calendar(request):
     for it when the saved view is the list, since the grid's agenda view
     reads better there than the table."""
     return render(request, "calendar/calendar.html", toolbar_context(request))
+
+
+@login_required
+@require_POST
+def events_show_kosmos(request, state):
+    """Show the user's Kosmos events on the grid beside their own, or
+    hide them."""
+    if state not in ("on", "off"):
+        return HttpResponseBadRequest("Unknown state.")
+    request.session[SHOW_KOSMOS_KEY] = state == "on"
+    request.session.modified = True
+    return HttpResponse(status=204, headers={"HX-Trigger": "eventsViewChanged"})
 
 
 @login_required
@@ -516,6 +531,8 @@ def events_api(request):
 
     if show_tasks(request):
         calendar_events.extend(_task_feed(request.user, first, last))
+    if show_kosmos(request) and kosmos.connected(request.user):
+        calendar_events.extend(kosmos.feed(request.user, first, last))
 
     return JsonResponse(calendar_events, safe=False)
 
