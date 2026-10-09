@@ -453,7 +453,7 @@
    chips and in the agenda alike */
 .fc-event-repeats .fc-event-title::after,
 .fc-event-repeats .fc-list-event-title a::after {
-  content: "\e14a";
+  content: "\e146";
   font-family: lucide;
   font-size: 0.75em;
   font-weight: normal;
