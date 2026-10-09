@@ -402,6 +402,22 @@
   top: 0.5rem;
 }
 
+/* A timed task has no dot: its check mark stands where the dot would,
+   and not before its title as well */
+.fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event .fc-daygrid-event-dot,
+.fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event .fc-event-title::before {
+  display: none;
+}
+
+.fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event::before {
+  color: var(--task-icon);
+  content: "\e16a";
+  font-family: lucide;
+  left: 0.3rem;
+  position: absolute;
+  top: 0.1875rem;
+}
+
 .fc-event-task .fc-daygrid-event-dot {
   border-color: var(--task-dot);
 }
