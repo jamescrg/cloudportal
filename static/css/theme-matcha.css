@@ -82,8 +82,8 @@
   --calendar-allday: oklch(0.87 0.018 131);
   --calendar-allday-color: var(--color-primary);
   --calendar-allday-dot: var(--stone-500);
-  /* stone-200's lightness with a breath of amber in it */
-  --calendar-task: oklch(0.92 0.018 85);
+  /* stone-200's lightness with a breath of yellow in it */
+  --calendar-task: oklch(0.92 0.022 100);
   --calendar-task-color: var(--color-primary);
   --calendar-task-icon: var(--color-primary);
   --calendar-chip-border: var(--stone-350);
