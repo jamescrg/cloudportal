@@ -157,6 +157,11 @@
   color: var(--calendar-task-color, var(--color-primary));
 }
 
+.week-entry-all-day,
+.week-entry-task {
+  border: 1px solid var(--calendar-chip-border, transparent);
+}
+
 .week-entry-time {
   color: var(--color-secondary);
   display: block;

@@ -179,6 +179,8 @@
   --allday-background: var(--calendar-allday, var(--event-background));
   --allday-color: var(--calendar-allday-color, var(--event-color));
   --allday-dot: var(--calendar-allday-dot, var(--color-primary));
+  /* a rule round the all-day and task chips, where the theme gives one */
+  --allday-border: var(--calendar-chip-border, var(--event-border));
   /* the accent, softened toward the card so a dot reads lighter than the
      site's lavender elsewhere. Mixed in oklab, not oklch: oklch would also
      blend the hue, and the path from violet to the warm stone runs through
@@ -190,7 +192,7 @@
   /* A task's chip: its own colour where the theme gives one
      (--calendar-task, --calendar-task-color), otherwise the event chip */
   --task-background: var(--calendar-task, var(--event-background));
-  --task-border: transparent;
+  --task-border: var(--calendar-chip-border, transparent);
   --task-color: var(--calendar-task-color, var(--color-primary));
   --task-dot: var(--event-dot);
   --task-icon: var(--calendar-task-icon, var(--link));
@@ -352,6 +354,7 @@
    colour where the theme gives one */
 .fc-event.fc-daygrid-block-event:not(.fc-event-task) {
   background-color: var(--allday-background) !important;
+  border-color: var(--allday-border) !important;
   color: var(--allday-color) !important;
 }
 
