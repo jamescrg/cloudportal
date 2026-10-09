@@ -181,6 +181,10 @@
   --allday-dot: var(--calendar-allday-dot, var(--color-primary));
   /* a rule round the all-day and task chips, where the theme gives one */
   --allday-border: var(--calendar-chip-border, var(--event-border));
+  /* an event from the user's Kosmos: a gray a step darker than the
+     border gray, and a gray dot */
+  --kosmos-background: var(--calendar-kosmos, color-mix(in oklch, var(--border-medium) 60%, var(--border-dark)));
+  --kosmos-dot: var(--calendar-kosmos-dot, var(--border-dark));
   /* the accent, softened toward the card so a dot reads lighter than the
      site's lavender elsewhere. Mixed in oklab, not oklch: oklch would also
      blend the hue, and the path from violet to the warm stone runs through
@@ -449,23 +453,30 @@
   font-weight: normal !important;
 }
 
-/* An event from the user's Kosmos: the chip hollowed out, with a rule in
-   the chip border colour and no fill, since it is read-only here and
-   opens in Kosmos. A timed one keeps the dot, hollow too. */
+/* The Kosmos button carries Kosmos's mark, drawn at the icons' size */
+.square-button .kosmos-mark {
+  display: block;
+  font-size: 1.1rem;
+  overflow: visible;
+}
+
+/* An event from the user's Kosmos: a gray chip a step darker than the
+   event chip, ruled round in the chip border colour, since it is
+   read-only here and opens in Kosmos; a timed one has a gray dot */
 .fc-event.fc-event-kosmos:not(.fc-list-event),
 .fc-event.fc-event-kosmos.fc-daygrid-block-event {
-  background-color: transparent !important;
+  background-color: var(--kosmos-background) !important;
   border: 1px solid var(--calendar-chip-border, var(--border-dark)) !important;
 }
 
 .fc-event.fc-event-kosmos.fc-daygrid-dot-event {
+  background-color: transparent !important;
   border-color: transparent !important;
 }
 
 .fc-event-kosmos .fc-daygrid-event-dot,
 .fc-list-event.fc-event-kosmos .fc-list-event-dot {
-  background: transparent;
-  border-width: 2px;
+  border-color: var(--kosmos-dot);
 }
 
 .fc-event.fc-event-kosmos {
