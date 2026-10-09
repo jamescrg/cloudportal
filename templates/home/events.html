@@ -9,8 +9,7 @@
     {% comment %}
     The next seven days as a strip of columns, today first. Each column
     heads with the day and opens the calendar on it; under it the day's
-    events, and its tasks when the calendar shows those, all-day entries
-    first. A day with nothing on it keeps its column (a free day is worth
+    events, all-day ones first (its tasks are in the panel below). A day with nothing on it keeps its column (a free day is worth
     seeing); on a phone the strip stacks and empty days drop out.
     {% endcomment %}
     <div class="week-strip">
@@ -26,12 +25,7 @@
                         <li class="week-entry week-entry-{{ entry.kind }}{% if entry.kind == "event" and not entry.time %} week-entry-all-day{% endif %}">
                             {% if entry.time %}<span class="week-entry-time">{{ entry.time|time:"g:i A" }}</span>{% endif %}
                             <span class="week-entry-title">
-                                {% if entry.kind == "task" %}<i class="icon-circle-check-big" title="Task"></i>{% endif %}
-                                {% if entry.kind == "task" %}
-                                    <a href="{% url 'tasks-edit' entry.id %}">{{ entry.title }}</a>
-                                {% else %}
-                                    {{ entry.title }}
-                                {% endif %}
+                                {{ entry.title }}
                                 {% if entry.repeat_summary %}
                                     <i class="icon-repeat week-entry-repeat"
                                        title="{{ entry.repeat_summary }}"></i>

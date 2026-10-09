@@ -14,7 +14,6 @@ from django.db.models import Q
 from django.utils import timezone
 
 from apps.calendar import recurrence
-from apps.calendar.events import show_tasks
 from apps.calendar.models import Event
 from apps.tasks.models import Task
 from apps.tasks.priority import level_for
@@ -53,22 +52,8 @@ def _entry_for_event(event, zone):
     )
 
 
-def _entry_for_task(task, zone):
-    """A task as the strip shows it, beside the events of its due day."""
-    shown = task.in_zone(zone)
-    return SimpleNamespace(
-        kind="task",
-        id=task.id,
-        title=task.title,
-        time=shown.due_time,
-        repeat_summary=task.repeat_summary if task.parent_task_id else "",
-        first_day=shown.due_date,
-        last_day=shown.due_date,
-    )
-
-
 def _entry_key(entry):
-    """All-day entries first, then by time, events before tasks at the
+    """All-day entries first, then by time, at the
     same time, then by title."""
     return (
         entry.time is not None,
@@ -83,8 +68,8 @@ def week_days(request, today=None):
 
     A day carries its date, its label (Today, Tomorrow, a weekday), the
     entries that fit, and how many more there are. An event over several
-    days appears on each day it covers. Tasks join the events when the
-    calendar's own show-tasks switch is on.
+    days appears on each day it covers. Tasks stay off it: the Scheduled
+    Tasks panel under it has them.
     """
     user = request.user
     zone = user.time_zone
@@ -101,17 +86,6 @@ def week_days(request, today=None):
         .select_related("series")
     )
     entries = [_entry_for_event(event, zone) for event in events]
-
-    if show_tasks(request):
-        tasks = Task.objects.filter(
-            user=user,
-            status=0,
-            archived=False,
-            is_recurring=False,
-            due_date__gte=first_touch,
-            due_date__lte=last_touch,
-        ).select_related("parent_task")
-        entries.extend(_entry_for_task(task, zone) for task in tasks)
 
     days = []
     for offset in range(WEEK_DAYS):

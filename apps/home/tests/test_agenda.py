@@ -74,19 +74,16 @@ def test_busy_day_folds_past_the_limit(user):
     assert week[0].count == agenda.DAY_LIMIT + 2
 
 
-def test_tasks_join_the_strip_only_when_the_calendar_shows_them(user):
+def test_tasks_stay_off_the_strip_even_when_the_calendar_shows_them(user):
     Task.objects.create(
         user=user, title="Pay rent", due_date=TODAY, due_time=time(9, 0)
     )
     Event.objects.create(
         user=user, date=TODAY, description="Standup", start_time=time(9, 0)
     )
-    Task.objects.create(user=user, title="Done", due_date=TODAY, status=1)
-    without = agenda.week_days(_request(user), today=TODAY)
-    assert _titles(without[0]) == ["Standup"]
+    assert _titles(agenda.week_days(_request(user), today=TODAY)[0]) == ["Standup"]
     with_tasks = agenda.week_days(_request(user, show_tasks=True), today=TODAY)
-    assert _titles(with_tasks[0]) == ["Standup", "Pay rent"]
-    assert with_tasks[0].entries[1].kind == "task"
+    assert _titles(with_tasks[0]) == ["Standup"]
 
 
 def test_other_users_events_stay_off_the_strip(user):

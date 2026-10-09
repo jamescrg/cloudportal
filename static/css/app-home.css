@@ -133,9 +133,7 @@
   padding: 0;
 }
 
-/* An entry is the calendar's chip: the control gray, no border, the
-   page's text colour. A task is told by its check mark in the link's
-   colour, as on the calendar. */
+/* An entry is the calendar's chip, in the page's text colour */
 .week-entry {
   background: var(--calendar-chip, var(--background-control));
   border-radius: var(--radius-sm);
@@ -152,13 +150,7 @@
   color: var(--calendar-allday-color, var(--color-primary));
 }
 
-.week-entry-task {
-  background: var(--calendar-task, var(--calendar-chip, var(--background-control)));
-  color: var(--calendar-task-color, var(--color-primary));
-}
-
-.week-entry-all-day,
-.week-entry-task {
+.week-entry-all-day {
   border: 1px solid var(--calendar-chip-border, transparent);
 }
 
@@ -170,14 +162,6 @@
 
 .week-entry-title i {
   font-size: 0.85em;
-}
-
-.week-entry-task .week-entry-title > i:first-child {
-  color: var(--calendar-task-icon, var(--link));
-}
-
-.week-entry-task .week-entry-title a {
-  color: inherit;
 }
 
 .week-entry-repeat {
