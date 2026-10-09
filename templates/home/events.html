@@ -23,7 +23,7 @@
                 </a>
                 <ul class="week-entries">
                     {% for entry in day.entries %}
-                        <li class="week-entry week-entry-{{ entry.kind }}">
+                        <li class="week-entry week-entry-{{ entry.kind }}{% if entry.kind == "event" and not entry.time %} week-entry-all-day{% endif %}">
                             {% if entry.time %}<span class="week-entry-time">{{ entry.time|time:"g:i A" }}</span>{% endif %}
                             <span class="week-entry-title">
                                 {% if entry.kind == "task" %}<i class="icon-circle-check-big" title="Task"></i>{% endif %}

@@ -172,6 +172,13 @@
   --event-background: var(--calendar-chip, var(--background-control));
   --event-border: transparent;
   --event-color: var(--color-primary);
+  /* An all-day event's chip, and its dot in the agenda: a theme that
+     colours them sets --calendar-allday, --calendar-allday-color and
+     --calendar-allday-dot (Matcha: a blue-green); otherwise they are the
+     gray chip like everything else */
+  --allday-background: var(--calendar-allday, var(--event-background));
+  --allday-color: var(--calendar-allday-color, var(--event-color));
+  --allday-dot: var(--calendar-allday-dot, var(--color-primary));
   /* the accent, softened toward the card so a dot reads lighter than the
      site's lavender elsewhere. Mixed in oklab, not oklch: oklch would also
      blend the hue, and the path from violet to the warm stone runs through
@@ -334,6 +341,18 @@
 .fc .fc-list-event .fc-event-title {
   color: var(--color-primary) !important;
   font-weight: 600 !important;
+}
+
+/* An all-day event (a block chip that is not a task) takes the all-day
+   colour where the theme gives one */
+.fc-event.fc-daygrid-block-event:not(.fc-event-task) {
+  background-color: var(--allday-background) !important;
+  color: var(--allday-color) !important;
+}
+
+.fc-event.fc-daygrid-block-event:not(.fc-event-task) .fc-event-title,
+.fc-event.fc-daygrid-block-event:not(.fc-event-task) .fc-event-main {
+  color: var(--allday-color) !important;
 }
 
 .fc-daygrid-event {
@@ -655,7 +674,7 @@
    starts in the same column. */
 .fc .fc-list-event.fc-event-all-day .fc-list-event-dot,
 .fc .fc-list-event:not(.fc-event-start, .fc-event-end) .fc-list-event-dot {
-  border-color: var(--color-primary);
+  border-color: var(--allday-dot);
 }
 
 .fc .fc-list-event.fc-event-task .fc-list-event-dot {

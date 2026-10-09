@@ -74,6 +74,14 @@
     transparent
   );
 
+  /* All-day events: a blue-green, between the links' lime and the
+     accent's violet on the wheel, as a pale wash let through so the day
+     cell shows, under a deep blue-green text; the agenda's dot takes the
+     text's colour. Values are set by eye against the warm stone, not
+     taken from the palette's steps. */
+  --calendar-allday: color-mix(in oklch, oklch(0.87 0.065 215) 72%, transparent);
+  --calendar-allday-color: oklch(0.4 0.08 222);
+  --calendar-allday-dot: oklch(0.55 0.095 218);
   /* Status */
   --color-danger: var(--red-700);
   --color-success: var(--green-600);
