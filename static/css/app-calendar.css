@@ -193,7 +193,7 @@
   --task-border: transparent;
   --task-color: var(--calendar-task-color, var(--color-primary));
   --task-dot: var(--event-dot);
-  --task-icon: var(--link);
+  --task-icon: var(--calendar-task-icon, var(--link));
   --fc-border-color: var(--border-medium);
   --fc-button-bg-color: var(--background-control);
   --fc-button-border-color: var(--border-medium);

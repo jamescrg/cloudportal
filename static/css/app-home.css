@@ -168,7 +168,7 @@
 }
 
 .week-entry-task .week-entry-title > i:first-child {
-  color: var(--link);
+  color: var(--calendar-task-icon, var(--link));
 }
 
 .week-entry-task .week-entry-title a {
