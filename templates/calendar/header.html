@@ -32,7 +32,7 @@
                     hx-post="{% if show_kosmos %}{% url 'calendar:show-kosmos' 'off' %}{% else %}{% url 'calendar:show-kosmos' 'on' %}{% endif %}"
                     hx-swap="none"
                     title="{% if show_kosmos %}Hide Kosmos events{% else %}Show Kosmos events{% endif %}">
-                <i class="icon-briefcase-business"></i>
+                {% include "components/kosmos-mark.html" %}
             </button>
         {% endif %}
         <button class="square-button filter-button {% if filter_active %}toggle-active{% endif %}"
