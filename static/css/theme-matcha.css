@@ -74,14 +74,16 @@
     transparent
   );
 
-  /* Calendar entries, from the violet arc Kosmos's charts are drawn in
-     (hue 272 to 314 at chroma 0.07, around the accent's 293): an all-day
-     event is the deeper lavender from its blue end, a task the lighter
-     from its pink end, and a dot the arc's dark end. Each wash is let
-     through so the day cell shows. */
-  --calendar-allday: color-mix(in oklch, oklch(0.78 0.075 284) 84%, transparent);
-  --calendar-allday-color: oklch(0.36 0.09 290);
-  --calendar-allday-dot: oklch(0.6 0.1 288);
+  /* Calendar entries. An all-day event is a taupe: the stone a step
+     darker with a breath of warmth, so it reads as a fixture of the day
+     under dark taupe text, with the agenda's dot in a mid taupe. A task
+     is a lavender from the rose end of the violet arc Kosmos's charts are
+     drawn in (hue 272 to 314 at chroma 0.07, around the accent's 293),
+     and a dot that arc's dark end. Each wash is let through so the day
+     cell shows. */
+  --calendar-allday: color-mix(in oklch, oklch(0.79 0.016 35) 90%, transparent);
+  --calendar-allday-color: oklch(0.35 0.022 35);
+  --calendar-allday-dot: oklch(0.55 0.025 35);
   --calendar-task: color-mix(in oklch, oklch(0.87 0.055 318) 88%, transparent);
   --calendar-task-color: var(--color-primary);
   --calendar-dot: oklch(0.6 0.1 288);
