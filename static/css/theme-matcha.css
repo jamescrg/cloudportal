@@ -74,14 +74,17 @@
     transparent
   );
 
-  /* All-day events: a blue-green, between the links' lime and the
-     accent's violet on the wheel, as a pale wash let through so the day
-     cell shows, under a deep blue-green text; the agenda's dot takes the
-     text's colour. Values are set by eye against the warm stone, not
-     taken from the palette's steps. */
-  --calendar-allday: color-mix(in oklch, oklch(0.87 0.065 215) 72%, transparent);
-  --calendar-allday-color: oklch(0.4 0.08 222);
-  --calendar-allday-dot: oklch(0.55 0.095 218);
+  /* Calendar entries, from the violet arc Kosmos's charts are drawn in
+     (hue 272 to 314 at chroma 0.07, around the accent's 293): an all-day
+     event is the deeper lavender from its blue end, a task the lighter
+     from its pink end, and a dot the arc's dark end. Each wash is let
+     through so the day cell shows. */
+  --calendar-allday: color-mix(in oklch, oklch(0.82 0.07 284) 80%, transparent);
+  --calendar-allday-color: oklch(0.36 0.09 290);
+  --calendar-allday-dot: oklch(0.6 0.1 288);
+  --calendar-task: color-mix(in oklch, oklch(0.91 0.045 304) 85%, transparent);
+  --calendar-task-color: var(--color-primary);
+  --calendar-dot: oklch(0.6 0.1 288);
   /* Status */
   --color-danger: var(--red-700);
   --color-success: var(--green-600);

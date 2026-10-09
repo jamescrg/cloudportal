@@ -183,10 +183,15 @@
      site's lavender elsewhere. Mixed in oklab, not oklch: oklch would also
      blend the hue, and the path from violet to the warm stone runs through
      pink. */
-  --event-dot: color-mix(in oklab, var(--color-accent) 65%, var(--background-section));
-  --task-background: var(--event-background);
+  --event-dot: var(
+    --calendar-dot,
+    color-mix(in oklab, var(--color-accent) 65%, var(--background-section))
+  );
+  /* A task's chip: its own colour where the theme gives one
+     (--calendar-task, --calendar-task-color), otherwise the event chip */
+  --task-background: var(--calendar-task, var(--event-background));
   --task-border: transparent;
-  --task-color: var(--color-primary);
+  --task-color: var(--calendar-task-color, var(--color-primary));
   --task-dot: var(--event-dot);
   --task-icon: var(--link);
   --fc-border-color: var(--border-medium);

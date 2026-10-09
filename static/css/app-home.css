@@ -145,11 +145,16 @@
   padding: 0.3rem 0.5rem;
 }
 
-/* An all-day event takes the calendar's all-day colour where the theme
-   gives one (app-calendar.css) */
+/* An all-day event takes the calendar's all-day colour, and a task its
+   task colour, where the theme gives them (app-calendar.css) */
 .week-entry-all-day {
   background: var(--calendar-allday, var(--calendar-chip, var(--background-control)));
   color: var(--calendar-allday-color, var(--color-primary));
+}
+
+.week-entry-task {
+  background: var(--calendar-task, var(--calendar-chip, var(--background-control)));
+  color: var(--calendar-task-color, var(--color-primary));
 }
 
 .week-entry-time {
