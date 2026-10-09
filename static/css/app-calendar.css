@@ -448,13 +448,13 @@
 
 .fc-event.fc-event-task .fc-event-title::before {
   color: var(--task-icon);
-  content: "\e16e";
+  content: "\e16a";
   display: inline-block;
   font-family: lucide;
   margin-right: 0.25rem;
   /* an optical nudge onto the title's centre line */
   position: relative;
-  top: 1px;
+  top: 2px;
 }
 
 /* Timed entries in the month grid, as Google draws them: no fill, a dot in
@@ -688,7 +688,7 @@
 
 .fc .fc-list-event.fc-event-task .fc-list-event-graphic::before {
   color: var(--task-icon);
-  content: "\e16e";
+  content: "\e16a";
   font-family: lucide;
   /* an optical nudge onto the dots' centre line */
   left: -2px;
