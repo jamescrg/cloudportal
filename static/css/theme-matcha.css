@@ -74,10 +74,11 @@
     transparent
   );
 
-  /* Calendar entries, in the stone itself. An all-day event is the
-     stone two steps off the cell and a task one, each ruled round a step
-     darker than its fill, the task told by its check mark in the text's
-     colour; a dot, for timed entries and the agenda, is a mid stone. */
+  /* Calendar entries, on the stone. An all-day event is the stone two
+     steps off the cell with a breath of the links' lime in it, a task one
+     step off with a breath of blue, each with no rule, the task told by
+     its check mark in the text's colour; a dot, for timed entries and
+     the agenda, is a mid stone. */
   /* stone-300's lightness with a breath of the links' lime in it */
   --calendar-allday: oklch(0.87 0.018 131);
   --calendar-allday-color: var(--color-primary);
@@ -86,7 +87,6 @@
   --calendar-task: oklch(0.92 0.016 250);
   --calendar-task-color: var(--color-primary);
   --calendar-task-icon: var(--color-primary);
-  --calendar-chip-border: var(--stone-350);
   --calendar-dot: var(--stone-500);
   /* Status */
   --color-danger: var(--red-700);
