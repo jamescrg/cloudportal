@@ -113,15 +113,15 @@ td.tasks-col-checkbox a:hover {
   max-width: none;
 }
 
-.card.tasks .table-container:last-child {
+/* With the bulk actions hidden (they show while selecting; Alpine hides
+   them with an inline display), the table is the card's last thing: it
+   runs to the card's bottom edge and its last row loses its rule */
+.card.tasks:not(:has(.archive:not([style*="none"]))) .table-container {
   margin-bottom: -1.5rem;
 }
 
-/* The last row sits on the card's edge, so it gets a little more room
-   under it than the rows above, to breathe against the outline */
-.card.tasks .table-container:last-child tr:last-child td {
+.card.tasks:not(:has(.archive:not([style*="none"]))) .table-container tr:last-child td {
   border-bottom: none;
-  padding-bottom: 0.75rem;
 }
 
 .tasks-table th:first-child,

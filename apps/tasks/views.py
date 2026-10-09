@@ -93,6 +93,9 @@ def _get_task_list_context(request):
         "filter_label": filter_label,
         "tasks_folder_all": tasks_folder_all,
         "has_completed_tasks": any(t.status == 1 for t in task_list),
+        # The header's circle toggles: all complete means the next click
+        # sets them all pending
+        "all_complete": bool(task_list) and all(t.status == 1 for t in task_list),
         "priority_levels": levels(),
         "date_filter_label": filter_label if filter_label in presets else "all",
         "date_filter_name": DATE_FILTER_NAMES.get(filter_label, "All Dates"),
@@ -626,13 +629,33 @@ def _selected_tasks(request):
     )
 
 
+def _tasks_in_view(request):
+    """Every open task in the view the user is looking at: all folders,
+    the selected folder, or the Inbox."""
+    if request.session.get("tasks_all", False):
+        return Task.objects.filter(
+            user=request.user, is_recurring=False, archived=False
+        )
+    selected_folder = select_folder(request, "tasks")
+    if selected_folder:
+        return Task.objects.filter(
+            folder=selected_folder, is_recurring=False, archived=False
+        )
+    return Task.objects.filter(
+        user=request.user, folder__isnull=True, is_recurring=False, archived=False
+    )
+
+
 @login_required
 @require_POST
 def bulk_status_htmx(request):
     """Mark the selected tasks complete (the way the user has chosen) or
-    pending."""
+    pending; with ``all=1`` (the header's circle), every task in view."""
     new_status = int(request.GET.get("status", 0))
-    tasks = _selected_tasks(request)
+    if request.GET.get("all"):
+        tasks = _tasks_in_view(request)
+    else:
+        tasks = _selected_tasks(request)
     if new_status == 1:
         pending = tasks.filter(status=0)
         mode = request.user.task_completion_mode

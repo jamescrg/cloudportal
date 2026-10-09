@@ -491,3 +491,23 @@ def test_the_list_offers_selecting_and_the_bulk_actions(client, selected):
     assert reverse("tasks-bulk-priority", args=[5]) in html
     assert reverse("tasks-bulk-status") + "?status=1" in html
     assert "Done" in html
+
+
+def test_the_header_circle_completes_all_then_sets_all_pending(client, user):
+    a = Task.objects.create(user=user, title="A")
+    b = Task.objects.create(user=user, title="B", status=1)
+
+    response = client.get(reverse("tasks-list"))
+    assert response.context["all_complete"] is False
+    assert reverse("tasks-bulk-status") + "?all=1&status=1" in response.content.decode()
+
+    response = client.post(reverse("tasks-bulk-status") + "?all=1&status=1")
+    a.refresh_from_db()
+    assert a.status == 1
+    assert response.context["all_complete"] is True
+    assert reverse("tasks-bulk-status") + "?all=1&status=0" in response.content.decode()
+
+    client.post(reverse("tasks-bulk-status") + "?all=1&status=0")
+    a.refresh_from_db()
+    b.refresh_from_db()
+    assert (a.status, b.status) == (0, 0)

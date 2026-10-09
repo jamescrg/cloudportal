@@ -58,9 +58,24 @@
         <tr>
             <th class="tasks-col-checkbox">
                 {% comment %}
-                While selecting, one click picks every task in view; when
-                they are all picked already, it clears them.
+                One click completes every task in view; when they are all
+                complete already, it sets them all pending. While
+                selecting, the same spot picks every task in view, or
+                clears them when they are all picked already.
                 {% endcomment %}
+                <button class="btn-icon"
+                        type="button"
+                        x-show="!mode"
+                        title="{% if all_complete %}Set all pending{% else %}Complete all{% endif %}"
+                        hx-post="{% url 'tasks-bulk-status' %}?all=1&status={% if all_complete %}0{% else %}1{% endif %}"
+                        hx-target="#tasks-container"
+                        hx-swap="innerHTML scroll:none">
+                    {% if all_complete %}
+                        <i class="icon-circle-check-big"></i>
+                    {% else %}
+                        <i class="icon-circle"></i>
+                    {% endif %}
+                </button>
                 <button class="btn-icon tasks-select-box"
                         type="button"
                         x-show="mode"
