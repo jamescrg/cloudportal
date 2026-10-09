@@ -93,6 +93,17 @@
 
     /* Calendar chips, as in theme-hojicha.css */
     --calendar-chip: var(--gb-dark2);
+    /* Calendar entries, from the green arc Kosmos's charts are drawn in on
+       the dark themes (hue 102 to 182 at chroma 0.06, around the links'
+       aqua): an all-day event is a mid green chip under the light text, a
+       task a quieter chip barely off the card, and a dot the arc's light
+       end. */
+    --calendar-allday: oklch(0.46 0.06 150);
+    --calendar-allday-color: var(--gb-light1);
+    --calendar-allday-dot: oklch(0.72 0.07 150);
+    --calendar-task: oklch(0.41 0.03 140);
+    --calendar-task-color: var(--color-primary);
+    --calendar-dot: oklch(0.72 0.07 150);
 
     /* Tables */
     --background-table-header: var(--hl-gray);
