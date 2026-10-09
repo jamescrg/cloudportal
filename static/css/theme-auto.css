@@ -93,17 +93,19 @@
 
     /* Calendar chips, as in theme-hojicha.css */
     --calendar-chip: var(--gb-dark2);
-    /* Calendar entries, from the green arc Kosmos's charts are drawn in on
-       the dark themes (hue 102 to 182 at chroma 0.06, around the links'
-       aqua): an all-day event is a mid green chip under the light text, a
-       task a quieter chip barely off the card, and a dot the arc's light
-       end. */
-    --calendar-allday: oklch(0.46 0.06 150);
-    --calendar-allday-color: var(--gb-light1);
-    --calendar-allday-dot: oklch(0.72 0.07 150);
-    --calendar-task: oklch(0.41 0.03 140);
+    /* Calendar entries, in the gruvbox grays themselves. An all-day event
+       is the ground two steps lighter under the light text, a task one
+       step under the page's text, each ruled round a step lighter than
+       its fill, the task told by its check mark in the text's colour; a
+       dot, for timed entries and the agenda, is a mid gray. */
+    --calendar-allday: var(--gb-dark3);
+    --calendar-allday-color: var(--gb-light2);
+    --calendar-allday-dot: var(--gb-dark4);
+    --calendar-task: var(--gb-dark2);
     --calendar-task-color: var(--color-primary);
-    --calendar-dot: oklch(0.72 0.07 150);
+    --calendar-task-icon: var(--color-primary);
+    --calendar-chip-border: var(--gb-dark4);
+    --calendar-dot: var(--gb-dark4);
 
     /* Tables */
     --background-table-header: var(--hl-gray);
