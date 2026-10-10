@@ -16,20 +16,27 @@
   min-width: 11rem;
 }
 
+/* A check row: the square icon of the lists' selection boxes, faint
+   until checked, when it takes the accent */
 .calendar-menu .calendar-menu-check {
   align-items: center;
   cursor: pointer;
   display: flex;
   gap: 0.6rem;
+}
+
+.calendar-menu .calendar-menu-check i {
+  color: var(--color-faint);
+  font-size: 1.15rem;
   margin: 0;
 }
 
-.calendar-menu .calendar-menu-check input {
-  margin: 0;
+.calendar-menu .calendar-menu-check:hover i {
+  color: var(--color-primary);
 }
 
-.calendar-menu .calendar-menu-divider {
-  border-top-width: 2px;
+.calendar-menu .calendar-menu-check i.icon-square-check {
+  color: var(--color-accent);
 }
 
 .calendar-menu .calendar-menu-note {
