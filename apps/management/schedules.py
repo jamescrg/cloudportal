@@ -66,6 +66,16 @@ def schedule_specs():
                 "as the days pass."
             ),
         ),
+        ScheduleSpec(
+            "site-icons",
+            "apps.favorites.site_icons.ensure_all",
+            "30 3 * * *",
+            description=(
+                "Queues a fetch of the site icon of every host the favorites "
+                "point at that has none yet, had none found a week ago, or "
+                "has one three months old."
+            ),
+        ),
     )
 
 
