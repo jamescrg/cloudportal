@@ -42,6 +42,11 @@
             <link rel="stylesheet"
                   href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
         {% endif %}
+        {% if page and page == "weather" %}
+            <!-- Leaflet: the radar map on the weather page -->
+            <link rel="stylesheet"
+                  href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+        {% endif %}
         {% if page %}
             <link rel="stylesheet" href="{% static_v_page %}">
         {% endif %}
@@ -161,6 +166,10 @@
         {% if page and page == "tasks" %}
             <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
             <script src="{% static_v 'js/tasks.js' %}"></script>
+        {% endif %}
+        {% if page and page == "weather" %}
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+            <script src="{% static_v 'js/weather-radar.js' %}"></script>
         {% endif %}
         {% if page and page == "calendar" %}
             <!-- FullCalendar grid for the calendar page -->

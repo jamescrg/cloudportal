@@ -69,6 +69,26 @@ def test_with_a_location(client, located, onecall):
     assert located.weather_place == "Norfolk, Virginia"
 
 
+def test_radar_card_carries_the_spot_and_zone(client, located, onecall):
+    """The radar script reads the saved coordinates and the report's time
+    zone off the card; the page itself never calls RainViewer."""
+    with patch(GET, side_effect=fake_api(onecall)):
+        response = client.get(reverse("weather"))
+    html = response.content.decode()
+    assert 'class="card weather-radar"' in html
+    assert 'data-lat="36.8500"' in html
+    assert 'data-lon="-76.2900"' in html
+    assert f'data-timezone="{onecall["timezone"]}"' in html
+    assert "weather-radar.js" in html
+    assert "leaflet" in html
+
+
+def test_no_radar_without_a_location(client):
+    with patch(GET):
+        response = client.get(reverse("weather"))
+    assert 'class="card weather-radar"' not in response.content.decode()
+
+
 def test_with_a_saved_place(client, located, onecall):
     located.weather_place = "Ghent, Virginia"
     located.save()

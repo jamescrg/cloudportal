@@ -52,6 +52,35 @@
                     <a href="#" id="weather-relocate"><i class="icon-locate" aria-hidden="true"></i> Use my current location</a>
                 </div>
             </div>
+            {% comment %}
+            The radar: RainViewer's free past frames, the last two hours ten
+            minutes apart, played over a basemap centred on the saved spot.
+            weather-radar.js reads these attributes and builds the map
+            {% endcomment %}
+            <div class="card weather-radar"
+                 data-lat="{{ user.weather_lat|stringformat:'.4f' }}"
+                 data-lon="{{ user.weather_lon|stringformat:'.4f' }}"
+                 data-timezone="{{ report.timezone }}">
+                <div class="card-title">
+                    <h1>Radar</h1>
+                </div>
+                <div class="weather-radar-map" aria-label="Radar map"></div>
+                <div class="weather-radar-controls">
+                    <button type="button"
+                            class="weather-radar-play"
+                            title="Pause"
+                            aria-label="Pause">
+                        <i class="icon-pause" aria-hidden="true"></i>
+                    </button>
+                    <input type="range"
+                           class="weather-radar-scrub"
+                           min="0"
+                           max="0"
+                           value="0"
+                           aria-label="Radar frame">
+                    <span class="weather-radar-time">Loading…</span>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-title">
                     <h1>Today</h1>
