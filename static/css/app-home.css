@@ -442,11 +442,9 @@
   padding: 0.15rem 0;
 }
 
-/* Every line here is a link, so they sit in the text colour and take
-   the link colour on hover */
 .home-link {
   align-items: center;
-  color: var(--color-primary);
+  color: var(--link);
   display: inline-flex;
   gap: 0.5rem;
   min-width: 0;
@@ -454,7 +452,8 @@
 }
 
 .home-link:hover {
-  color: var(--link);
+  color: var(--link-hover);
+  text-decoration: underline;
 }
 
 .home-link-name {
