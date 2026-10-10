@@ -36,56 +36,37 @@
                        data-value="{{ favorite.id }}"></i>
                 </td>
                 <td class="fav-name">
-                    <div class="fav-name-row">
-                        <span class="fav-title">
-                            {% include "favorites/favicon.html" %}
-                            <a href="{{ favorite.url }}">{{ favorite.name }}</a>
-                            {# a house marks a favorite shown on the home page, and takes it off #}
-                            {% if selected_folder.home_column and favorite.home_rank %}
-                                <button class="btn-icon fav-home-badge"
-                                        type="button"
-                                        hx-post="{% url 'favorites-home-htmx' id=favorite.id %}"
-                                        hx-target="#favorites-container"
-                                        hx-swap="innerHTML"
-                                        title="Take off Home">
-                                    <i class="icon-house"></i>
-                                </button>
-                            {% endif %}
-                        </span>
-                        {# the row's actions, there while the row is under the pointer #}
-                        <span class="fav-actions">
-                            {% if selected_folder.home_column %}
-                                <button class="btn-icon"
-                                        type="button"
-                                        hx-post="{% url 'favorites-home-htmx' id=favorite.id %}"
-                                        hx-target="#favorites-container"
-                                        hx-swap="innerHTML"
-                                        title="{% if favorite.home_rank %}Take off Home{% else %}Add to Home{% endif %}">
-                                    <i class="{% if favorite.home_rank %}icon-house{% else %}icon-house-plus{% endif %}"></i>
-                                </button>
-                            {% endif %}
-                            <button class="btn-icon"
+                    <span class="fav-title">
+                        {% include "favorites/favicon.html" %}
+                        <a href="{{ favorite.url }}">{{ favorite.name }}</a>
+                        {# in a folder on the home page: a house marks a favorite shown there and takes it off; one that isn't shows a house with a plus under the pointer, which adds it #}
+                        {% if selected_folder.home_column %}
+                            <button class="btn-icon status-mark{% if favorite.home_rank %} is-on{% endif %}"
                                     type="button"
-                                    hx-get="{% url 'favorites-form-edit' id=favorite.id %}"
-                                    hx-target="#htmx-modal-container"
-                                    title="Edit">
-                                <i class="icon-pencil"></i>
-                            </button>
-                            <button class="btn-icon fav-delete"
-                                    type="button"
-                                    hx-delete="{% url 'favorites-delete-htmx' id=favorite.id %}"
+                                    hx-post="{% url 'favorites-home-htmx' id=favorite.id %}"
                                     hx-target="#favorites-container"
                                     hx-swap="innerHTML"
-                                    hx-confirm="Are you sure you want to delete this favorite?"
-                                    title="Delete">
-                                <i class="icon-circle-x"></i>
+                                    title="{% if favorite.home_rank %}Take off Home{% else %}Add to Home{% endif %}">
+                                <i class="{% if favorite.home_rank %}icon-house{% else %}icon-house-plus{% endif %}"></i>
                             </button>
-                        </span>
-                    </div>
+                        {% endif %}
+                    </span>
                     {% if favorite.description %}<div class="description">{{ favorite.description }}</div>{% endif %}
                 </td>
                 <td class="fav-date">{{ favorite.created_at|date:"Y-m-d" }}</td>
-                <td class="fav-date">{{ favorite.updated_at|date:"Y-m-d" }}</td>
+                <td class="fav-date">
+                    <span class="row-text">{{ favorite.updated_at|date:"Y-m-d" }}</span>
+                    {# the row's actions, over the date while the row is under the pointer #}
+                    <span class="row-actions">
+                        <button class="btn-icon"
+                                type="button"
+                                hx-get="{% url 'favorites-form-edit' id=favorite.id %}"
+                                hx-target="#htmx-modal-container"
+                                title="Edit">
+                            <i class="icon-pencil"></i>
+                        </button>
+                    </span>
+                </td>
             </tr>
         {% empty %}
             <tr>

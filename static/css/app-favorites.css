@@ -66,72 +66,17 @@
   white-space: normal;
 }
 
-/* The name's line: the site's icon, the name and its home control at
-   the left, the row's menu at the right */
-.fav-name-row {
-  align-items: center;
-  display: flex;
-  gap: 0.5rem;
-  justify-content: space-between;
-}
-
+/* The name with its site's icon before it and its home mark after */
 .fav-title {
   align-items: center;
   display: inline-flex;
   gap: 0.65rem;
-  min-width: 0;
+  max-width: 100%;
 }
 
-/* The house after a favorite shown on the home page; pressing it takes
-   the favorite off */
-.fav-home-badge {
-  color: var(--color-muted);
-  flex-shrink: 0;
-  font-size: 0.8rem;
-  line-height: 1;
-}
-
-.fav-home-badge:hover,
-.fav-home-badge:focus-visible {
-  color: var(--urgent);
-}
-
-/* The row's actions, home, edit and delete, there only while the row
-   is under the pointer */
-.fav-actions {
-  align-items: center;
-  display: inline-flex;
-  flex-shrink: 0;
-  gap: 0.6rem;
-  opacity: 0;
-}
-
-.favorite-row:hover .fav-actions,
-.fav-actions:focus-within {
-  opacity: 1;
-}
-
-.fav-actions .btn-icon {
-  color: var(--color-muted);
-  font-size: 0.95rem;
-  line-height: 1;
-}
-
-.fav-actions .btn-icon:hover,
-.fav-actions .btn-icon:focus-visible {
-  color: var(--color-accent);
-}
-
-.fav-actions .fav-delete:hover,
-.fav-actions .fav-delete:focus-visible {
-  color: var(--urgent);
-}
-
-/* A touch screen has no pointer to hover, so the actions stay, muted */
-@media (hover: none) {
-  .fav-actions {
-    opacity: 0.5;
-  }
+/* A heading keeps its sort button on its line */
+.favorites-table th {
+  white-space: nowrap;
 }
 
 .fav-name .description {

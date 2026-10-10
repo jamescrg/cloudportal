@@ -5,54 +5,31 @@
         <i class="icon-square note-select-checkbox" data-value="{{ note.id }}"></i>
     </td>
     <td class="title">
-        <div class="note-title-row">
-            <span class="note-title">
-                <a href="{% url 'notes:note-view' note.id %}" class="note-title-link">{{ note.title }}</a>
-                {% if note.is_encrypted %}<i class="icon-lock note-encrypted-indicator"></i>{% endif %}
-            </span>
-            <span class="note-row-menu">
-                <div class="dropdown note-menu" x-data="dropdown()">
-                    <button class="btn-icon menu-icon"
-                            type="button"
-                            x-ref="button"
-                            @click="toggle()"
-                            :aria-expanded="open">
-                        <i class="icon-ellipsis-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu" x-ref="menu" x-show="open">
-                        <li>
-                            <a class="dropdown-item" href="{% url 'notes:note-view' note.id %}"><i class="icon-pencil-line"></i> Open</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item"
-                               href="#"
-                               hx-get="{% url 'notes:edit' note.id %}"
-                               hx-target="#htmx-modal-container"><i class="icon-pencil"></i> Edit Details</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item note-encrypt-toggle"
-                               href="#"
-                               data-note-id="{{ note.id }}"
-                               data-encrypted="{{ note.is_encrypted|yesno:'true,false' }}"
-                               data-autosave-url="{% url 'notes:note-autosave' note.id %}">
-                                {% if note.is_encrypted %}
-                                    <i class="icon-lock-open"></i> Remove Encryption
-                                {% else %}
-                                    <i class="icon-lock"></i> Encrypt
-                                {% endif %}
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item text-danger"
-                               href="#"
-                               hx-confirm="Are you sure you want to delete this note?"
-                               hx-post="{% url 'notes:delete' note.id %}"><i class="icon-circle-x"></i> Delete</a>
-                        </li>
-                    </ul>
-                </div>
-            </span>
-        </div>
+        <span class="note-title">
+            <a href="{% url 'notes:note-view' note.id %}" class="note-title-link">{{ note.title }}</a>
+            {# a lock marks an encrypted note and removes the encryption; an open lock, under the pointer, encrypts one that isn't #}
+            <button class="btn-icon status-mark note-encrypt-toggle{% if note.is_encrypted %} is-on{% endif %}"
+                    type="button"
+                    data-note-id="{{ note.id }}"
+                    data-encrypted="{{ note.is_encrypted|yesno:'true,false' }}"
+                    data-autosave-url="{% url 'notes:note-autosave' note.id %}"
+                    title="{% if note.is_encrypted %}Remove encryption{% else %}Encrypt{% endif %}">
+                <i class="{% if note.is_encrypted %}icon-lock{% else %}icon-lock-open{% endif %}"></i>
+            </button>
+        </span>
     </td>
     <td class="created">{{ note.created_at|date:"Y-m-d" }}</td>
-    <td class="updated">{{ note.updated_at|date:"Y-m-d" }}</td>
+    <td class="updated">
+        <span class="row-text">{{ note.updated_at|date:"Y-m-d" }}</span>
+        {# the row's actions, over the date while the row is under the pointer #}
+        <span class="row-actions">
+            <button class="btn-icon"
+                    type="button"
+                    hx-get="{% url 'notes:edit' note.id %}"
+                    hx-target="#htmx-modal-container"
+                    title="Edit details">
+                <i class="icon-pencil"></i>
+            </button>
+        </span>
+    </td>
 </tr>

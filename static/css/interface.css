@@ -205,3 +205,89 @@ i.icon-plus {
 .guest-add input[type="text"] {
   width: 10rem;
 }
+
+
+/*------------------------------------------------
+ * list rows: the favorites and notes lists
+ * ------------------------------------------------*/
+
+/* A status mark after a row's name is also its toggle: there when on
+   (the house of a favorite shown on the home page, the lock of an
+   encrypted note), and under the pointer when off, as the glyph that
+   turns it on */
+.status-mark {
+  color: var(--color-muted);
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  line-height: 1;
+  opacity: 0;
+}
+
+.status-mark.is-on,
+tr:hover .status-mark,
+.status-mark:focus-visible {
+  opacity: 1;
+}
+
+.status-mark:hover,
+.status-mark:focus-visible {
+  color: var(--color-accent);
+}
+
+.status-mark.is-on:hover,
+.status-mark.is-on:focus-visible {
+  color: var(--urgent);
+}
+
+/* The row's actions sit over the last cell's text, at the right edge,
+   while the row is under the pointer; the text steps aside for them */
+td:has(> .row-actions) {
+  position: relative;
+}
+
+.row-actions {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.6rem;
+  opacity: 0;
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+tr:hover .row-actions,
+.row-actions:focus-within {
+  opacity: 1;
+}
+
+tr:hover td:has(> .row-actions) > .row-text,
+td:has(> .row-actions:focus-within) > .row-text {
+  visibility: hidden;
+}
+
+.row-actions .btn-icon {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.row-actions .btn-icon:hover,
+.row-actions .btn-icon:focus-visible {
+  color: var(--color-accent);
+}
+
+/* A touch screen has no pointer to hover: the marks and actions stay,
+   muted, the actions after the text rather than over it */
+@media (hover: none) {
+  .status-mark,
+  .row-actions {
+    opacity: 0.5;
+  }
+
+  .row-actions {
+    margin-left: 0.6rem;
+    position: static;
+    transform: none;
+  }
+}

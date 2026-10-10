@@ -447,12 +447,6 @@
   white-space: normal;
 }
 
-.note-encrypted-indicator {
-  color: var(--color-muted);
-  font-size: 0.8rem;
-  margin-left: 0.4rem;
-}
-
 .notes-list .created {
   width: 8rem;
 }
@@ -480,41 +474,17 @@
   color: var(--link-hover);
 }
 
-.notes-list .dropdown-menu {
-  text-align: left;
-  z-index: 1050;
-}
-
-/* The title's line: the title at the left, the row's menu at the right,
-   there only while the row is under the pointer or the menu is open (as
-   on the favorites page) */
-.note-title-row {
-  align-items: center;
-  display: flex;
-  gap: 0.5rem;
-  justify-content: space-between;
-}
-
+/* The title with its lock after it */
 .note-title {
-  min-width: 0;
+  align-items: center;
+  display: inline-flex;
+  gap: 0.65rem;
+  max-width: 100%;
 }
 
-.note-row-menu {
-  flex-shrink: 0;
-  opacity: 0;
-}
-
-.notes-list tr:hover .note-row-menu,
-.note-row-menu:focus-within,
-.note-row-menu:has([aria-expanded="true"]) {
-  opacity: 1;
-}
-
-/* A touch screen has no pointer to hover, so the menu stays, muted */
-@media (hover: none) {
-  .note-row-menu {
-    opacity: 0.5;
-  }
+/* A heading keeps its sort button on its line */
+.notes-list th {
+  white-space: nowrap;
 }
 
 .notes-list .empty-message {
