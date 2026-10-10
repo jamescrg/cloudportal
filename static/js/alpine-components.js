@@ -4,39 +4,53 @@
  */
 
 /**
- * Swipe gestures for a slide-in drawer: a swipe in from the screen edge
- * opens it, a swipe back toward that edge closes it, and the panel
- * follows the finger in between.
+ * Swipe gestures for a slide-in drawer. A side drawer (left or right)
+ * opens with a swipe in from its screen edge, closes with a swipe back
+ * toward it, and follows the finger in between. A bottom sheet opens by
+ * its button alone (the bottom edge is the phone's own home gesture)
+ * and closes with a swipe down, from anywhere on it while it sits at the
+ * top of its scroll.
  *
  * drawer:   the Alpine component, with isOpen, open() and close()
  * panel():  the element that slides (looked up on each use, since a page
  *           may swap its contents)
  * backdrop: the drawer's own backdrop element
- * side:     'left' or 'right', the edge the panel slides in from
+ * side:     'left', 'right' or 'bottom', the edge the panel slides in from
  */
 function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
   const mql = window.matchMedia('(min-width: 992px)');
   const EDGE_ZONE = 24;           // px from the edge to start an open-swipe
   const VELOCITY_THRESHOLD = 0.3; // px/ms — a fast flick opens or closes
-  const DISTANCE_RATIO = 0.35;    // fraction of the width to snap
-  // +1: the panel rests off the right edge when closed; -1: off the left
-  const sign = side === 'right' ? 1 : -1;
+  const DISTANCE_RATIO = 0.35;    // fraction of the size to snap
+  const vertical = side === 'bottom';
+  // +1: the panel rests off the right or bottom edge when closed; -1: off the left
+  const sign = side === 'left' ? -1 : 1;
   let touch = null;
 
-  function width() {
-    return panel()?.offsetWidth || 280;
+  // the panel's extent along its axis of travel
+  function size() {
+    const el = panel();
+    return (vertical ? el?.offsetHeight : el?.offsetWidth) || 280;
   }
 
-  // px: 0 = fully open, sign * width = fully closed
+  function along(t) {
+    return vertical ? t.clientY : t.clientX;
+  }
+
+  function across(t) {
+    return vertical ? t.clientX : t.clientY;
+  }
+
+  // px: 0 = fully open, sign * size = fully closed
   function clamp(px) {
-    const closed = sign * width();
+    const closed = sign * size();
     return Math.max(Math.min(0, closed), Math.min(Math.max(0, closed), px));
   }
 
   function applyTranslate(px) {
-    panel().style.transform = `translateX(${px}px)`;
+    panel().style.transform = vertical ? `translateY(${px}px)` : `translateX(${px}px)`;
     // Sync backdrop opacity: 0 when closed, 1 when open
-    const progress = 1 - px / (sign * width());
+    const progress = 1 - px / (sign * size());
     backdrop.style.opacity = Math.max(0, Math.min(1, progress));
     backdrop.style.pointerEvents = progress > 0.05 ? 'auto' : 'none';
   }
@@ -52,25 +66,36 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     touch = null;
   }
 
-  function nearEdge(x) {
-    return side === 'right' ? x >= window.innerWidth - EDGE_ZONE : x <= EDGE_ZONE;
+  function nearEdge(pos) {
+    if (vertical) return false;
+    return side === 'right' ? pos >= window.innerWidth - EDGE_ZONE : pos <= EDGE_ZONE;
   }
 
-  function overPanel(x) {
-    return side === 'right' ? x >= window.innerWidth - width() : x <= width();
+  function overPanel(pos) {
+    if (vertical) return pos >= window.innerHeight - size();
+    return side === 'right' ? pos >= window.innerWidth - size() : pos <= size();
+  }
+
+  // A sheet scrolled down scrolls back up first; only at its top does a
+  // downward swipe close it
+  function canDragClosed(target) {
+    if (!vertical) return true;
+    const el = panel();
+    if (!el?.contains(target)) return true;
+    return !el.scrollTop;
   }
 
   function onTouchStart(e) {
     if (mql.matches || !panel()) return; // desktop, or no panel on this page
     const t = e.touches[0];
-    const state = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastTime: e.timeStamp, locked: false };
+    const state = { start: along(t), startAcross: across(t), last: along(t), lastTime: e.timeStamp, locked: false };
 
-    if (!drawer.isOpen && nearEdge(t.clientX)) {
+    if (!drawer.isOpen && nearEdge(along(t))) {
       touch = { ...state, mode: 'open' };
       panel().classList.add('drawer-dragging');
       backdrop.classList.add('open');
       document.body.style.overflow = 'hidden';
-    } else if (drawer.isOpen && (overPanel(t.clientX) || e.target.closest('.drawer-backdrop'))) {
+    } else if (drawer.isOpen && (overPanel(along(t)) || e.target.closest('.drawer-backdrop')) && canDragClosed(e.target)) {
       touch = { ...state, mode: 'close' };
       panel().classList.add('drawer-dragging');
     }
@@ -79,13 +104,14 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
   function onTouchMove(e) {
     if (!touch) return;
     const t = e.touches[0];
-    const dx = t.clientX - touch.startX;
-    const dy = t.clientY - touch.startY;
+    const d = along(t) - touch.start;
+    const dAcross = across(t) - touch.startAcross;
 
-    // Lock direction after 10px of movement; a vertical swipe is a scroll
+    // Lock direction after 10px of movement; movement across the axis of
+    // travel is a scroll (or, on a sheet, a sideways gesture), not ours
     if (!touch.locked) {
-      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-      if (Math.abs(dy) > Math.abs(dx)) {
+      if (Math.abs(d) < 10 && Math.abs(dAcross) < 10) return;
+      if (Math.abs(dAcross) > Math.abs(d) || (vertical && d < 0)) {
         const wasOpening = touch.mode === 'open';
         clearDrag();
         if (wasOpening) {
@@ -98,34 +124,34 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     }
 
     e.preventDefault();
-    touch.lastX = t.clientX;
+    touch.last = along(t);
     touch.lastTime = e.timeStamp;
 
     // Opening starts from the closed position and follows the finger in;
     // closing starts from open and follows it out
-    const from = touch.mode === 'open' ? sign * width() : 0;
-    applyTranslate(clamp(from + dx));
+    const from = touch.mode === 'open' ? sign * size() : 0;
+    applyTranslate(clamp(from + d));
   }
 
   function onTouchEnd(e) {
     if (!touch) return;
     const mode = touch.mode;
     const dt = e.timeStamp - touch.lastTime || 1;
-    const dx = touch.lastX - touch.startX;
-    const velocity = dx / dt; // px/ms, positive = rightward
-    const w = width();
+    const d = touch.last - touch.start;
+    const velocity = d / dt; // px/ms, positive = rightward or downward
+    const extent = size();
 
     clearDrag();
 
     // Movement away from the panel's edge opens; toward it closes
     if (mode === 'open') {
-      if (velocity * -sign > VELOCITY_THRESHOLD || dx * -sign > w * DISTANCE_RATIO) {
+      if (velocity * -sign > VELOCITY_THRESHOLD || d * -sign > extent * DISTANCE_RATIO) {
         drawer.open();
       } else {
         backdrop.classList.remove('open');
         document.body.style.overflow = '';
       }
-    } else if (velocity * sign > VELOCITY_THRESHOLD || dx * sign > w * DISTANCE_RATIO) {
+    } else if (velocity * sign > VELOCITY_THRESHOLD || d * sign > extent * DISTANCE_RATIO) {
       drawer.close();
     }
   }
@@ -521,8 +547,9 @@ document.addEventListener('alpine:init', () => {
 
   /**
    * Side Drawer Component
-   * Mobile slide-in panel from the right for whatever the page marks with
-   * data-drawer: the folder sidebar, or the settings section nav
+   * On a phone, a sheet rising from the bottom for whatever the page
+   * marks with data-drawer: the folder sidebar, or the settings section
+   * nav. Its button sits at the bottom left, under the thumb.
    * Usage: <div x-data="sideDrawer()">
    */
   Alpine.data('sideDrawer', () => ({
@@ -565,7 +592,7 @@ document.addEventListener('alpine:init', () => {
       attachDrawerSwipe(this, {
         panel: sidebarEl,
         backdrop: this.$el.querySelector('.drawer-backdrop'),
-        side: 'right',
+        side: 'bottom',
       });
 
       // Auto-close the drawer when a link inside it is tapped (htmx navigation)
