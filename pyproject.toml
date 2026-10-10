@@ -15,6 +15,7 @@ dependencies = [
     "google-auth-httplib2==0.2.1",
     "google-auth-oauthlib==1.2.3",
     "gunicorn==23.0.0",
+    "holidays==0.106",
     "icalendar==7.3.0",
     "Markdown==3.10",
     "psycopg2-binary==2.9.11",

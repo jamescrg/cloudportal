@@ -28,6 +28,7 @@ urlpatterns = [
     path("view/<str:mode>", views.events_view_mode, name="view-mode"),
     path("tasks/<str:state>", views.events_show_tasks, name="show-tasks"),
     path("kosmos/<str:state>", views.events_show_kosmos, name="show-kosmos"),
+    path("holidays/<str:state>", views.events_show_holidays, name="show-holidays"),
     path("filter/", views.events_filter, name="filter"),
     path("filter/default", views.events_filter_default, name="filter-default"),
     path("filter/sort/<str:order>", views.events_filter_sort, name="filter-sort"),

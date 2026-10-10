@@ -10,6 +10,7 @@ SESSION_KEY = "calendar_filter"
 VIEW_MODE_KEY = "calendar_view_mode"
 SHOW_TASKS_KEY = "calendar_show_tasks"
 SHOW_KOSMOS_KEY = "calendar_show_kosmos"
+SHOW_HOLIDAYS_KEY = "calendar_show_holidays"
 PAGINATION_KEY = "calendar_page"
 TRIGGER_KEY = "eventsChanged"
 
@@ -49,6 +50,11 @@ def show_kosmos(request):
     """Whether the grid shows the user's Kosmos events beside their own:
     it does until they hide them."""
     return bool(request.session.get(SHOW_KOSMOS_KEY, True))
+
+
+def show_holidays(request):
+    """Whether the grid shows US federal holidays beside the events."""
+    return bool(request.session.get(SHOW_HOLIDAYS_KEY, False))
 
 
 def event_filter(request):
@@ -118,6 +124,7 @@ def toolbar_context(request):
         "show_tasks": show_tasks(request),
         "kosmos_connected": kosmos.connected(request.user),
         "show_kosmos": show_kosmos(request),
+        "show_holidays": show_holidays(request),
         "filter_active": filter_is_active(request),
         "today": today,
         "third_day": today + timedelta(days=3),

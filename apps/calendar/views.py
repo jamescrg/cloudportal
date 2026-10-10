@@ -15,13 +15,14 @@ from django.views.decorators.http import require_http_methods, require_POST
 import apps.calendar.invitations as invitations
 import apps.calendar.recurrence as recurrence
 import apps.calendar.sync as sync
-from apps.calendar import kosmos
+from apps.calendar import holidays, kosmos
 from apps.calendar.forms import EventForm, GuestForm, ReminderForm
 from apps.calendar.models import Event, EventReminder, is_zone
 
 from .events import (
     PAGINATION_KEY,
     SESSION_KEY,
+    SHOW_HOLIDAYS_KEY,
     SHOW_KOSMOS_KEY,
     SHOW_TASKS_KEY,
     TRIGGER_KEY,
@@ -30,6 +31,7 @@ from .events import (
     feed_filter,
     get_table_data,
     saved_filter,
+    show_holidays,
     show_kosmos,
     show_tasks,
     toolbar_context,
@@ -86,6 +88,18 @@ def events_show_kosmos(request, state):
     if state not in ("on", "off"):
         return HttpResponseBadRequest("Unknown state.")
     request.session[SHOW_KOSMOS_KEY] = state == "on"
+    request.session.modified = True
+    return HttpResponse(status=204, headers={"HX-Trigger": "eventsViewChanged"})
+
+
+@login_required
+@require_POST
+def events_show_holidays(request, state):
+    """Show US federal holidays on the grid beside the events, or hide
+    them."""
+    if state not in ("on", "off"):
+        return HttpResponseBadRequest("Unknown state.")
+    request.session[SHOW_HOLIDAYS_KEY] = state == "on"
     request.session.modified = True
     return HttpResponse(status=204, headers={"HX-Trigger": "eventsViewChanged"})
 
@@ -533,6 +547,8 @@ def events_api(request):
         calendar_events.extend(_task_feed(request.user, first, last))
     if show_kosmos(request) and kosmos.connected(request.user):
         calendar_events.extend(kosmos.feed(request.user, first, last))
+    if show_holidays(request):
+        calendar_events.extend(holidays.feed(first, last))
 
     return JsonResponse(calendar_events, safe=False)
 

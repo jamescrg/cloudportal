@@ -315,6 +315,7 @@ dependencies = [
     { name = "google-auth-httplib2" },
     { name = "google-auth-oauthlib" },
     { name = "gunicorn" },
+    { name = "holidays" },
     { name = "icalendar" },
     { name = "markdown" },
     { name = "psycopg2-binary" },
@@ -351,6 +352,7 @@ requires-dist = [
     { name = "google-auth-httplib2", specifier = "==0.2.1" },
     { name = "google-auth-oauthlib", specifier = "==1.2.3" },
     { name = "gunicorn", specifier = "==23.0.0" },
+    { name = "holidays", specifier = "==0.106" },
     { name = "icalendar", specifier = "==7.3.0" },
     { name = "markdown", specifier = "==3.10" },
     { name = "psycopg2-binary", specifier = "==2.9.11" },
@@ -715,6 +717,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/34/72/9614c465dc206155d93eff0ca20d42e1e35afc533971379482de953521a4/gunicorn-23.0.0.tar.gz", hash = "sha256:f014447a0101dc57e294f6c18ca6b40227a4c90e9bdb586042628030cba004ec", size = 375031, upload-time = "2024-08-10T20:25:27.378Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/7d/6dac2a6e1eba33ee43f318edbed4ff29151a49b5d37f080aad1e6469bca4/gunicorn-23.0.0-py3-none-any.whl", hash = "sha256:ec400d38950de4dfd418cff8328b2c8faed0edb0d517d3394e457c317908ca4d", size = 85029, upload-time = "2024-08-10T20:25:24.996Z" },
+]
+
+[[package]]
+name = "holidays"
+version = "0.106"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a4/85/30fadb3b2014177299eea883bfd74d7e893d495fb4b37adc3f4968004d87/holidays-0.106.tar.gz", hash = "sha256:2e635a59102acb47e79a751c37fb04eff5ac77069a3b33d58cbfad66d243ffb3", size = 1048446, upload-time = "2026-10-05T19:23:13.417Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a0/f6/59f817df052a81e39bbc23cb10795cf721d14b36a4cf0d897bfe11648a22/holidays-0.106-py3-none-any.whl", hash = "sha256:4be3fb5be6a88a232e92f96825e4fab9b80710caabde90b7c476e57ba0ed9f5d", size = 1656690, upload-time = "2026-10-05T19:23:11.32Z" },
 ]
 
 [[package]]
