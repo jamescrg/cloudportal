@@ -29,23 +29,6 @@
                     </div>
                 {% endif %}
                 {{ form }}
-                {% if note %}
-                    <div class="form-group span2" style="margin-top:0.5rem">
-                        <label>Encrypted</label>
-                        <div style="display:flex;
-                                    align-items:center;
-                                    gap:0.5rem;
-                                    color:var(--color-secondary);
-                                    font-size:0.9rem">
-                            {% if note.is_encrypted %}
-                                <i class="icon-lock" style="font-size:0.9rem"></i> Yes
-                            {% else %}
-                                <i class="icon-lock-open" style="font-size:0.9rem"></i> No
-                            {% endif %}
-                            <span style="color:var(--color-muted);font-size:0.8rem">— Use the lock icon in the editor to change</span>
-                        </div>
-                    </div>
-                {% endif %}
             </form>
         </div>
         <div class="modal-footer">

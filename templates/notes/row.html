@@ -7,15 +7,6 @@
     <td class="title">
         <span class="note-title">
             <a href="{% url 'notes:note-view' note.id %}" class="note-title-link">{{ note.title }}</a>
-            {# a lock marks an encrypted note and removes the encryption; an open lock, under the pointer, encrypts one that isn't #}
-            <button class="btn-icon status-mark note-encrypt-toggle{% if note.is_encrypted %} is-on{% endif %}"
-                    type="button"
-                    data-note-id="{{ note.id }}"
-                    data-encrypted="{{ note.is_encrypted|yesno:'true,false' }}"
-                    data-autosave-url="{% url 'notes:note-autosave' note.id %}"
-                    title="{% if note.is_encrypted %}Remove encryption{% else %}Encrypt{% endif %}">
-                <i class="{% if note.is_encrypted %}icon-lock{% else %}icon-lock-open{% endif %}"></i>
-            </button>
         </span>
         {# the row's actions, at the title column's far edge while the row is under the pointer #}
         <span class="row-actions">

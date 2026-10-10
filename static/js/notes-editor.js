@@ -3,7 +3,6 @@ import {
   decrypt,
   unlock,
   paramsOf,
-  hasStoredKey,
   hasFreshKey,
   refreshKeyTimestamp,
   getStoredKey,
@@ -205,7 +204,6 @@ function startEditor(container, markdownContent) {
   setupTitleEdit();
   setupSearchBar();
   setupImportExport();
-  setupLockToggle();
 }
 
 function setupTitleEdit() {
@@ -1396,174 +1394,6 @@ function showPassphrasePrompt(container) {
   });
 
   setTimeout(function() { input.focus(); }, 50);
-}
-
-function setupLockToggle() {
-  const btn = document.getElementById("lock-toggle-btn");
-  if (!btn) return;
-
-  const icon = btn.querySelector("i");
-  if (!icon) return;
-
-  // Update icon to reflect current note state
-  icon.className = noteIsEncrypted ? "icon-lock" : "icon-lock-open";
-  btn.title = noteIsEncrypted ? "Remove encryption" : "Encrypt note";
-  btn.style.display = "";
-
-  // Remove old listener by cloning
-  const newBtn = btn.cloneNode(true);
-  btn.parentNode.replaceChild(newBtn, btn);
-  const newIcon = newBtn.querySelector("i");
-
-  newBtn.addEventListener("click", async function(e) {
-    e.preventDefault();
-    const params = encryptionParams();
-    const salt = params.salt;
-
-    if (noteIsEncrypted) {
-      // Remove encryption
-      if (!encryptionKey) return;
-
-      const confirmed = await window.showConfirm({
-        title: "Remove Encryption",
-        message: "This will decrypt this note and save the content as plaintext.",
-        confirmText: "Remove Encryption",
-        isDangerous: true,
-      });
-      if (!confirmed) return;
-
-      noteIsEncrypted = false;
-      encryptionKey = null;
-      newIcon.className = "icon-lock-open";
-      newBtn.title = "Encrypt note";
-      lastSavedContent = "";
-      scheduleAutosave();
-    } else {
-      // Encrypt note
-      if (!salt) {
-        await window.showConfirm({
-          title: "Encryption Not Set Up",
-          message: "Go to Settings > Encryption to set a passphrase before encrypting notes.",
-          confirmText: "OK",
-          isDangerous: false,
-        });
-        return;
-      }
-
-      // Need a fresh key to encrypt
-      if (hasFreshKey(KEY_TTL_MS)) {
-        try {
-          encryptionKey = await getStoredKey();
-          refreshKeyTimestamp();
-        } catch (e) {
-          encryptionKey = null;
-        }
-      }
-
-      if (!encryptionKey) {
-        // Show a small prompt to get passphrase
-        const passphrase = await showInlinePassphraseDialog(params);
-        if (!passphrase) return; // cancelled
-      }
-
-      noteIsEncrypted = true;
-      newIcon.className = "icon-lock";
-      newBtn.title = "Remove encryption";
-      lastSavedContent = "";
-      scheduleAutosave();
-    }
-  });
-}
-
-function showInlinePassphraseDialog(params) {
-  return new Promise(function(resolve) {
-    const overlay = document.createElement("div");
-    overlay.className = "passphrase-dialog-overlay";
-    overlay.innerHTML =
-      '<div class="modal-content passphrase-dialog">' +
-        '<div class="modal-header">' +
-          '<h5 class="modal-title">Encryption</h5>' +
-          '<button type="button" class="dialog-close" aria-label="Close">' +
-            '<i class="icon-x"></i>' +
-          '</button>' +
-        '</div>' +
-        '<div class="modal-body">' +
-          '<label class="form-label">Enter your passphrase to encrypt this note:</label>' +
-          '<div class="password-wrapper">' +
-            '<input type="password" class="form-control" placeholder="Passphrase" autocomplete="off">' +
-            '<button type="button" class="password-toggle" aria-label="Toggle visibility">' +
-              '<i class="icon-eye-off"></i>' +
-            '</button>' +
-          '</div>' +
-          '<p class="unlock-error" id="dialog-error"></p>' +
-        '</div>' +
-        '<div class="modal-footer">' +
-          '<button type="button" class="btn btn-secondary dialog-cancel">Cancel</button>' +
-          '<button type="button" class="btn btn-primary dialog-confirm">Encrypt</button>' +
-        '</div>' +
-      '</div>';
-
-    document.body.appendChild(overlay);
-
-    const input = overlay.querySelector("input");
-    const confirmBtn = overlay.querySelector(".dialog-confirm");
-    const cancelBtn = overlay.querySelector(".dialog-cancel");
-    const closeBtn = overlay.querySelector(".dialog-close");
-    const errorEl = overlay.querySelector("#dialog-error");
-    const toggle = overlay.querySelector(".password-toggle");
-
-    if (toggle) {
-      toggle.addEventListener("click", function() {
-        const ico = toggle.querySelector("i");
-        if (input.type === "password") {
-          input.type = "text";
-          ico.className = "icon-eye";
-        } else {
-          input.type = "password";
-          ico.className = "icon-eye-off";
-        }
-      });
-    }
-
-    function cleanup() {
-      overlay.remove();
-    }
-
-    async function doConfirm() {
-      const passphrase = input.value;
-      if (!passphrase) {
-        errorEl.textContent = "Please enter a passphrase.";
-        return;
-      }
-
-      confirmBtn.disabled = true;
-      errorEl.textContent = "";
-
-      try {
-        const key = await unlock(passphrase, params);
-        await storeKey(key);
-        encryptionKey = key;
-        cleanup();
-        resolve(passphrase);
-      } catch (e) {
-        errorEl.textContent = e.message || "Error deriving key.";
-        confirmBtn.disabled = false;
-      }
-    }
-
-    confirmBtn.addEventListener("click", doConfirm);
-    input.addEventListener("keydown", function(e) {
-      if (e.key === "Enter") doConfirm();
-      if (e.key === "Escape") { cleanup(); resolve(null); }
-    });
-    cancelBtn.addEventListener("click", function() { cleanup(); resolve(null); });
-    closeBtn.addEventListener("click", function() { cleanup(); resolve(null); });
-    overlay.addEventListener("click", function(e) {
-      if (e.target === overlay) { cleanup(); resolve(null); }
-    });
-
-    setTimeout(function() { input.focus(); }, 50);
-  });
 }
 
 // Initialize on load

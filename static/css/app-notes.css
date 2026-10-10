@@ -474,7 +474,7 @@
   color: var(--link-hover);
 }
 
-/* The title with its lock after it */
+/* The title, on one line with the row's actions */
 .note-title {
   align-items: center;
   display: inline-flex;
