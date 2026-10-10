@@ -31,39 +31,61 @@
   left: 0.5rem;
 }
 
-/* The sheet's tab: hidden by default, shown on mobile */
+/* The sheet's tab: hidden by default, shown on mobile. A slim strip the
+   width of the screen, the sheet's top edge showing, with a half-round
+   bump at its middle that holds the panel's icon and overlaps the
+   strip's rule so the two read as one shape */
 .drawer-tab {
-  align-items: center;
   background: var(--background-section);
-  border: solid 1px var(--border-medium);
-  border-bottom: none;
-  border-radius: 0.875rem 0.875rem 0 0;
+  border: none;
+  border-top: solid 1px var(--border-medium);
   bottom: 0;
   box-shadow: 0 -0.125rem 0.75rem var(--shadow-color);
   color: var(--color-primary);
   cursor: pointer;
   display: none;
-  flex-direction: column;
-  font: inherit;
-  font-size: 0.9rem;
-  gap: 0.3rem;
-  left: 50%;
-  padding: 0.4rem 1.75rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  height: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  padding: 0;
   position: fixed;
-  transform: translateX(-50%);
+  right: 0;
   z-index: 1039;
 }
 
-.drawer-tab-grip {
-  background: var(--border-dark);
-  border-radius: 0.125rem;
-  display: block;
-  height: 0.25rem;
-  width: 2.5rem;
+.drawer-tab-bump {
+  align-items: center;
+  background: var(--background-section);
+  border: solid 1px var(--border-medium);
+  border-bottom: none;
+  border-radius: 2rem 2rem 0 0;
+  bottom: calc(100% - 1px);
+  box-shadow: 0 -0.125rem 0.5rem var(--shadow-color);
+  display: flex;
+  font-size: 1.1rem;
+  height: 1.75rem;
+  justify-content: center;
+  left: 50%;
+  padding-top: 0.2rem;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 4rem;
 }
 
-.drawer-fab:active {
-  background: var(--background-subnav);
+/* the strip's own shadow would fall across the bump's foot; a plate of
+   the background over the seam keeps the shape whole */
+.drawer-tab-bump::after {
+  background: var(--background-section);
+  bottom: -1px;
+  content: "";
+  height: 0.5rem;
+  left: 1px;
+  position: absolute;
+  right: 1px;
+}
+
+.drawer-tab-bump i {
+  position: relative;
+  z-index: 1;
 }
 
 /* Backdrop */
