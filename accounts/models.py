@@ -147,6 +147,18 @@ class CustomUser(AbstractUser):
     # crypto.js). Keys made before the count was recorded used 100,000; a
     # new or changed passphrase takes the current count from the client
     encryption_iterations = models.PositiveIntegerField(default=100000)
+    # Notes are encrypted under one random key that never leaves the
+    # browser in the clear. The passphrase seals it (wrapped_key: the key
+    # encrypted under a key derived from passphrase + salt), and a
+    # recovery code, when one has been made, seals it a second way under
+    # its own salt. Empty wrapped_key with a salt is the earlier scheme,
+    # where the passphrase-derived key encrypted the notes directly; a
+    # passphrase change moves a user over.
+    encryption_wrapped_key = models.TextField(blank=True, default="")
+    encryption_recovery_salt = models.CharField(max_length=44, blank=True, default="")
+    encryption_recovery_wrapped_key = models.TextField(blank=True, default="")
+    # New notes start encrypted, set by "encrypt all notes"
+    encryption_by_default = models.BooleanField(default=False)
     # Two-step sign-in with an authenticator app (accounts.totp): the shared
     # secret, set once the user has confirmed a code from the app (empty
     # means it is off), and the last 30-second step whose code was taken,

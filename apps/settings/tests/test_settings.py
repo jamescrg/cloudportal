@@ -39,52 +39,130 @@ def test_homepage_settings_show_the_icon_switches(client):
     assert "/settings/home-options/icons_muted/disable" in html
 
 
-# -- notes encryption: the salt and the PBKDF2 round count ------------------
+# -- notes encryption: the salt, the round count and the sealed key -------
+
+SALT = "c2FsdHNhbHRzYWx0c2FsdA=="
+WRAPPED = "aXZpdml2aXZpdml2Y2lwaGVydGV4dGNpcGhlcnRleHQ="
 
 
-def _save_salt(client, body):
-    return client.post(
-        reverse("settings-encryption-save-salt"),
-        data=body,
-        content_type="application/json",
-    )
+def _post_json(client, name, body):
+    return client.post(reverse(name), data=body, content_type="application/json")
 
 
-def test_save_salt_records_the_round_count(client, user):
+def _fresh(user):
     from accounts.models import CustomUser
 
-    response = _save_salt(
-        client, {"salt": "c2FsdHNhbHRzYWx0c2FsdA==", "iterations": 600000}
+    return CustomUser.objects.get(pk=user.pk)
+
+
+def test_save_salt_records_salt_rounds_and_sealed_key(client, user):
+    response = _post_json(
+        client,
+        "settings-encryption-save-salt",
+        {"salt": SALT, "iterations": 600000, "wrapped_key": WRAPPED},
     )
     assert response.status_code == 200
-    user = CustomUser.objects.get(pk=user.pk)
-    assert (user.encryption_salt, user.encryption_iterations) == (
-        "c2FsdHNhbHRzYWx0c2FsdA==",
-        600000,
-    )
+    user = _fresh(user)
+    assert (
+        user.encryption_salt,
+        user.encryption_iterations,
+        user.encryption_wrapped_key,
+    ) == (SALT, 600000, WRAPPED)
 
 
-@pytest.mark.parametrize("iterations", [None, "lots", 99999, 10_000_001])
-def test_save_salt_refuses_a_bad_round_count(client, user, iterations):
-    from accounts.models import CustomUser
-
-    body = {"salt": "c2FsdHNhbHRzYWx0c2FsdA=="}
-    if iterations is not None:
-        body["iterations"] = iterations
-    response = _save_salt(client, body)
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"salt": SALT, "wrapped_key": WRAPPED},
+        {"salt": SALT, "wrapped_key": WRAPPED, "iterations": "lots"},
+        {"salt": SALT, "wrapped_key": WRAPPED, "iterations": 99999},
+        {"salt": SALT, "wrapped_key": WRAPPED, "iterations": 10_000_001},
+        {"salt": SALT, "iterations": 600000},
+        {"iterations": 600000, "wrapped_key": WRAPPED},
+    ],
+)
+def test_save_salt_refuses_an_incomplete_body(client, user, body):
+    response = _post_json(client, "settings-encryption-save-salt", body)
     assert response.status_code == 400
-    user = CustomUser.objects.get(pk=user.pk)
-    assert user.encryption_salt == ""
+    assert _fresh(user).encryption_salt == ""
 
 
 def test_a_key_made_before_the_count_was_recorded_counts_as_the_old_default(user):
     assert user.encryption_iterations == 100000
+    assert user.encryption_wrapped_key == ""
 
 
-def test_encryption_page_shows_the_round_count(client, user):
-    user.encryption_salt = "c2FsdHNhbHRzYWx0c2FsdA=="
+def test_recovery_code_is_recorded_and_cleared(client, user):
+    response = _post_json(
+        client,
+        "settings-encryption-recovery",
+        {"recovery_salt": SALT, "recovery_wrapped_key": WRAPPED},
+    )
+    assert response.status_code == 200
+    user = _fresh(user)
+    assert (user.encryption_recovery_salt, user.encryption_recovery_wrapped_key) == (
+        SALT,
+        WRAPPED,
+    )
+    response = _post_json(client, "settings-encryption-recovery", {})
+    assert response.json() == {"saved": True, "has_recovery": False}
+    user = _fresh(user)
+    assert (user.encryption_recovery_salt, user.encryption_recovery_wrapped_key) == (
+        "",
+        "",
+    )
+
+
+def test_recovery_code_needs_both_halves(client, user):
+    response = _post_json(
+        client, "settings-encryption-recovery", {"recovery_salt": SALT}
+    )
+    assert response.status_code == 400
+
+
+def test_clearing_the_salt_forgets_every_encryption_setting(client, user):
+    user.encryption_salt = SALT
+    user.encryption_wrapped_key = WRAPPED
+    user.encryption_recovery_salt = SALT
+    user.encryption_recovery_wrapped_key = WRAPPED
+    user.encryption_by_default = True
+    user.save()
+    assert _post_json(client, "settings-encryption-clear-salt", {}).status_code == 200
+    user = _fresh(user)
+    assert (
+        user.encryption_salt,
+        user.encryption_wrapped_key,
+        user.encryption_recovery_salt,
+        user.encryption_recovery_wrapped_key,
+        user.encryption_by_default,
+    ) == ("", "", "", "", False)
+
+
+def test_new_notes_start_encrypted_once_asked(client, user):
+    from apps.notes.models import Note
+
+    assert _post_json(
+        client, "settings-encryption-by-default", {"enabled": True}
+    ).json() == {
+        "saved": True,
+        "enabled": True,
+    }
+    assert _fresh(user).encryption_by_default is True
+    client.post(reverse("notes:add"), {"title": "Sealed from the start", "folder": ""})
+    note = Note.objects.get(user=user, title="Sealed from the start")
+    assert note.is_encrypted is True
+    _post_json(client, "settings-encryption-by-default", {"enabled": False})
+    client.post(reverse("notes:add"), {"title": "Plain", "folder": ""})
+    assert Note.objects.get(user=user, title="Plain").is_encrypted is False
+
+
+def test_encryption_page_carries_its_config(client, user):
+    user.encryption_salt = SALT
     user.encryption_iterations = 600000
+    user.encryption_wrapped_key = WRAPPED
     user.save()
     html = client.get(reverse("settings-encryption")).content.decode()
-    assert 'data-iterations="600000"' in html
-    assert "const iterations = 600000;" in html
+    assert 'id="encryption-config"' in html
+    assert '"iterations": 600000' in html
+    assert WRAPPED in html
+    assert "encryption-settings.js" in html

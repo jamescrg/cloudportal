@@ -2,34 +2,30 @@
 {% load cache_buster %}
 {% block subcontent %}
     {% csrf_token %}
+    {{ config|json_script:"encryption-config" }}
     <div class="card">
         <div class="card-title">
             <h1>Notes Encryption</h1>
         </div>
         <p class="card-text">
-            End-to-end encryption uses a standalone passphrase to derive an AES-256 key.
-            The key is stored in this browser's local storage and never sent to the server.
-            Individual notes can be encrypted using the lock icon in the editor.
+            Notes are encrypted in this browser under a key of their own, which your passphrase seals.
+            The server stores the sealed key and the encrypted notes, and never sees the passphrase or the key.
         </p>
         <table class="options">
             <tr>
                 <td class="setting-label">Status</td>
                 <td class="setting-control">
-                    <span id="encryption-status">
-                        {% if has_salt %}
-                            <span class="setting-ok">Enabled</span>
-                        {% else %}
-                            Disabled
-                        {% endif %}
-                    </span>
+                    {% if has_salt %}
+                        <span class="setting-ok">Enabled</span>
+                    {% else %}
+                        Disabled
+                    {% endif %}
                 </td>
             </tr>
             {% if has_salt %}
                 <tr>
                     <td class="setting-label">Notes</td>
-                    <td class="setting-control">
-                        <span id="encryption-stats">{{ encrypted_count }} of {{ note_count }} encrypted</span>
-                    </td>
+                    <td class="setting-control">{{ encrypted_count }} of {{ note_count }} encrypted</td>
                 </tr>
                 <tr>
                     <td class="setting-label">Key</td>
@@ -40,78 +36,80 @@
                 <tr>
                     <td class="setting-label">Strength</td>
                     <td class="setting-control">
-                        <span id="strength-status"
-                              data-iterations="{{ user.encryption_iterations }}">{{ user.encryption_iterations }} rounds</span>
+                        <span id="strength-status">{{ config.iterations }} rounds</span>
                     </td>
                 </tr>
+                {% if sealed %}
+                    <tr>
+                        <td class="setting-label">Recovery code</td>
+                        <td class="setting-control">
+                            {% if has_recovery %}
+                                <span class="setting-ok">Set</span>
+                            {% else %}
+                                Not set
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="setting-label">New notes</td>
+                        <td class="setting-control">
+                            <label>
+                                <input type="checkbox"
+                                       id="encrypt-by-default"
+                                       {% if config.byDefault %}checked{% endif %}>
+                                start encrypted
+                            </label>
+                        </td>
+                    </tr>
+                {% endif %}
             {% endif %}
         </table>
         {% if not has_salt %}
-            <div id="enable-section">
-                <p class="card-text">Choose a passphrase to enable encryption.</p>
-                <div class="encryption-fields">
-                    <div class="password-wrapper">
-                        <input type="password"
-                               id="enable-passphrase"
-                               class="form-control"
-                               placeholder="Passphrase"
-                               autocomplete="off">
-                        <button type="button"
-                                class="password-toggle"
-                                tabindex="-1"
-                                aria-label="Toggle visibility">
-                            <i class="icon-eye-off"></i>
-                        </button>
-                    </div>
-                    <div class="password-wrapper">
-                        <input type="password"
-                               id="enable-passphrase-confirm"
-                               class="form-control"
-                               placeholder="Confirm passphrase"
-                               autocomplete="off">
-                        <button type="button"
-                                class="password-toggle"
-                                tabindex="-1"
-                                aria-label="Toggle visibility">
-                            <i class="icon-eye-off"></i>
-                        </button>
-                    </div>
+            <p class="card-text">Choose a passphrase to enable encryption.</p>
+            <div class="encryption-fields">
+                <div class="password-wrapper">
+                    <input type="password"
+                           id="enable-passphrase"
+                           class="form-control"
+                           placeholder="Passphrase"
+                           autocomplete="off">
+                    <button type="button"
+                            class="password-toggle"
+                            tabindex="-1"
+                            aria-label="Toggle visibility">
+                        <i class="icon-eye-off"></i>
+                    </button>
                 </div>
-                <div class="setting-actions">
-                    <button type="button" class="btn btn-primary" id="enable-btn">Enable Encryption</button>
+                <div class="password-wrapper">
+                    <input type="password"
+                           id="enable-passphrase-confirm"
+                           class="form-control"
+                           placeholder="Confirm passphrase"
+                           autocomplete="off">
+                    <button type="button"
+                            class="password-toggle"
+                            tabindex="-1"
+                            aria-label="Toggle visibility">
+                        <i class="icon-eye-off"></i>
+                    </button>
                 </div>
             </div>
-        {% else %}
-            <div id="disable-section">
-                <div id="passphrase-row">
-                    <p class="card-text">Enter your passphrase to decrypt every encrypted note and turn encryption off.</p>
-                    <div class="encryption-fields">
-                        <div class="password-wrapper">
-                            <input type="password"
-                                   id="passphrase-input"
-                                   class="form-control"
-                                   placeholder="Encryption passphrase"
-                                   autocomplete="off">
-                            <button type="button"
-                                    class="password-toggle"
-                                    tabindex="-1"
-                                    aria-label="Toggle visibility">
-                                <i class="icon-eye-off"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-actions">
-                    <button type="button" class="btn btn-danger" id="disable-btn">Disable Encryption</button>
-                </div>
+            <div class="setting-actions">
+                <button type="button" class="btn btn-primary encryption-flow" id="enable-btn">Enable Encryption</button>
             </div>
+        {% elif not sealed %}
+            <p class="card-text">
+                Your key is from before the sealed scheme: the passphrase itself encrypts the notes.
+                Change your passphrase below (the new one may be the same) to move to a sealed key at 600,000 rounds,
+                which also unlocks recovery codes and encrypting every note.
+            </p>
         {% endif %}
         <div id="encryption-progress" class="encryption-progress is-hidden">
             <span id="progress-text"></span>
         </div>
         <p id="encryption-message" class="encryption-message"></p>
         <p class="card-text">
-            If you clear browser data or use a different browser, you'll be prompted to re-enter your passphrase when opening an encrypted note.
+            The key stays loaded in this browser for eight hours after its last use, and is forgotten when you log out.
             Changing your login password does not affect encryption.
         </p>
     </div>
@@ -121,23 +119,26 @@
                 <h1>Change Passphrase</h1>
             </div>
             <p class="card-text">
-                Every encrypted note is re-encrypted under the new passphrase. The current passphrase is always asked for, even while the key is loaded.
+                {% if sealed %}
+                    The key is resealed under the new passphrase; the notes themselves are untouched.
+                {% else %}
+                    Every encrypted note is rewritten under a new sealed key.
+                {% endif %}
+                The current passphrase is always asked for, even while the key is loaded.
             </p>
             <div class="encryption-fields">
-                <div id="change-current-row">
-                    <div class="password-wrapper">
-                        <input type="password"
-                               id="change-current-passphrase"
-                               class="form-control"
-                               placeholder="Current passphrase"
-                               autocomplete="off">
-                        <button type="button"
-                                class="password-toggle"
-                                tabindex="-1"
-                                aria-label="Toggle visibility">
-                            <i class="icon-eye-off"></i>
-                        </button>
-                    </div>
+                <div class="password-wrapper">
+                    <input type="password"
+                           id="change-current-passphrase"
+                           class="form-control"
+                           placeholder="Current passphrase"
+                           autocomplete="off">
+                    <button type="button"
+                            class="password-toggle"
+                            tabindex="-1"
+                            aria-label="Toggle visibility">
+                        <i class="icon-eye-off"></i>
+                    </button>
                 </div>
                 <div class="password-wrapper">
                     <input type="password"
@@ -167,7 +168,168 @@
                 </div>
             </div>
             <div class="setting-actions">
-                <button type="button" class="btn btn-primary" id="change-btn">Change Passphrase</button>
+                <button type="button" class="btn btn-primary encryption-flow" id="change-btn">Change Passphrase</button>
+            </div>
+        </div>
+    {% endif %}
+    {% if sealed %}
+        <div class="card" id="encrypt-all-section">
+            <div class="card-title">
+                <h1>Encrypt All Notes</h1>
+            </div>
+            {% if encrypted_count == note_count %}
+                <p class="card-text">Every note is encrypted.</p>
+            {% else %}
+                <p class="card-text">
+                    Encrypt the {{ plain_count }} plain note(s) under your key, and start new notes encrypted.
+                    Titles stay readable; only the body is encrypted.
+                </p>
+                <div class="encryption-fields">
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="encrypt-all-passphrase"
+                               class="form-control"
+                               placeholder="Passphrase"
+                               autocomplete="off">
+                        <button type="button"
+                                class="password-toggle"
+                                tabindex="-1"
+                                aria-label="Toggle visibility">
+                            <i class="icon-eye-off"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="setting-actions">
+                    <button type="button"
+                            class="btn btn-primary encryption-flow"
+                            id="encrypt-all-btn">Encrypt All Notes</button>
+                </div>
+            {% endif %}
+        </div>
+        <div class="card" id="recovery-section">
+            <div class="card-title">
+                <h1>Recovery Code</h1>
+            </div>
+            <p class="card-text">
+                A recovery code seals the same key a second way, so a forgotten passphrase can be replaced without losing a note.
+                It is shown once: write it down and keep it apart from the passphrase.
+            </p>
+            {% if has_recovery %}<p class="card-text">A recovery code is set. Making a new one replaces it.</p>{% endif %}
+            <div id="recovery-make">
+                <div class="encryption-fields">
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="recovery-passphrase"
+                               class="form-control"
+                               placeholder="Passphrase"
+                               autocomplete="off">
+                        <button type="button"
+                                class="password-toggle"
+                                tabindex="-1"
+                                aria-label="Toggle visibility">
+                            <i class="icon-eye-off"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="setting-actions">
+                    <button type="button"
+                            class="btn btn-primary encryption-flow"
+                            id="recovery-make-btn">
+                        {% if has_recovery %}
+                            Replace Recovery Code
+                        {% else %}
+                            Make a Recovery Code
+                        {% endif %}
+                    </button>
+                    {% if has_recovery %}
+                        <button type="button"
+                                class="btn btn-danger encryption-flow"
+                                id="recovery-remove-btn">Remove</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="recovery-shown" class="is-hidden">
+                <p class="card-text">Your recovery code. It will not be shown again.</p>
+                <p class="totp-key" id="recovery-code"></p>
+                <div class="setting-actions">
+                    <button type="button" class="btn btn-secondary" id="recovery-copy-btn">Copy</button>
+                    <button type="button" class="btn btn-primary" id="recovery-done-btn">I have written it down</button>
+                </div>
+            </div>
+        </div>
+        {% if has_recovery %}
+            <div class="card" id="reset-section">
+                <div class="card-title">
+                    <h1>Forgot the Passphrase?</h1>
+                </div>
+                <p class="card-text">
+                    Enter the recovery code and choose a new passphrase. The notes are untouched, and the recovery code keeps working.
+                </p>
+                <div class="encryption-fields">
+                    <input type="text"
+                           id="reset-code"
+                           class="form-control"
+                           placeholder="Recovery code"
+                           autocomplete="off"
+                           spellcheck="false">
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="reset-new-passphrase"
+                               class="form-control"
+                               placeholder="New passphrase"
+                               autocomplete="off">
+                        <button type="button"
+                                class="password-toggle"
+                                tabindex="-1"
+                                aria-label="Toggle visibility">
+                            <i class="icon-eye-off"></i>
+                        </button>
+                    </div>
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="reset-confirm-passphrase"
+                               class="form-control"
+                               placeholder="Confirm new passphrase"
+                               autocomplete="off">
+                        <button type="button"
+                                class="password-toggle"
+                                tabindex="-1"
+                                aria-label="Toggle visibility">
+                            <i class="icon-eye-off"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="setting-actions">
+                    <button type="button" class="btn btn-primary encryption-flow" id="reset-btn">Reset Passphrase</button>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+    {% if has_salt %}
+        <div class="card" id="disable-section">
+            <div class="card-title">
+                <h1>Disable Encryption</h1>
+            </div>
+            <p class="card-text">
+                Every encrypted note is decrypted and stored as plain text, and the key, recovery code and default are forgotten.
+            </p>
+            <div class="encryption-fields">
+                <div class="password-wrapper">
+                    <input type="password"
+                           id="disable-passphrase"
+                           class="form-control"
+                           placeholder="Passphrase"
+                           autocomplete="off">
+                    <button type="button"
+                            class="password-toggle"
+                            tabindex="-1"
+                            aria-label="Toggle visibility">
+                        <i class="icon-eye-off"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="setting-actions">
+                <button type="button" class="btn btn-danger encryption-flow" id="disable-btn">Disable Encryption</button>
             </div>
         </div>
     {% endif %}
@@ -186,273 +348,5 @@
       });
     });
     </script>
-    <script type="module">
-    import { generateSalt, deriveKey, encrypt, decrypt, storeKey, hasStoredKey, storedKeyMinutesLeft, clearStoredKey, PBKDF2_ITERATIONS } from "{% static_v 'js/crypto.js' %}";
-
-    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-    const messageEl = document.getElementById("encryption-message");
-    const progressEl = document.getElementById("encryption-progress");
-    const progressText = document.getElementById("progress-text");
-    // this user's salt and the PBKDF2 round count their key was made with
-    const salt = "{{ user.encryption_salt|escapejs }}";
-    const iterations = {{ user.encryption_iterations }};
-
-    function showMessage(text, isError) {
-      messageEl.textContent = text;
-      messageEl.classList.toggle("setting-error", isError);
-      messageEl.classList.toggle("setting-ok", !isError);
-    }
-
-    function showProgress(text) {
-      progressEl.classList.remove("is-hidden");
-      progressText.textContent = text;
-    }
-
-    function hideProgress() {
-      progressEl.classList.add("is-hidden");
-    }
-
-    async function fetchNotes() {
-      const resp = await fetch("{% url 'settings-encryption-notes' %}", {
-        headers: { "X-CSRFToken": csrfToken },
-      });
-      const data = await resp.json();
-      return data.notes;
-    }
-
-    async function saveNotes(notes) {
-      const resp = await fetch("{% url 'settings-encryption-notes-update' %}", {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/json" },
-        body: JSON.stringify({ notes: notes }),
-      });
-      return resp.ok;
-    }
-
-    async function saveSalt(newSalt, rounds) {
-      const resp = await fetch("{% url 'settings-encryption-save-salt' %}", {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/json" },
-        body: JSON.stringify({ salt: newSalt, iterations: rounds }),
-      });
-      return resp.ok;
-    }
-
-    async function clearSalt() {
-      await fetch("{% url 'settings-encryption-clear-salt' %}", {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/json" },
-      });
-    }
-
-    // The key for a passphrase typed into this page, proven against the
-    // first encrypted note: a wrong passphrase is reported here, before
-    // anything is rewritten. With no encrypted note there is nothing to
-    // prove it against, and nothing a wrong one could damage.
-    async function keyForPassphrase(passphrase, notes) {
-      const key = await deriveKey(passphrase, salt, iterations);
-      const sample = notes.find(function(n) { return n.is_encrypted && n.content; });
-      if (sample) {
-        try {
-          await decrypt(sample.content, key);
-        } catch (e) {
-          throw new Error("Wrong passphrase.");
-        }
-      }
-      return key;
-    }
-
-    // ── State: Disabled — Enable encryption ──
-    const enableBtn = document.getElementById("enable-btn");
-    const passphraseInput = document.getElementById("enable-passphrase");
-    const passphraseConfirm = document.getElementById("enable-passphrase-confirm");
-
-    if (enableBtn) {
-      enableBtn.addEventListener("click", async function() {
-        const passphrase = passphraseInput.value;
-        const confirm = passphraseConfirm.value;
-
-        if (!passphrase) {
-          showMessage("Passphrase cannot be empty.", true);
-          return;
-        }
-        if (passphrase !== confirm) {
-          showMessage("Passphrases do not match.", true);
-          return;
-        }
-
-        enableBtn.disabled = true;
-        messageEl.textContent = "";
-
-        try {
-          showProgress("Generating encryption key...");
-          const newSalt = generateSalt();
-          const key = await deriveKey(passphrase, newSalt, PBKDF2_ITERATIONS);
-          if (!(await saveSalt(newSalt, PBKDF2_ITERATIONS))) {
-            showMessage("Failed to save encryption settings.", true);
-            enableBtn.disabled = false;
-            hideProgress();
-            return;
-          }
-          await storeKey(key);
-
-          hideProgress();
-          showMessage("Encryption enabled. Use the lock icon in the editor to encrypt individual notes.", false);
-          setTimeout(function() { location.reload(); }, 1000);
-        } catch (e) {
-          hideProgress();
-          showMessage("Error: " + e.message, true);
-          enableBtn.disabled = false;
-        }
-      });
-
-      passphraseConfirm.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") enableBtn.click();
-      });
-    }
-
-    // ── State: Enabled — key status, strength, disable and change ──
-    const keyStatusEl = document.getElementById("key-status");
-    const strengthEl = document.getElementById("strength-status");
-    const disableBtn = document.getElementById("disable-btn");
-    const disablePassphrase = document.getElementById("passphrase-input");
-
-    if (keyStatusEl) {
-      if (hasStoredKey()) {
-        keyStatusEl.innerHTML = '<span class="setting-ok">Loaded (expires in ' + storedKeyMinutesLeft() + ' min)</span>';
-      } else {
-        keyStatusEl.textContent = "Not loaded in this browser";
-      }
-    }
-
-    if (strengthEl && iterations < PBKDF2_ITERATIONS) {
-      strengthEl.textContent = iterations.toLocaleString() + " rounds — change your passphrase to move to " + PBKDF2_ITERATIONS.toLocaleString();
-    } else if (strengthEl) {
-      strengthEl.textContent = iterations.toLocaleString() + " rounds";
-    }
-
-    if (disableBtn) {
-      disableBtn.addEventListener("click", async function() {
-        const passphrase = disablePassphrase.value;
-        if (!passphrase) {
-          showMessage("Please enter the passphrase to decrypt notes.", true);
-          return;
-        }
-
-        const confirmed = await window.showConfirm({
-          title: "Disable Encryption",
-          message: "This will decrypt all encrypted notes and store them as plaintext. Continue?",
-          confirmText: "Disable Encryption",
-          isDangerous: true,
-        });
-        if (!confirmed) return;
-
-        disableBtn.disabled = true;
-        messageEl.textContent = "";
-
-        try {
-          showProgress("Fetching notes...");
-          const notes = await fetchNotes();
-          const key = await keyForPassphrase(passphrase, notes);
-          const toDecrypt = notes.filter(function(n) { return n.is_encrypted && n.content; });
-          const updates = [];
-          for (let i = 0; i < toDecrypt.length; i++) {
-            showProgress("Decrypting note " + (i + 1) + " of " + toDecrypt.length + "...");
-            const plaintext = await decrypt(toDecrypt[i].content, key);
-            updates.push({ id: toDecrypt[i].id, content: plaintext, is_encrypted: false });
-          }
-          if (updates.length > 0) {
-            showProgress("Saving decrypted notes...");
-            if (!(await saveNotes(updates))) throw new Error("Failed to save decrypted notes.");
-          }
-
-          showProgress("Clearing encryption settings...");
-          await clearSalt();
-          clearStoredKey();
-
-          hideProgress();
-          showMessage("Encryption disabled. All notes are now plaintext.", false);
-          setTimeout(function() { location.reload(); }, 1000);
-        } catch (e) {
-          hideProgress();
-          showMessage("Error: " + e.message, true);
-          disableBtn.disabled = false;
-        }
-      });
-
-      disablePassphrase.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") disableBtn.click();
-      });
-    }
-
-    // ── Change Passphrase: the current one is always required ──
-    const changeBtn = document.getElementById("change-btn");
-    const changeCurrentInput = document.getElementById("change-current-passphrase");
-    const changeNewInput = document.getElementById("change-new-passphrase");
-    const changeConfirmInput = document.getElementById("change-confirm-passphrase");
-
-    if (changeBtn) {
-      changeBtn.addEventListener("click", async function() {
-        const currentPassphrase = changeCurrentInput.value;
-        const newPassphrase = changeNewInput.value;
-        const confirmPassphrase = changeConfirmInput.value;
-        if (!currentPassphrase) {
-          showMessage("Please enter your current passphrase.", true);
-          return;
-        }
-        if (!newPassphrase) {
-          showMessage("New passphrase cannot be empty.", true);
-          return;
-        }
-        if (newPassphrase !== confirmPassphrase) {
-          showMessage("New passphrases do not match.", true);
-          return;
-        }
-
-        changeBtn.disabled = true;
-        disableBtn.disabled = true;
-        messageEl.textContent = "";
-
-        try {
-          showProgress("Fetching notes...");
-          const notes = await fetchNotes();
-          const oldKey = await keyForPassphrase(currentPassphrase, notes);
-
-          showProgress("Generating new encryption key...");
-          const newSalt = generateSalt();
-          const newKey = await deriveKey(newPassphrase, newSalt, PBKDF2_ITERATIONS);
-
-          const toRekey = notes.filter(function(n) { return n.is_encrypted && n.content; });
-          if (toRekey.length > 0) {
-            const updates = [];
-            for (let i = 0; i < toRekey.length; i++) {
-              showProgress("Re-encrypting note " + (i + 1) + " of " + toRekey.length + "...");
-              const plaintext = await decrypt(toRekey[i].content, oldKey);
-              const ciphertext = await encrypt(plaintext, newKey);
-              updates.push({ id: toRekey[i].id, content: ciphertext, is_encrypted: true });
-            }
-            showProgress("Saving re-encrypted notes...");
-            if (!(await saveNotes(updates))) throw new Error("Failed to save re-encrypted notes.");
-          }
-
-          showProgress("Saving new encryption settings...");
-          if (!(await saveSalt(newSalt, PBKDF2_ITERATIONS))) throw new Error("Failed to save new salt.");
-          await storeKey(newKey);
-
-          hideProgress();
-          showMessage("Passphrase changed successfully.", false);
-          setTimeout(function() { location.reload(); }, 1000);
-        } catch (e) {
-          hideProgress();
-          showMessage("Error: " + e.message, true);
-          changeBtn.disabled = false;
-          disableBtn.disabled = false;
-        }
-      });
-
-      changeConfirmInput.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") changeBtn.click();
-      });
-    }
-    </script>
+    <script type="module" src="{% static_v 'js/encryption-settings.js' %}"></script>
 {% endblock subcontent %}

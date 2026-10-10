@@ -402,36 +402,77 @@ def google_logout(request):
 # low end, and a ceiling well above anything a phone derives in a second
 ITERATIONS_MIN = 100_000
 ITERATIONS_MAX = 10_000_000
+ENCRYPTION_FIELDS = [
+    "encryption_salt",
+    "encryption_wrapped_key",
+    "encryption_recovery_salt",
+    "encryption_recovery_wrapped_key",
+    "encryption_by_default",
+]
 
 
 @login_required
 def encryption_index(request):
     """Show the Encryption settings tab."""
-    notes = Note.objects.filter(user=request.user)
+    user = request.user
+    notes = Note.objects.filter(user=user)
+    # what the page's script needs (static/js/encryption-settings.js);
+    # the sealed keys are no secret, only the passphrase opens them
+    config = {
+        "salt": user.encryption_salt,
+        "iterations": user.encryption_iterations,
+        "wrappedKey": user.encryption_wrapped_key,
+        "recoverySalt": user.encryption_recovery_salt,
+        "recoveryWrappedKey": user.encryption_recovery_wrapped_key,
+        "byDefault": user.encryption_by_default,
+        "urls": {
+            "notes": reverse("settings-encryption-notes"),
+            "update": reverse("settings-encryption-notes-update"),
+            "saveSalt": reverse("settings-encryption-save-salt"),
+            "clearSalt": reverse("settings-encryption-clear-salt"),
+            "recovery": reverse("settings-encryption-recovery"),
+            "byDefault": reverse("settings-encryption-by-default"),
+        },
+    }
     context = {
         "page": "settings",
         "subapp": "encryption",
-        "has_salt": bool(request.user.encryption_salt),
+        "has_salt": bool(user.encryption_salt),
+        "sealed": bool(user.encryption_wrapped_key),
+        "has_recovery": bool(user.encryption_recovery_wrapped_key),
         "note_count": notes.count(),
         "encrypted_count": notes.filter(is_encrypted=True).count(),
+        "plain_count": notes.filter(is_encrypted=False).count(),
+        "config": config,
     }
     return render(request, "settings/encryption.html", context)
 
 
-@login_required
-def encryption_save_salt(request):
-    """Save the encryption salt generated client-side."""
-    if request.method != "POST":
-        return JsonResponse({"error": "POST required"}, status=405)
+def _encryption_body(request):
+    try:
+        return json.loads(request.body)
+    except ValueError:
+        return {}
 
-    body = json.loads(request.body)
-    salt = body.get("salt", "").strip()
+
+@login_required
+@require_POST
+def encryption_save_salt(request):
+    """Record what the browser made when a passphrase was set or changed:
+    the salt, the round count, and the note key sealed under the
+    passphrase (static/js/crypto.js). The passphrase and the key never
+    arrive here."""
+    body = _encryption_body(request)
+    salt = str(body.get("salt", "")).strip()
+    wrapped_key = str(body.get("wrapped_key", "")).strip()
 
     if not salt:
         return JsonResponse({"error": "Salt is required"}, status=400)
-    # the PBKDF2 round count the key was derived with, kept beside the
-    # salt so the key can be derived again; bounded so a typo can't lock
-    # a browser up for minutes or weaken the key below the old default
+    if not wrapped_key:
+        return JsonResponse({"error": "Wrapped key is required"}, status=400)
+    # the PBKDF2 round count the sealing key was derived with, kept beside
+    # the salt so the key can be derived again; bounded so a typo can't
+    # lock a browser up for minutes or weaken the key below the old default
     try:
         iterations = int(body.get("iterations"))
     except (TypeError, ValueError):
@@ -439,23 +480,63 @@ def encryption_save_salt(request):
     if not ITERATIONS_MIN <= iterations <= ITERATIONS_MAX:
         return JsonResponse({"error": "Iterations out of range"}, status=400)
 
-    request.user.encryption_salt = salt
-    request.user.encryption_iterations = iterations
-    request.user.save(update_fields=["encryption_salt", "encryption_iterations"])
-
+    user = request.user
+    user.encryption_salt = salt
+    user.encryption_iterations = iterations
+    user.encryption_wrapped_key = wrapped_key
+    user.save(
+        update_fields=[
+            "encryption_salt",
+            "encryption_iterations",
+            "encryption_wrapped_key",
+        ]
+    )
     return JsonResponse({"saved": True})
 
 
 @login_required
+@require_POST
 def encryption_clear_salt(request):
-    """Clear the encryption salt (disable encryption)."""
-    if request.method != "POST":
-        return JsonResponse({"error": "POST required"}, status=405)
-
-    request.user.encryption_salt = ""
-    request.user.save(update_fields=["encryption_salt"])
-
+    """Forget everything about encryption: the browser has decrypted every
+    note first (the Disable flow)."""
+    user = request.user
+    user.encryption_salt = ""
+    user.encryption_wrapped_key = ""
+    user.encryption_recovery_salt = ""
+    user.encryption_recovery_wrapped_key = ""
+    user.encryption_by_default = False
+    user.save(update_fields=ENCRYPTION_FIELDS)
     return JsonResponse({"saved": True})
+
+
+@login_required
+@require_POST
+def encryption_save_recovery(request):
+    """Record the note key sealed under a recovery code, with the code's
+    own salt; an empty body clears the recovery code."""
+    body = _encryption_body(request)
+    salt = str(body.get("recovery_salt", "")).strip()
+    wrapped_key = str(body.get("recovery_wrapped_key", "")).strip()
+    if bool(salt) != bool(wrapped_key):
+        return JsonResponse({"error": "Salt and wrapped key go together"}, status=400)
+    user = request.user
+    user.encryption_recovery_salt = salt
+    user.encryption_recovery_wrapped_key = wrapped_key
+    user.save(
+        update_fields=["encryption_recovery_salt", "encryption_recovery_wrapped_key"]
+    )
+    return JsonResponse({"saved": True, "has_recovery": bool(salt)})
+
+
+@login_required
+@require_POST
+def encryption_by_default(request):
+    """Whether a new note starts encrypted."""
+    body = _encryption_body(request)
+    user = request.user
+    user.encryption_by_default = bool(body.get("enabled"))
+    user.save(update_fields=["encryption_by_default"])
+    return JsonResponse({"saved": True, "enabled": user.encryption_by_default})
 
 
 @login_required

@@ -1,7 +1,8 @@
 import {
   encrypt,
   decrypt,
-  deriveKey,
+  unlock,
+  paramsOf,
   hasStoredKey,
   hasFreshKey,
   refreshKeyTimestamp,
@@ -132,13 +133,14 @@ async function initEditor() {
 
   let initialContent = window.NOTE_DATA.content || "";
 
-  // Handle encrypted notes
-  if (noteIsEncrypted && initialContent) {
+  // An encrypted note needs the key before the editor opens, even an
+  // empty one: its first save must go out sealed
+  if (noteIsEncrypted) {
     if (hasFreshKey(KEY_TTL_MS)) {
       try {
         encryptionKey = await getStoredKey();
         refreshKeyTimestamp();
-        initialContent = await decrypt(initialContent, encryptionKey);
+        if (initialContent) initialContent = await decrypt(initialContent, encryptionKey);
       } catch (e) {
         encryptionKey = null;
         showPassphrasePrompt(container);
@@ -580,7 +582,12 @@ async function performAutosave() {
 
   const formData = new FormData();
 
-  if (noteIsEncrypted && encryptionKey) {
+  if (noteIsEncrypted && !encryptionKey) {
+    // the key went away (expired, cleared); keep the text here until it is back
+    updateSaveStatus("unsaved");
+    return;
+  }
+  if (noteIsEncrypted) {
     const encrypted = await encrypt(content, encryptionKey);
     formData.append("content", encrypted);
     formData.append("is_encrypted", "true");
@@ -1272,12 +1279,12 @@ function importMarkdown(markdown, replace) {
 // The user's salt and PBKDF2 round count, carried on the note canvas
 // (templates/notes/editor-content.html); both are needed to derive the key
 function encryptionParams() {
-  const data = document.querySelector(".note-canvas")?.dataset || {};
-  return { salt: data.encryptionSalt, iterations: data.encryptionIterations };
+  return paramsOf(document.querySelector(".note-canvas"));
 }
 
 function showPassphrasePrompt(container) {
-  const { salt, iterations } = encryptionParams();
+  const params = encryptionParams();
+  const salt = params.salt;
   if (!salt) {
     container.innerHTML =
       '<div class="locked-placeholder">' +
@@ -1361,9 +1368,9 @@ function showPassphrasePrompt(container) {
     errorEl.textContent = "";
 
     try {
-      const key = await deriveKey(passphrase, salt, iterations);
+      const key = await unlock(passphrase, params);
       const content = window.NOTE_DATA.content || "";
-      const decrypted = await decrypt(content, key);
+      const decrypted = content ? await decrypt(content, key) : "";
 
       // Key is correct — store it and load editor
       await storeKey(key);
@@ -1410,7 +1417,8 @@ function setupLockToggle() {
 
   newBtn.addEventListener("click", async function(e) {
     e.preventDefault();
-    const { salt, iterations } = encryptionParams();
+    const params = encryptionParams();
+    const salt = params.salt;
 
     if (noteIsEncrypted) {
       // Remove encryption
@@ -1454,7 +1462,7 @@ function setupLockToggle() {
 
       if (!encryptionKey) {
         // Show a small prompt to get passphrase
-        const passphrase = await showInlinePassphraseDialog(salt, iterations);
+        const passphrase = await showInlinePassphraseDialog(params);
         if (!passphrase) return; // cancelled
       }
 
@@ -1467,7 +1475,7 @@ function setupLockToggle() {
   });
 }
 
-function showInlinePassphraseDialog(salt, iterations) {
+function showInlinePassphraseDialog(params) {
   return new Promise(function(resolve) {
     const overlay = document.createElement("div");
     overlay.className = "passphrase-dialog-overlay";
@@ -1532,13 +1540,13 @@ function showInlinePassphraseDialog(salt, iterations) {
       errorEl.textContent = "";
 
       try {
-        const key = await deriveKey(passphrase, salt, iterations);
+        const key = await unlock(passphrase, params);
         await storeKey(key);
         encryptionKey = key;
         cleanup();
         resolve(passphrase);
       } catch (e) {
-        errorEl.textContent = "Error deriving key.";
+        errorEl.textContent = e.message || "Error deriving key.";
         confirmBtn.disabled = false;
       }
     }

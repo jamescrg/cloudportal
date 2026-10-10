@@ -407,6 +407,16 @@ urlpatterns = [
         name="settings-encryption-clear-salt",
     ),
     path(
+        "settings/encryption/recovery",
+        settings.encryption_save_recovery,
+        name="settings-encryption-recovery",
+    ),
+    path(
+        "settings/encryption/by-default",
+        settings.encryption_by_default,
+        name="settings-encryption-by-default",
+    ),
+    path(
         "settings/encryption/notes",
         settings.encryption_notes_list,
         name="settings-encryption-notes",

@@ -4,14 +4,14 @@
     <div class="row">
         <div class="col-lg-9 order-lg-2" id="main-content">
             <div id="notes"
-                 {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}"{% endif %}>
+                 {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}" data-encryption-wrapped-key="{{ user.encryption_wrapped_key }}"{% endif %}>
                 {% include "notes/list.html" %}
             </div>
         </div>
         <div class="col-lg-3 order-lg-1" id="sidebar" data-drawer>{% include "folders/list.html" %}</div>
     </div>
     <script type="module">
-    import { encrypt, decrypt, deriveKey, hasFreshKey, refreshKeyTimestamp, getStoredKey, storeKey, KEY_TTL_MS } from "{% static_v 'js/crypto.js' %}";
+    import { encrypt, decrypt, unlock, paramsOf, hasFreshKey, refreshKeyTimestamp, getStoredKey, storeKey, KEY_TTL_MS } from "{% static_v 'js/crypto.js' %}";
 
     function getCSRFToken() {
       const el = document.querySelector("[name=csrfmiddlewaretoken]");
@@ -85,12 +85,12 @@
           confirmBtn.disabled = true;
           errorEl.textContent = "";
           try {
-            const key = await deriveKey(passphrase, salt, document.getElementById("notes")?.dataset.encryptionIterations);
+            const key = await unlock(passphrase, paramsOf(document.getElementById("notes")));
             await storeKey(key);
             cleanup();
             resolve(key);
           } catch (e) {
-            errorEl.textContent = "Error deriving key.";
+            errorEl.textContent = e.message || "Error deriving key.";
             confirmBtn.disabled = false;
           }
         }
@@ -211,7 +211,7 @@
           confirmBtn.disabled = true;
           errorEl.textContent = "";
           try {
-            const key = await deriveKey(passphrase, salt, document.getElementById("notes")?.dataset.encryptionIterations);
+            const key = await unlock(passphrase, paramsOf(document.getElementById("notes")));
             // Verify by decrypting the actual note content
             const note = await fetchNoteContent(noteId);
             if (note && note.content) {
