@@ -262,6 +262,9 @@ def build_report(data, dismissed=()):
         "uvi": round(now.get("uvi", 0)),
         "uv_level": uv_level(now.get("uvi", 0)),
         "pop": round(today.get("pop", 0) * 100),
+        # what is falling right now, in inches an hour
+        "rain_rate": inches(now.get("rain", {}).get("1h")),
+        "snow_rate": inches(now.get("snow", {}).get("1h")),
         "rain_today": inches(today.get("rain")),
         "snow_today": inches(today.get("snow")),
         "summary": today.get("summary", ""),

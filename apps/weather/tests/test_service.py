@@ -616,3 +616,14 @@ def test_wind_text_reads_as_one_phrase():
         == "21 mph ENE, gusts 42"
     )
     assert wind({"wind_speed": 5.2, "wind_deg": 180})["wind_text"] == "5 mph S"
+
+
+def test_current_rain_and_snow_rates(onecall):
+    from apps.weather.service import build_report
+
+    assert build_report(onecall)["current"]["rain_rate"] == ""
+    onecall["current"]["rain"] = {"1h": 2.54}
+    onecall["current"]["snow"] = {"1h": 0.3}
+    current = build_report(onecall)["current"]
+    assert current["rain_rate"] == "0.1"
+    assert current["snow_rate"] == "<0.1"

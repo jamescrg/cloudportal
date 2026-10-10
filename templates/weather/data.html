@@ -53,6 +53,18 @@
                     </p>
                 {% endif %}
                 <table class="table">
+                    {% if now.rain_rate %}
+                        <tr>
+                            <th>Raining now</th>
+                            <td>{{ now.rain_rate }} in per hour</td>
+                        </tr>
+                    {% endif %}
+                    {% if now.snow_rate %}
+                        <tr>
+                            <th>Snowing now</th>
+                            <td>{{ now.snow_rate }} in per hour</td>
+                        </tr>
+                    {% endif %}
                     <tr>
                         <th>Precipitation</th>
                         <td>
