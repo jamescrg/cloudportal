@@ -94,6 +94,8 @@ def results(request):
                 "notes": None,
                 "scopes": SEARCH_SCOPES,
                 "active_scopes": active_scopes,
+                "text": "",
+                "scope_notes": scope_notes,
             },
         )
 
@@ -161,6 +163,10 @@ def results(request):
         "notes": notes,
         "scopes": SEARCH_SCOPES,
         "active_scopes": active_scopes,
+        # the browser searches inside encrypted notes itself, which the
+        # index cannot (notes-search.js); it needs the query and the scope
+        "text": text,
+        "scope_notes": scope_notes,
     }
 
     return render(request, "search/results.html", context)

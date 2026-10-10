@@ -181,3 +181,24 @@ def test_encryption_page_carries_its_config(client, user):
     assert '"iterations": 600000' in html
     assert WRAPPED in html
     assert "encryption-settings.js" in html
+
+
+def test_the_notes_endpoint_carries_what_the_browser_search_needs(client, user):
+    from apps.folders.models import Folder
+    from apps.notes.models import Note
+
+    folder = Folder.objects.create(user=user, name="Recipes", page="notes")
+    note = Note.objects.create(
+        user=user, title="Soup", content="carrots", folder=folder
+    )
+    data = client.get(reverse("settings-encryption-notes")).json()
+    (row,) = [n for n in data["notes"] if n["id"] == note.id]
+    assert row == {
+        "id": note.id,
+        "title": "Soup",
+        "content": "carrots",
+        "is_encrypted": False,
+        "url": reverse("notes:note-view", args=[note.id]),
+        "folder_name": "Recipes",
+        "folder_url": reverse("folder-select", args=[folder.id, "notes"]),
+    }

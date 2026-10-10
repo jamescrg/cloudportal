@@ -1,4 +1,7 @@
-<div class="modal-dialog modal-lg search">
+{% load cache_buster %}
+<div class="modal-dialog modal-lg search"
+     data-notes-url="{% url 'settings-encryption-notes' %}"
+     {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}" data-encryption-wrapped-key="{{ user.encryption_wrapped_key }}"{% endif %}>
     <div class="modal-content">
         <div class="modal-header">
             <h1 class="modal-title">Search</h1>
@@ -51,4 +54,9 @@
             </div>
         </div>
     </div>
+    {# an inline module runs each time the modal is loaded; a module with a src would run once per page #}
+    <script type="module">
+      import { init } from "{% static_v 'js/notes-search.js' %}";
+      init(document.querySelector(".modal-dialog.search"));
+    </script>
 </div>

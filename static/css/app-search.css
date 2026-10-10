@@ -236,3 +236,30 @@
 .search .search-empty p {
   margin: 0;
 }
+
+/* Encrypted notes can't be searched until the key is loaded: a line
+   saying so under the Notes results, with a place for the passphrase */
+.search .search-notes-locked {
+  color: var(--color-secondary);
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+}
+
+.search .search-notes-locked p {
+  margin: 0 0 0.5rem;
+}
+
+.search .search-notes-unlock {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 22rem;
+}
+
+.search .search-notes-locked .unlock-error {
+  color: var(--color-danger, #b00020);
+  margin-top: 0.5rem;
+}
+
+.search .search-notes-locked .unlock-error:empty {
+  display: none;
+}

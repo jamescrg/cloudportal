@@ -57,32 +57,41 @@
         </div>
     </div>
 {% endif %}
-{% if notes %}
-    <div class="search-section">
-        <div class="search-section-header">
-            <span class="search-section-title">Notes</span>
-            <span class="app-badge badge-gray">{{ notes|length }}</span>
-        </div>
-        <div class="search-cards">
-            {% for note in notes %}
-                <div class="search-card"
-                     data-href="{% url 'notes:note-view' note_id=note.id %}"
-                     data-target="_blank">
-                    <span class="app-badge app-badge-lg badge-gray"><i class="icon-sticky-note"></i></span>
-                    <div class="search-card-content">
-                        <div class="search-card-title">{{ note.title }}</div>
+{% comment %}
+The notes section sits in a marker the browser can redraw: with encryption
+on, the index holds ciphertext, so notes-search.js decrypts the notes here
+and matches their text itself, replacing what the server found by title.
+{% endcomment %}
+<div id="search-notes-client"
+     data-query="{{ text }}"
+     data-scope-notes="{% if scope_notes %}true{% else %}false{% endif %}">
+    {% if notes %}
+        <div class="search-section">
+            <div class="search-section-header">
+                <span class="search-section-title">Notes</span>
+                <span class="app-badge badge-gray">{{ notes|length }}</span>
+            </div>
+            <div class="search-cards">
+                {% for note in notes %}
+                    <div class="search-card"
+                         data-href="{% url 'notes:note-view' note_id=note.id %}"
+                         data-target="_blank">
+                        <span class="app-badge app-badge-lg badge-gray"><i class="icon-sticky-note"></i></span>
+                        <div class="search-card-content">
+                            <div class="search-card-title">{{ note.title }}</div>
+                        </div>
+                        {% if note.folder %}
+                            <a href="{% url 'folder-select' note.folder_id 'notes' %}"
+                               class="search-card-folder">
+                                <i class="icon-folder"></i> {{ note.folder.name }}
+                            </a>
+                        {% endif %}
                     </div>
-                    {% if note.folder %}
-                        <a href="{% url 'folder-select' note.folder_id 'notes' %}"
-                           class="search-card-folder">
-                            <i class="icon-folder"></i> {{ note.folder.name }}
-                        </a>
-                    {% endif %}
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
+</div>
 {% if not favorites and not contacts and not notes %}
     <div class="search-empty">
         <i class="icon-search"></i>

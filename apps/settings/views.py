@@ -546,11 +546,27 @@ def encryption_by_default(request, state):
 
 @login_required
 def encryption_notes_list(request):
-    """Return all notes as JSON for bulk encrypt/decrypt."""
-    notes = Note.objects.filter(user=request.user).values(
-        "id", "content", "is_encrypted"
-    )
-    return JsonResponse({"notes": list(notes)})
+    """Every note of the user's as JSON, ciphertext and all, for the
+    browser's bulk work: encrypt-all, a passphrase change from the old
+    scheme, disable, and search inside encrypted notes (notes-search.js),
+    which is why each carries its title, its page and its folder."""
+    notes = [
+        {
+            "id": note.id,
+            "title": note.title,
+            "content": note.content,
+            "is_encrypted": note.is_encrypted,
+            "url": reverse("notes:note-view", args=[note.id]),
+            "folder_name": note.folder.name if note.folder_id else "",
+            "folder_url": (
+                reverse("folder-select", args=[note.folder_id, "notes"])
+                if note.folder_id
+                else ""
+            ),
+        }
+        for note in Note.objects.filter(user=request.user).select_related("folder")
+    ]
+    return JsonResponse({"notes": notes})
 
 
 @login_required
