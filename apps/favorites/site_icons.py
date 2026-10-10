@@ -5,6 +5,11 @@ worker, and kept in the database. The home page shows it beside each
 favorite, served by the icon view with a long cache life. A host whose
 icon couldn't be found is tried again after a week; a found icon is
 refreshed after three months.
+
+A site that refuses the server (Cloudflare's bot wall, a load balancer
+rule) gives nothing directly; for those, DuckDuckGo's icon service is
+asked last. It answers a host it doesn't know with a 404, never a
+placeholder, so its answer is stored like any other.
 """
 
 from datetime import timedelta
@@ -27,6 +32,7 @@ HEADERS = {
 }
 RETRY_AFTER = timedelta(days=7)
 REFRESH_AFTER = timedelta(days=90)
+ICON_SERVICE = "https://icons.duckduckgo.com/ip3/{host}.ico"
 
 # The file signatures of the image kinds a browser can show in an <img>.
 # The signature names the media type an icon is stored under: servers
@@ -146,8 +152,8 @@ def _image(response):
 
 def fetch_icon(host):
     """Find and download a host's icon: the best one its home page
-    declares, else its /favicon.ico. Returns (bytes, content type) or
-    None."""
+    declares, else its /favicon.ico, else what the icon service has.
+    Returns (bytes, content type) or None."""
     session = requests.Session()
     session.headers.update(HEADERS)
     candidates = []
@@ -161,6 +167,7 @@ def fetch_icon(host):
         candidates.append(urljoin(page.url, "/favicon.ico"))
         break
     candidates.append(f"https://{host}/favicon.ico")
+    candidates.append(ICON_SERVICE.format(host=host))
     seen = set()
     for url in candidates:
         if url in seen:
@@ -219,28 +226,30 @@ def with_hosts(favorites):
     return favorites
 
 
-def ensure(host):
-    """Queue a fetch for a host that has no icon yet, or a stale one."""
+def ensure(host, force=False):
+    """Queue a fetch for a host that has no icon yet, or a stale one; with
+    force, whatever it has."""
     if not host:
         return
     icon = SiteIcon.objects.filter(host=host).first()
-    if icon and not is_due(icon):
+    if icon and not is_due(icon) and not force:
         return
     from django_q.tasks import async_task
 
     async_task(fetch, host, task_name=f"site icon {host}"[:100])
 
 
-def ensure_all():
-    """Queue a fetch for every host of every favorite that needs one.
+def ensure_all(retry_missing=False):
+    """Queue a fetch for every host of every favorite that needs one:
+    with retry_missing, every host without an icon on hand, due or not.
     Returns the number queued."""
     hosts = {host_of(url) for url in Favorite.objects.values_list("url", flat=True)}
     hosts.discard("")
     have = {
         icon.host
         for icon in SiteIcon.objects.filter(host__in=hosts)
-        if not is_due(icon)
+        if not is_due(icon) and (icon.found or not retry_missing)
     }
     for host in sorted(hosts - have):
-        ensure(host)
+        ensure(host, force=retry_missing)
     return len(hosts - have)

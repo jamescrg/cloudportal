@@ -9,6 +9,13 @@ class Command(BaseCommand):
         "points at that has no icon yet or a stale one."
     )
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--retry-missing",
+            action="store_true",
+            help="Also every host whose last fetch found nothing, due or not.",
+        )
+
     def handle(self, *args, **options):
-        queued = site_icons.ensure_all()
+        queued = site_icons.ensure_all(retry_missing=options["retry_missing"])
         self.stdout.write(self.style.SUCCESS(f"Queued {queued} icon fetch(es)."))

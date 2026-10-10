@@ -110,6 +110,30 @@ def test_fetch_icon_takes_the_declared_icon_then_falls_back(monkeypatch):
     ]
 
 
+def test_fetch_icon_asks_the_icon_service_last(monkeypatch):
+    """A site that refuses the server gives nothing itself; the icon
+    service is asked after every candidate of the site's own, and its 404
+    for a host it doesn't know means none."""
+    pages = {
+        "https://icons.duckduckgo.com/ip3/walled.example.ico": FakeResponse(
+            content=b"\x89PNGicon", content_type="image/png"
+        ),
+    }
+    asked = []
+
+    def get(self, url, timeout):
+        asked.append(url)
+        return pages.get(url, FakeResponse(status=403, content_type="text/html"))
+
+    monkeypatch.setattr(requests.Session, "get", get)
+    assert site_icons.fetch_icon("walled.example") == (b"\x89PNGicon", "image/png")
+    assert asked[-1] == "https://icons.duckduckgo.com/ip3/walled.example.ico"
+    assert asked[0] == "https://walled.example/"
+
+    pages.clear()
+    assert site_icons.fetch_icon("unknown.example") is None
+
+
 def test_fetch_icon_gives_up_quietly(monkeypatch):
     def get(self, url, timeout):
         raise requests.ConnectionError("down")
@@ -183,6 +207,25 @@ def test_ensure_all_queues_each_missing_host_once(user, folder1, queued):
     SiteIcon.objects.create(host="b.example", found=True, fetched_at=timezone.now())
     assert site_icons.ensure_all() == 1
     assert queued == ["a.example"]
+
+
+def test_ensure_all_can_retry_the_hosts_without_an_icon(user, folder1, queued):
+    for url in ("https://a.example/", "https://b.example/", "https://c.example/"):
+        Favorite.objects.create(user=user, folder=folder1, name="x", url=url)
+    queued.clear()
+    now = timezone.now()
+    SiteIcon.objects.create(host="a.example", found=True, fetched_at=now)
+    SiteIcon.objects.create(host="b.example", found=False, fetched_at=now)
+    SiteIcon.objects.create(
+        host="c.example", found=False, fetched_at=now - timedelta(days=8)
+    )
+    # the nightly pass takes only the host whose miss is a week old
+    assert site_icons.ensure_all() == 1
+    assert queued == ["c.example"]
+    queued.clear()
+    # a retry takes every host without an icon, and leaves the found one
+    assert site_icons.ensure_all(retry_missing=True) == 2
+    assert queued == ["b.example", "c.example"]
 
 
 def test_icon_view_serves_the_icon_or_the_globe(client, user):
