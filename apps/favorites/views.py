@@ -519,21 +519,23 @@ def extension_add(request):
 # Site icons
 # -----------------------------------------------------------------------------
 
-# A grey globe, for a host whose icon hasn't been fetched or wasn't found
+# A grey link, for a host whose icon hasn't been fetched or wasn't found
+# (the page itself draws the glyph from the icon font for those; this is
+# for a request that arrives anyway)
 FALLBACK_ICON = (
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" '
     'stroke="#9b9b9b" stroke-width="2" stroke-linecap="round" '
-    'stroke-linejoin="round"><circle cx="12" cy="12" r="10"/>'
-    '<path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>'
-    '<path d="M2 12h20"/></svg>'
+    'stroke-linejoin="round">'
+    '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>'
+    '<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>'
+    "</svg>"
 )
 
 
 @login_required
 def site_icon(request, host):
-    """A host's icon, for the home page, or the grey globe while it has
-    none. A found icon is cached for a week; the globe for an hour, so
-    the icon appears soon after the worker fetches it."""
+    """A host's icon, for the home page, or a grey link while it has
+    none. A found icon is cached for a week; the link for an hour."""
     icon = SiteIcon.objects.filter(host=host.lower(), found=True).first()
     if icon:
         response = HttpResponse(

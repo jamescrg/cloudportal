@@ -239,17 +239,31 @@ def toggle(request, section):
 
 def with_favorites(folders):
     """Attach to each folder the favorites chosen for the home page, in
-    rank order, each with the host of its url for its icon."""
-    shown = Favorite.objects.filter(folder__in=folders, home_rank__gt=0).order_by(
-        "home_rank", "id"
+    rank order, each with the host of its url and whether its icon is on
+    hand."""
+    shown = list(
+        Favorite.objects.filter(folder__in=folders, home_rank__gt=0).order_by(
+            "home_rank", "id"
+        )
     )
+    with_hosts(shown)
     by_folder = {}
     for favorite in shown:
-        favorite.host = site_icons.host_of(favorite.url)
         by_folder.setdefault(favorite.folder_id, []).append(favorite)
     for folder in folders:
         folder.favorites = by_folder.get(folder.id, [])
     return folders
+
+
+def with_hosts(favorites):
+    """Give each favorite the host of its url and, in has_icon, whether
+    the site's icon is on hand; the page shows a link glyph otherwise."""
+    for favorite in favorites:
+        favorite.host = site_icons.host_of(favorite.url)
+    found = site_icons.found_hosts({f.host for f in favorites})
+    for favorite in favorites:
+        favorite.has_icon = favorite.host in found
+    return favorites
 
 
 def home_folders(request):
@@ -328,9 +342,9 @@ def choose(request, id):
     if id not in get_accessible_folder_ids(request.user, "favorites"):
         raise Http404("No such folder.")
     folder = get_object_or_404(Folder, pk=id)
-    favorites = Favorite.objects.filter(folder=folder).order_by("name")
-    for favorite in favorites:
-        favorite.host = site_icons.host_of(favorite.url)
+    favorites = with_hosts(
+        list(Favorite.objects.filter(folder=folder).order_by("name"))
+    )
     return render(
         request, "home/choose.html", {"folder": folder, "favorites": favorites}
     )

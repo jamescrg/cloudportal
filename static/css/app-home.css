@@ -464,13 +464,27 @@
 }
 
 /* The site's icon, fetched by the worker (apps/favorites/site_icons.py),
-   or a grey globe until it is */
+   or a link glyph until it is. The icon is drained of its own colours
+   and tinted in the theme's: lime unless the theme says otherwise
+   (--favicon-tint, a filter list, or none) */
 .favicon {
   border-radius: 3px;
+  filter: var(--favicon-tint, grayscale(1) sepia(1) hue-rotate(45deg) saturate(2.5) brightness(0.92));
   flex-shrink: 0;
   height: 16px;
   object-fit: contain;
   width: 16px;
+}
+
+.favicon-none {
+  filter: none;
+}
+
+.favicon-none {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 16px;
+  text-align: center;
 }
 
 /* The chooser: the folder's favorites, ticked when shown */

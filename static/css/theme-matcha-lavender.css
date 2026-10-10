@@ -95,6 +95,9 @@
      darker than Matcha's violet-100 to hold on the see-through cards */
   --selected-background: color-mix(in oklab, var(--violet-100) 35%, var(--violet-200));
 
+  /* The home page's site icons, tinted lavender */
+  --favicon-tint: grayscale(1) sepia(1) hue-rotate(215deg) saturate(2.2) brightness(0.95);
+
   /* Borders a touch darker than Matcha's, so the lines in the cards
      hold against the wash coming through them */
   --border-medium: color-mix(in oklab, var(--stone-300) 75%, var(--stone-400));

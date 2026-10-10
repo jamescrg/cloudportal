@@ -59,6 +59,15 @@ def test_image_accepts_an_ico_served_as_a_binary():
     assert site_icons._image(response) == (b"\x00\x00\x01\x00rest", "image/x-icon")
 
 
+def test_image_takes_the_type_from_the_bytes_not_the_header():
+    png = FakeResponse(content=b"\x89PNG....", content_type="image/x-icon")
+    assert site_icons._image(png) == (b"\x89PNG....", "image/png")
+    ico = FakeResponse(content=b"\x00\x00\x01\x00..", content_type="image/png")
+    assert site_icons._image(ico) == (b"\x00\x00\x01\x00..", "image/x-icon")
+    bmp = FakeResponse(content=b"BM6\x03", content_type="image/x-icon")
+    assert site_icons._image(bmp) == (b"BM6\x03", "image/bmp")
+
+
 def test_image_rejects_html_and_the_oversized():
     assert (
         site_icons._image(FakeResponse(content=b"<html>", content_type="text/html"))
@@ -196,7 +205,7 @@ def test_icon_view_serves_the_icon_or_the_globe(client, user):
     assert "max-age=3600" in response["Cache-Control"]
 
 
-def test_home_page_carries_each_favorites_host(client, user, folder1):
+def test_home_page_shows_the_icon_on_hand_or_a_link_glyph(client, user, folder1):
     folder1.home_column = 1
     folder1.home_rank = 1
     folder1.save()
@@ -207,6 +216,19 @@ def test_home_page_carries_each_favorites_host(client, user, folder1):
         url="https://docs.example/a",
         home_rank=1,
     )
-    response = client.get("/home/")
-    assert b'src="/favorites/icons/docs.example"' in response.content
-    assert b'data-search="docs docs.example "' in response.content
+    Favorite.objects.create(
+        user=user, folder=folder1, name="New", url="https://new.example/", home_rank=2
+    )
+    SiteIcon.objects.create(
+        host="docs.example",
+        data=b"\x89PNG",
+        content_type="image/png",
+        found=True,
+        fetched_at=timezone.now(),
+    )
+    SiteIcon.objects.create(host="new.example", found=False, fetched_at=timezone.now())
+    html = client.get("/home/").content.decode()
+    assert 'src="/favorites/icons/docs.example"' in html
+    assert 'data-search="docs docs.example "' in html
+    assert "/favorites/icons/new.example" not in html
+    assert html.count("favicon-none icon-link") == 1

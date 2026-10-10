@@ -28,15 +28,16 @@ HEADERS = {
 RETRY_AFTER = timedelta(days=7)
 REFRESH_AFTER = timedelta(days=90)
 
-IMAGE_TYPES = ("image/",)
-# an .ico is often served as a generic binary; these are the file signatures
-# of the image kinds a browser can show in an <img>
+# The file signatures of the image kinds a browser can show in an <img>.
+# The signature names the media type an icon is stored under: servers
+# label a PNG as an .ico, an .ico as a PNG, and an .ico as a plain binary
 SIGNATURES = (
     (b"\x00\x00\x01\x00", "image/x-icon"),
     (b"\x89PNG", "image/png"),
     (b"GIF8", "image/gif"),
     (b"\xff\xd8\xff", "image/jpeg"),
     (b"RIFF", "image/webp"),
+    (b"BM", "image/bmp"),
     (b"<svg", "image/svg+xml"),
     (b"<?xml", "image/svg+xml"),
 )
@@ -116,19 +117,29 @@ def icon_links(html, base_url):
     return [urljoin(base_url, link["href"]) for link in links]
 
 
+def image_type(data):
+    """The media type an image's bytes declare, or None."""
+    head = data.lstrip()
+    for signature, kind in SIGNATURES:
+        if head[: len(signature)] == signature:
+            return kind
+    return None
+
+
 def _image(response):
-    """The (bytes, content type) of a response that is a usable image, or
-    None."""
+    """The (bytes, media type) of a response that is a usable image, or
+    None. The bytes decide the type; the server's header is taken only
+    for an image kind without a signature here."""
     if response.status_code != 200:
         return None
     data = response.content
     if not data or len(data) > MAX_BYTES:
         return None
+    kind = image_type(data)
+    if kind:
+        return data, kind
     content_type = response.headers.get("Content-Type", "").split(";")[0].strip()
-    for signature, kind in SIGNATURES:
-        if data.lstrip()[: len(signature)] == signature:
-            return data, content_type if content_type.startswith("image/") else kind
-    if content_type.startswith(IMAGE_TYPES):
+    if content_type.startswith("image/"):
         return data, content_type
     return None
 
@@ -186,6 +197,15 @@ def is_due(icon):
     """Whether a stored icon should be fetched again."""
     age = timezone.now() - icon.fetched_at
     return age > (REFRESH_AFTER if icon.found else RETRY_AFTER)
+
+
+def found_hosts(hosts):
+    """Of the given hosts, those with an icon on hand."""
+    return set(
+        SiteIcon.objects.filter(host__in=hosts, found=True).values_list(
+            "host", flat=True
+        )
+    )
 
 
 def ensure(host):

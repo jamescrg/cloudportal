@@ -8,7 +8,7 @@ is shown or hidden.
             data-favorite-id="{{ favorite.id }}"
             data-search="{{ favorite.name|lower }} {{ favorite.host }} {{ favorite.description|default:''|lower }}">
             <a class="home-link" href="{{ favorite.url }}">
-                {% if favorite.host %}
+                {% if favorite.has_icon %}
                     <img class="favicon"
                          src="{% url 'site-icon' host=favorite.host %}"
                          alt=""
@@ -16,7 +16,7 @@ is shown or hidden.
                          height="16"
                          loading="lazy">
                 {% else %}
-                    <span class="favicon"></span>
+                    <i class="favicon favicon-none icon-link"></i>
                 {% endif %}
                 <span class="home-link-name">{{ favorite.name }}</span>
             </a>
