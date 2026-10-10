@@ -125,19 +125,21 @@
                 </div>
             </nav>
         </div>
-        <!-- Mobile side panel: a floating button, lower left, raises the page's
-             panel (the folder sidebar, or the settings sections) as a sheet -->
+        <!-- Mobile side panel: a tab at the foot of the screen, the sheet's
+             own top edge peeking up, raises the page's panel (the folder
+             sidebar, or the settings sections) as a sheet -->
         <div x-data="sideDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">
-            <button class="drawer-fab drawer-fab-panel"
+            <button class="drawer-tab drawer-fab-panel"
                     x-show="hasPanel"
                     @click="toggle()"
                     aria-label="{% if page == 'settings' %}Open settings sections{% else %}Open folders{% endif %}">
+                <span class="drawer-tab-grip"></span>
                 {% if page == 'settings' %}
-                    <i class="icon-settings-2"></i>
+                    Sections
                 {% else %}
-                    <i class="icon-folders"></i>
+                    Folders
                 {% endif %}
             </button>
             <div class="drawer-backdrop" @click="close()"></div>
