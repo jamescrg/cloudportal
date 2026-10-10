@@ -600,7 +600,7 @@
 }
 
 
-/* Year view: twelve mini months. Everything is a step smaller than the
+/* Year view: the next twelve months as mini months. Everything is a step smaller than the
    month view so a month fits in a third of the width, and the chips are
    trimmed to a line of text. */
 .fc .fc-multimonth {
@@ -613,11 +613,11 @@
    a header cell's top rule and a body cell's bottom rule (the month grid
    draws those edges itself), so they are put back on the weekday header
    and the last week of every month here. */
-.fc-multiMonthYear-view .fc-multimonth-header-table th {
+.fc-multiMonthRolling-view .fc-multimonth-header-table th {
   border-top: solid 1px var(--border-medium);
 }
 
-.fc-multiMonthYear-view .fc-multimonth-daygrid-table tr:last-child td {
+.fc-multiMonthRolling-view .fc-multimonth-daygrid-table tr:last-child td {
   border-bottom: solid 1px var(--border-medium);
 }
 
@@ -628,35 +628,35 @@
   padding: 0.75rem 0 0.5rem;
 }
 
-.fc-multiMonthYear-view .fc-daygrid-day-number {
+.fc-multiMonthRolling-view .fc-daygrid-day-number {
   font-size: 0.8125rem;
   padding: 0.25rem;
 }
 
-.fc-multiMonthYear-view .fc-col-header-cell-cushion {
+.fc-multiMonthRolling-view .fc-col-header-cell-cushion {
   font-size: 0.8125rem;
   padding: 0.25rem;
 }
 
-.fc-multiMonthYear-view .fc-day-today .fc-daygrid-day-number {
+.fc-multiMonthRolling-view .fc-day-today .fc-daygrid-day-number {
   height: 1.5rem;
   line-height: 1.5rem;
   width: 1.5rem;
 }
 
-.fc-multiMonthYear-view .fc-event,
-.fc-multiMonthYear-view .fc-daygrid-event {
+.fc-multiMonthRolling-view .fc-event,
+.fc-multiMonthRolling-view .fc-daygrid-event {
   font-size: 0.75rem;
   padding: 0 0.25rem;
 }
 
-.fc-multiMonthYear-view .fc-daygrid-event .fc-event-title {
+.fc-multiMonthRolling-view .fc-daygrid-event .fc-event-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.fc-multiMonthYear-view .fc-daygrid-more-link {
+.fc-multiMonthRolling-view .fc-daygrid-more-link {
   font-size: 0.75rem;
 }
 

@@ -121,14 +121,21 @@ document.addEventListener("alpine:init", () => {
               left: "prev,next today",
               center: "title",
               right:
-                "multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+                "multiMonthRolling,dayGridMonth,timeGridWeek,timeGridDay,listMonth",
             },
         noEventsContent: "No events this month",
 
-        // The year view: twelve mini months, three across. Its cells are
-        // small, so fewer events show before a day collapses to "+N more".
+        // The year view: the next twelve months as mini months, three
+        // across, from the month in view rather than from January, so in
+        // October it looks a year ahead rather than mostly back. Its cells
+        // are small, so fewer events show before a day collapses to "+N
+        // more".
         views: {
-          multiMonthYear: {
+          multiMonthRolling: {
+            type: "multiMonth",
+            duration: { months: 12 },
+            dateAlignment: "month",
+            buttonText: "Year",
             dayMaxEvents: 2,
           },
           // The agenda (the phone's only view, a choice on wider screens):
@@ -237,7 +244,7 @@ document.addEventListener("alpine:init", () => {
       // render.
       const saved = localStorage.getItem("calendar-view");
       const valid = [
-        "multiMonthYear",
+        "multiMonthRolling",
         "dayGridMonth",
         "timeGridWeek",
         "timeGridDay",

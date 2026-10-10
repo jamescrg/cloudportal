@@ -1,6 +1,6 @@
-"""The year view is FullCalendar's own multiMonthYear: it is offered in the
-toolbar, remembered like the other views, and the month view's tall cells
-stay out of its mini months."""
+"""The year view is a FullCalendar multi-month view of the next twelve
+months: it is offered in the toolbar, remembered like the other views, and
+the month view's tall cells stay out of its mini months."""
 
 import re
 from pathlib import Path
@@ -16,13 +16,13 @@ def test_the_toolbar_offers_the_year_view():
     toolbars = re.findall(r"right:\s*\"([^\"]+)\"", JS)
     views = [t for t in toolbars if "dayGridMonth" in t]
 
-    assert views and views[0].split(",")[0] == "multiMonthYear"
+    assert views and views[0].split(",")[0] == "multiMonthRolling"
 
 
 def test_the_year_view_is_remembered():
     valid = re.search(r"const valid = \[([^\]]+)\]", JS).group(1)
 
-    assert "multiMonthYear" in valid
+    assert "multiMonthRolling" in valid
 
 
 def test_a_phone_opens_the_months_agenda():
@@ -34,3 +34,11 @@ def test_the_month_views_cell_height_is_scoped_to_the_month_view():
     rule = re.search(r"([^\n{]+)\{[^}]*min-height:\s*6rem", CSS).group(1)
 
     assert ".fc-dayGridMonth-view" in rule
+
+
+def test_the_year_view_runs_twelve_months_from_the_month_in_view():
+    view = re.search(r"multiMonthRolling: \{(.*?)\n\s*\}", JS, re.S).group(1)
+
+    assert 'type: "multiMonth"' in view
+    assert "duration: { months: 12 }" in view
+    assert 'dateAlignment: "month"' in view
