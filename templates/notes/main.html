@@ -97,7 +97,7 @@
               '</button>' +
             '</div>' +
             '<div class="modal-body">' +
-              '<label class="form-label">Enter your passphrase to unlock this note:</label>' +
+              '<label class="form-label">' + (noteId ? 'Enter your passphrase to unlock this note:' : 'Enter your passphrase to start a new encrypted note:') + '</label>' +
               '<div class="password-wrapper">' +
                 '<input type="password" class="form-control" placeholder="Passphrase" autocomplete="off">' +
                 '<button type="button" class="password-toggle" tabindex="-1" aria-label="Toggle visibility">' +
