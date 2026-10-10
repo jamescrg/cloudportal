@@ -173,6 +173,32 @@
   font-weight: 600;
 }
 
+/* pressure against the sea-level average: low pressure in rain's blue,
+   high in the sun's amber, the extremes in the stronger tones */
+.pressure-very-low {
+  color: var(--urgent);
+  font-weight: 600;
+}
+
+.pressure-low {
+  color: var(--weather-rain);
+  font-weight: 600;
+}
+
+.pressure-average {
+  color: var(--color-muted);
+}
+
+.pressure-high {
+  color: var(--weather-sun);
+  font-weight: 600;
+}
+
+.pressure-very-high {
+  color: var(--weather-storm);
+  font-weight: 600;
+}
+
 
 /* ------------------------------------------------------------------------- */
 /* the tables */
@@ -259,12 +285,10 @@
 /* the hour the day turns over */
 .weather-day-divider td {
   background: var(--background-table-header, var(--background-control));
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
   padding-bottom: 0.85rem;
   padding-top: 0.85rem;
-  text-transform: uppercase;
 }
 
 /* a day's summary sits on its own line under it, the rule after both */

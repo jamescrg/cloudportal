@@ -65,6 +65,44 @@ def uv_level(uvi):
     return "extreme"
 
 
+# sea-level pressure in hectopascals: the standard atmosphere, and the
+# bands either side of it
+AVERAGE_PRESSURE = 1013
+PRESSURE_BANDS = [
+    (990, "very-low", "Very low", "stormy, unsettled weather"),
+    (1005, "low", "Low", "unsettled weather, often cloud and rain"),
+    (1022, "average", "Near average", "typical conditions"),
+    (1035, "high", "High", "settled, fair weather"),
+    (None, "very-high", "Very high", "very settled, clear and calm"),
+]
+
+
+def pressure(hpa):
+    """Pressure as the page shows it: inches of mercury, and where it sits
+    against the average, with a tone for its colour."""
+    if hpa is None:
+        return {}
+    for limit, tone, level, note in PRESSURE_BANDS:
+        if limit is None or hpa < limit:
+            break
+    away = hpa - AVERAGE_PRESSURE
+    if away > 0:
+        relative = f"{away} above the {AVERAGE_PRESSURE} average"
+    elif away < 0:
+        relative = f"{-away} below the {AVERAGE_PRESSURE} average"
+    else:
+        relative = f"the {AVERAGE_PRESSURE} average"
+    return {
+        "pressure": hpa,
+        "pressure_inhg": f"{hpa * 0.02953:.2f}",
+        "pressure_tone": tone,
+        "pressure_level": level,
+        "pressure_note": note,
+        "pressure_from_average": away,
+        "pressure_relative": relative,
+    }
+
+
 def moon_phase_name(phase):
     """OpenWeather gives the phase as 0..1, new moon to new moon."""
     names = [
@@ -252,7 +290,6 @@ def build_report(data, dismissed=()):
         "low": round(today["temp"]["min"]),
         "humidity": now.get("humidity"),
         "dew_point": round(now["dew_point"]) if "dew_point" in now else None,
-        "pressure": now.get("pressure"),
         "clouds": now.get("clouds"),
         "visibility_miles": (
             round(now["visibility"] / 1609.34, 1)
@@ -270,6 +307,7 @@ def build_report(data, dismissed=()):
         "summary": today.get("summary", ""),
         "sunrise": clock(local(now["sunrise"])) if "sunrise" in now else "",
         "sunset": clock(local(now["sunset"])) if "sunset" in now else "",
+        **pressure(now.get("pressure")),
         **wind(now),
     }
 

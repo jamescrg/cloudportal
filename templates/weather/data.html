@@ -105,7 +105,13 @@
                     {% if now.pressure %}
                         <tr>
                             <th>Pressure</th>
-                            <td>{{ now.pressure }} hPa</td>
+                            <td>
+                                {{ now.pressure }} hPa · {{ now.pressure_inhg }} inHg
+                                <span class="weather-amount">
+                                    <span class="pressure-{{ now.pressure_tone }}">{{ now.pressure_level }}</span>
+                                    ({{ now.pressure_relative }}): {{ now.pressure_note }}
+                                </span>
+                            </td>
                         </tr>
                     {% endif %}
                     {% if now.clouds is not None %}

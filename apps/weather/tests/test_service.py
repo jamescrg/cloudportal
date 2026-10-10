@@ -627,3 +627,32 @@ def test_current_rain_and_snow_rates(onecall):
     current = build_report(onecall)["current"]
     assert current["rain_rate"] == "0.1"
     assert current["snow_rate"] == "<0.1"
+
+
+@pytest.mark.parametrize(
+    "hpa, tone, level",
+    [
+        (980, "very-low", "Very low"),
+        (1000, "low", "Low"),
+        (1013, "average", "Near average"),
+        (1021, "average", "Near average"),
+        (1025, "high", "High"),
+        (1040, "very-high", "Very high"),
+    ],
+)
+def test_pressure_bands(hpa, tone, level):
+    from apps.weather.service import pressure
+
+    reading = pressure(hpa)
+    assert (reading["pressure_tone"], reading["pressure_level"]) == (tone, level)
+    assert reading["pressure_from_average"] == hpa - 1013
+
+
+def test_pressure_in_inches_of_mercury_and_absent():
+    from apps.weather.service import pressure
+
+    assert pressure(1013)["pressure_inhg"] == "29.91"
+    assert pressure(1013)["pressure_relative"] == "the 1013 average"
+    assert pressure(1012)["pressure_relative"] == "1 below the 1013 average"
+    assert pressure(1030)["pressure_relative"] == "17 above the 1013 average"
+    assert pressure(None) == {}
