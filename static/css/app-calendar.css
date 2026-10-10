@@ -191,10 +191,14 @@
     color-mix(in oklch, var(--border-medium) 50%, var(--background-section))
   );
   --kosmos-dot: var(--calendar-kosmos-dot, var(--border-dark));
-  /* a US federal holiday: the all-day chip's colours, lighter in weight,
-     since it is a date and not something of the user's; a theme sets
-     --calendar-holiday and --calendar-holiday-color to colour it */
-  --holiday-background: var(--calendar-holiday, var(--allday-background));
+  /* a US federal holiday: the all-day chip turned blue, at the same
+     lightness and saturation as the all-day colour (Matcha's lime); a
+     theme sets --calendar-holiday and --calendar-holiday-color to colour
+     it otherwise */
+  --holiday-background: var(
+    --calendar-holiday,
+    oklch(from var(--allday-background) l c 250)
+  );
   --holiday-color: var(--calendar-holiday-color, var(--allday-color));
   /* the accent, softened toward the card so a dot reads lighter than the
      site's lavender elsewhere. Mixed in oklab, not oklch: oklch would also
@@ -487,8 +491,8 @@
   cursor: pointer;
 }
 
-/* A US federal holiday: the all-day chip in a lighter weight, and no
-   pointer, since a click opens nothing */
+/* A US federal holiday: the all-day chip in blue, and no pointer, since
+   a click opens nothing */
 .fc-event.fc-event-holiday:not(.fc-list-event),
 .fc-event.fc-event-holiday.fc-daygrid-block-event {
   background-color: var(--holiday-background) !important;
@@ -500,15 +504,10 @@
 .fc-event.fc-event-holiday .fc-event-title,
 .fc-event.fc-event-holiday .fc-event-main {
   color: var(--holiday-color) !important;
-  font-weight: normal !important;
 }
 
 .fc-list-event.fc-event-holiday {
   cursor: default;
-}
-
-.fc-list-event.fc-event-holiday .fc-list-event-title a {
-  font-weight: normal;
 }
 
 /* A repeating event: a small repeat mark after its title, on the grid's
