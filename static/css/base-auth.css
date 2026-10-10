@@ -1,3 +1,10 @@
+/* The mark heads the card on its own */
+.auth-logo {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1.5rem;
+}
 
 .account-form input {
   width: 100%;

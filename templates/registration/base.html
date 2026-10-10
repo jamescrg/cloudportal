@@ -5,7 +5,7 @@
 <title>{{ site_handle }}</title>
 <link rel="icon"
       type="image/svg+xml"
-      href="{% static 'images/cloudy-matcha.svg' %}">
+      href="{% if env == 'dev' %}{% static_v 'images/cloudy-orange.svg' %}{% else %}{% static_v 'images/cloudy-matcha.svg' %}{% endif %}">
 <!-- set viewport for mobile devices -->
 <meta name="viewport" content="width = device-width, initial-scale = 1">
 <!-- CSS reset -->
@@ -23,7 +23,12 @@
 <div class="page-vertical-centered">
     <div class="card page-horizontal-centered">
         <div class="card-body">
-            <h1 class="card-title">{{ site_handle }}</h1>
+            {# The mark alone heads the card; the page title names the site #}
+            <img src="{% if env == 'dev' %}{% static_v 'images/cloudy-orange.svg' %}{% else %}{% static_v 'images/cloudy-matcha.svg' %}{% endif %}"
+                 alt="{{ site_handle }}"
+                 width="48"
+                 height="48"
+                 class="auth-logo">
             {% block content %}
             {% endblock content %}
         </div>
