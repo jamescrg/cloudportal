@@ -135,25 +135,40 @@ def test_clearing_the_salt_forgets_every_encryption_setting(client, user):
         user.encryption_recovery_salt,
         user.encryption_recovery_wrapped_key,
         user.encryption_by_default,
-    ) == ("", "", "", "", False)
+    ) == ("", "", "", "", True)
 
 
-def test_new_notes_start_encrypted_once_asked(client, user):
+def test_new_notes_start_encrypted_while_encryption_is_on(client, user):
     from apps.notes.models import Note
 
-    assert _post_json(
-        client, "settings-encryption-by-default", {"enabled": True}
-    ).json() == {
-        "saved": True,
-        "enabled": True,
-    }
-    assert _fresh(user).encryption_by_default is True
+    # the default stands from the start, but means nothing without a salt
+    assert user.encryption_by_default is True
+    client.post(reverse("notes:add"), {"title": "Before any key", "folder": ""})
+    assert Note.objects.get(user=user, title="Before any key").is_encrypted is False
+
+    user.encryption_salt = SALT
+    user.encryption_wrapped_key = WRAPPED
+    user.save()
     client.post(reverse("notes:add"), {"title": "Sealed from the start", "folder": ""})
-    note = Note.objects.get(user=user, title="Sealed from the start")
-    assert note.is_encrypted is True
-    _post_json(client, "settings-encryption-by-default", {"enabled": False})
+    assert (
+        Note.objects.get(user=user, title="Sealed from the start").is_encrypted is True
+    )
+
+    # the switch posts a form and comes back to the page
+    response = client.post(reverse("settings-encryption-by-default", args=["off"]))
+    assert response.status_code == 302
+    assert response["Location"] == reverse("settings-encryption")
+    assert _fresh(user).encryption_by_default is False
     client.post(reverse("notes:add"), {"title": "Plain", "folder": ""})
     assert Note.objects.get(user=user, title="Plain").is_encrypted is False
+
+    # encrypt-all posts JSON and gets JSON
+    response = client.post(
+        reverse("settings-encryption-by-default", args=["on"]),
+        data={},
+        content_type="application/json",
+    )
+    assert response.json() == {"saved": True, "enabled": True}
 
 
 def test_encryption_page_carries_its_config(client, user):

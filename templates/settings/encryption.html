@@ -51,14 +51,9 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="setting-label">New notes</td>
+                        <td class="setting-label">New notes start encrypted</td>
                         <td class="setting-control">
-                            <label>
-                                <input type="checkbox"
-                                       id="encrypt-by-default"
-                                       {% if config.byDefault %}checked{% endif %}>
-                                start encrypted
-                            </label>
+                            {% include "components/setting-switch.html" with on=config.byDefault url_on=by_default_on url_off=by_default_off label="New notes start encrypted" %}
                         </td>
                     </tr>
                 {% endif %}

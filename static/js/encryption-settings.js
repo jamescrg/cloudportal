@@ -249,26 +249,13 @@ flow("encrypt-all-btn", async function () {
     updates.push({ id: plain[i].id, content: await encrypt(plain[i].content || "", noteKey), is_encrypted: true });
   }
   await saveNotes(updates);
-  await postJson(config.urls.byDefault, { enabled: true });
+  await postJson(config.urls.byDefaultOn, {});
   await storeKey(noteKey);
   hideProgress();
   showMessage("Every note is encrypted, and new notes will be.", false);
   reloadSoon();
 });
 submitOnEnter("encrypt-all-passphrase", "encrypt-all-btn");
-
-const byDefault = el("encrypt-by-default");
-if (byDefault) {
-  byDefault.addEventListener("change", async function () {
-    try {
-      const data = await postJson(config.urls.byDefault, { enabled: byDefault.checked });
-      showMessage(data.enabled ? "New notes will start encrypted." : "New notes will start plain.", false);
-    } catch (e) {
-      byDefault.checked = !byDefault.checked;
-      showMessage("Error: " + e.message, true);
-    }
-  });
-}
 
 // -- recovery code --------------------------------------------------------------
 

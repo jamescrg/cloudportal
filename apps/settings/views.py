@@ -431,7 +431,7 @@ def encryption_index(request):
             "saveSalt": reverse("settings-encryption-save-salt"),
             "clearSalt": reverse("settings-encryption-clear-salt"),
             "recovery": reverse("settings-encryption-recovery"),
-            "byDefault": reverse("settings-encryption-by-default"),
+            "byDefaultOn": reverse("settings-encryption-by-default", args=["on"]),
         },
     }
     context = {
@@ -440,6 +440,8 @@ def encryption_index(request):
         "has_salt": bool(user.encryption_salt),
         "sealed": bool(user.encryption_wrapped_key),
         "has_recovery": bool(user.encryption_recovery_wrapped_key),
+        "by_default_on": reverse("settings-encryption-by-default", args=["on"]),
+        "by_default_off": reverse("settings-encryption-by-default", args=["off"]),
         "note_count": notes.count(),
         "encrypted_count": notes.filter(is_encrypted=True).count(),
         "plain_count": notes.filter(is_encrypted=False).count(),
@@ -504,7 +506,7 @@ def encryption_clear_salt(request):
     user.encryption_wrapped_key = ""
     user.encryption_recovery_salt = ""
     user.encryption_recovery_wrapped_key = ""
-    user.encryption_by_default = False
+    user.encryption_by_default = True
     user.save(update_fields=ENCRYPTION_FIELDS)
     return JsonResponse({"saved": True})
 
@@ -530,13 +532,16 @@ def encryption_save_recovery(request):
 
 @login_required
 @require_POST
-def encryption_by_default(request):
-    """Whether a new note starts encrypted."""
-    body = _encryption_body(request)
+def encryption_by_default(request, state):
+    """Whether a new note starts encrypted: the switch on the settings
+    page posts a form here and comes back to the page; the encrypt-all
+    flow posts JSON and gets JSON."""
     user = request.user
-    user.encryption_by_default = bool(body.get("enabled"))
+    user.encryption_by_default = state == "on"
     user.save(update_fields=["encryption_by_default"])
-    return JsonResponse({"saved": True, "enabled": user.encryption_by_default})
+    if request.content_type == "application/json":
+        return JsonResponse({"saved": True, "enabled": user.encryption_by_default})
+    return redirect("settings-encryption")
 
 
 @login_required

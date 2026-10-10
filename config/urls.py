@@ -412,7 +412,7 @@ urlpatterns = [
         name="settings-encryption-recovery",
     ),
     path(
-        "settings/encryption/by-default",
+        "settings/encryption/by-default/<str:state>",
         settings.encryption_by_default,
         name="settings-encryption-by-default",
     ),

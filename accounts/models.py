@@ -157,8 +157,9 @@ class CustomUser(AbstractUser):
     encryption_wrapped_key = models.TextField(blank=True, default="")
     encryption_recovery_salt = models.CharField(max_length=44, blank=True, default="")
     encryption_recovery_wrapped_key = models.TextField(blank=True, default="")
-    # New notes start encrypted, set by "encrypt all notes"
-    encryption_by_default = models.BooleanField(default=False)
+    # A new note starts encrypted while encryption is on, unless turned off
+    # in Settings › Encryption; nothing without a salt
+    encryption_by_default = models.BooleanField(default=True)
     # Two-step sign-in with an authenticator app (accounts.totp): the shared
     # secret, set once the user has confirmed a code from the app (empty
     # means it is off), and the last 30-second step whose code was taken,

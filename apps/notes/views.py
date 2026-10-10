@@ -107,9 +107,12 @@ def notes_add(request):
         if form.is_valid():
             note = form.save(commit=False)
             note.user = request.user
-            # an empty note, encrypted from the start when the user has
-            # asked for that: the editor seals its first content
-            note.is_encrypted = request.user.encryption_by_default
+            # an empty note, encrypted from the start while encryption is
+            # on and the default stands: the editor seals its first content
+            user = request.user
+            note.is_encrypted = bool(
+                user.encryption_salt and user.encryption_by_default
+            )
             note.save()
 
             note_url = reverse("notes:note-view", args=[note.id])
