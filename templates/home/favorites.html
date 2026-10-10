@@ -1,13 +1,20 @@
 {% comment %}
-The favorites board: the folders chosen for the home page, in one order,
-flowing down as many columns as the window allows. A folder drags by its
-name; a favorite drags between folders (static/js/home.js).
+The favorites board: the folders chosen for the home page, in up to five
+columns of the user's making. A folder drags by its name within and
+between columns, and into the new-column zone that appears at the right
+while it is held; a favorite drags between folders (static/js/home.js).
 {% endcomment %}
-<div class="home-board{% if user.home_icons_muted %} favicons-thematic{% endif %}"
+<div class="home-board{% if user.home_icons_muted %} favicons-thematic{% endif %}{% if columns|length >= 5 %} is-full{% endif %}"
      id="home-favorites"
-     data-url-order="{% url 'home-order' %}"
-     data-url-favorites="{% url 'home-folder-favorites' id=0 %}">
-    {% for folder in folders %}
-        {% include "home/folder.html" %}
+     data-url-layout="{% url 'home-layout' %}"
+     data-url-favorites="{% url 'home-folder-favorites' id=0 %}"
+     data-columns-max="5">
+    {% for column in columns %}
+        <div class="home-column">
+            {% for folder in column %}
+                {% include "home/folder.html" %}
+            {% endfor %}
+        </div>
     {% endfor %}
+    <div class="home-column home-column-new"></div>
 </div>

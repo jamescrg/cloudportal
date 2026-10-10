@@ -74,7 +74,7 @@ urlpatterns = [
         name="home-notice-dismiss",
     ),
     path("home/notices/<int:id>/done", home.notice_done, name="home-notice-done"),
-    path("home/folders/order/", home.order, name="home-order"),
+    path("home/layout/", home.layout, name="home-layout"),
     path("home/folders/<int:id>/choose/", home.choose, name="home-choose"),
     path(
         "home/favorites/<int:id>/shown/",

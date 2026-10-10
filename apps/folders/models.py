@@ -12,11 +12,10 @@ class Folder(TimestampMixin, models.Model):
         user (int): the user who created and owns the folder
         page (str): the page to which the folder belongs
         name (str): the name or title of the folder
-        home_column (int): whether the folder is shown on the home page: set
-            when it is, 0 or null when not (the name is from the page's old
-            fixed columns; task folders may still carry 2 to 5)
-        home_rank (int): the folder's place in the owner's sequence of folders
-            on the home page
+        home_column (int): the folder's column on the home page, 1 to 5,
+            or 0 or null when it isn't shown there; for task folders only a
+            flag, set when the folder is on the page
+        home_rank (int): the folder's place in its column on the home page
         selected (int): for tasks folders,
             whether the folder has been selected to be displayed
         active (int): for task folders,

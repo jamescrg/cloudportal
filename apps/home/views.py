@@ -155,9 +155,9 @@ def index(request):
     # FAVORITES
     # ----------------
 
-    # the folders on the home page in order, each with the favorites
+    # the folders on the home page, by column, each with the favorites
     # chosen for it in their order
-    folders = home_folders(request)
+    columns = home_columns(request)
 
     context = {
         "page": "home",
@@ -173,7 +173,7 @@ def index(request):
         "show_events": show_events,
         "show_quotes": show_quotes,
         "quotes": quotes,
-        "folders": folders,
+        "columns": columns,
         "show_weather": show_weather,
         "weather": weather,
     }
@@ -255,15 +255,27 @@ def with_favorites(folders):
     return folders
 
 
-def home_folders(request):
-    """The favorites folders on the home page, in order, with their
-    favorites (see with_favorites)."""
-    folders = list(
-        get_folders_for_page(request, "favorites")
-        .filter(home_column__gt=0)
-        .order_by("home_rank", "id")
+# The most columns the home page's folders can be arranged in
+COLUMNS = 5
+
+
+def home_columns(request):
+    """The favorites folders on the home page as columns, up to five:
+    a list of lists, the first column to the last one in use, each in
+    rank order, each folder with its favorites (see with_favorites)."""
+    folders = with_favorites(
+        list(
+            get_folders_for_page(request, "favorites")
+            .filter(home_column__gt=0)
+            .order_by("home_column", "home_rank", "id")
+        )
     )
-    return with_favorites(folders)
+    if not folders:
+        return []
+    columns = [[] for _ in range(min(folders[-1].home_column, COLUMNS))]
+    for folder in folders:
+        columns[min(folder.home_column, COLUMNS) - 1].append(folder)
+    return columns
 
 
 def _ids(request, field):
@@ -275,26 +287,46 @@ def _ids(request, field):
         return None
 
 
+def _columns(request):
+    """The columns posted as JSON under 'columns', a list of lists of ids,
+    or None if that isn't what was posted."""
+    try:
+        columns = json.loads(request.POST.get("columns", ""))
+        if not isinstance(columns, list) or not all(
+            isinstance(column, list) for column in columns
+        ):
+            return None
+        return [[int(i) for i in column] for column in columns]
+    except (ValueError, TypeError):
+        return None
+
+
 @login_required
 @require_POST
-def order(request):
-    """Set the order of the folders on the home page: the posted ids,
-    first to last.
+def layout(request):
+    """Set the home page's columns: one list of folder ids per column,
+    first column to last, each first to last.
 
-    The page posts every folder after one is dragged somewhere else. Only
-    the user's own folders can be placed; a folder shared with the user
-    stays where its owner put it, and is left out of the post.
+    The page posts the whole board after a folder is dragged somewhere
+    else, up to five columns. Only the user's own folders can be placed; a
+    folder shared with the user stays where its owner put it, and is left
+    out of the post, so a column may be posted empty.
     """
-    ids = _ids(request, "folders")
-    if ids is None:
+    columns = _columns(request)
+    if columns is None or len(columns) > COLUMNS:
         return JsonResponse(
-            {"ok": False, "error": "folders must be a list"}, status=400
+            {"ok": False, "error": f"columns must be up to {COLUMNS} lists"},
+            status=400,
         )
+    ids = [folder_id for column in columns for folder_id in column]
     own = Folder.objects.filter(user=request.user, page="favorites", pk__in=ids)
-    if set(own.values_list("id", flat=True)) != set(ids):
+    if len(set(ids)) != len(ids) or set(own.values_list("id", flat=True)) != set(ids):
         return JsonResponse({"ok": False, "error": "not your folder"}, status=403)
-    for rank, folder_id in enumerate(ids, start=1):
-        Folder.objects.filter(pk=folder_id).update(home_rank=rank)
+    for column, members in enumerate(columns, start=1):
+        for rank, folder_id in enumerate(members, start=1):
+            Folder.objects.filter(pk=folder_id).update(
+                home_column=column, home_rank=rank
+            )
     return JsonResponse({"ok": True})
 
 

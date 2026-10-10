@@ -1,5 +1,6 @@
-/* The home page's favorites: folders drag into one order across the
-   board and favorites between folders, each drop posting the new order. */
+/* The home page's favorites: folders drag within and between the board's
+   columns, and into a new column at the right edge; favorites drag
+   between folders. Each drop posts the new arrangement. */
 (function () {
     "use strict";
 
@@ -14,11 +15,11 @@
         return match ? decodeURIComponent(match[1]) : "";
     }
 
-    /* Posts a list of ids; when the server disagrees the page no longer
+    /* Posts a JSON value; when the server disagrees the page no longer
        shows the truth, so it is reloaded */
-    function post(url, field, ids) {
+    function post(url, field, value) {
         var body = new FormData();
-        body.append(field, JSON.stringify(ids));
+        body.append(field, JSON.stringify(value));
         fetch(url, {
             method: "POST",
             body: body,
@@ -50,29 +51,61 @@
         chosenClass: "sortable-chosen"
     };
 
+    /* The board's columns, the new-column zone aside */
+    function columns(board) {
+        return board.querySelectorAll(":scope > .home-column:not(.home-column-new)");
+    }
+
+    /* The whole arrangement: one list of the user's own folders per column */
+    function layout(board) {
+        return Array.prototype.map.call(columns(board), function (column) {
+            return ids(column, ".folder:not(.folder-shared)", "folderId");
+        });
+    }
+
+    /* After a drop: a folder dropped in the zone makes it a column, with
+       a fresh zone after it; a column left with nothing in it goes; and
+       the zone is withheld once the board has all the columns it can take */
+    function settle(board, evt) {
+        if (evt.to.classList.contains("home-column-new")) {
+            evt.to.classList.remove("home-column-new");
+            var zone = document.createElement("div");
+            zone.className = "home-column home-column-new";
+            board.appendChild(zone);
+        }
+        if (evt.from !== evt.to && !evt.from.querySelector(".folder")) {
+            evt.from.remove();
+        }
+        var max = parseInt(board.dataset.columnsMax, 10) || 5;
+        board.classList.toggle("is-full", columns(board).length >= max);
+    }
+
     function initDragging(board) {
         sortables.forEach(function (s) { s.destroy(); });
         sortables = [];
         var favoritesUrl = board.dataset.urlFavorites;
 
-        // the folders, one sequence across the board's columns
-        sortables.push(new Sortable(board, Object.assign({}, dragOptions, {
-            group: "folders",
-            draggable: ".folder",
-            handle: ".drag-handle",
-            // a folder shared by someone else sits where its owner put it,
-            // and the chooser's button is for clicking
-            filter: ".folder-shared, .folder-chooser",
-            preventOnFilter: false,
-            onEnd: function (evt) {
-                if (!moved(evt)) { return; }
-                post(
-                    board.dataset.urlOrder,
-                    "folders",
-                    ids(board, ".folder:not(.folder-shared)", "folderId")
-                );
-            }
-        })));
+        // the folders, within and between the columns and into the zone
+        board.querySelectorAll(":scope > .home-column").forEach(function (column) {
+            sortables.push(new Sortable(column, Object.assign({}, dragOptions, {
+                group: "folders",
+                draggable: ".folder",
+                handle: ".drag-handle",
+                // a folder shared by someone else sits where its owner put
+                // it, and the chooser's button is for clicking
+                filter: ".folder-shared, .folder-chooser",
+                preventOnFilter: false,
+                onStart: function () { board.classList.add("is-dragging"); },
+                onEnd: function (evt) {
+                    board.classList.remove("is-dragging");
+                    if (!moved(evt)) { return; }
+                    settle(board, evt);
+                    post(board.dataset.urlLayout, "columns", layout(board));
+                    // the columns have changed: they need dragging again
+                    initDragging(board);
+                }
+            })));
+        });
 
         board.querySelectorAll(".folder .list-group").forEach(function (list) {
             sortables.push(new Sortable(list, Object.assign({}, dragOptions, {

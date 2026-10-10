@@ -61,14 +61,15 @@ def folders(user):
         "Swiss",
     ]
 
+    # five to a column: three full columns and a fourth of three
     folders = []
-    for rank, name in enumerate(names, start=1):
+    for i, name in enumerate(names):
         folders.append(
             Folder.objects.create(
                 user=user,
                 name=name,
-                home_column=1,
-                home_rank=rank,
+                home_column=i // 5 + 1,
+                home_rank=i % 5 + 1,
                 page="favorites",
             )
         )

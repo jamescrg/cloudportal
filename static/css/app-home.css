@@ -374,11 +374,60 @@
  * favorites
  * ------------------------------------------------*/
 
-/* The folders are one sequence flowing down as many columns as fit, the
-   browser balancing them: five across a wide window, one on a phone */
+/* The folders sit in columns of the user's making, up to five, each of a
+   fixed width and the set centred, so a wide window has no stray space
+   at one side; the columns narrow together when the window is tighter */
 .home-board {
-  column-gap: 1.25rem;
-  columns: 12rem;
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+}
+
+/* A column is as tall as the tallest, so a folder can be dropped below
+   the last one in a short column */
+.home-column {
+  flex: 0 1 13rem;
+  min-width: 0;
+}
+
+/* The zone a dragged folder starts a new column in, at the right edge:
+   seen only while a folder is held, and not once there are five columns */
+.home-column-new {
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  display: none;
+  font-size: 0.8rem;
+  min-height: 6rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.home-column-new::before {
+  content: "New column";
+}
+
+.home-board.is-dragging:not(.is-full) .home-column-new {
+  display: block;
+}
+
+/* Below a tablet's width the columns can't sit side by side, so the
+   folders flow instead, column by column, down as many columns as fit,
+   the browser balancing them: one on a phone */
+@media (max-width: 767.98px) {
+  .home-board {
+    column-gap: 1.25rem;
+    columns: 12rem;
+    display: block;
+  }
+
+  .home-column {
+    display: contents;
+  }
+
+  .home-column-new {
+    display: none !important;
+  }
 }
 
 .folder {
