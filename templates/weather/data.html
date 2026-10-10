@@ -149,7 +149,7 @@
                         <th>Hour</th>
                         <th>Temp</th>
                         <th>Precip</th>
-                        <th>Wind</th>
+                        <th class="forecast-wind">Wind</th>
                         <th>Conditions</th>
                     </tr>
                     {% for hour in report.hourly %}
@@ -176,7 +176,9 @@
                             <td>
                                 <div class="forecast-conditions">
                                     <i class="icon-{{ hour.icon }}" aria-hidden="true"></i>
-                                    <span>{{ hour.description }}</span>
+                                    <span>{{ hour.description }}
+                                        <span class="weather-amount forecast-wind-inline">{{ hour.wind_text }}</span>
+                                    </span>
                                 </div>
                             </td>
                         </tr>

@@ -307,8 +307,41 @@
   white-space: nowrap;
 }
 
-/* on a phone the summary line gives way to the row's tooltip */
+/* on a phone the wind leaves its column for a line under the conditions */
+.forecast-wind-inline {
+  display: none;
+}
+
+/* on a phone the summary line gives way to the row's tooltip, the hourly
+   wind column to a line under the conditions, and the cells close up */
 @media screen and (max-width: 575.98px) {
+
+  .forecast-wind {
+    display: none;
+  }
+
+  .forecast-wind-inline {
+    display: block;
+  }
+
+  .forecast-hourly .table th,
+  .forecast-hourly .table td,
+  .forecast-daily .table th,
+  .forecast-daily .table td {
+    font-size: 0.95rem;
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  .card > .table th:first-child,
+  .card > .table td:first-child {
+    padding-left: 0.75rem;
+  }
+
+  .card > .table th:last-child,
+  .card > .table td:last-child {
+    padding-right: 0.75rem;
+  }
 
   .forecast-day-summary {
     display: none;
