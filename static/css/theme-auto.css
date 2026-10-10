@@ -105,6 +105,13 @@
     --calendar-task-color: var(--color-primary);
     --calendar-task-icon: var(--color-primary);
     --calendar-chip-border: var(--gb-dark4);
+    /* a holiday: the all-day ground taken halfway to gruvbox's faded
+       blue, under the same light text */
+    --calendar-holiday: color-mix(
+      in oklab,
+      var(--gb-dark3) 50%,
+      var(--gb-faded-blue)
+    );
     --calendar-dot: var(--gb-dark4);
 
     /* Tables */

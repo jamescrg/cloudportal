@@ -11,7 +11,7 @@ const CALENDAR_CONTAINER_ID = "events";
 // manual Alpine.initTree here: that ran x-init a second time and built a
 // second grid inside the first.
 
-// Phones get the grid's agenda view (listMonth) in place of both the
+// Phones get the grid's agenda view (listRolling) in place of both the
 // month grid, which is unusable at that width, and the table list, which
 // is not laid out for it.
 const PHONE_WIDTH = 768;
@@ -113,7 +113,7 @@ document.addEventListener("alpine:init", () => {
         // Core settings. A phone opens the month's agenda with a toolbar
         // pared to navigation; wider screens get the full set of views,
         // the agenda among them.
-        initialView: phone ? "listMonth" : this.savedView(),
+        initialView: phone ? "listRolling" : this.savedView(),
         ...(requestedDate() ? { initialDate: requestedDate() } : {}),
         headerToolbar: phone
           ? { left: "prev,next", center: "title", right: "today" }
@@ -121,9 +121,9 @@ document.addEventListener("alpine:init", () => {
               left: "prev,next today",
               center: "title",
               right:
-                "multiMonthRolling,dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+                "multiMonthRolling,dayGridMonth,timeGridWeek,timeGridDay,listRolling",
             },
-        noEventsContent: "No events this month",
+        noEventsContent: "No events",
 
         // The year view: the next twelve months as mini months, three
         // across, from the month in view rather than from January, so in
@@ -139,9 +139,16 @@ document.addEventListener("alpine:init", () => {
             dayMaxEvents: 2,
           },
           // The agenda (the phone's only view, a choice on wider screens):
-          // a compact day heading, and start times only, abbreviated where
-          // they can be ("7am", "7:30am"), so the title keeps most of the row
-          listMonth: {
+          // the month ahead from the day in view, so it opens on today and
+          // runs forward rather than opening on the calendar month's first
+          // event; prev and next step a month. A compact day heading, and
+          // start times only, abbreviated where they can be ("7am",
+          // "7:30am"), so the title keeps most of the row
+          listRolling: {
+            type: "list",
+            duration: { months: 1 },
+            // a month's duration aligns to the month unless told otherwise
+            dateAlignment: "day",
             buttonText: "Agenda",
             listDayFormat: { weekday: "short", month: "short", day: "numeric" },
             listDaySideFormat: false,
@@ -248,8 +255,12 @@ document.addEventListener("alpine:init", () => {
         "dayGridMonth",
         "timeGridWeek",
         "timeGridDay",
-        "listMonth",
+        "listRolling",
       ];
+      // The agenda was listMonth before it rolled from the day in view
+      if (saved === "listMonth") {
+        return "listRolling";
+      }
       return valid.includes(saved) ? saved : "dayGridMonth";
     },
 

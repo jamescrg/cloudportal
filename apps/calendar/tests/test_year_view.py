@@ -25,8 +25,8 @@ def test_the_year_view_is_remembered():
     assert "multiMonthRolling" in valid
 
 
-def test_a_phone_opens_the_months_agenda():
-    assert 'phone ? "listMonth" : this.savedView()' in JS
+def test_a_phone_opens_the_agenda():
+    assert 'phone ? "listRolling" : this.savedView()' in JS
     assert '"/calendar/calendar/"' in JS
 
 
@@ -42,3 +42,11 @@ def test_the_year_view_runs_twelve_months_from_the_month_in_view():
     assert 'type: "multiMonth"' in view
     assert "duration: { months: 12 }" in view
     assert 'dateAlignment: "month"' in view
+
+
+def test_the_agenda_runs_a_month_from_the_day_in_view():
+    view = re.search(r"listRolling: \{(.*?)buttonText", JS, re.S).group(1)
+
+    assert 'type: "list"' in view
+    assert "duration: { months: 1 }" in view
+    assert 'dateAlignment: "day"' in view
