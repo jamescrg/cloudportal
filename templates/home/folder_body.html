@@ -1,6 +1,6 @@
 {% comment %}
-A folder's favorites on the home page, and a line for those it keeps
-elsewhere. Swapped in whole when a favorite is shown or hidden.
+A folder's favorites on the home page. Swapped in whole when a favorite
+is shown or hidden.
 {% endcomment %}
 <ul class="list-group">
     {% for favorite in folder.favorites %}
@@ -20,17 +20,6 @@ elsewhere. Swapped in whole when a favorite is shown or hidden.
                 {% endif %}
                 <span class="home-link-name">{{ favorite.name }}</span>
             </a>
-            <button class="btn-icon home-link-hide"
-                    type="button"
-                    hx-post="{% url 'home-favorite-shown' id=favorite.id %}"
-                    hx-target="#folder-{{ folder.id }}-body"
-                    title="Take {{ favorite.name }} off Home">
-                <i class="icon-x"></i>
-            </button>
         </li>
     {% endfor %}
 </ul>
-{% if folder.hidden_count %}
-    <a class="folder-more"
-       href="{% url 'folder-select' id=folder.id page='favorites' %}">{{ folder.hidden_count }} more in the folder</a>
-{% endif %}

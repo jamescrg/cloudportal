@@ -4,7 +4,6 @@ from datetime import date
 import requests as http_requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -240,8 +239,7 @@ def toggle(request, section):
 
 def with_favorites(folders):
     """Attach to each folder the favorites chosen for the home page, in
-    rank order, each with the host of its url for its icon, and a count
-    of the folder's other favorites."""
+    rank order, each with the host of its url for its icon."""
     shown = Favorite.objects.filter(folder__in=folders, home_rank__gt=0).order_by(
         "home_rank", "id"
     )
@@ -249,14 +247,8 @@ def with_favorites(folders):
     for favorite in shown:
         favorite.host = site_icons.host_of(favorite.url)
         by_folder.setdefault(favorite.folder_id, []).append(favorite)
-    totals = dict(
-        Favorite.objects.filter(folder__in=folders)
-        .values_list("folder_id")
-        .annotate(n=Count("id"))
-    )
     for folder in folders:
         folder.favorites = by_folder.get(folder.id, [])
-        folder.hidden_count = totals.get(folder.id, 0) - len(folder.favorites)
     return folders
 
 

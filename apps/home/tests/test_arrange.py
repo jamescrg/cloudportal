@@ -131,7 +131,6 @@ def test_showing_a_favorite_puts_it_at_the_end(client, user, folders, favorites)
     # the response is the folder's body, with the newcomer last
     html = response.content.decode()
     assert html.rindex("Kept back") > html.rindex("Favorite No. 5")
-    assert "more in the folder" not in html
 
 
 def test_hiding_a_favorite_keeps_it_in_the_folder(client, folders, favorites):
@@ -139,9 +138,7 @@ def test_hiding_a_favorite_keeps_it_in_the_folder(client, folders, favorites):
     assert response.status_code == 200
     hidden = Favorite.objects.get(pk=favorites[1].id)
     assert (hidden.folder_id, hidden.home_rank) == (folders[0].id, 0)
-    html = response.content.decode()
-    assert "Favorite No. 2" not in html
-    assert "1 more in the folder" in html
+    assert "Favorite No. 2" not in response.content.decode()
 
 
 def test_shown_refuses_a_favorite_in_a_folder_the_user_cannot_reach(client, stranger):
@@ -168,7 +165,4 @@ def test_home_page_lists_folders_in_order_with_their_favorites(
     assert [f.name for f in page[0].favorites] == [
         f"Favorite No. {i}" for i in range(1, 6)
     ]
-    assert page[0].hidden_count == 1
-    assert page[1].favorites == [] and page[1].hidden_count == 0
-    html = response.content.decode()
-    assert "1 more in the folder" in html
+    assert page[1].favorites == []

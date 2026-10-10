@@ -390,8 +390,8 @@
   width: 100%;
 }
 
-/* The folder's name is a small label over its links, and its drag
-   handle; the plus beside it opens the chooser */
+/* The folder's name is its drag handle; the plus beside it opens the
+   chooser */
 .folder .card-title {
   align-items: center;
   cursor: grab;
@@ -407,15 +407,12 @@
 }
 
 .folder-name {
-  color: var(--color-secondary);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  font-weight: 500;
   min-width: 0;
   overflow: hidden;
   text-decoration: none;
   text-overflow: ellipsis;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -476,42 +473,6 @@
   width: 16px;
 }
 
-/* The cross that takes a favorite off the page appears on its line
-   under the pointer; a touch screen uses the chooser instead */
-.home-link-hide {
-  color: var(--color-muted);
-  flex-shrink: 0;
-  line-height: 1;
-  opacity: 0;
-}
-
-.favorite-item:hover .home-link-hide,
-.home-link-hide:focus-visible {
-  opacity: 1;
-}
-
-.home-link-hide:hover {
-  color: var(--urgent);
-}
-
-@media (hover: none) {
-  .home-link-hide {
-    display: none;
-  }
-}
-
-.folder-more {
-  color: var(--color-muted);
-  display: block;
-  font-size: 0.8rem;
-  margin-top: 0.35rem;
-  text-decoration: none;
-}
-
-.folder-more:hover {
-  color: var(--link);
-}
-
 /* The chooser: the folder's favorites, ticked when shown */
 .folder-menu {
   max-height: 60vh;
@@ -522,11 +483,9 @@
 
 .folder-choose-head {
   color: var(--color-secondary);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 0.85rem;
+  font-weight: 500;
   padding: 0.6rem 1rem 0.3rem;
-  text-transform: uppercase;
 }
 
 .folder-choose-list {
