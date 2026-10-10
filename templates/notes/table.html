@@ -28,15 +28,12 @@
                     <i class="icon-chevrons-up-down"></i>
                 </button>
             </th>
-            <th class="actions">
-                <i class="icon-ellipsis-vertical"></i>
-            </th>
         </tr>
         {% for note in notes %}
             {% include "notes/row.html" %}
         {% empty %}
             <tr>
-                <td colspan="5" class="empty-message">No notes found.</td>
+                <td colspan="4" class="empty-message">No notes found.</td>
             </tr>
         {% endfor %}
     </table>

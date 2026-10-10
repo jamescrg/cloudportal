@@ -485,9 +485,36 @@
   z-index: 1050;
 }
 
-.notes-list .actions {
-  text-align: center;
-  width: 2.5rem;
+/* The title's line: the title at the left, the row's menu at the right,
+   there only while the row is under the pointer or the menu is open (as
+   on the favorites page) */
+.note-title-row {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.note-title {
+  min-width: 0;
+}
+
+.note-row-menu {
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.notes-list tr:hover .note-row-menu,
+.note-row-menu:focus-within,
+.note-row-menu:has([aria-expanded="true"]) {
+  opacity: 1;
+}
+
+/* A touch screen has no pointer to hover, so the menu stays, muted */
+@media (hover: none) {
+  .note-row-menu {
+    opacity: 0.5;
+  }
 }
 
 .notes-list .empty-message {

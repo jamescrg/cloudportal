@@ -96,3 +96,22 @@ def test_added_to_home_joins_the_end_of_the_folders_list(
     assert Favorite.objects.get(pk=favorite.id).home_rank == 4
     client.post(f"/favorites/{favorite.id}/home-htmx")
     assert Favorite.objects.get(pk=favorite.id).home_rank == 0
+
+
+def test_list_offers_the_home_control_in_a_folder_on_home(
+    client, user, folder1, favorite
+):
+    user.favorites_folder = folder1.id
+    user.save()
+    html = client.get("/favorites/").content.decode()
+    assert "icon-house" not in html.split("favorites-table")[1]
+    folder1.home_column = 1
+    folder1.home_rank = 1
+    folder1.save()
+    html = client.get("/favorites/").content.decode()
+    assert "icon-house-plus" in html and "Add to Home" in html
+    favorite.home_rank = 1
+    favorite.save()
+    html = client.get("/favorites/").content.decode()
+    assert 'class="icon-house"' in html and "Take off Home" in html
+    assert "icon-pencil" in html and "icon-circle-x" in html
