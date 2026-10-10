@@ -402,13 +402,41 @@
 /* radar */
 /* ------------------------------------------------------------------------- */
 
+/* The card is a details element, closed until a click or tap opens it:
+   its title is the summary, with a chevron that turns when it is open */
+.weather-radar > summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+}
+
+.weather-radar > summary::-webkit-details-marker {
+  display: none;
+}
+
+.weather-radar:not([open]) > summary {
+  margin-bottom: 0;
+}
+
+.weather-radar-chevron {
+  color: var(--color-muted);
+  font-size: 1.25rem;
+  transition: transform 0.2s;
+}
+
+.weather-radar[open] .weather-radar-chevron {
+  transform: rotate(180deg);
+}
+
 /* The map keeps Leaflet's stacked panes (z-index into the thousands)
    inside its own box, so nothing on the map rises over the nav or a
    drawer, and it runs out to the card's edges like the tables do */
 .weather-radar-map {
   border-bottom: 1px solid var(--border-medium);
   border-top: 1px solid var(--border-medium);
-  height: 18rem;
+  height: 22rem;
   isolation: isolate;
   margin: 0 -1rem;
   position: relative;
