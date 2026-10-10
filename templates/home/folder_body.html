@@ -8,15 +8,17 @@ is shown or hidden.
             data-favorite-id="{{ favorite.id }}"
             data-search="{{ favorite.name|lower }} {{ favorite.host }} {{ favorite.description|default:''|lower }}">
             <a class="home-link" href="{{ favorite.url }}">
-                {% if favorite.has_icon %}
-                    <img class="favicon"
-                         src="{% url 'site-icon' host=favorite.host %}"
-                         alt=""
-                         width="16"
-                         height="16"
-                         loading="lazy">
-                {% else %}
-                    <i class="favicon favicon-none icon-link"></i>
+                {% if user.home_icons %}
+                    {% if favorite.has_icon %}
+                        <img class="favicon"
+                             src="{% url 'site-icon' host=favorite.host %}"
+                             alt=""
+                             width="16"
+                             height="16"
+                             loading="lazy">
+                    {% else %}
+                        <i class="favicon favicon-none icon-link"></i>
+                    {% endif %}
                 {% endif %}
                 <span class="home-link-name">{{ favorite.name }}</span>
             </a>

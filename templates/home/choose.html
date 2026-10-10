@@ -14,14 +14,16 @@ swapped; the menu stays open for the next.
                        hx-post="{% url 'home-favorite-shown' id=favorite.id %}"
                        hx-trigger="change"
                        hx-target="#folder-{{ folder.id }}-body">
-                {% if favorite.has_icon %}
-                    <img class="favicon"
-                         src="{% url 'site-icon' host=favorite.host %}"
-                         alt=""
-                         width="16"
-                         height="16">
-                {% else %}
-                    <i class="favicon favicon-none icon-link"></i>
+                {% if user.home_icons %}
+                    {% if favorite.has_icon %}
+                        <img class="favicon"
+                             src="{% url 'site-icon' host=favorite.host %}"
+                             alt=""
+                             width="16"
+                             height="16">
+                    {% else %}
+                        <i class="favicon favicon-none icon-link"></i>
+                    {% endif %}
                 {% endif %}
                 <span class="folder-choose-name">{{ favorite.name }}</span>
             </label>

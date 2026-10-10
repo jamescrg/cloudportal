@@ -232,3 +232,29 @@ def test_home_page_shows_the_icon_on_hand_or_a_link_glyph(client, user, folder1)
     assert 'data-search="docs docs.example "' in html
     assert "/favorites/icons/new.example" not in html
     assert html.count("favicon-none icon-link") == 1
+
+
+def test_home_page_icons_can_be_off_or_in_their_own_colours(client, user, folder1):
+    folder1.home_column = 1
+    folder1.home_rank = 1
+    folder1.save()
+    Favorite.objects.create(
+        user=user,
+        folder=folder1,
+        name="Docs",
+        url="https://docs.example/a",
+        home_rank=1,
+    )
+    html = client.get("/home/").content.decode()
+    assert "favicons-muted" in html and "favicon" in html.split("home-board")[1]
+
+    user.home_icons_muted = 0
+    user.save()
+    html = client.get("/home/").content.decode()
+    assert "favicons-muted" not in html
+
+    user.home_icons = 0
+    user.save()
+    html = client.get("/home/").content.decode()
+    assert 'class="favicon' not in html
+    assert "/favorites/icons/" not in html

@@ -668,6 +668,10 @@ def home_options(request, option, value):
         user.home_weather = value
     if option == "quotes":
         user.home_quotes = value
+    if option == "icons":
+        user.home_icons = value
+    if option == "icons_muted":
+        user.home_icons_muted = value
 
     user.save()
     return redirect("/settings/homepage/")

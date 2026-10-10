@@ -463,20 +463,20 @@
 }
 
 /* The site's icon, fetched by the worker (apps/favorites/site_icons.py),
-   or a link glyph until it is. The icon is drained of its own colours
-   and tinted in the theme's: lime unless the theme says otherwise
-   (--favicon-tint, a filter list, or none) */
+   or a link glyph until it is; the user can turn them off (Settings,
+   Home Page) */
 .favicon {
   border-radius: 3px;
-  filter: var(--favicon-tint, grayscale(1) sepia(1) hue-rotate(45deg) saturate(2.5) brightness(0.92));
   flex-shrink: 0;
   height: 16px;
   object-fit: contain;
   width: 16px;
 }
 
-.favicon-none {
-  filter: none;
+/* When the user has the icons desaturated, each is drained of its own
+   colours and softened, so the page reads as one colour */
+.favicons-muted img.favicon {
+  filter: grayscale(1) opacity(0.75);
 }
 
 .favicon-none {
