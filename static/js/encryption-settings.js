@@ -71,6 +71,9 @@ function flow(buttonId, run) {
   button.addEventListener("click", async function () {
     const buttons = document.querySelectorAll(".encryption-flow");
     buttons.forEach(function (b) { b.disabled = true; });
+    // progress and the outcome are shown under the button that was
+    // pressed, which may be a long way below the first card
+    button.closest(".setting-actions").after(progressEl, messageEl);
     messageEl.textContent = "";
     try {
       await run();
