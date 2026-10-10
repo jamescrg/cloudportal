@@ -29,15 +29,18 @@
 /* alerts */
 /* ------------------------------------------------------------------------- */
 
+/* each alert in its own box, a little apart from the next */
 .weather-alerts {
-  background: var(--alert-danger-bg);
-  border: 1px solid var(--alert-danger-border);
-  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
-.weather-alert + .weather-alert {
-  border-top: 1px solid var(--alert-danger-border);
+.weather-alert {
+  background: var(--alert-danger-bg);
+  border: 1px solid var(--alert-danger-border);
+  border-radius: var(--radius-md);
 }
 
 .weather-alert summary {
@@ -68,6 +71,23 @@
   color: var(--color-muted);
   font-size: 0.85rem;
   margin-left: auto;
+}
+
+/* the X that clears an alert from the page until it ends */
+.weather-alert-dismiss {
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  margin: -0.25rem -0.5rem -0.25rem 0;
+  padding: 0.25rem 0.5rem;
+}
+
+.weather-alert-dismiss:hover {
+  color: var(--alert-danger-color);
 }
 
 .weather-alert-description {
@@ -197,6 +217,13 @@
   padding-left: 1rem;
 }
 
+/* the column headers of the forecasts stand as tall as the card's title */
+.forecast-hourly .table th,
+.forecast-daily .table th {
+  padding-bottom: 0.85rem;
+  padding-top: 0.85rem;
+}
+
 .card > .table th:last-child,
 .card > .table td:last-child {
   padding-right: 1rem;
@@ -235,8 +262,8 @@
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  padding-bottom: 0.25rem;
-  padding-top: 0.25rem;
+  padding-bottom: 0.6rem;
+  padding-top: 0.6rem;
   text-transform: uppercase;
 }
 

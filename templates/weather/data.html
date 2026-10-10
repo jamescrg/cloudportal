@@ -8,6 +8,13 @@
                         <span class="weather-alert-event">{{ alert.event }}</span>
                         {% if alert.until %}<span class="weather-alert-until">{{ alert.until }}</span>{% endif %}
                         {% if alert.sender %}<span class="weather-alert-sender">{{ alert.sender }}</span>{% endif %}
+                        <button type="button"
+                                class="weather-alert-dismiss"
+                                data-key="{{ alert.key }}"
+                                title="Clear this alert"
+                                aria-label="Clear this alert">
+                            <i class="icon-x" aria-hidden="true"></i>
+                        </button>
                     </summary>
                     <div class="weather-alert-description">{{ alert.description }}</div>
                 </details>
@@ -103,6 +110,14 @@
                         <th>Sunset</th>
                         <td>{{ now.sunset }}</td>
                     </tr>
+                    {% with today=report.daily.0 %}
+                        {% if today.moon_phase %}
+                            <tr>
+                                <th>Moon</th>
+                                <td>{{ today.moon_phase|capfirst }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endwith %}
                 </table>
             </div>
         </div>
@@ -191,9 +206,9 @@
                             <td colspan="5">
                                 {% if day.summary %}{{ day.summary }}.{% endif %}
                                 <span class="forecast-day-extra">
-                                    Wind {{ day.wind_speed }} mph {{ day.wind_dir }}
-                                    {% if day.wind_gust %}, gusts {{ day.wind_gust }}{% endif %}
+                                    Wind {{ day.wind_text }}
                                     · <span {% if day.uvi >= 3 %}class="weather-uv-raised"{% endif %}>UV {{ day.uvi }} {{ day.uv_level }}</span>
+                                    · {{ day.moon_phase|capfirst }}
                                 </span>
                             </td>
                         </tr>
@@ -204,6 +219,25 @@
     </div>
 {% endwith %}
 <script>
+    document.querySelectorAll(".weather-alert-dismiss").forEach(function(button) {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var alert = button.closest(".weather-alert");
+            var band = alert.parentNode;
+            var form = new FormData();
+            form.append("key", button.dataset.key);
+            fetch("{% url 'weather-dismiss-alert' %}", {
+                method: "POST",
+                headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                body: form
+            });
+            alert.remove();
+            if (!band.querySelector(".weather-alert")) {
+                band.remove();
+            }
+        });
+    });
     document.getElementById("weather-relocate").addEventListener("click", function(event) {
         event.preventDefault();
         var link = this;

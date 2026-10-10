@@ -86,3 +86,22 @@ def test_when_the_api_fails(client, located):
     assert response.context["has_location"] is True
     assert response.context["report"] is None
     assert response.context["place"] == ""
+
+
+def test_dismiss_clears_an_alert_for_the_user(client, user):
+    from django.urls import reverse
+
+    response = client.post(
+        reverse("weather-dismiss-alert"), {"key": "Flood Watch|1|9999999999"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {"success": True}
+    user.refresh_from_db()
+    assert user.weather_dismissed_alerts == ["Flood Watch|1|9999999999"]
+
+
+def test_dismiss_needs_a_key_and_a_post(client):
+    from django.urls import reverse
+
+    assert client.post(reverse("weather-dismiss-alert"), {}).status_code == 400
+    assert client.get(reverse("weather-dismiss-alert")).status_code == 405

@@ -195,15 +195,42 @@ def wind(entry):
     speed = round(entry.get("wind_speed", 0))
     gust = entry.get("wind_gust")
     gust = round(gust) if gust and round(gust) > speed else None
+    direction = compass(entry.get("wind_deg"))
+    text = f"{speed} mph {direction}".rstrip()
+    if gust:
+        text += f", gusts {gust}"
     return {
         "wind_speed": speed,
-        "wind_dir": compass(entry.get("wind_deg")),
+        "wind_dir": direction,
         "wind_gust": gust,
+        "wind_text": text,
     }
 
 
-def build_report(data):
-    """The page's report from a One Call response."""
+def alert_key(alert):
+    """What identifies an alert from one response to the next."""
+    return f"{alert.get('event', '')}|{alert.get('start', '')}|{alert.get('end', '')}"
+
+
+def dismiss_alert(user, key):
+    """Clear an alert from the user's page until it ends, and forget the
+    alerts already over."""
+    now = datetime.now(timezone.utc).timestamp()
+    keys = [k for k in user.weather_dismissed_alerts if k != key]
+    keys.append(key)
+    kept = []
+    for k in keys:
+        end = k.rsplit("|", 1)[-1]
+        if end.isdigit() and int(end) < now:
+            continue
+        kept.append(k)
+    user.weather_dismissed_alerts = kept
+    user.save(update_fields=["weather_dismissed_alerts"])
+
+
+def build_report(data, dismissed=()):
+    """The page's report from a One Call response, less the alerts the
+    user has cleared."""
     tz = timezone(timedelta(seconds=data.get("timezone_offset", 0)))
 
     def local(ts):
@@ -297,8 +324,8 @@ def build_report(data):
     alerts = []
     seen = set()
     for alert in sorted(data.get("alerts", []), key=lambda a: a.get("start", 0)):
-        key = (alert.get("event"), alert.get("start"), alert.get("end"))
-        if key in seen:
+        key = alert_key(alert)
+        if key in seen or key in dismissed:
             continue
         seen.add(key)
         end = local(alert["end"]) if alert.get("end") else None
@@ -308,6 +335,7 @@ def build_report(data):
             until = f"until {clock(end)} {day}"
         alerts.append(
             {
+                "key": key,
                 "event": alert.get("event", "Alert"),
                 "sender": alert.get("sender_name", ""),
                 "until": until,
@@ -339,4 +367,6 @@ def report_for(user):
     if not has_location(user):
         return None
     data = fetch_one_call(user.weather_lat, user.weather_lon)
-    return build_report(data) if data else None
+    if not data:
+        return None
+    return build_report(data, user.weather_dismissed_alerts or ())

@@ -136,6 +136,10 @@ class CustomUser(AbstractUser):
     # the place at those coordinates, looked up once and shown as the
     # weather page's title
     weather_place = models.CharField(max_length=120, blank=True, default="")
+    # the keys of the weather alerts the user has cleared from the page;
+    # an alert's key is its event with its start and end, and a key is
+    # dropped once its alert has ended
+    weather_dismissed_alerts = models.JSONField(default=list, blank=True)
     favorites_folder = models.IntegerField(default=0)
     contacts_folder = models.IntegerField(default=0)
     contacts_contact = models.IntegerField(default=0)

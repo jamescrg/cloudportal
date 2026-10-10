@@ -241,6 +241,7 @@ urlpatterns = [
     path("calendar/", include("apps.calendar.urls")),
     # weather
     path("weather/", weather.index, name="weather"),
+    path("weather/alerts/dismiss/", weather.dismiss, name="weather-dismiss-alert"),
     # finance
     path("crypto/", finance.crypto, name="crypto"),
     path("crypto/<str:ord>", finance.crypto, name="crypto"),

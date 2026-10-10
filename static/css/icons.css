@@ -3,3 +3,62 @@
 [class*=" icon-"] {
   vertical-align: -0.15em;
 }
+
+/* Weather conditions in their own colours, on the weather page and in
+   the home page's indicator: sun and moon, cloud, rain, storm, snow and fog */
+:root {
+  --weather-sun: var(--amber-500);
+  --weather-moon: var(--indigo-500);
+  --weather-cloud: var(--slate-500);
+  --weather-rain: var(--blue-500);
+  --weather-storm: var(--orange-500);
+  --weather-snow: var(--sky-500);
+  --weather-fog: var(--slate-400);
+}
+
+.weather-data .icon-sun,
+.weather-data .icon-cloud-sun,
+.weather-indicator .icon-sun,
+.weather-indicator .icon-cloud-sun {
+  color: var(--weather-sun);
+}
+
+.weather-data .icon-moon,
+.weather-data .icon-cloud-moon,
+.weather-indicator .icon-moon,
+.weather-indicator .icon-cloud-moon {
+  color: var(--weather-moon);
+}
+
+.weather-data .icon-cloud,
+.weather-data .icon-cloudy,
+.weather-indicator .icon-cloud,
+.weather-indicator .icon-cloudy {
+  color: var(--weather-cloud);
+}
+
+.weather-data .icon-cloud-drizzle,
+.weather-data .icon-cloud-rain,
+.weather-data .icon-cloud-sun-rain,
+.weather-data .icon-cloud-moon-rain,
+.weather-indicator .icon-cloud-drizzle,
+.weather-indicator .icon-cloud-rain,
+.weather-indicator .icon-cloud-sun-rain,
+.weather-indicator .icon-cloud-moon-rain {
+  color: var(--weather-rain);
+}
+
+.weather-data .icon-cloud-lightning,
+.weather-indicator .icon-cloud-lightning {
+  color: var(--weather-storm);
+}
+
+.weather-data .icon-cloud-snow,
+.weather-indicator .icon-cloud-snow {
+  color: var(--weather-snow);
+}
+
+.weather-data .icon-cloud-fog,
+.weather-indicator .icon-cloud-fog {
+  color: var(--weather-fog);
+}

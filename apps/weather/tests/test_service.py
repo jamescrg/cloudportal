@@ -365,6 +365,7 @@ def test_wind_gust_shown_when_stronger():
         "wind_speed": 10,
         "wind_dir": "E",
         "wind_gust": 11,
+        "wind_text": "10 mph E, gusts 11",
     }
 
 
@@ -384,6 +385,7 @@ def test_wind_without_gust_or_direction():
         "wind_speed": 4,
         "wind_dir": "",
         "wind_gust": None,
+        "wind_text": "4 mph",
     }
 
 
@@ -561,3 +563,56 @@ def test_report_for_when_the_api_fails(user):
     user.weather_lat, user.weather_lon = 36.85, -76.29
     with patch(GET, side_effect=requests.ConnectionError):
         assert report_for(user) is None
+
+
+# ---------------------------------------------------------------------------
+# clearing alerts
+# ---------------------------------------------------------------------------
+
+
+def test_alert_key_names_the_event_and_its_span():
+    from apps.weather.service import alert_key
+
+    alert = {"event": "Flood Watch", "start": 100, "end": 200}
+    assert alert_key(alert) == "Flood Watch|100|200"
+
+
+def test_build_report_leaves_out_dismissed_alerts(onecall):
+    from apps.weather.service import alert_key, build_report
+
+    first = alert_key(onecall["alerts"][0])
+    report = build_report(onecall, dismissed=[first])
+    assert first not in [alert["key"] for alert in report["alerts"]]
+    assert len(report["alerts"]) == len(build_report(onecall)["alerts"]) - 1
+
+
+@pytest.mark.django_db
+def test_dismiss_alert_keeps_the_key_and_forgets_ended_alerts(user):
+    from datetime import datetime, timedelta, timezone
+
+    from apps.weather.service import dismiss_alert
+
+    future = int((datetime.now(timezone.utc) + timedelta(days=1)).timestamp())
+    past = int((datetime.now(timezone.utc) - timedelta(days=1)).timestamp())
+    user.weather_dismissed_alerts = [f"Old Watch|1|{past}", f"Wind|1|{future}"]
+    user.save()
+    dismiss_alert(user, f"Flood Watch|2|{future}")
+    user.refresh_from_db()
+    assert user.weather_dismissed_alerts == [
+        f"Wind|1|{future}",
+        f"Flood Watch|2|{future}",
+    ]
+    # clearing the same alert twice keeps one key
+    dismiss_alert(user, f"Flood Watch|2|{future}")
+    user.refresh_from_db()
+    assert user.weather_dismissed_alerts.count(f"Flood Watch|2|{future}") == 1
+
+
+def test_wind_text_reads_as_one_phrase():
+    from apps.weather.service import wind
+
+    assert (
+        wind({"wind_speed": 20.6, "wind_deg": 70, "wind_gust": 42.3})["wind_text"]
+        == "21 mph ENE, gusts 42"
+    )
+    assert wind({"wind_speed": 5.2, "wind_deg": 180})["wind_text"] == "5 mph S"
