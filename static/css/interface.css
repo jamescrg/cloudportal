@@ -307,11 +307,12 @@ tr:hover .row-actions,
 }
 
 /* When the user has the icons thematic, each is drained of its own
-   colours and washed in the theme's: lime unless the theme says
-   otherwise (--favicon-tint, a filter list, or none) */
+   colours and washed in the theme's: a lime held back from full
+   strength, unless the theme says otherwise (--favicon-tint, a filter
+   list, or none) */
 .favicons-thematic img.favicon {
   filter: var(
     --favicon-tint,
-    grayscale(1) sepia(1) hue-rotate(45deg) saturate(2.5) brightness(0.92)
+    grayscale(1) sepia(1) hue-rotate(45deg) saturate(1.7) brightness(0.92)
   );
 }
