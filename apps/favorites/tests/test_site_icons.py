@@ -229,7 +229,6 @@ def test_home_page_shows_the_icon_on_hand_or_a_link_glyph(client, user, folder1)
     SiteIcon.objects.create(host="new.example", found=False, fetched_at=timezone.now())
     html = client.get("/home/").content.decode()
     assert 'src="/favorites/icons/docs.example"' in html
-    assert 'data-search="docs docs.example "' in html
     assert "/favorites/icons/new.example" not in html
     assert html.count("favicon-none icon-link") == 1
 

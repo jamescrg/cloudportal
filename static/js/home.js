@@ -1,7 +1,5 @@
 /* The home page's favorites: folders drag into one order across the
-   board and favorites between folders, each drop posting the new order;
-   and the search box filters the favorites as you type, Enter opening
-   the first match. */
+   board and favorites between folders, each drop posting the new order. */
 (function () {
     "use strict";
 
@@ -93,72 +91,14 @@
         });
     }
 
-    /* -- type to filter -------------------------------------------- */
-
-    var firstMatch = null;
-
-    function filter(board, query) {
-        var words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-        firstMatch = null;
-        board.classList.toggle("is-filtering", words.length > 0);
-        board.querySelectorAll(".favorite-item").forEach(function (item) {
-            var text = item.dataset.search || "";
-            var hit = words.every(function (word) { return text.indexOf(word) !== -1; });
-            item.classList.toggle("is-hidden", !hit);
-            item.classList.remove("is-first-match");
-            if (hit && words.length && !firstMatch) { firstMatch = item; }
-        });
-        board.querySelectorAll(".folder").forEach(function (folder) {
-            var any = folder.querySelector(".favorite-item:not(.is-hidden)");
-            folder.classList.toggle("is-hidden", words.length > 0 && !any);
-        });
-        if (firstMatch) { firstMatch.classList.add("is-first-match"); }
-    }
-
-    function searchInput() {
-        return document.getElementById("search-input");
-    }
-
-    function isTyping(el) {
-        return el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
-    }
-
     function init() {
         var board = document.getElementById("home-favorites");
-        if (!board) { return; }
-        initDragging(board);
-        var input = searchInput();
-        if (input && input.value) { filter(board, input.value); }
+        if (board) { initDragging(board); }
     }
-
-    document.addEventListener("input", function (e) {
-        var board = document.getElementById("home-favorites");
-        if (board && e.target === searchInput()) { filter(board, e.target.value); }
-    });
-
-    document.addEventListener("keydown", function (e) {
-        var input = searchInput();
-        var board = document.getElementById("home-favorites");
-        if (!input || !board) { return; }
-        if (e.target === input) {
-            // Enter opens the first match; with Shift it searches the web instead
-            if (e.key === "Enter" && firstMatch && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
-                e.preventDefault();
-                window.location.href = firstMatch.querySelector("a.home-link").href;
-            } else if (e.key === "Escape") {
-                input.value = "";
-                filter(board, "");
-            }
-        } else if (e.key === "/" && !isTyping(e.target) && !e.ctrlKey && !e.metaKey && !e.altKey) {
-            e.preventDefault();
-            input.focus();
-            input.select();
-        }
-    });
 
     document.addEventListener("DOMContentLoaded", init);
     // a folder's body is swapped when a favorite is shown or hidden: its
-    // new list needs dragging and the filter again
+    // new list needs dragging again
     document.addEventListener("htmx:afterSwap", function (e) {
         var t = e.target;
         if (t.id === "home-favorites" || (t.classList && t.classList.contains("folder-body"))) { init(); }

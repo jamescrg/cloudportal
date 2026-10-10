@@ -5,8 +5,7 @@ is shown or hidden.
 <ul class="list-group">
     {% for favorite in folder.favorites %}
         <li class="list-group-item favorite-item"
-            data-favorite-id="{{ favorite.id }}"
-            data-search="{{ favorite.name|lower }} {{ favorite.host }} {{ favorite.description|default:''|lower }}">
+            data-favorite-id="{{ favorite.id }}">
             <a class="home-link" href="{{ favorite.url }}">
                 {% if user.home_icons %}
                     {% if favorite.has_icon %}

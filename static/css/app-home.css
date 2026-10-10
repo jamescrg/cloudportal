@@ -548,21 +548,6 @@
   background: var(--background-subnav);
 }
 
-/* Typing in the search box filters the favorites: items and folders
-   without a match drop out, and the first match, which Enter opens,
-   is marked */
-.is-hidden {
-  display: none !important;
-}
-
-.favorite-item.is-first-match {
-  background: var(--background-control);
-  border-radius: var(--radius-sm);
-  margin: 0 -0.4rem;
-  padding-left: 0.4rem;
-  padding-right: 0.4rem;
-}
-
 /* On a phone the links sit two to a line, so a folder is half as tall */
 @media (max-width: 576px) {
   .folder .list-group {
