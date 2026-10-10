@@ -1,5 +1,4 @@
 <div class="card-title flex-center-space">
-    <h1>Calendar</h1>
     <div class="calendar-tools">
         <button class="square-button filter-button"
                 hx-get="{% url 'calendar:add' %}"
@@ -21,6 +20,14 @@
                 <i class="icon-calendar"></i>
             </button>
         </div>
+        <button class="square-button filter-button {% if filter_active %}toggle-active{% endif %}"
+                hx-get="{% url 'calendar:filter' %}"
+                hx-target="#htmx-modal-container"
+                title="Filter">
+            <i class="icon-list-filter"></i>
+        </button>
+    </div>
+    <div class="calendar-tools">
         <button class="square-button filter-button {% if show_tasks %}toggle-active{% endif %}"
                 hx-post="{% if show_tasks %}{% url 'calendar:show-tasks' 'off' %}{% else %}{% url 'calendar:show-tasks' 'on' %}{% endif %}"
                 hx-swap="none"
@@ -40,12 +47,6 @@
                 hx-swap="none"
                 title="{% if show_holidays %}Hide holidays{% else %}Show holidays{% endif %}">
             <i class="icon-party-popper"></i>
-        </button>
-        <button class="square-button filter-button {% if filter_active %}toggle-active{% endif %}"
-                hx-get="{% url 'calendar:filter' %}"
-                hx-target="#htmx-modal-container"
-                title="Filter">
-            <i class="icon-list-filter"></i>
         </button>
     </div>
 </div>

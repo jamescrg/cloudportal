@@ -3,6 +3,9 @@
 /* toolbar */
 /* ------------------------------------------------------------------------- */
 
+/* Two groups of tools, the page's own (Add, the view toggle, Filter) at
+   the left where the heading was and the overlays (tasks, Kosmos,
+   holidays) at the right */
 .calendar-tools {
   display: flex;
   gap: 0.5rem;
