@@ -1,20 +1,22 @@
-"""Arranging the home page: a column's folders and a folder's favorites
-are set, in order, by one post each after a drag."""
+"""Arranging the home page: the folders' order and a folder's favorites
+are each set by one post after a drag, and a folder's chooser shows or
+hides its favorites."""
 
 import json
 
 import pytest
+from django.urls import reverse
 
+from accounts.models import CustomUser
 from apps.favorites.models import Favorite
 from apps.folders.models import Folder
 
 pytestmark = pytest.mark.django_db(transaction=True, reset_sequences=True)
 
 
-def post_column(client, column, folders):
+def post_order(client, folders):
     return client.post(
-        f"/home/columns/{column}/",
-        {"folders": json.dumps([f.id for f in folders])},
+        "/home/folders/order/", {"folders": json.dumps([f.id for f in folders])}
     )
 
 
@@ -29,49 +31,35 @@ def ranks(folders):
     return [Folder.objects.get(pk=f.id).home_rank for f in folders]
 
 
-def test_reorder_within_column(client, folders):
-    # column 1 was Main, Entertainment, Local, Social
-    response = post_column(client, 1, [folders[3], folders[0], folders[1], folders[2]])
+@pytest.fixture
+def stranger():
+    return CustomUser.objects.create_user("Stranger", "s@x.com", "pw")
+
+
+# -- the folders' order -------------------------------------------------
+
+
+def test_reorder_folders(client, folders):
+    # Swiss, the last, dragged to the top; the rest keep their order
+    response = post_order(client, [folders[17]] + folders[:17])
     assert response.status_code == 200 and response.json()["ok"]
-    assert ranks(folders[:4]) == [2, 3, 4, 1]
-    assert all(
-        f.home_column == 1
-        for f in Folder.objects.filter(pk__in=[f.id for f in folders[:4]])
-    )
+    assert ranks(folders) == list(range(2, 19)) + [1]
 
 
-def test_move_to_another_column(client, folders):
-    # Dev (column 2) dropped between Main and Entertainment in column 1
-    post_column(client, 1, [folders[0], folders[4], folders[1], folders[2], folders[3]])
-    dev = Folder.objects.get(pk=folders[4].id)
-    assert (dev.home_column, dev.home_rank) == (1, 2)
-    assert ranks([folders[0], folders[1], folders[2], folders[3]]) == [1, 3, 4, 5]
-    # the column it left keeps its order
-    assert [
-        f.name for f in Folder.objects.filter(home_column=2).order_by("home_rank")
-    ] == [
-        "Research",
-        "Filing",
-        "Food",
-    ]
-
-
-def test_column_rejects_a_folder_that_is_not_the_users(client, folders):
-    from accounts.models import CustomUser
-
-    stranger = CustomUser.objects.create_user("Stranger", "s@x.com", "pw")
+def test_order_rejects_a_folder_that_is_not_the_users(client, folders, stranger):
     theirs = Folder.objects.create(
         user=stranger, page="favorites", name="Theirs", home_column=1, home_rank=1
     )
-    response = post_column(client, 1, [folders[0], theirs])
-    assert response.status_code == 403
+    assert post_order(client, [folders[0], theirs]).status_code == 403
     assert Folder.objects.get(pk=theirs.id).home_rank == 1
 
 
-def test_column_rejects_bad_input(client, folders):
-    assert client.post("/home/columns/1/", {"folders": "nope"}).status_code == 400
-    assert post_column(client, 9, [folders[0]]).status_code == 400
-    assert client.get("/home/columns/1/").status_code == 405
+def test_order_rejects_bad_input(client, folders):
+    assert client.post("/home/folders/order/", {"folders": "nope"}).status_code == 400
+    assert client.get("/home/folders/order/").status_code == 405
+
+
+# -- a folder's favorites ------------------------------------------------
 
 
 def test_reorder_favorites(client, folders, favorites):
@@ -102,37 +90,85 @@ def test_favorite_dropped_into_another_folder_moves_there(client, folders, favor
     ]
 
 
-def test_favorites_rejects_a_folder_the_user_cannot_reach(client, favorites):
-    from accounts.models import CustomUser
-
-    stranger = CustomUser.objects.create_user("Stranger", "s@x.com", "pw")
+def test_favorites_rejects_a_folder_the_user_cannot_reach(client, favorites, stranger):
     theirs = Folder.objects.create(user=stranger, page="favorites", name="Theirs")
     assert post_favorites(client, theirs, [favorites[0]]).status_code == 404
     assert Favorite.objects.get(pk=favorites[0].id).folder_id != theirs.id
 
 
-def test_favorites_rejects_someone_elses_favorite(client, folders, favorites):
-    from accounts.models import CustomUser
-
-    stranger = CustomUser.objects.create_user("Stranger", "s@x.com", "pw")
+def test_favorites_rejects_someone_elses_favorite(client, folders, favorites, stranger):
     theirs = Favorite.objects.create(user=stranger, name="Theirs", home_rank=1)
     assert post_favorites(client, folders[0], [theirs]).status_code == 403
     assert Favorite.objects.get(pk=theirs.id).folder_id is None
 
 
-def test_home_page_shows_folders_by_column_with_their_favorites(
-    client, folders, favorites
+# -- the chooser -----------------------------------------------------------
+
+
+def test_chooser_lists_the_folders_favorites_with_the_shown_ticked(
+    client, user, folders, favorites
 ):
+    kept = Favorite.objects.create(user=user, folder=folders[0], name="Kept back")
+    response = client.get(f"/home/folders/{folders[0].id}/choose/")
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert html.count('name="shown"') == 6
+    assert html.count("checked") == 5
+    assert "Kept back" in html
+    assert reverse("home-favorite-shown", args=[kept.id]) in html
+
+
+def test_chooser_refuses_a_folder_the_user_cannot_reach(client, stranger):
+    theirs = Folder.objects.create(user=stranger, page="favorites", name="Theirs")
+    assert client.get(f"/home/folders/{theirs.id}/choose/").status_code == 404
+
+
+def test_showing_a_favorite_puts_it_at_the_end(client, user, folders, favorites):
+    kept = Favorite.objects.create(user=user, folder=folders[0], name="Kept back")
+    response = client.post(f"/home/favorites/{kept.id}/shown/", {"shown": "on"})
+    assert response.status_code == 200
+    assert Favorite.objects.get(pk=kept.id).home_rank == 6
+    # the response is the folder's body, with the newcomer last
+    html = response.content.decode()
+    assert html.rindex("Kept back") > html.rindex("Favorite No. 5")
+    assert "more in the folder" not in html
+
+
+def test_hiding_a_favorite_keeps_it_in_the_folder(client, folders, favorites):
+    response = client.post(f"/home/favorites/{favorites[1].id}/shown/")
+    assert response.status_code == 200
+    hidden = Favorite.objects.get(pk=favorites[1].id)
+    assert (hidden.folder_id, hidden.home_rank) == (folders[0].id, 0)
+    html = response.content.decode()
+    assert "Favorite No. 2" not in html
+    assert "1 more in the folder" in html
+
+
+def test_shown_refuses_a_favorite_in_a_folder_the_user_cannot_reach(client, stranger):
+    theirs = Folder.objects.create(user=stranger, page="favorites", name="Theirs")
+    favorite = Favorite.objects.create(user=stranger, folder=theirs, name="x")
+    assert (
+        client.post(
+            f"/home/favorites/{favorite.id}/shown/", {"shown": "on"}
+        ).status_code
+        == 404
+    )
+
+
+# -- the page ----------------------------------------------------------------
+
+
+def test_home_page_lists_folders_in_order_with_their_favorites(
+    client, user, folders, favorites
+):
+    Favorite.objects.create(user=user, folder=folders[0], name="Kept back")
     response = client.get("/home/")
-    columns = response.context["columns"]
-    assert [[f.name for f in column] for column in columns] == [
-        ["Main", "Entertainment", "Local", "Social"],
-        ["Dev", "Research", "Filing", "Food"],
-        ["Philosophy", "Psych", "History", "Math"],
-        ["Physics", "Anthro", "Chorus", "Annoying"],
-        ["German", "Swiss"],
-    ]
-    assert [f.name for f in columns[0][0].favorites] == [
+    page = response.context["folders"]
+    assert [f.name for f in page] == [f.name for f in folders]
+    assert [f.name for f in page[0].favorites] == [
         f"Favorite No. {i}" for i in range(1, 6)
     ]
-    assert columns[0][1].favorites == []
+    assert page[0].hidden_count == 1
+    assert page[1].favorites == [] and page[1].hidden_count == 0
+    html = response.content.decode()
+    assert "1 more in the folder" in html

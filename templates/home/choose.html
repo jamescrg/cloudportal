@@ -1,0 +1,34 @@
+{% comment %}
+The menu under a folder's plus: every favorite in the folder, ticked when
+the home page shows it. A tick posts at once and the folder's body is
+swapped; the menu stays open for the next.
+{% endcomment %}
+<div class="folder-choose-head">Shown on Home</div>
+<ul class="folder-choose-list">
+    {% for favorite in favorites %}
+        <li>
+            <label class="folder-choose-item">
+                <input type="checkbox"
+                       name="shown"
+                       {% if favorite.home_rank %}checked{% endif %}
+                       hx-post="{% url 'home-favorite-shown' id=favorite.id %}"
+                       hx-trigger="change"
+                       hx-target="#folder-{{ folder.id }}-body">
+                {% if favorite.host %}
+                    <img class="favicon"
+                         src="{% url 'site-icon' host=favorite.host %}"
+                         alt=""
+                         width="16"
+                         height="16">
+                {% else %}
+                    <span class="favicon"></span>
+                {% endif %}
+                <span class="folder-choose-name">{{ favorite.name }}</span>
+            </label>
+        </li>
+    {% empty %}
+        <li class="folder-choose-empty">Nothing in this folder yet.</li>
+    {% endfor %}
+</ul>
+<a class="folder-choose-open"
+   href="{% url 'folder-select' id=folder.id page='favorites' %}">Open the folder</a>

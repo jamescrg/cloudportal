@@ -1,7 +1,7 @@
-/* The home page's favorites: folders drag between columns and favorites
-   between folders, each drop posting the destination's new order; and
-   the search box filters the favorites as you type, Enter opening the
-   first match. */
+/* The home page's favorites: folders drag into one order across the
+   board and favorites between folders, each drop posting the new order;
+   and the search box filters the favorites as you type, Enter opening
+   the first match. */
 (function () {
     "use strict";
 
@@ -55,26 +55,26 @@
     function initDragging(board) {
         sortables.forEach(function (s) { s.destroy(); });
         sortables = [];
-        var columnUrl = board.dataset.urlColumn;
         var favoritesUrl = board.dataset.urlFavorites;
 
-        board.querySelectorAll(".drop-zone").forEach(function (column) {
-            sortables.push(new Sortable(column, Object.assign({}, dragOptions, {
-                group: "folders",
-                draggable: ".folder",
-                handle: ".drag-handle",
-                // a folder shared by someone else sits where its owner put it
-                filter: ".folder-shared",
-                onEnd: function (evt) {
-                    if (!moved(evt)) { return; }
-                    post(
-                        columnUrl.replace("/0/", "/" + evt.to.dataset.column + "/"),
-                        "folders",
-                        ids(evt.to, ".folder:not(.folder-shared)", "folderId")
-                    );
-                }
-            })));
-        });
+        // the folders, one sequence across the board's columns
+        sortables.push(new Sortable(board, Object.assign({}, dragOptions, {
+            group: "folders",
+            draggable: ".folder",
+            handle: ".drag-handle",
+            // a folder shared by someone else sits where its owner put it,
+            // and the chooser's button is for clicking
+            filter: ".folder-shared, .folder-chooser",
+            preventOnFilter: false,
+            onEnd: function (evt) {
+                if (!moved(evt)) { return; }
+                post(
+                    board.dataset.urlOrder,
+                    "folders",
+                    ids(board, ".folder:not(.folder-shared)", "folderId")
+                );
+            }
+        })));
 
         board.querySelectorAll(".folder .list-group").forEach(function (list) {
             sortables.push(new Sortable(list, Object.assign({}, dragOptions, {
@@ -157,7 +157,10 @@
     });
 
     document.addEventListener("DOMContentLoaded", init);
+    // a folder's body is swapped when a favorite is shown or hidden: its
+    // new list needs dragging and the filter again
     document.addEventListener("htmx:afterSwap", function (e) {
-        if (e.target.querySelector && e.target.querySelector(".drop-zone")) { init(); }
+        var t = e.target;
+        if (t.id === "home-favorites" || (t.classList && t.classList.contains("folder-body"))) { init(); }
     });
 })();

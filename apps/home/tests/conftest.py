@@ -39,112 +39,36 @@ def client(user):
 
 @pytest.fixture
 def folders(user):
-    folder_data = [
-        # column 1
-        {
-            "name": "Main",
-            "home_column": 1,
-            "home_rank": 1,
-        },
-        {
-            "name": "Entertainment",
-            "home_column": 1,
-            "home_rank": 2,
-        },
-        {
-            "name": "Local",
-            "home_column": 1,
-            "home_rank": 3,
-        },
-        {
-            "name": "Social",
-            "home_column": 1,
-            "home_rank": 4,
-        },
-        # column 2
-        {
-            "name": "Dev",
-            "home_column": 2,
-            "home_rank": 1,
-        },
-        {
-            "name": "Research",
-            "home_column": 2,
-            "home_rank": 2,
-        },
-        {
-            "name": "Filing",
-            "home_column": 2,
-            "home_rank": 3,
-        },
-        {
-            "name": "Food",
-            "home_column": 2,
-            "home_rank": 4,
-        },
-        # column 3
-        {
-            "name": "Philosophy",
-            "home_column": 3,
-            "home_rank": 1,
-        },
-        {
-            "name": "Psych",
-            "home_column": 3,
-            "home_rank": 2,
-        },
-        {
-            "name": "History",
-            "home_column": 3,
-            "home_rank": 3,
-        },
-        {
-            "name": "Math",
-            "home_column": 3,
-            "home_rank": 4,
-        },
-        # column 4
-        {
-            "name": "Physics",
-            "home_column": 4,
-            "home_rank": 1,
-        },
-        {
-            "name": "Anthro",
-            "home_column": 4,
-            "home_rank": 2,
-        },
-        {
-            "name": "Chorus",
-            "home_column": 4,
-            "home_rank": 3,
-        },
-        {
-            "name": "Annoying",
-            "home_column": 4,
-            "home_rank": 4,
-        },
-        # column 5
-        {
-            "name": "German",
-            "home_column": 5,
-            "home_rank": 1,
-        },
-        {
-            "name": "Swiss",
-            "home_column": 5,
-            "home_rank": 2,
-        },
+    # one sequence of folders on the home page, in this order
+    names = [
+        "Main",
+        "Entertainment",
+        "Local",
+        "Social",
+        "Dev",
+        "Research",
+        "Filing",
+        "Food",
+        "Philosophy",
+        "Psych",
+        "History",
+        "Math",
+        "Physics",
+        "Anthro",
+        "Chorus",
+        "Annoying",
+        "German",
+        "Swiss",
     ]
 
     folders = []
-    for folder in folder_data:
+    for rank, name in enumerate(names, start=1):
         folders.append(
             Folder.objects.create(
                 user=user,
-                name=folder["name"],
-                home_column=folder["home_column"],
-                home_rank=folder["home_rank"],
+                name=name,
+                home_column=1,
+                home_rank=rank,
                 page="favorites",
             )
         )

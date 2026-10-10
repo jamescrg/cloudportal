@@ -1,0 +1,26 @@
+<div class="card folder{% if folder.user_id != user.id %} folder-shared{% endif %}"
+     data-folder-id="{{ folder.id }}">
+    <div class="card-title drag-handle">
+        <a class="folder-name"
+           href="{% url 'folder-select' id=folder.id page='favorites' %}">{{ folder.name }}</a>
+        {# the chooser: which of the folder's favorites the home page shows #}
+        <div class="dropdown folder-chooser" x-data="dropdown()">
+            <button class="btn-icon folder-choose"
+                    type="button"
+                    x-ref="button"
+                    @click="toggle()"
+                    :aria-expanded="open"
+                    hx-get="{% url 'home-choose' id=folder.id %}"
+                    hx-target="#folder-{{ folder.id }}-menu"
+                    hx-swap="innerHTML"
+                    title="Choose what {{ folder.name }} shows here">
+                <i class="icon-plus"></i>
+            </button>
+            <div class="dropdown-menu folder-menu"
+                 id="folder-{{ folder.id }}-menu"
+                 x-ref="menu"
+                 x-show="open"></div>
+        </div>
+    </div>
+    <div class="folder-body" id="folder-{{ folder.id }}-body">{% include "home/folder_body.html" %}</div>
+</div>

@@ -31,7 +31,7 @@ def test_home(client, folder):
     response = client.get(f"/folders/home/{folder.id}/notes")
     assert response.status_code == 302
     folder = Folder.objects.filter(pk=folder.id).get()
-    assert folder.home_column == 5
+    assert folder.home_column == 1
     assert folder.home_rank == 1
 
 

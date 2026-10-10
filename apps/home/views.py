@@ -4,7 +4,8 @@ from datetime import date
 import requests as http_requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.db.models import Count
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -107,7 +108,7 @@ def index(request):
     # if tasks are shown, check for task_folders
     # Get all task folders that user has access to (owned or shared)
     all_task_folders = get_folders_for_page(request, "tasks")
-    task_folders = all_task_folders.filter(home_column__gt=1)
+    task_folders = all_task_folders.filter(home_column__gt=0)
     if task_folders:
 
         # eliminate folders with no tasks
@@ -155,9 +156,9 @@ def index(request):
     # FAVORITES
     # ----------------
 
-    # the folders on the home page, by column, each with the favorites
+    # the folders on the home page in order, each with the favorites
     # chosen for it in their order
-    columns = home_columns(request)
+    folders = home_folders(request)
 
     context = {
         "page": "home",
@@ -173,7 +174,7 @@ def index(request):
         "show_events": show_events,
         "show_quotes": show_quotes,
         "quotes": quotes,
-        "columns": columns,
+        "folders": folders,
         "show_weather": show_weather,
         "weather": weather,
     }
@@ -237,27 +238,37 @@ def toggle(request, section):
     return redirect("/home/")
 
 
-def home_columns(request):
-    """The favorites folders on the home page, as five lists, one per
-    column, in rank order; each folder carries its chosen favorites in
-    rank order, and the host of each favorite's url for its icon."""
-    folders = (
-        get_folders_for_page(request, "favorites")
-        .filter(home_column__range=(1, 5))
-        .order_by("home_rank", "id")
-    )
-    favorites = Favorite.objects.filter(folder__in=folders, home_rank__gt=0).order_by(
+def with_favorites(folders):
+    """Attach to each folder the favorites chosen for the home page, in
+    rank order, each with the host of its url for its icon, and a count
+    of the folder's other favorites."""
+    shown = Favorite.objects.filter(folder__in=folders, home_rank__gt=0).order_by(
         "home_rank", "id"
     )
     by_folder = {}
-    for favorite in favorites:
+    for favorite in shown:
         favorite.host = site_icons.host_of(favorite.url)
         by_folder.setdefault(favorite.folder_id, []).append(favorite)
-    columns = [[] for _ in range(5)]
+    totals = dict(
+        Favorite.objects.filter(folder__in=folders)
+        .values_list("folder_id")
+        .annotate(n=Count("id"))
+    )
     for folder in folders:
         folder.favorites = by_folder.get(folder.id, [])
-        columns[folder.home_column - 1].append(folder)
-    return columns
+        folder.hidden_count = totals.get(folder.id, 0) - len(folder.favorites)
+    return folders
+
+
+def home_folders(request):
+    """The favorites folders on the home page, in order, with their
+    favorites (see with_favorites)."""
+    folders = list(
+        get_folders_for_page(request, "favorites")
+        .filter(home_column__gt=0)
+        .order_by("home_rank", "id")
+    )
+    return with_favorites(folders)
 
 
 def _ids(request, field):
@@ -271,28 +282,24 @@ def _ids(request, field):
 
 @login_required
 @require_POST
-def column(request, column):
-    """Set a home column's folders: the posted ids, in the posted order.
+def order(request):
+    """Set the order of the folders on the home page: the posted ids,
+    first to last.
 
-    The page posts the whole destination column after a folder is dropped
-    into it, whether from the same column or another, so one call covers
-    both; the column it came from keeps its order with a gap in the ranks.
-    Only the user's own folders can be placed; a folder shared with the
-    user stays where its owner put it.
+    The page posts every folder after one is dragged somewhere else. Only
+    the user's own folders can be placed; a folder shared with the user
+    stays where its owner put it, and is left out of the post.
     """
-    if not 1 <= column <= 5:
-        return JsonResponse({"ok": False, "error": "no such column"}, status=400)
     ids = _ids(request, "folders")
     if ids is None:
         return JsonResponse(
             {"ok": False, "error": "folders must be a list"}, status=400
         )
     own = Folder.objects.filter(user=request.user, page="favorites", pk__in=ids)
-    own_ids = set(own.values_list("id", flat=True))
-    if own_ids != set(ids):
+    if set(own.values_list("id", flat=True)) != set(ids):
         return JsonResponse({"ok": False, "error": "not your folder"}, status=403)
     for rank, folder_id in enumerate(ids, start=1):
-        Folder.objects.filter(pk=folder_id).update(home_column=column, home_rank=rank)
+        Folder.objects.filter(pk=folder_id).update(home_rank=rank)
     return JsonResponse({"ok": True})
 
 
@@ -320,6 +327,40 @@ def folder_favorites(request, id):
     for rank, favorite_id in enumerate(ids, start=1):
         Favorite.objects.filter(pk=favorite_id).update(folder_id=id, home_rank=rank)
     return JsonResponse({"ok": True})
+
+
+@login_required
+def choose(request, id):
+    """A folder's chooser on the home page: all its favorites, with those
+    shown ticked, for the menu under the folder's plus."""
+    if id not in get_accessible_folder_ids(request.user, "favorites"):
+        raise Http404("No such folder.")
+    folder = get_object_or_404(Folder, pk=id)
+    favorites = Favorite.objects.filter(folder=folder).order_by("name")
+    for favorite in favorites:
+        favorite.host = site_icons.host_of(favorite.url)
+    return render(
+        request, "home/choose.html", {"folder": folder, "favorites": favorites}
+    )
+
+
+@login_required
+@require_POST
+def favorite_shown(request, id):
+    """Show a favorite on the home page, or take it off: a post with
+    'shown' set shows it, at the end of its folder's list, and one without
+    hides it. Returns the folder's body for the page to swap in."""
+    favorite = get_object_or_404(Favorite, pk=id)
+    if favorite.folder_id not in get_accessible_folder_ids(request.user, "favorites"):
+        raise Http404("No such favorite.")
+    if request.POST.get("shown"):
+        if not favorite.home_rank:
+            favorite.home_rank = favorite.next_home_rank()
+    else:
+        favorite.home_rank = 0
+    favorite.save(update_fields=["home_rank"])
+    folder = with_favorites([favorite.folder])[0]
+    return render(request, "home/folder_body.html", {"folder": folder})
 
 
 @login_required

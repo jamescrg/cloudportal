@@ -209,18 +209,6 @@ def delete(request, id):
     return redirect("favorites")
 
 
-def next_home_rank(favorite):
-    """The rank after the last of a folder's favorites on the home page, so
-    a favorite added to home joins the end of its folder's list."""
-    last = (
-        Favorite.objects.filter(folder_id=favorite.folder_id, home_rank__gt=0)
-        .exclude(pk=favorite.pk)
-        .order_by("-home_rank")
-        .first()
-    )
-    return (last.home_rank if last else 0) + 1
-
-
 @login_required
 def home(request, id):
     """Add or remove a favorite from home
@@ -233,7 +221,7 @@ def home(request, id):
     if favorite.home_rank:
         favorite.home_rank = 0
     else:
-        favorite.home_rank = next_home_rank(favorite)
+        favorite.home_rank = favorite.next_home_rank()
     favorite.save()
     return redirect("favorites")
 
@@ -386,7 +374,7 @@ def home_htmx(request, id):
     if favorite.home_rank:
         favorite.home_rank = 0
     else:
-        favorite.home_rank = next_home_rank(favorite)
+        favorite.home_rank = favorite.next_home_rank()
     favorite.save()
 
     context = _get_favorites_list_context(request)

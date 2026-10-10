@@ -1,0 +1,36 @@
+{% comment %}
+A folder's favorites on the home page, and a line for those it keeps
+elsewhere. Swapped in whole when a favorite is shown or hidden.
+{% endcomment %}
+<ul class="list-group">
+    {% for favorite in folder.favorites %}
+        <li class="list-group-item favorite-item"
+            data-favorite-id="{{ favorite.id }}"
+            data-search="{{ favorite.name|lower }} {{ favorite.host }} {{ favorite.description|default:''|lower }}">
+            <a class="home-link" href="{{ favorite.url }}">
+                {% if favorite.host %}
+                    <img class="favicon"
+                         src="{% url 'site-icon' host=favorite.host %}"
+                         alt=""
+                         width="16"
+                         height="16"
+                         loading="lazy">
+                {% else %}
+                    <span class="favicon"></span>
+                {% endif %}
+                <span class="home-link-name">{{ favorite.name }}</span>
+            </a>
+            <button class="btn-icon home-link-hide"
+                    type="button"
+                    hx-post="{% url 'home-favorite-shown' id=favorite.id %}"
+                    hx-target="#folder-{{ folder.id }}-body"
+                    title="Take {{ favorite.name }} off Home">
+                <i class="icon-x"></i>
+            </button>
+        </li>
+    {% endfor %}
+</ul>
+{% if folder.hidden_count %}
+    <a class="folder-more"
+       href="{% url 'folder-select' id=folder.id page='favorites' %}">{{ folder.hidden_count }} more in the folder</a>
+{% endif %}

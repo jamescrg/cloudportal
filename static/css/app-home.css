@@ -374,38 +374,90 @@
  * favorites
  * ------------------------------------------------*/
 
-.folder {
-  border: 1px solid var(--border-medium);
-  padding: 0.5rem 1rem;
+/* The folders are one sequence flowing down as many columns as fit, the
+   browser balancing them: five across a wide window, one on a phone */
+.home-board {
+  column-gap: 1.25rem;
+  columns: 12rem;
 }
 
-/* The folder's name is its drag handle */
+.folder {
+  border: 1px solid var(--border-medium);
+  break-inside: avoid;
+  display: inline-block;
+  margin: 0 0 1.25rem;
+  padding: 0.6rem 0.9rem 0.65rem;
+  width: 100%;
+}
+
+/* The folder's name is a small label over its links, and its drag
+   handle; the plus beside it opens the chooser */
 .folder .card-title {
+  align-items: center;
   cursor: grab;
-  margin-bottom: 0;
-  padding: 0.2rem 0;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+  padding: 0;
 }
 
 .folder-shared .card-title {
   cursor: default;
 }
 
-.folder .card-title a {
-  color: var(--color-primary);
-  font-weight: 500;
+.folder-name {
+  color: var(--color-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  min-width: 0;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.folder-name:hover {
+  color: var(--link);
+}
+
+.folder-choose {
+  color: var(--color-muted);
+  flex-shrink: 0;
+  line-height: 1;
+  opacity: 0.4;
+}
+
+.folder:hover .folder-choose,
+.folder-choose:focus-visible,
+.folder-choose[aria-expanded="true"] {
+  opacity: 1;
 }
 
 .folder .list-group-item {
+  align-items: center;
   border: none;
-  padding: 0.2rem 0;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.15rem 0;
 }
 
+/* Every line here is a link, so they sit in the text colour and take
+   the link colour on hover */
 .home-link {
   align-items: center;
+  color: var(--color-primary);
   display: inline-flex;
   gap: 0.5rem;
-  max-width: 100%;
   min-width: 0;
+  text-decoration: none;
+}
+
+.home-link:hover {
+  color: var(--link);
 }
 
 .home-link-name {
@@ -424,6 +476,106 @@
   width: 16px;
 }
 
+/* The cross that takes a favorite off the page appears on its line
+   under the pointer; a touch screen uses the chooser instead */
+.home-link-hide {
+  color: var(--color-muted);
+  flex-shrink: 0;
+  line-height: 1;
+  opacity: 0;
+}
+
+.favorite-item:hover .home-link-hide,
+.home-link-hide:focus-visible {
+  opacity: 1;
+}
+
+.home-link-hide:hover {
+  color: var(--urgent);
+}
+
+@media (hover: none) {
+  .home-link-hide {
+    display: none;
+  }
+}
+
+.folder-more {
+  color: var(--color-muted);
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+  text-decoration: none;
+}
+
+.folder-more:hover {
+  color: var(--link);
+}
+
+/* The chooser: the folder's favorites, ticked when shown */
+.folder-menu {
+  max-height: 60vh;
+  max-width: 20rem;
+  min-width: 14rem;
+  overflow-y: auto;
+}
+
+.folder-choose-head {
+  color: var(--color-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.6rem 1rem 0.3rem;
+  text-transform: uppercase;
+}
+
+.folder-choose-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.folder-menu li {
+  border-top: none;
+}
+
+.folder-choose-item {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+}
+
+.folder-choose-item input {
+  margin: 0;
+}
+
+.folder-choose-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-choose-empty {
+  color: var(--color-muted);
+  padding: 0.35rem 1rem;
+}
+
+.folder-choose-open {
+  border-top: 1px solid var(--border-medium);
+  color: var(--color-secondary);
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+}
+
+.folder-choose-open:hover {
+  background: var(--background-subnav);
+}
+
 /* Typing in the search box filters the favorites: items and folders
    without a match drop out, and the first match, which Enter opens,
    is marked */
@@ -431,35 +583,27 @@
   display: none !important;
 }
 
-.favorite-item.is-first-match .home-link {
+.favorite-item.is-first-match {
   background: var(--background-control);
   border-radius: var(--radius-sm);
   margin: 0 -0.4rem;
-  padding: 0 0.4rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+}
+
+/* On a phone the links sit two to a line, so a folder is half as tall */
+@media (max-width: 576px) {
+  .folder .list-group {
+    column-gap: 0.75rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
 }
 
 
 /*------------------------------------------------
  * dragging
  * ------------------------------------------------*/
-
-.drop-zone {
-  border-radius: var(--radius-sm);
-  min-height: 4rem;
-}
-
-/* On a phone the columns stack, ruled apart */
-@media (max-width: 992px) {
-  .drop-zone {
-    border-bottom: 2px solid var(--border-medium);
-    border-radius: 0;
-    margin-bottom: 1rem;
-  }
-
-  .drop-zone:last-child {
-    border-bottom: none;
-  }
-}
 
 /* The gap the dragged item would fill, and the item while it is held */
 .sortable-ghost {

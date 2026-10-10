@@ -32,6 +32,17 @@ class Favorite(TimestampMixin, models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    def next_home_rank(self):
+        """The rank after the last of this favorite's folder's favorites on
+        the home page, so one added to home joins the end of the list."""
+        last = (
+            Favorite.objects.filter(folder_id=self.folder_id, home_rank__gt=0)
+            .exclude(pk=self.pk)
+            .order_by("-home_rank")
+            .first()
+        )
+        return (last.home_rank if last else 0) + 1
+
     class Meta:
         db_table = "app_favorite"
 

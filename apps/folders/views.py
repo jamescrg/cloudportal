@@ -8,6 +8,7 @@ from apps.folders.folders import (
     get_accessible_folder_ids,
     get_folders_for_page,
     select_folder,
+    toggle_home,
 )
 from apps.folders.models import Folder
 
@@ -138,37 +139,7 @@ def home(request, id, page):
 
     """
 
-    user = request.user
-    home_folder = get_object_or_404(Folder, pk=id)
-
-    if not home_folder.home_column:
-
-        destination_column = 5
-
-        # sequence destination column
-        # make sure the folders are sequential and adjacent
-        folders = Folder.objects.filter(user=user, home_column=destination_column)
-        folders = folders.order_by("home_rank")
-        count = 1
-        for folder in folders:
-            folder.home_rank = count
-            folder.save(update_fields=["home_rank"])
-            count += 1
-
-        # increment all up by one
-        for folder in folders:
-            folder.home_rank = folder.home_rank + 1
-            folder.save(update_fields=["home_rank"])
-
-        home_folder.home_column = destination_column
-        home_folder.home_rank = 1
-
-    else:
-
-        home_folder.home_rank = 0
-        home_folder.home_column = 0
-
-    home_folder.save(update_fields=["home_column", "home_rank"])
+    toggle_home(get_object_or_404(Folder, pk=id))
     return _redirect_page(page)
 
 
@@ -359,30 +330,7 @@ def select_htmx(request, id, page):
 @login_required
 def home_htmx(request, id, page):
     """Toggle folder home status via htmx and return updated tree."""
-    user = request.user
-    home_folder = get_object_or_404(Folder, pk=id)
-
-    if not home_folder.home_column:
-        destination_column = 5
-        folders = Folder.objects.filter(user=user, home_column=destination_column)
-        folders = folders.order_by("home_rank")
-        count = 1
-        for folder in folders:
-            folder.home_rank = count
-            folder.save(update_fields=["home_rank"])
-            count += 1
-
-        for folder in folders:
-            folder.home_rank = folder.home_rank + 1
-            folder.save(update_fields=["home_rank"])
-
-        home_folder.home_column = destination_column
-        home_folder.home_rank = 1
-    else:
-        home_folder.home_rank = 0
-        home_folder.home_column = 0
-
-    home_folder.save(update_fields=["home_column", "home_rank"])
+    toggle_home(get_object_or_404(Folder, pk=id))
 
     context = _get_folder_context(request, page)
     return render(request, "folders/tree.html", context)

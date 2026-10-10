@@ -103,3 +103,22 @@ def select_folder(request, page):
         folder = None
 
     return folder
+
+
+def toggle_home(folder):
+    """Put a folder on the home page, at the end of its owner's sequence,
+    or take it off. The home page shows a folder with home_column set,
+    in home_rank order."""
+    if folder.home_column:
+        folder.home_column = 0
+        folder.home_rank = 0
+    else:
+        last = (
+            Folder.objects.filter(user=folder.user, page=folder.page, home_column__gt=0)
+            .exclude(pk=folder.pk)
+            .order_by("-home_rank")
+            .first()
+        )
+        folder.home_column = 1
+        folder.home_rank = (last.home_rank or 0) + 1 if last else 1
+    folder.save(update_fields=["home_column", "home_rank"])
