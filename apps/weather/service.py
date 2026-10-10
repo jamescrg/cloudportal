@@ -125,6 +125,13 @@ def clock(dt):
     return dt.strftime("%I:%M %p").lstrip("0")
 
 
+def short_clock(dt):
+    """A time like 7:38 AM, or 8 AM on the hour."""
+    if dt.minute == 0:
+        return hour_label(dt)
+    return clock(dt)
+
+
 def hour_label(dt):
     """An hour like 2 PM."""
     return dt.strftime("%I %p").lstrip("0")
@@ -243,6 +250,26 @@ def wind(entry):
         "wind_gust": gust,
         "wind_text": text,
     }
+
+
+def reflow(text):
+    """NWS prose comes hard-wrapped at sixty characters: join the lines of
+    each paragraph, keeping a break before a list item or a heading."""
+    paragraphs = []
+    for paragraph in text.replace("\r", "").split("\n\n"):
+        lines = []
+        for line in paragraph.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            starts_item = line.startswith(("* ", "- ", "**")) or line.endswith("-" * 3)
+            if lines and not starts_item and not lines[-1].endswith("-" * 3):
+                lines[-1] += " " + line
+            else:
+                lines.append(line)
+        if lines:
+            paragraphs.append("\n".join(lines))
+    return "\n\n".join(paragraphs)
 
 
 def alert_key(alert):
@@ -373,14 +400,14 @@ def build_report(data, dismissed=()):
         until = ""
         if end:
             day = "today" if end.date() == today_date else end.strftime("%A")
-            until = f"until {clock(end)} {day}"
+            until = f"until {short_clock(end)} {day}"
         alerts.append(
             {
                 "key": key,
                 "event": alert.get("event", "Alert"),
                 "sender": alert.get("sender_name", ""),
                 "until": until,
-                "description": alert.get("description", ""),
+                "description": reflow(alert.get("description", "")),
                 "tags": alert.get("tags", []),
             }
         )

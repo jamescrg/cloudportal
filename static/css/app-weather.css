@@ -67,15 +67,18 @@
   font-weight: 600;
 }
 
+.weather-alert-until {
+  flex: 1;
+}
+
 .weather-alert-sender {
   color: var(--color-muted);
-  font-size: 0.85rem;
-  margin-left: auto;
+  margin-bottom: 0.5rem;
 }
 
 /* the X that clears an alert from the page until it ends */
 .weather-alert-dismiss {
-  align-self: center;
+  align-self: flex-start;
   background: none;
   border: none;
   color: var(--color-muted);
@@ -90,9 +93,12 @@
   color: var(--alert-danger-color);
 }
 
-.weather-alert-description {
+.weather-alert-body {
   font-size: 0.9rem;
   padding: 0 1rem 0.9rem 2.6rem;
+}
+
+.weather-alert-description {
   white-space: pre-line;
 }
 

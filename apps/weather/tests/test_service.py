@@ -513,8 +513,8 @@ def test_alerts_until(onecall):
         "High Wind Warning",
     ]
     assert alerts[0]["until"] == "until 1:30 PM today"
-    assert alerts[1]["until"] == "until 8:00 AM Sunday"
-    assert alerts[2]["until"] == "until 8:00 AM Sunday"
+    assert alerts[1]["until"] == "until 8 AM Sunday"
+    assert alerts[2]["until"] == "until 8 AM Sunday"
     assert alerts[0]["sender"] == onecall["alerts"][0]["sender_name"]
     assert alerts[0]["description"]
 
@@ -656,3 +656,29 @@ def test_pressure_in_inches_of_mercury_and_absent():
     assert pressure(1012)["pressure_relative"] == "1 below the 1013 average"
     assert pressure(1030)["pressure_relative"] == "17 above the 1013 average"
     assert pressure(None) == {}
+
+
+def test_short_clock_drops_the_minutes_on_the_hour():
+    from datetime import datetime, timezone
+
+    from apps.weather.service import short_clock
+
+    assert short_clock(datetime(2026, 10, 11, 8, 0, tzinfo=timezone.utc)) == "8 AM"
+    assert short_clock(datetime(2026, 10, 11, 13, 30, tzinfo=timezone.utc)) == "1:30 PM"
+
+
+def test_reflow_joins_wrapped_lines_but_keeps_paragraphs_and_items():
+    from apps.weather.service import reflow
+
+    text = (
+        "* WHAT...Flooding caused by excessive rainfall continues to be\n"
+        "possible.\n\n"
+        "* WHERE...Portions of central Georgia,\n"
+        "including Fulton.\n"
+        "- http://www.weather.gov/safety/flood"
+    )
+    assert reflow(text) == (
+        "* WHAT...Flooding caused by excessive rainfall continues to be possible.\n\n"
+        "* WHERE...Portions of central Georgia, including Fulton.\n"
+        "- http://www.weather.gov/safety/flood"
+    )

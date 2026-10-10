@@ -7,7 +7,6 @@
                         <i class="icon-triangle-alert" aria-hidden="true"></i>
                         <span class="weather-alert-event">{{ alert.event }}</span>
                         {% if alert.until %}<span class="weather-alert-until">{{ alert.until }}</span>{% endif %}
-                        {% if alert.sender %}<span class="weather-alert-sender">{{ alert.sender }}</span>{% endif %}
                         <button type="button"
                                 class="weather-alert-dismiss"
                                 data-key="{{ alert.key }}"
@@ -16,7 +15,10 @@
                             <i class="icon-x" aria-hidden="true"></i>
                         </button>
                     </summary>
-                    <div class="weather-alert-description">{{ alert.description }}</div>
+                    <div class="weather-alert-body">
+                        {% if alert.sender %}<div class="weather-alert-sender">{{ alert.sender }}</div>{% endif %}
+                        <div class="weather-alert-description">{{ alert.description }}</div>
+                    </div>
                 </details>
             {% endfor %}
         </div>
