@@ -140,6 +140,9 @@ class CustomUser(AbstractUser):
     # an alert's key is its event with its start and end, and a key is
     # dropped once its alert has ended
     weather_dismissed_alerts = models.JSONField(default=list, blank=True)
+    # the weather page's units: imperial (°F, mph, inches, miles) or
+    # metric (°C, km/h, mm, km)
+    weather_units = models.CharField(max_length=8, default="imperial")
     favorites_folder = models.IntegerField(default=0)
     contacts_folder = models.IntegerField(default=0)
     contacts_contact = models.IntegerField(default=0)

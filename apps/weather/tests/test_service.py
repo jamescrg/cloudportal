@@ -132,7 +132,7 @@ def test_reverse_geocode_us():
 def test_reverse_geocode_outside_the_us():
     places = [{"name": "Paris", "state": "Ile-de-France", "country": "FR"}]
     with patch(GET, return_value=api_response(places)):
-        assert reverse_geocode(48.85, 2.35) == "Paris, FR"
+        assert reverse_geocode(48.85, 2.35) == "Paris, Ile-de-France"
 
 
 def test_reverse_geocode_without_a_region():
@@ -449,7 +449,7 @@ def test_current(onecall):
     assert current["wind_dir"] == "ENE"
     assert current["wind_gust"] == 28
     assert current["uv_level"] == "low"
-    assert current["visibility_miles"] == 1.9
+    assert current["visibility"] == 1.9
 
 
 def test_pop_is_an_integer_percent(onecall):
@@ -682,3 +682,60 @@ def test_reflow_joins_wrapped_lines_but_keeps_paragraphs_and_items():
         "* WHERE...Portions of central Georgia, including Fulton.\n"
         "- http://www.weather.gov/safety/flood"
     )
+
+
+# ---------------------------------------------------------------------------
+# units
+# ---------------------------------------------------------------------------
+
+
+def test_metric_report_converts_every_measure(onecall):
+    from apps.weather.service import build_report
+
+    imperial = build_report(onecall)
+    metric = build_report(onecall, units="metric")
+    assert metric["units_name"] == "metric"
+    assert metric["units"] == {
+        "temp": "°C",
+        "speed": "km/h",
+        "precip": "mm",
+        "distance": "km",
+    }
+    # 64.17 °F is 17.9 °C; 12.66 mph is 20.4 km/h; 3114 m is 3.1 km
+    assert (imperial["current"]["temp"], metric["current"]["temp"]) == (64, 18)
+    assert (imperial["current"]["wind_speed"], metric["current"]["wind_speed"]) == (
+        13,
+        20,
+    )
+    assert metric["current"]["wind_text"].startswith("20 km/h")
+    assert (imperial["current"]["visibility"], metric["current"]["visibility"]) == (
+        1.9,
+        3.1,
+    )
+    assert metric["current"]["pressure_inhg"] == ""
+    assert imperial["current"]["pressure_inhg"] != ""
+    # the day's rain is 25.08 mm: an inch to an imperial reader
+    assert (imperial["daily"][0]["precip"], metric["daily"][0]["precip"]) == (
+        "1.0",
+        "25.1",
+    )
+    assert metric["hourly"][0]["temp"] == round(
+        (onecall["hourly"][1]["temp"] - 32) * 5 / 9
+    )
+    assert metric["daily"][2]["high"] == round(
+        (onecall["daily"][2]["temp"]["max"] - 32) * 5 / 9
+    )
+
+
+def test_unknown_units_read_as_imperial(onecall):
+    from apps.weather.service import build_report
+
+    assert build_report(onecall, units="furlongs")["units_name"] == "imperial"
+
+
+def test_amount_in_millimetres():
+    from apps.weather.service import amount
+
+    assert amount(0.5, "metric") == "0.5"
+    assert amount(0.02, "metric") == "<0.1"
+    assert amount(None, "metric") == ""

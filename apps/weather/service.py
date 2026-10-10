@@ -3,8 +3,9 @@ reshaped into what the page and the home page's indicator show.
 
 Every time in the report is the location's own local time, from the
 offset the API returns with the data, so the page is right wherever the
-browser placed the user. Amounts come back in millimetres whatever the
-units, and are shown in inches."""
+browser placed the user. The API is always asked for imperial units, so
+one cached response serves every user at a location; a user who reads
+metric has the report converted."""
 
 from datetime import datetime, timedelta, timezone
 
@@ -77,9 +78,10 @@ PRESSURE_BANDS = [
 ]
 
 
-def pressure(hpa):
-    """Pressure as the page shows it: inches of mercury, and where it sits
-    against the average, with a tone for its colour."""
+def pressure(hpa, units="imperial"):
+    """Pressure as the page shows it: inches of mercury for an imperial
+    reader, and where it sits against the average, with a tone for its
+    colour."""
     if hpa is None:
         return {}
     for limit, tone, level, note in PRESSURE_BANDS:
@@ -94,7 +96,7 @@ def pressure(hpa):
         relative = f"the {AVERAGE_PRESSURE} average"
     return {
         "pressure": hpa,
-        "pressure_inhg": f"{hpa * 0.02953:.2f}",
+        "pressure_inhg": f"{hpa * 0.02953:.2f}" if units == "imperial" else "",
         "pressure_tone": tone,
         "pressure_level": level,
         "pressure_note": note,
@@ -112,12 +114,52 @@ def moon_phase_name(phase):
     return names[int((phase + 0.0625) * 8) % 8]
 
 
-def inches(millimetres):
-    """Millimetres as inches to a tenth; a trace is shown as a trace."""
+UNITS = {
+    "imperial": {"temp": "°F", "speed": "mph", "precip": "in", "distance": "mi"},
+    "metric": {"temp": "°C", "speed": "km/h", "precip": "mm", "distance": "km"},
+}
+
+
+def units_for(name):
+    return name if name in UNITS else "imperial"
+
+
+def degrees(fahrenheit, units):
+    """A temperature from the API's Fahrenheit, rounded, in the user's
+    units."""
+    if units == "metric":
+        return round((fahrenheit - 32) * 5 / 9)
+    return round(fahrenheit)
+
+
+def speed(mph, units):
+    """A wind speed from the API's miles an hour, rounded, in the user's
+    units."""
+    if units == "metric":
+        return round(mph * 1.609344)
+    return round(mph)
+
+
+def distance(metres, units):
+    """A visibility from the API's metres, to a tenth, in the user's
+    units."""
+    if units == "metric":
+        return round(metres / 1000, 1)
+    return round(metres / 1609.34, 1)
+
+
+def amount(millimetres, units="imperial"):
+    """A precipitation amount from the API's millimetres, to a tenth, in
+    the user's units; a trace is shown as a trace, nothing as nothing."""
     if not millimetres:
         return ""
-    value = millimetres / 25.4
+    value = millimetres / 25.4 if units == "imperial" else millimetres
     return "<0.1" if value < 0.05 else f"{value:.1f}"
+
+
+def inches(millimetres):
+    """Millimetres as inches to a tenth; a trace is shown as a trace."""
+    return amount(millimetres, "imperial")
 
 
 def clock(dt):
@@ -185,9 +227,9 @@ def reverse_geocode(lat, lon):
         return ""
     place = places[0]
     name = place.get("name", "")
-    region = (
-        place.get("state") if place.get("country") == "US" else place.get("country")
-    )
+    # the region is a state, province, land or département; the API gives
+    # the country only as a code, so a place without a region stands alone
+    region = place.get("state", "")
     return f"{name}, {region}" if name and region else name
 
 
@@ -234,18 +276,20 @@ def next_hour(minutely, kind):
     return {"text": f"{kind.capitalize()} starting in {starts} minutes", "wet": True}
 
 
-def wind(entry):
+def wind(entry, units="imperial"):
     """Wind as the page shows it: speed, direction and gust when the gust
     is worth mentioning."""
-    speed = round(entry.get("wind_speed", 0))
+    wind_speed = speed(entry.get("wind_speed", 0), units)
     gust = entry.get("wind_gust")
-    gust = round(gust) if gust and round(gust) > speed else None
+    gust = speed(gust, units) if gust else None
+    if gust is not None and gust <= wind_speed:
+        gust = None
     direction = compass(entry.get("wind_deg"))
-    text = f"{speed} mph {direction}".rstrip()
+    text = f"{wind_speed} {UNITS[units]['speed']} {direction}".rstrip()
     if gust:
         text += f", gusts {gust}"
     return {
-        "wind_speed": speed,
+        "wind_speed": wind_speed,
         "wind_dir": direction,
         "wind_gust": gust,
         "wind_text": text,
@@ -293,9 +337,10 @@ def dismiss_alert(user, key):
     user.save(update_fields=["weather_dismissed_alerts"])
 
 
-def build_report(data, dismissed=()):
-    """The page's report from a One Call response, less the alerts the
-    user has cleared."""
+def build_report(data, dismissed=(), units="imperial"):
+    """The page's report from a One Call response, in the user's units,
+    less the alerts the user has cleared."""
+    units = units_for(units)
     tz = timezone(timedelta(seconds=data.get("timezone_offset", 0)))
 
     def local(ts):
@@ -311,31 +356,31 @@ def build_report(data, dismissed=()):
         "description": now["weather"][0]["description"],
         "icon": icon_for(now["weather"][0]["icon"]),
         "owm_icon": now["weather"][0]["icon"],
-        "temp": round(now["temp"]),
-        "feels_like": round(now["feels_like"]),
-        "high": round(today["temp"]["max"]),
-        "low": round(today["temp"]["min"]),
+        "temp": degrees(now["temp"], units),
+        "feels_like": degrees(now["feels_like"], units),
+        "high": degrees(today["temp"]["max"], units),
+        "low": degrees(today["temp"]["min"], units),
         "humidity": now.get("humidity"),
-        "dew_point": round(now["dew_point"]) if "dew_point" in now else None,
+        "dew_point": degrees(now["dew_point"], units) if "dew_point" in now else None,
         "clouds": now.get("clouds"),
-        "visibility_miles": (
-            round(now["visibility"] / 1609.34, 1)
+        "visibility": (
+            distance(now["visibility"], units)
             if now.get("visibility") is not None
             else None
         ),
         "uvi": round(now.get("uvi", 0)),
         "uv_level": uv_level(now.get("uvi", 0)),
         "pop": round(today.get("pop", 0) * 100),
-        # what is falling right now, in inches an hour
-        "rain_rate": inches(now.get("rain", {}).get("1h")),
-        "snow_rate": inches(now.get("snow", {}).get("1h")),
-        "rain_today": inches(today.get("rain")),
-        "snow_today": inches(today.get("snow")),
+        # what is falling right now, an hour's worth
+        "rain_rate": amount(now.get("rain", {}).get("1h"), units),
+        "snow_rate": amount(now.get("snow", {}).get("1h"), units),
+        "rain_today": amount(today.get("rain"), units),
+        "snow_today": amount(today.get("snow"), units),
         "summary": today.get("summary", ""),
         "sunrise": clock(local(now["sunrise"])) if "sunrise" in now else "",
         "sunset": clock(local(now["sunset"])) if "sunset" in now else "",
-        **pressure(now.get("pressure")),
-        **wind(now),
+        **pressure(now.get("pressure"), units),
+        **wind(now, units),
     }
 
     hourly = []
@@ -347,16 +392,16 @@ def build_report(data, dismissed=()):
                 "label": hour_label(dt),
                 "day": dt.strftime("%A") if dt.date() != today_date else "",
                 "new_day": dt.hour == 0,
-                "temp": round(hour["temp"]),
-                "feels_like": round(hour["feels_like"]),
+                "temp": degrees(hour["temp"], units),
+                "feels_like": degrees(hour["feels_like"], units),
                 "pop": round(hour.get("pop", 0) * 100),
-                "precip": inches(rain),
+                "precip": amount(rain, units),
                 "description": hour["weather"][0]["description"],
                 "icon": icon_for(hour["weather"][0]["icon"]),
                 "owm_icon": hour["weather"][0]["icon"],
                 "uvi": round(hour.get("uvi", 0)),
                 "humidity": hour.get("humidity"),
-                **wind(hour),
+                **wind(hour, units),
             }
         )
 
@@ -367,14 +412,14 @@ def build_report(data, dismissed=()):
             {
                 "name": "Today" if index == 0 else dt.strftime("%A"),
                 "date": dt.strftime("%b %-d"),
-                "low": round(day["temp"]["min"]),
-                "high": round(day["temp"]["max"]),
-                "morn": round(day["temp"]["morn"]),
-                "day": round(day["temp"]["day"]),
-                "eve": round(day["temp"]["eve"]),
-                "night": round(day["temp"]["night"]),
+                "low": degrees(day["temp"]["min"], units),
+                "high": degrees(day["temp"]["max"], units),
+                "morn": degrees(day["temp"]["morn"], units),
+                "day": degrees(day["temp"]["day"], units),
+                "eve": degrees(day["temp"]["eve"], units),
+                "night": degrees(day["temp"]["night"], units),
                 "pop": round(day.get("pop", 0) * 100),
-                "precip": inches(day.get("rain", 0) + day.get("snow", 0)),
+                "precip": amount(day.get("rain", 0) + day.get("snow", 0), units),
                 "summary": day.get("summary", ""),
                 "description": day["weather"][0]["description"],
                 "icon": icon_for(day["weather"][0]["icon"]),
@@ -385,7 +430,7 @@ def build_report(data, dismissed=()):
                 "sunrise": clock(local(day["sunrise"])) if "sunrise" in day else "",
                 "sunset": clock(local(day["sunset"])) if "sunset" in day else "",
                 "moon_phase": moon_phase_name(day.get("moon_phase", 0)),
-                **wind(day),
+                **wind(day, units),
             }
         )
 
@@ -421,6 +466,8 @@ def build_report(data, dismissed=()):
         "daily": daily,
         "alerts": alerts,
         "timezone": data.get("timezone", ""),
+        "units": UNITS[units],
+        "units_name": units,
     }
 
 
@@ -437,4 +484,4 @@ def report_for(user):
     data = fetch_one_call(user.weather_lat, user.weather_lon)
     if not data:
         return None
-    return build_report(data, user.weather_dismissed_alerts or ())
+    return build_report(data, user.weather_dismissed_alerts or (), user.weather_units)

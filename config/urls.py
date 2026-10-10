@@ -242,6 +242,7 @@ urlpatterns = [
     # weather
     path("weather/", weather.index, name="weather"),
     path("weather/alerts/dismiss/", weather.dismiss, name="weather-dismiss-alert"),
+    path("weather/units/", weather.units, name="weather-units"),
     # finance
     path("crypto/", finance.crypto, name="crypto"),
     path("crypto/<str:ord>", finance.crypto, name="crypto"),

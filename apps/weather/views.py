@@ -3,7 +3,13 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 
-from apps.weather.service import dismiss_alert, has_location, place_name, report_for
+from apps.weather.service import (
+    UNITS,
+    dismiss_alert,
+    has_location,
+    place_name,
+    report_for,
+)
 
 
 @login_required
@@ -31,4 +37,16 @@ def dismiss(request):
     if not key:
         return JsonResponse({"success": False, "error": "No alert given"}, status=400)
     dismiss_alert(request.user, key)
+    return JsonResponse({"success": True})
+
+
+@login_required
+@require_POST
+def units(request):
+    """Read the weather in imperial or metric units from now on."""
+    choice = request.POST.get("units", "")
+    if choice not in UNITS:
+        return JsonResponse({"success": False, "error": "No such units"}, status=400)
+    request.user.weather_units = choice
+    request.user.save(update_fields=["weather_units"])
     return JsonResponse({"success": True})

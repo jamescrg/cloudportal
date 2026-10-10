@@ -105,3 +105,17 @@ def test_dismiss_needs_a_key_and_a_post(client):
 
     assert client.post(reverse("weather-dismiss-alert"), {}).status_code == 400
     assert client.get(reverse("weather-dismiss-alert")).status_code == 405
+
+
+def test_units_switch_is_saved_on_the_user(client, user):
+    from django.urls import reverse
+
+    response = client.post(reverse("weather-units"), {"units": "metric"})
+    assert response.status_code == 200
+    user.refresh_from_db()
+    assert user.weather_units == "metric"
+    assert (
+        client.post(reverse("weather-units"), {"units": "furlongs"}).status_code == 400
+    )
+    user.refresh_from_db()
+    assert user.weather_units == "metric"

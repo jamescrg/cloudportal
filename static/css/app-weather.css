@@ -177,6 +177,22 @@
   white-space: nowrap;
 }
 
+/* the units switch: the one in use stands plain, the other is a link */
+.weather-units {
+  white-space: nowrap;
+}
+
+.weather-units a.active {
+  color: inherit;
+  font-weight: 600;
+  pointer-events: none;
+  text-decoration: none;
+}
+
+.weather-units-divider {
+  padding: 0 0.25rem;
+}
+
 
 /* ------------------------------------------------------------------------- */
 /* today */

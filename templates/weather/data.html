@@ -40,6 +40,15 @@
                 </div>
                 <div class="weather-title-foot">
                     <span>Updated {{ now.updated }}</span>
+                    <span class="weather-units" role="group" aria-label="Units">
+                        <a href="#"
+                           data-units="imperial"
+                           {% if report.units_name == "imperial" %}class="active" aria-current="true"{% endif %}>°F</a>
+                        <span class="weather-units-divider">·</span>
+                        <a href="#"
+                           data-units="metric"
+                           {% if report.units_name == "metric" %}class="active" aria-current="true"{% endif %}>°C</a>
+                    </span>
                     <a href="#" id="weather-relocate"><i class="icon-locate" aria-hidden="true"></i> Use my current location</a>
                 </div>
             </div>
@@ -58,27 +67,31 @@
                     {% if now.rain_rate %}
                         <tr>
                             <th>Raining now</th>
-                            <td>{{ now.rain_rate }} in per hour</td>
+                            <td>{{ now.rain_rate }} {{ report.units.precip }} per hour</td>
                         </tr>
                     {% endif %}
                     {% if now.snow_rate %}
                         <tr>
                             <th>Snowing now</th>
-                            <td>{{ now.snow_rate }} in per hour</td>
+                            <td>{{ now.snow_rate }} {{ report.units.precip }} per hour</td>
                         </tr>
                     {% endif %}
                     <tr>
                         <th>Precipitation</th>
                         <td>
                             {{ now.pop }}% chance
-                            {% if now.rain_today %}<span class="weather-amount">{{ now.rain_today }} in rain</span>{% endif %}
-                            {% if now.snow_today %}<span class="weather-amount">{{ now.snow_today }} in snow</span>{% endif %}
+                            {% if now.rain_today %}
+                                <span class="weather-amount">{{ now.rain_today }} {{ report.units.precip }} rain</span>
+                            {% endif %}
+                            {% if now.snow_today %}
+                                <span class="weather-amount">{{ now.snow_today }} {{ report.units.precip }} snow</span>
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>
                         <th>Wind</th>
                         <td>
-                            {{ now.wind_speed }} mph {{ now.wind_dir }}
+                            {{ now.wind_speed }} {{ report.units.speed }} {{ now.wind_dir }}
                             {% if now.wind_gust %}<span class="weather-amount">gusts to {{ now.wind_gust }}</span>{% endif %}
                         </td>
                     </tr>
@@ -98,17 +111,18 @@
                             <span {% if now.uvi >= 3 %}class="weather-uv-raised"{% endif %}>{{ now.uvi }} {{ now.uv_level }}</span>
                         </td>
                     </tr>
-                    {% if now.visibility_miles is not None %}
+                    {% if now.visibility is not None %}
                         <tr>
                             <th>Visibility</th>
-                            <td>{{ now.visibility_miles }} mi</td>
+                            <td>{{ now.visibility }} {{ report.units.distance }}</td>
                         </tr>
                     {% endif %}
                     {% if now.pressure %}
                         <tr>
                             <th>Pressure</th>
                             <td>
-                                {{ now.pressure }} hPa · {{ now.pressure_inhg }} inHg
+                                {{ now.pressure }} hPa
+                                {% if now.pressure_inhg %}· {{ now.pressure_inhg }} inHg{% endif %}
                                 <span class="weather-amount">
                                     <span class="pressure-{{ now.pressure_tone }}">{{ now.pressure_level }}</span>
                                     ({{ now.pressure_relative }}): {{ now.pressure_note }}
@@ -169,7 +183,7 @@
                                 {% else %}
                                     <span class="weather-none">—</span>
                                 {% endif %}
-                                {% if hour.precip %}<span class="weather-amount">{{ hour.precip }} in</span>{% endif %}
+                                {% if hour.precip %}<span class="weather-amount">{{ hour.precip }} {{ report.units.precip }}</span>{% endif %}
                             </td>
                             <td class="forecast-wind">
                                 {{ hour.wind_speed }} {{ hour.wind_dir }}
@@ -215,7 +229,7 @@
                                 {% else %}
                                     <span class="weather-none">—</span>
                                 {% endif %}
-                                {% if day.precip %}<span class="weather-amount">{{ day.precip }} in</span>{% endif %}
+                                {% if day.precip %}<span class="weather-amount">{{ day.precip }} {{ report.units.precip }}</span>{% endif %}
                             </td>
                             <td>
                                 <div class="forecast-conditions">
@@ -258,6 +272,20 @@
             if (!band.querySelector(".weather-alert")) {
                 band.remove();
             }
+        });
+    });
+    document.querySelectorAll(".weather-units a").forEach(function(link) {
+        link.addEventListener("click", function(event) {
+            event.preventDefault();
+            var form = new FormData();
+            form.append("units", link.dataset.units);
+            fetch("{% url 'weather-units' %}", {
+                method: "POST",
+                headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                body: form
+            }).then(function() {
+                window.location.reload();
+            });
         });
     });
     document.getElementById("weather-relocate").addEventListener("click", function(event) {
