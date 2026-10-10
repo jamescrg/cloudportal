@@ -35,6 +35,10 @@ def tasks(user, other_user):
     }
 
 
+def _menu(client):
+    return client.get(reverse("calendar:menu")).content.decode()
+
+
 def _feed(client):
     return {row["id"]: row for row in client.get(reverse("calendar:api"), MARCH).json()}
 
@@ -48,9 +52,9 @@ def test_the_toggle(client, tasks):
     response = client.post(reverse("calendar:show-tasks", args=["on"]))
 
     assert response.status_code == 204
-    assert response["HX-Trigger"] == "eventsViewChanged"
+    assert response["HX-Trigger"] == "eventsChanged"
     assert client.get("/calendar/").context["show_tasks"] is True
-    assert "Hide tasks" in client.get("/calendar/").content.decode()
+    assert reverse("calendar:show-tasks", args=["off"]) in _menu(client)
 
     client.post(reverse("calendar:show-tasks", args=["off"]))
     assert client.get("/calendar/").context["show_tasks"] is False
@@ -85,8 +89,8 @@ def test_a_task_reads_as_a_task(client, tasks):
     assert timed["allDay"] is False
 
 
-def test_the_header_offers_the_toggle(client):
-    html = client.get("/calendar/").content.decode()
-
-    assert reverse("calendar:show-tasks", args=["on"]) in html
-    assert "Show tasks" in html
+def test_the_menu_offers_the_toggle(client):
+    assert reverse("calendar:show-tasks", args=["on"]) in _menu(client)
+    assert reverse("calendar:show-tasks", args=["on"]) in (
+        client.get("/calendar/").content.decode()
+    )

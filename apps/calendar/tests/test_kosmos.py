@@ -140,13 +140,13 @@ def test_a_kosmos_that_answers_badly_contributes_nothing(
 # --- the toggle --------------------------------------------------------------
 
 
-def test_the_toolbar_offers_the_toggle_only_with_a_kosmos(client, user, connected):
-    html = client.get(reverse("calendar:index")).content.decode()
+def test_the_menu_offers_the_toggle_only_with_a_kosmos(client, user, connected):
+    html = client.get(reverse("calendar:menu")).content.decode()
     assert reverse("calendar:show-kosmos", args=["off"]) in html
 
     user.kosmos_url = ""
     user.save()
-    html = client.get(reverse("calendar:index")).content.decode()
+    html = client.get(reverse("calendar:menu")).content.decode()
     assert "show-kosmos" not in html and "kosmos/" not in html
 
 

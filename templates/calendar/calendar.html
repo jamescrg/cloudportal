@@ -1,11 +1,25 @@
-{% include "calendar/header.html" %}
 {% comment %}
-A class, not an id: htmx copies an existing element's attributes onto a
-swapped-in element with the same id until it settles, which would hand the
-new container the old grid's classes and then strip the new grid's.
+The grid and its menu share one Alpine component (events-calendar.js):
+the toolbar's sliders button, which FullCalendar draws, opens the menu
+that sits beside the grid. The container takes a class, not an id: htmx
+copies an existing element's attributes onto a swapped-in element with
+the same id until it settles, which would hand the new container the old
+grid's classes and then strip the new grid's.
 {% endcomment %}
-<div class="fullcalendar-container"
-     x-data="eventsCalendar()"
-     x-init="initCalendar()"
-     hx-disinherit="*"
-     hx-boost="false"></div>
+<div x-data="eventsCalendar()">
+    <div class="fullcalendar-container"
+         x-init="initCalendar()"
+         hx-disinherit="*"
+         hx-boost="false"></div>
+    <ul class="dropdown-menu calendar-menu"
+        x-ref="menu"
+        x-show="menuOpen"
+        x-cloak
+        @click="closeMenuOnChoice($event)"
+        hx-get="{% url 'calendar:menu' %}"
+        hx-trigger="eventsChanged from:body"
+        hx-target="this"
+        hx-swap="innerHTML">
+        {% include "calendar/menu.html" %}
+    </ul>
+</div>

@@ -12,6 +12,10 @@ pytestmark = pytest.mark.django_db
 JULY = {"start": "2027-06-27", "end": "2027-08-07"}
 
 
+def _menu(client):
+    return client.get(reverse("calendar:menu")).content.decode()
+
+
 def _feed(client, params):
     return {
         row["id"]: row for row in client.get(reverse("calendar:api"), params).json()
@@ -27,9 +31,9 @@ def test_the_toggle(client):
     response = client.post(reverse("calendar:show-holidays", args=["on"]))
 
     assert response.status_code == 204
-    assert response["HX-Trigger"] == "eventsViewChanged"
+    assert response["HX-Trigger"] == "eventsChanged"
     assert client.get("/calendar/").context["show_holidays"] is True
-    assert "Hide holidays" in client.get("/calendar/").content.decode()
+    assert reverse("calendar:show-holidays", args=["off"]) in _menu(client)
 
     client.post(reverse("calendar:show-holidays", args=["off"]))
     assert client.get("/calendar/").context["show_holidays"] is False
@@ -63,8 +67,6 @@ def test_a_range_over_the_new_year_has_both_years():
     assert days == ["2026-12-25", "2027-01-01"]
 
 
-def test_the_header_offers_the_toggle(client):
-    html = client.get("/calendar/").content.decode()
-
-    assert reverse("calendar:show-holidays", args=["on"]) in html
-    assert "Show holidays" in html
+def test_the_menu_offers_the_toggle(client):
+    assert reverse("calendar:show-holidays", args=["on"]) in _menu(client)
+    assert "Holidays" in _menu(client)

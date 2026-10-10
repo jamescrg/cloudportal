@@ -3,12 +3,39 @@
 /* toolbar */
 /* ------------------------------------------------------------------------- */
 
-/* Two groups of tools, the page's own (Add, the view toggle, Filter) at
-   the left where the heading was and the overlays (tasks, Kosmos,
-   holidays) at the right */
+/* The list view's tools (Add, the view toggle, Filter). The grid's ride
+   FullCalendar's toolbar: see "Toolbar buttons" below */
 .calendar-tools {
   display: flex;
   gap: 0.5rem;
+}
+
+/* The grid's menu: the overlays as checkbox rows, then Filter and the
+   list view. Positioned under its button by events-calendar.js */
+.calendar-menu {
+  min-width: 11rem;
+}
+
+.calendar-menu .calendar-menu-check {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.calendar-menu .calendar-menu-check input {
+  margin: 0;
+}
+
+.calendar-menu .calendar-menu-divider {
+  border-top-width: 2px;
+}
+
+.calendar-menu .calendar-menu-note {
+  color: var(--color-muted);
+  font-size: 0.85em;
+  margin-left: 0.35rem;
 }
 
 .view-toggle {
@@ -290,6 +317,25 @@
 .fc .fc-button {
   border-radius: var(--radius-md);
   text-transform: capitalize;
+}
+
+/* Toolbar buttons of the calendar's own: Add and the menu, drawn by
+   FullCalendar with no text and given their Lucide glyphs here */
+.fc .fc-add-button::before,
+.fc .fc-menu-button::before {
+  display: inline-block;
+  font-family: lucide;
+  font-size: 1.1em;
+  line-height: 1;
+  vertical-align: -0.1em;
+}
+
+.fc .fc-add-button::before {
+  content: "\e13d";
+}
+
+.fc .fc-menu-button::before {
+  content: "\e29a";
 }
 
 .fc .fc-button .fc-icon {
@@ -790,10 +836,20 @@
 /* ------------------------------------------------------------------------- */
 
 @media (width <= 768px) {
-  /* Navigation, the month, and Today on one row */
+  /* Navigation, Add, the month, the menu and Today on one row: the
+     buttons close up a little to fit it */
   .fc .fc-toolbar {
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .fc .fc-toolbar .fc-button {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .fc .fc-toolbar.fc-header-toolbar {
+    padding: 0 0.5rem;
   }
 
   .fc .fc-toolbar-title {
@@ -807,7 +863,8 @@
 
   /* The grid is replaced by the list (events-calendar.js forces list view),
      so the List/Calendar toggle has nothing to switch to. */
-  .view-toggle {
+  .view-toggle,
+  .calendar-menu .calendar-menu-list {
     display: none;
   }
 }

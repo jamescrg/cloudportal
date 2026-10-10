@@ -1,0 +1,53 @@
+{% comment %}
+The calendar's menu, behind the sliders button on the grid's toolbar: the
+overlays (tasks, Kosmos, holidays) as checkboxes, then the Filter dialog
+and the list view. The items re-render on eventsChanged, so each
+checkbox posts the state it would move to.
+{% endcomment %}
+<li>
+    <label class="dropdown-item calendar-menu-check">
+        <input type="checkbox"
+               name="show_tasks"
+               {% if show_tasks %}checked{% endif %}
+               hx-post="{% if show_tasks %}{% url 'calendar:show-tasks' 'off' %}{% else %}{% url 'calendar:show-tasks' 'on' %}{% endif %}"
+               hx-swap="none">
+        Tasks
+    </label>
+</li>
+{% if kosmos_connected %}
+    <li>
+        <label class="dropdown-item calendar-menu-check">
+            <input type="checkbox"
+                   name="show_kosmos"
+                   {% if show_kosmos %}checked{% endif %}
+                   hx-post="{% if show_kosmos %}{% url 'calendar:show-kosmos' 'off' %}{% else %}{% url 'calendar:show-kosmos' 'on' %}{% endif %}"
+                   hx-swap="none">
+            Kosmos events
+        </label>
+    </li>
+{% endif %}
+<li>
+    <label class="dropdown-item calendar-menu-check">
+        <input type="checkbox"
+               name="show_holidays"
+               {% if show_holidays %}checked{% endif %}
+               hx-post="{% if show_holidays %}{% url 'calendar:show-holidays' 'off' %}{% else %}{% url 'calendar:show-holidays' 'on' %}{% endif %}"
+               hx-swap="none">
+        Holidays
+    </label>
+</li>
+<li class="calendar-menu-divider">
+    <a class="dropdown-item"
+       href="#"
+       hx-get="{% url 'calendar:filter' %}"
+       hx-target="#htmx-modal-container">
+        Filter…
+        {% if filter_active %}<span class="calendar-menu-note">on</span>{% endif %}
+    </a>
+</li>
+<li class="calendar-menu-list">
+    <a class="dropdown-item"
+       href="#"
+       hx-post="{% url 'calendar:view-mode' 'list' %}"
+       hx-swap="none">List view</a>
+</li>

@@ -81,6 +81,13 @@ def events_calendar(request):
 
 
 @login_required
+def events_menu(request):
+    """The grid's menu items, re-rendered after a change so each reads
+    the state it would move to."""
+    return render(request, "calendar/menu.html", toolbar_context(request))
+
+
+@login_required
 @require_POST
 def events_show_kosmos(request, state):
     """Show the user's Kosmos events on the grid beside their own, or
@@ -89,7 +96,7 @@ def events_show_kosmos(request, state):
         return HttpResponseBadRequest("Unknown state.")
     request.session[SHOW_KOSMOS_KEY] = state == "on"
     request.session.modified = True
-    return HttpResponse(status=204, headers={"HX-Trigger": "eventsViewChanged"})
+    return HttpResponse(status=204, headers={"HX-Trigger": TRIGGER_KEY})
 
 
 @login_required
@@ -101,19 +108,19 @@ def events_show_holidays(request, state):
         return HttpResponseBadRequest("Unknown state.")
     request.session[SHOW_HOLIDAYS_KEY] = state == "on"
     request.session.modified = True
-    return HttpResponse(status=204, headers={"HX-Trigger": "eventsViewChanged"})
+    return HttpResponse(status=204, headers={"HX-Trigger": TRIGGER_KEY})
 
 
 @login_required
 @require_POST
 def events_show_tasks(request, state):
     """Show the user's open tasks on the grid beside the events, or hide
-    them. The partial re-renders so the button reads the new state."""
+    them. The grid refetches its events; the menu re-renders itself."""
     if state not in ("on", "off"):
         return HttpResponseBadRequest("Unknown state.")
     request.session[SHOW_TASKS_KEY] = state == "on"
     request.session.modified = True
-    return HttpResponse(status=204, headers={"HX-Trigger": "eventsViewChanged"})
+    return HttpResponse(status=204, headers={"HX-Trigger": TRIGGER_KEY})
 
 
 @login_required

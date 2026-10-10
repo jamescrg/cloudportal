@@ -16,7 +16,8 @@ def test_the_toolbar_offers_the_year_view():
     toolbars = re.findall(r"right:\s*\"([^\"]+)\"", JS)
     views = [t for t in toolbars if "dayGridMonth" in t]
 
-    assert views and views[0].split(",")[0] == "multiMonthRolling"
+    # the menu button stands before the views
+    assert views and views[0].split(" ")[-1].split(",")[0] == "multiMonthRolling"
 
 
 def test_the_year_view_is_remembered():

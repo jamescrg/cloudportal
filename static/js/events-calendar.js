@@ -65,7 +65,7 @@ document.body.addEventListener("htmx:beforeRequest", (event) => {
   const target = event.detail.target;
   if (target && target.id === CALENDAR_CONTAINER_ID) {
     const calendarContainer = document.querySelector(".fullcalendar-container");
-    if (calendarContainer && calendarContainer._x_dataStack) {
+    if (calendarContainer && window.Alpine) {
       const elt = event.detail.elt;
 
       // If the request originates from the container div itself (auto-refresh),
@@ -77,7 +77,7 @@ document.body.addEventListener("htmx:beforeRequest", (event) => {
         }
 
         // Block auto-refresh and refetch calendar instead
-        const alpineData = calendarContainer._x_dataStack[0];
+        const alpineData = Alpine.$data(calendarContainer);
         if (alpineData && alpineData.calendar) {
           event.preventDefault();
           alpineData.calendar.refetchEvents();
@@ -100,6 +100,89 @@ document.addEventListener("alpine:init", () => {
     calendar: null,
     apiUrl: "/calendar/api/",
     addUrl: "/calendar/add",
+    menuOpen: false,
+    menuButton: null,
+
+    init() {
+      // The menu closes on a click anywhere else, on Escape, and on a
+      // choice from it (a link; a checkbox row keeps it open for the next)
+      this._closeOnOutsideClick = (event) => {
+        if (
+          this.menuOpen &&
+          !this.$refs.menu.contains(event.target) &&
+          !(this.menuButton && this.menuButton.contains(event.target))
+        ) {
+          this.closeMenu();
+        }
+      };
+      this._closeOnEscape = (event) => {
+        if (this.menuOpen && event.key === "Escape") {
+          this.closeMenu();
+          this.menuButton?.focus();
+        }
+      };
+      document.addEventListener("click", this._closeOnOutsideClick);
+      document.addEventListener("keydown", this._closeOnEscape);
+    },
+
+    destroy() {
+      document.removeEventListener("click", this._closeOnOutsideClick);
+      document.removeEventListener("keydown", this._closeOnEscape);
+    },
+
+    openAdd() {
+      htmx.ajax("GET", this.addUrl, {
+        target: "#htmx-modal-container",
+        swap: "innerHTML",
+      });
+    },
+
+    toggleMenu(button) {
+      if (this.menuOpen) {
+        this.closeMenu();
+        return;
+      }
+      this.menuButton = button;
+      this.menuOpen = true;
+      button.classList.add("fc-button-active");
+      this.$nextTick(() => this.positionMenu());
+    },
+
+    closeMenu() {
+      this.menuOpen = false;
+      this.menuButton?.classList.remove("fc-button-active");
+      const menu = this.$refs.menu;
+      menu.classList.remove("show");
+      menu.style.display = "";
+      menu.style.position = "";
+      menu.style.top = "";
+      menu.style.left = "";
+      menu.style.right = "";
+    },
+
+    // Fixed under the button, as the site's dropdowns are: its left edge
+    // on the button's, or its right edge on the button's where the
+    // viewport's edge is near (a phone)
+    positionMenu() {
+      const menu = this.$refs.menu;
+      const rect = this.menuButton.getBoundingClientRect();
+      menu.classList.add("show");
+      // shown here, not left to x-show's own turn, so the width is real
+      menu.style.display = "block";
+      menu.style.position = "fixed";
+      menu.style.top = `${rect.bottom + 4}px`;
+      menu.style.right = "auto";
+      const width = menu.offsetWidth;
+      const left =
+        rect.left + width > window.innerWidth - 8 ? rect.right - width : rect.left;
+      menu.style.left = `${Math.max(8, left)}px`;
+    },
+
+    closeMenuOnChoice(event) {
+      if (event.target.closest("a")) {
+        this.closeMenu();
+      }
+    },
 
     initCalendar() {
       const calendarEl = this.$el;
@@ -115,14 +198,30 @@ document.addEventListener("alpine:init", () => {
         // the agenda among them.
         initialView: phone ? "listRolling" : this.savedView(),
         ...(requestedDate() ? { initialDate: requestedDate() } : {}),
+        // The calendar's own tools ride the toolbar: Add beside the
+        // navigation, and the menu (the overlays, Filter, the list view)
+        // behind a sliders button before the views. Both are drawn by
+        // FullCalendar and iconed in CSS.
         headerToolbar: phone
-          ? { left: "prev,next", center: "title", right: "today" }
+          ? { left: "prev,next add", center: "title", right: "menu today" }
           : {
-              left: "prev,next today",
+              left: "prev,next today add",
               center: "title",
               right:
-                "multiMonthRolling,dayGridMonth,timeGridWeek,timeGridDay,listRolling",
+                "menu multiMonthRolling,dayGridMonth,timeGridWeek,timeGridDay,listRolling",
             },
+        customButtons: {
+          add: {
+            text: "",
+            hint: "Add Event",
+            click: () => this.openAdd(),
+          },
+          menu: {
+            text: "",
+            hint: "Show…",
+            click: (event, button) => this.toggleMenu(button),
+          },
+        },
         noEventsContent: "No events",
 
         // The year view: the next twelve months as mini months, three
@@ -150,6 +249,9 @@ document.addEventListener("alpine:init", () => {
             // a month's duration aligns to the month unless told otherwise
             dateAlignment: "day",
             buttonText: "Agenda",
+            // the span's title ("October – November 2026") is cut to fit
+            // a phone's toolbar
+            ...(phone ? { titleFormat: { month: "short", year: "numeric" } } : {}),
             listDayFormat: { weekday: "short", month: "short", day: "numeric" },
             listDaySideFormat: false,
             displayEventEnd: false,

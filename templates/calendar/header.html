@@ -1,3 +1,8 @@
+{% comment %}
+The list view's toolbar. The grid has none: its tools sit on
+FullCalendar's own toolbar line and in the menu behind its sliders
+button (calendar/menu.html).
+{% endcomment %}
 <div class="card-title flex-center-space">
     <div class="calendar-tools">
         <button class="square-button filter-button"
@@ -25,28 +30,6 @@
                 hx-target="#htmx-modal-container"
                 title="Filter">
             <i class="icon-list-filter"></i>
-        </button>
-    </div>
-    <div class="calendar-tools">
-        <button class="square-button filter-button {% if show_tasks %}toggle-active{% endif %}"
-                hx-post="{% if show_tasks %}{% url 'calendar:show-tasks' 'off' %}{% else %}{% url 'calendar:show-tasks' 'on' %}{% endif %}"
-                hx-swap="none"
-                title="{% if show_tasks %}Hide tasks{% else %}Show tasks{% endif %}">
-            <i class="icon-list-checks"></i>
-        </button>
-        {% if kosmos_connected %}
-            <button class="square-button filter-button {% if show_kosmos %}toggle-active{% endif %}"
-                    hx-post="{% if show_kosmos %}{% url 'calendar:show-kosmos' 'off' %}{% else %}{% url 'calendar:show-kosmos' 'on' %}{% endif %}"
-                    hx-swap="none"
-                    title="{% if show_kosmos %}Hide Kosmos events{% else %}Show Kosmos events{% endif %}">
-                <i class="icon-briefcase-business"></i>
-            </button>
-        {% endif %}
-        <button class="square-button filter-button {% if show_holidays %}toggle-active{% endif %}"
-                hx-post="{% if show_holidays %}{% url 'calendar:show-holidays' 'off' %}{% else %}{% url 'calendar:show-holidays' 'on' %}{% endif %}"
-                hx-swap="none"
-                title="{% if show_holidays %}Hide holidays{% else %}Show holidays{% endif %}">
-            <i class="icon-party-popper"></i>
         </button>
     </div>
 </div>
