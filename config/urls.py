@@ -67,10 +67,6 @@ urlpatterns = [
     # home
     path("", home.index, name="home-index"),
     path("home/", home.index, name="home"),
-    path("home/folder/<int:id>/<str:direction>/", home.folder, name="home-folder"),
-    path(
-        "home/favorite/<int:id>/<str:direction>/", home.favorite, name="home-favorite"
-    ),
     path("home/toggle/<str:section>", home.toggle, name="home-toggle"),
     path(
         "home/notices/<int:id>/dismiss",
@@ -78,40 +74,11 @@ urlpatterns = [
         name="home-notice-dismiss",
     ),
     path("home/notices/<int:id>/done", home.notice_done, name="home-notice-done"),
+    path("home/columns/<int:column>/", home.column, name="home-column"),
     path(
-        "home/update-folder-column/",
-        home.update_folder_column,
-        name="home-update-folder-column",
-    ),
-    path(
-        "home/swap-folder-positions/",
-        home.swap_folder_positions,
-        name="home-swap-folder-positions",
-    ),
-    path(
-        "home/insert-folder-at-position/",
-        home.insert_folder_at_position,
-        name="home-insert-folder-at-position",
-    ),
-    path(
-        "home/swap-favorite-positions/",
-        home.swap_favorite_positions,
-        name="home-swap-favorite-positions",
-    ),
-    path(
-        "home/reorder-favorites/",
-        home.reorder_favorites,
-        name="home-reorder-favorites",
-    ),
-    path(
-        "home/insert-favorite-at-position/",
-        home.insert_favorite_at_position,
-        name="home-insert-favorite-at-position",
-    ),
-    path(
-        "home/move-favorite-to-folder/",
-        home.move_favorite_to_folder,
-        name="home-move-favorite-to-folder",
+        "home/folders/<int:id>/favorites/",
+        home.folder_favorites,
+        name="home-folder-favorites",
     ),
     path(
         "home/save-location/",
@@ -127,6 +94,7 @@ urlpatterns = [
     path("favorites/api/add", favorites.api_add, name="favorites-api-add"),
     path("favorites/api/folders", favorites.api_folders, name="favorites-api-folders"),
     path("favorites/extension", favorites.extension_add, name="favorites-extension"),
+    path("favorites/icons/<str:host>", favorites.site_icon, name="site-icon"),
     # favorites htmx
     path("favorites/all/", favorites.favorites_all, name="favorites-all"),
     path("favorites/list/", favorites.favorites_list, name="favorites-list"),

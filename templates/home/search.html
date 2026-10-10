@@ -9,8 +9,9 @@
                    autofocus
                    id="search-input"
                    name="{% if user.search_engine == "wikipedia" %}search{% else %}q{% endif %}"
-                   placeholder="Web search . . ."
-                   aria-label="Web search">
+                   placeholder="Find a favorite, or search the web . . ."
+                   aria-label="Find a favorite, or search the web"
+                   autocomplete="off">
         </form>
         <div class="dropdown" x-data="dropdown()">
             <button type="button"

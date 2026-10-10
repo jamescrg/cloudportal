@@ -34,3 +34,28 @@ class Favorite(TimestampMixin, models.Model):
 
     class Meta:
         db_table = "app_favorite"
+
+
+class SiteIcon(models.Model):
+    """The favicon of a host that favorites point at, fetched once by the
+    worker and served to the home page (see site_icons.py).
+
+    Attributes:
+        host (str): the host, lower-cased, that the icon belongs to
+        data (bytes): the image, empty when none was found
+        content_type (str): the image's media type
+        found (bool): whether the last fetch found an icon
+        fetched_at (datetime): when the last fetch ran, found or not
+    """
+
+    host = models.CharField(max_length=253, unique=True)
+    data = models.BinaryField(blank=True, default=b"")
+    content_type = models.CharField(max_length=100, blank=True, default="")
+    found = models.BooleanField(default=False)
+    fetched_at = models.DateTimeField()
+
+    def __str__(self):
+        return self.host
+
+    class Meta:
+        db_table = "app_site_icon"

@@ -85,3 +85,14 @@ def test_home(client, favorite):
     assert response.status_code == 302
     favorite = Favorite.objects.filter(pk=favorite.id).get()
     assert favorite.home_rank == 1
+
+
+def test_added_to_home_joins_the_end_of_the_folders_list(
+    client, user, folder1, favorite
+):
+    Favorite.objects.create(user=user, folder=folder1, name="First", home_rank=1)
+    Favorite.objects.create(user=user, folder=folder1, name="Third", home_rank=3)
+    client.post(f"/favorites/{favorite.id}/home-htmx")
+    assert Favorite.objects.get(pk=favorite.id).home_rank == 4
+    client.post(f"/favorites/{favorite.id}/home-htmx")
+    assert Favorite.objects.get(pk=favorite.id).home_rank == 0

@@ -1,56 +1,38 @@
-<div class="row">
+<div class="row home-favorites"
+     id="home-favorites"
+     data-url-column="{% url 'home-column' column=0 %}"
+     data-url-favorites="{% url 'home-folder-favorites' id=0 %}">
     {% for column in columns %}
         <div class="col-lg drop-zone" data-column="{{ forloop.counter }}">
             {% for folder in column %}
-                <div class="card folder"
-                     data-folder-id="{{ folder.id }}"
-                     data-current-column="{{ folder.home_column }}">
-                    {# card title #}
-                    <div class="card-title drag-handle flex-center-space">
+                <div class="card folder{% if folder.user_id != user.id %} folder-shared{% endif %}"
+                     data-folder-id="{{ folder.id }}">
+                    <div class="card-title drag-handle">
                         <a href="{% url 'folder-select' id=folder.id page='favorites' %}">{{ folder.name }}</a>
-                        <a class="folder-icon" href="#" onclick="return false;">
-                            <i class="icon-layout-dashboard"></i>
-                        </a>
                     </div>
-                    {# folder controls #}
-                    <div class="folder-controls flex-center-space folder-{{ folder.id }} hidden">
-                        <a href="{% url 'home-folder' id=folder.id direction='left' %}">
-                            <i class="icon-arrow-left"></i>
-                        </a>
-                        <a href="{% url 'home-folder' id=folder.id direction='up' %}">
-                            <i class="icon-arrow-up"></i>
-                        </a>
-                        <a href="{% url 'home-folder' id=folder.id direction='down' %}">
-                            <i class="icon-arrow-down"></i>
-                        </a>
-                        <a href="{% url 'home-folder' id=folder.id direction='right' %}">
-                            <i class="icon-arrow-right"></i>
-                        </a>
-                    </div>
-                    {# favorites #}
                     <ul class="list-group">
                         {% for favorite in folder.favorites %}
-                            {% if favorite.folder_id == folder.id %}
-                                <li class="list-group-item home-item flex-end-space favorite-item"
-                                    data-favorite-id="{{ favorite.id }}"
-                                    data-folder-id="{{ folder.id }}">
-                                    <a class="home-link favorite-drag-link"
-                                       href="{{ favorite.url }}"
-                                       data-favorite-id="{{ favorite.id }}"
-                                       data-folder-id="{{ folder.id }}">{{ favorite.name }}</a>
-                                    <a class="favorite-controls home-link-controls-{{ folder.id }} hidden"
-                                       href="{% url 'home-favorite' id=favorite.id direction='up' %}">
-                                        <i class="icon-arrow-up-to-line"></i>
-                                    </a>
-                                </li>
-                            {% endif %}
+                            <li class="list-group-item home-item favorite-item"
+                                data-favorite-id="{{ favorite.id }}"
+                                data-search="{{ favorite.name|lower }} {{ favorite.host }} {{ favorite.description|default:''|lower }}">
+                                <a class="home-link" href="{{ favorite.url }}">
+                                    {% if favorite.host %}
+                                        <img class="favicon"
+                                             src="{% url 'site-icon' host=favorite.host %}"
+                                             alt=""
+                                             width="16"
+                                             height="16"
+                                             loading="lazy">
+                                    {% else %}
+                                        <span class="favicon"></span>
+                                    {% endif %}
+                                    <span class="home-link-name">{{ favorite.name }}</span>
+                                </a>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
-                {# folders #}
             {% endfor %}
         </div>
-        {# columns #}
     {% endfor %}
 </div>
-{# row-centered #}

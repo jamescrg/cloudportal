@@ -25,41 +25,6 @@ function showHide(elementId)
 }
 
 
-function showHideHomeFolderControls(folder_id)
-{
-    var x = document.getElementsByClassName("folder-"+folder_id);
-    var i;
-    for (i = 0; i < x.length; i++) {
-        if ( x[i].style.display == 'none' ) {
-            x[i].style.display = 'flex';
-        } else {
-            x[i].style.display = 'none';
-        }
-    }
-}
-
-
-function showHideHomeLinkControls(folder_id)
-{
-    var x = document.getElementsByClassName("home-link-controls-"+folder_id);
-    var i;
-    for (i = 0; i < x.length; i++) {
-        if ( x[i].style.display == 'none' ) {
-            x[i].style.display = 'inline';
-        } else {
-            x[i].style.display = 'none';
-        }
-    }
-}
-
-
-function showHideHomeControls(folder_id)
-{
-    showHideHomeFolderControls(folder_id);
-    showHideHomeLinkControls(folder_id);
-}
-
-
 function showHideCredentials(favorite_id)
 {
     var elementId = "credential-hint-"+favorite_id;

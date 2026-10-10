@@ -150,11 +150,8 @@
             <script src="{% static_v 'js/events-calendar.js' %}"></script>
         {% endif %}
         {% if page and page == "home" %}
-            <!-- SortableJS-based drag-and-drop functionality for home page -->
-            <script src="{% static_v 'js/sortable-drag-drop.js' %}"></script>
-        {% endif %}
-        {% if page and page == "home" and moved_folder %}
-            <script type="text/javascript">window.onload = showHideHomeControls({{ moved_folder }});</script>
+            <!-- dragging and type-to-filter for the home page's favorites -->
+            <script src="{% static_v 'js/home.js' %}"></script>
         {% endif %}
     </body>
 </html>

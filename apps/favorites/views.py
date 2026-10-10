@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from apps.favorites.forms import FavoriteExtensionForm, FavoriteForm
-from apps.favorites.models import Favorite
+from apps.favorites.models import Favorite, SiteIcon
 from apps.folders.folders import get_folders_for_page, select_folder
 from apps.folders.models import Folder
 from apps.management.pagination import CustomPaginator
@@ -209,6 +209,18 @@ def delete(request, id):
     return redirect("favorites")
 
 
+def next_home_rank(favorite):
+    """The rank after the last of a folder's favorites on the home page, so
+    a favorite added to home joins the end of its folder's list."""
+    last = (
+        Favorite.objects.filter(folder_id=favorite.folder_id, home_rank__gt=0)
+        .exclude(pk=favorite.pk)
+        .order_by("-home_rank")
+        .first()
+    )
+    return (last.home_rank if last else 0) + 1
+
+
 @login_required
 def home(request, id):
     """Add or remove a favorite from home
@@ -221,7 +233,7 @@ def home(request, id):
     if favorite.home_rank:
         favorite.home_rank = 0
     else:
-        favorite.home_rank = 1
+        favorite.home_rank = next_home_rank(favorite)
     favorite.save()
     return redirect("favorites")
 
@@ -374,7 +386,7 @@ def home_htmx(request, id):
     if favorite.home_rank:
         favorite.home_rank = 0
     else:
-        favorite.home_rank = 1
+        favorite.home_rank = next_home_rank(favorite)
     favorite.save()
 
     context = _get_favorites_list_context(request)
@@ -513,3 +525,34 @@ def extension_add(request):
     }
 
     return render(request, "favorites/extension_form.html", context)
+
+
+# -----------------------------------------------------------------------------
+# Site icons
+# -----------------------------------------------------------------------------
+
+# A grey globe, for a host whose icon hasn't been fetched or wasn't found
+FALLBACK_ICON = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" '
+    'stroke="#9b9b9b" stroke-width="2" stroke-linecap="round" '
+    'stroke-linejoin="round"><circle cx="12" cy="12" r="10"/>'
+    '<path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>'
+    '<path d="M2 12h20"/></svg>'
+)
+
+
+@login_required
+def site_icon(request, host):
+    """A host's icon, for the home page, or the grey globe while it has
+    none. A found icon is cached for a week; the globe for an hour, so
+    the icon appears soon after the worker fetches it."""
+    icon = SiteIcon.objects.filter(host=host.lower(), found=True).first()
+    if icon:
+        response = HttpResponse(
+            bytes(icon.data), content_type=icon.content_type or "image/x-icon"
+        )
+        response["Cache-Control"] = "private, max-age=604800"
+    else:
+        response = HttpResponse(FALLBACK_ICON, content_type="image/svg+xml")
+        response["Cache-Control"] = "private, max-age=3600"
+    return response
