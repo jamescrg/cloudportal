@@ -1,4 +1,7 @@
 :root {
+  /* The site icons keep their own colours even when thematic */
+  --favicon-tint: none;
+
   --background-nav: var(--stone-700);
   --color-nav: var(--stone-350);
   --color-primary: var(--stone-700);

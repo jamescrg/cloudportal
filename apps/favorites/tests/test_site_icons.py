@@ -288,12 +288,12 @@ def test_home_page_icons_can_be_off_or_in_their_own_colours(client, user, folder
         home_rank=1,
     )
     html = client.get("/home/").content.decode()
-    assert "favicons-muted" in html and "favicon" in html.split("home-board")[1]
+    assert "favicons-thematic" in html and "favicon" in html.split("home-board")[1]
 
     user.home_icons_muted = 0
     user.save()
     html = client.get("/home/").content.decode()
-    assert "favicons-muted" not in html
+    assert "favicons-thematic" not in html
 
     user.home_icons = 0
     user.save()
@@ -317,7 +317,7 @@ def test_favorites_page_carries_the_icons_too(client, user, folder1):
     )
     html = client.get("/favorites/").content.decode()
     assert 'src="/favorites/icons/docs.example"' in html
-    assert "favicons-muted" in html
+    assert "favicons-thematic" in html
     user.home_icons = 0
     user.save()
     assert "/favorites/icons/" not in client.get("/favorites/").content.decode()

@@ -127,8 +127,9 @@ class CustomUser(AbstractUser):
     quotes_cursor_date = models.DateField(null=True, blank=True)
     home_search = models.IntegerField(default=0)
     home_weather = models.IntegerField(default=1)
-    # the home page's favorites carry their sites' icons, desaturated
-    # unless the user would rather see them in their own colours
+    # the home page's favorites carry their sites' icons, washed in the
+    # theme's colour (thematic) unless the user would rather see them in
+    # their own
     home_icons = models.IntegerField(default=1)
     home_icons_muted = models.IntegerField(default=1)
     weather_lat = models.FloatField(null=True, blank=True)

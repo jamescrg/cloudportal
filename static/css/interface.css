@@ -306,8 +306,12 @@ tr:hover .row-actions,
   text-align: center;
 }
 
-/* When the user has the icons desaturated, each keeps half its colour
-   and is softened, so the page reads as one surface */
-.favicons-muted img.favicon {
-  filter: grayscale(0.5) opacity(0.75);
+/* When the user has the icons thematic, each is drained of its own
+   colours and washed in the theme's: lime unless the theme says
+   otherwise (--favicon-tint, a filter list, or none) */
+.favicons-thematic img.favicon {
+  filter: var(
+    --favicon-tint,
+    grayscale(1) sepia(1) hue-rotate(45deg) saturate(2.5) brightness(0.92)
+  );
 }

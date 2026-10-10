@@ -54,7 +54,7 @@
         </div>
         <p class="card-text">
             Each favorite, here and on the favorites page, can carry its site's
-            icon, and the icons can be desaturated or left in their own colours.
+            icon, and the icons can be washed in the theme's colour or left in their own.
         </p>
         <table class="options">
             <tr>
@@ -66,11 +66,11 @@
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Desaturated</td>
+                <td class="setting-label">Thematic</td>
                 <td class="setting-control">
                     {% url 'settings-home-options' option='icons_muted' value='enable' as url_on %}
                     {% url 'settings-home-options' option='icons_muted' value='disable' as url_off %}
-                    {% include "components/setting-switch.html" with on=user.home_icons_muted url_on=url_on url_off=url_off label="Icons desaturated" %}
+                    {% include "components/setting-switch.html" with on=user.home_icons_muted url_on=url_on url_off=url_off label="Icons in the theme's colour" %}
                 </td>
             </tr>
         </table>

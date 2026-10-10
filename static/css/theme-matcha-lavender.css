@@ -104,6 +104,9 @@
      see-through cards */
   --calendar-chip: color-mix(in oklab, var(--stone-300) 80%, transparent);
 
+  /* The site icons, when thematic, washed lavender */
+  --favicon-tint: grayscale(1) sepia(1) hue-rotate(215deg) saturate(2.2) brightness(0.95);
+
   /* Table heads: the control colour, let through as the cards are, or
      the head would sit on a card as a solid band */
   --background-table-header: color-mix(in srgb, var(--background-control) var(--mist-card-opacity), transparent);
