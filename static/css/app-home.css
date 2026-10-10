@@ -283,9 +283,17 @@
   position: relative;
 }
 
+/* The search bar spans the board's middle three columns: three fifths
+   of the board's width, less the two gaps it doesn't straddle, whatever
+   width the columns have come down to */
 .search {
   margin: 0 auto;
-  max-width: 800px;
+}
+
+@media (min-width: 768px) {
+  .search {
+    width: calc(60% - 0.5rem);
+  }
 }
 
 .weather-indicator {

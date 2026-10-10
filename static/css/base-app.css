@@ -768,7 +768,9 @@ li {
    the nav bar's container stays full width, so the nav does not shift
    between pages. */
 body[data-page="home"] .container.content {
-  max-width: 1200px;
+  /* the favorites board's five columns and gaps, plus the padding, so the
+     board fills the container and what sits at its edges lines up */
+  max-width: 73rem;
 }
 
 .row {
