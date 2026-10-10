@@ -305,8 +305,11 @@
   height: 41.6px;
   margin-bottom: 0;
   padding: 0.25rem 1rem 0.25rem 0.25rem;
+  /* a fixed distance off the shoulder of the search engine selector: the
+     search bar is centred at three fifths of the row less half a rem, so
+     its right edge sits at 80% less a quarter rem */
+  left: calc(80% + 1.25rem);
   position: absolute;
-  right: 0;
   text-decoration: none;
   top: 50%;
   transform: translateY(-50%);
