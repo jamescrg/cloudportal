@@ -13,3 +13,11 @@ def notifications_as_in_production(settings):
     settings.NOTIFY_TITLE_PREFIX = ""
     settings.EMAIL_NOTIFICATIONS = True
     settings.CALENDAR_INBOUND_PREFIX = "calendar-"
+
+
+@pytest.fixture(autouse=True)
+def cache_in_memory(settings):
+    """Tests never share the site's on-disk cache."""
+    settings.CACHES = {
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+    }

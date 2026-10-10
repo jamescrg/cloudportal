@@ -1,31 +1,41 @@
-<div class="card" id="weather-location-card">
-    <div class="card-title">
-        <h1>Local Weather</h1>
+{% if has_location %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Local Weather</h1>
+        </div>
+        <div class="card-text">The weather service can't be reached right now.</div>
+        <a href="{% url 'weather' %}">Try again</a>
     </div>
-    <div class="card-text" id="weather-location-status">Detecting your location...</div>
-</div>
-<script>
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(pos) {
-                var form = new FormData();
-                form.append("lat", pos.coords.latitude);
-                form.append("lon", pos.coords.longitude);
-                fetch("{% url 'home-save-location' %}", {
-                    method: "POST",
-                    headers: {"X-CSRFToken": "{{ csrf_token }}"},
-                    body: form
-                }).then(function() {
-                    window.location.reload();
-                });
-            },
-            function() {
-                document.getElementById("weather-location-status").textContent =
-                    "Location access was denied. Please allow location access in your browser and refresh the page.";
-            }
-        );
-    } else {
-        document.getElementById("weather-location-status").textContent =
-            "Your browser does not support geolocation.";
-    }
-</script>
+{% else %}
+    <div class="card" id="weather-location-card">
+        <div class="card-title">
+            <h1>Local Weather</h1>
+        </div>
+        <div class="card-text" id="weather-location-status">Detecting your location...</div>
+    </div>
+    <script>
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    var form = new FormData();
+                    form.append("lat", pos.coords.latitude);
+                    form.append("lon", pos.coords.longitude);
+                    fetch("{% url 'home-save-location' %}", {
+                        method: "POST",
+                        headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                        body: form
+                    }).then(function() {
+                        window.location.reload();
+                    });
+                },
+                function() {
+                    document.getElementById("weather-location-status").textContent =
+                        "Location access was denied. Please allow location access in your browser and refresh the page.";
+                }
+            );
+        } else {
+            document.getElementById("weather-location-status").textContent =
+                "Your browser does not support geolocation.";
+        }
+    </script>
+{% endif %}

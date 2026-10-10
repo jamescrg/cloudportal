@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if current or forecast %}
+    {% if report %}
         {% include "weather/data.html" %}
     {% else %}
         {% include "weather/no-data.html" %}

@@ -1,9 +1,6 @@
 <a class="card weather-indicator"
    href="{% url 'weather' %}"
-   title="{{ weather.description|title }}">
-    <img src="https://openweathermap.org/img/w/{{ weather.icon }}.png"
-         alt="{{ weather.description }}"
-         width="36"
-         height="36">
+   title="{{ weather.description|capfirst }}">
+    <i class="icon-{{ weather.icon }}" aria-hidden="true"></i>
     <span>{{ weather.temp }}°</span>
 </a>

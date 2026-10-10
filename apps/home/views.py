@@ -1,8 +1,6 @@
 import json
 from datetime import date
 
-import requests as http_requests
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -18,31 +16,25 @@ from apps.home.toggle import show_section
 from apps.quotes import quotes as quotes_of_the_day
 from apps.tasks.models import Task
 from apps.tasks.views import complete_task
+from apps.weather.service import report_for
 
 
 def fetch_current_weather(user):
-    """Fetch current weather for a user using stored lat/lon coordinates."""
-    if not (user.weather_lat and user.weather_lon):
-        return None
+    """What the home page's indicator shows: the current temperature and
+    conditions, from the weather page's cached report."""
     try:
-        url = "https://api.openweathermap.org/data/2.5/weather"
-        params = {
-            "lat": user.weather_lat,
-            "lon": user.weather_lon,
-            "units": "imperial",
-            "appid": settings.OPEN_WEATHER_API_KEY,
-        }
-        response = http_requests.get(url, params=params, timeout=5)
-        data = response.json()
-        if "main" in data and "weather" in data:
-            return {
-                "temp": round(data["main"]["temp"]),
-                "icon": data["weather"][0]["icon"],
-                "description": data["weather"][0]["description"],
-            }
+        report = report_for(user)
     except Exception:
-        pass
-    return None
+        return None
+    if not report:
+        return None
+    current = report["current"]
+    return {
+        "temp": current["temp"],
+        "icon": current["icon"],
+        "owm_icon": current["owm_icon"],
+        "description": current["description"],
+    }
 
 
 def get_search_context(user):
@@ -405,6 +397,8 @@ def save_location(request):
     user = request.user
     user.weather_lat = lat
     user.weather_lon = lon
-    user.save()
+    # the place is looked up again for the new location when it is next shown
+    user.weather_place = ""
+    user.save(update_fields=["weather_lat", "weather_lon", "weather_place"])
 
     return JsonResponse({"success": True})

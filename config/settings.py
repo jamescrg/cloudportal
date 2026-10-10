@@ -261,6 +261,16 @@ ADMINS = [(env("ADMINS_NAME"), env("ADMINS_EMAIL"))]
 
 # API Keys
 OPEN_WEATHER_API_KEY = env("OPEN_WEATHER_API_KEY")
+
+# the cache is on disk so gunicorn's workers share it: weather reports
+# live here, so the home page and the weather page cost one API call
+# between them every ten minutes
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": BASE_DIR / ".cache",
+    }
+}
 CRYPTO_API_KEY = env("CRYPTO_API_KEY")
 ALPHAVANTAGE_STOCKS_API_KEY = env("ALPHAVANGAGE_STOCKS_API_KEY")
 FINNHUB_API_KEY = env("FINNHUB_API_KEY")

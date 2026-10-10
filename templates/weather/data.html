@@ -1,115 +1,233 @@
-<div class="row weather-data">
-    <div class="col current-conditions">
-        <div class="card weather-title">
-            <div class="flex-start-space">
-                <div class="location">
-                    <div class="location-title">{{ current.name }}</div>
-                </div>
-                <div class="location-info">
-                    <div class="location-icon">
-                        <img class="current-icon-image"
-                             src="https://openweathermap.org/img/w/{{ current.weather.0.icon }}.png"
-                             alt="Weather icon"
-                             width="50"
-                             height="50">
+{% with now=report.current %}
+    {% if report.alerts %}
+        <div class="weather-alerts" role="alert">
+            {% for alert in report.alerts %}
+                <details class="weather-alert">
+                    <summary>
+                        <i class="icon-triangle-alert" aria-hidden="true"></i>
+                        <span class="weather-alert-event">{{ alert.event }}</span>
+                        {% if alert.until %}<span class="weather-alert-until">{{ alert.until }}</span>{% endif %}
+                        {% if alert.sender %}<span class="weather-alert-sender">{{ alert.sender }}</span>{% endif %}
+                    </summary>
+                    <div class="weather-alert-description">{{ alert.description }}</div>
+                </details>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="row weather-data">
+        <div class="col current-conditions">
+            <div class="card weather-title">
+                <div class="flex-start-space">
+                    <div class="location">
+                        <div class="location-title">{{ place|default:"Your location" }}</div>
+                        <div class="location-description">{{ now.description|capfirst }}</div>
+                        <div class="location-feels">Feels like {{ now.feels_like }}°</div>
+                        <div class="location-range">H {{ now.high }}° · L {{ now.low }}°</div>
                     </div>
-                    <div class="location-temp">{{ current.main.temp|floatformat:"0" }}°</div>
+                    <div class="location-now">
+                        <i class="icon-{{ now.icon }} location-icon" aria-hidden="true"></i>
+                        <span class="location-temp">{{ now.temp }}°</span>
+                    </div>
+                </div>
+                <div class="weather-title-foot">
+                    <span>Updated {{ now.updated }}</span>
+                    <a href="#" id="weather-relocate"><i class="icon-locate" aria-hidden="true"></i> Use my current location</a>
                 </div>
             </div>
-        </div>
-        <div class="card">
-            <div class="card-title">
-                <h1>Current Conditions</h1>
-            </div>
-            <table class="table">
-                <tr>
-                    <th>Conditions</th>
-                    <td class="weather-data">{{ current.weather.0.description|title }}</td>
-                </tr>
-                <tr>
-                    <th>Temp</th>
-                    <td class="weather-data">{{ current.main.temp|floatformat:"0" }}°</td>
-                </tr>
-                <tr>
-                    <th>Humidity</th>
-                    <td class="weather-data">{{ current.main.humidity }}%</td>
-                </tr>
-                <tr>
-                    <th>Wind</th>
-                    <td class="weather-data">{{ current.wind.speed }} mph</td>
-                </tr>
-                <tr>
-                    <th>Sunrise</th>
-                    <td class="weather-data">{{ current.sunrise }}</td>
-                </tr>
-                <tr>
-                    <th>Sunset</th>
-                    <td class="weather-data">{{ current.sunset }}</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-    <div class="col forecast-hourly">
-        <div class="card">
-            <div class="card-title">
-                <h1>Hourly Forecast</h1>
-            </div>
-            <table class="table">
-                <tr>
-                    <th>Hour</th>
-                    <th>Temp</th>
-                    <th>Wind</th>
-                    <th class="forecast-description">Conditions</th>
-                    <th class="forecast-icon"></th>
-                </tr>
-                {% for hour in forecast.hourly %}
+            <div class="card">
+                <div class="card-title">
+                    <h1>Today</h1>
+                </div>
+                {% if now.summary %}<p class="weather-summary-today">{{ now.summary }}</p>{% endif %}
+                {% if report.next_hour %}
+                    <p class="weather-next-hour{% if report.next_hour.wet %} wet{% endif %}">
+                        <i class="icon-umbrella" aria-hidden="true"></i>
+                        {{ report.next_hour.text }}
+                    </p>
+                {% endif %}
+                <table class="table">
                     <tr>
-                        <td class="forecast-date">{{ hour.hour_time }}</td>
-                        <td class="forecast-max">{{ hour.temp|floatformat:"0" }}°</td>
-                        <td class="forecast-min">{{ hour.wind_speed|floatformat:"0" }} mph</td>
-                        <td class="forecast-description">{{ hour.weather.0.description }}</td>
-                        <td class="forecast-icon">
-                            <img class="forecast-icon-image"
-                                 src="https://openweathermap.org/img/w/{{ hour.weather.0.icon }}.png"
-                                 alt="Weather icon"
-                                 width="50"
-                                 height="50">
+                        <th>Precipitation</th>
+                        <td>
+                            {{ now.pop }}% chance
+                            {% if now.rain_today %}<span class="weather-amount">{{ now.rain_today }} in rain</span>{% endif %}
+                            {% if now.snow_today %}<span class="weather-amount">{{ now.snow_today }} in snow</span>{% endif %}
                         </td>
                     </tr>
-                {% endfor %}
-            </table>
-        </div>
-    </div>
-    <div class="col forecast-daily">
-        <div class="card">
-            <div class="card-title">
-                <h1>Next Few Days</h1>
-            </div>
-            <table class="table">
-                <tr>
-                    <th>Day</th>
-                    <th>Low</th>
-                    <th>High</th>
-                    <th class="forecast-description">Conditions</th>
-                    <th class="forecast-icon"></th>
-                </tr>
-                {% for day in forecast.daily %}
                     <tr>
-                        <td class="forecast-date">{{ day.date_string }}</td>
-                        <td class="forecast-min">{{ day.temp.min|floatformat:"0" }}°</td>
-                        <td class="forecast-max">{{ day.temp.max|floatformat:"0" }}°</td>
-                        <td class="forecast-description">{{ day.weather.0.description }}</td>
-                        <td class="forecast-icon">
-                            <img id="wicon"
-                                 class="forecast-icon-image"
-                                 src="https://openweathermap.org/img/w/{{ day.weather.0.icon }}.png"
-                                 alt="Weather icon"
-                                 width="50"
-                                 height="50">
+                        <th>Wind</th>
+                        <td>
+                            {{ now.wind_speed }} mph {{ now.wind_dir }}
+                            {% if now.wind_gust %}<span class="weather-amount">gusts to {{ now.wind_gust }}</span>{% endif %}
                         </td>
                     </tr>
-                {% endfor %}
-            </table>
+                    <tr>
+                        <th>Humidity</th>
+                        <td>{{ now.humidity }}%</td>
+                    </tr>
+                    {% if now.dew_point is not None %}
+                        <tr>
+                            <th>Dew point</th>
+                            <td>{{ now.dew_point }}°</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <th>UV index</th>
+                        <td>
+                            <span {% if now.uvi >= 3 %}class="weather-uv-raised"{% endif %}>{{ now.uvi }} {{ now.uv_level }}</span>
+                        </td>
+                    </tr>
+                    {% if now.visibility_miles is not None %}
+                        <tr>
+                            <th>Visibility</th>
+                            <td>{{ now.visibility_miles }} mi</td>
+                        </tr>
+                    {% endif %}
+                    {% if now.pressure %}
+                        <tr>
+                            <th>Pressure</th>
+                            <td>{{ now.pressure }} hPa</td>
+                        </tr>
+                    {% endif %}
+                    {% if now.clouds is not None %}
+                        <tr>
+                            <th>Cloud cover</th>
+                            <td>{{ now.clouds }}%</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Sunrise</th>
+                        <td>{{ now.sunrise }}</td>
+                    </tr>
+                    <tr>
+                        <th>Sunset</th>
+                        <td>{{ now.sunset }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col forecast-hourly">
+            <div class="card">
+                <div class="card-title">
+                    <h1>Hourly Forecast</h1>
+                </div>
+                <table class="table">
+                    <tr>
+                        <th>Hour</th>
+                        <th>Temp</th>
+                        <th>Precip</th>
+                        <th>Wind</th>
+                        <th>Conditions</th>
+                    </tr>
+                    {% for hour in report.hourly %}
+                        {% if hour.new_day %}
+                            <tr class="weather-day-divider">
+                                <td colspan="5">{{ hour.day }}</td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="forecast-hour">{{ hour.label }}</td>
+                            <td>{{ hour.temp }}°</td>
+                            <td>
+                                {% if hour.pop %}
+                                    {{ hour.pop }}%
+                                {% else %}
+                                    <span class="weather-none">—</span>
+                                {% endif %}
+                                {% if hour.precip %}<span class="weather-amount">{{ hour.precip }} in</span>{% endif %}
+                            </td>
+                            <td class="forecast-wind">
+                                {{ hour.wind_speed }} {{ hour.wind_dir }}
+                                {% if hour.wind_gust %}<span class="weather-amount">gusts {{ hour.wind_gust }}</span>{% endif %}
+                            </td>
+                            <td>
+                                <div class="forecast-conditions">
+                                    <i class="icon-{{ hour.icon }}" aria-hidden="true"></i>
+                                    <span>{{ hour.description }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="col forecast-daily">
+            <div class="card">
+                <div class="card-title">
+                    <h1>Next Few Days</h1>
+                </div>
+                <table class="table">
+                    <tr>
+                        <th>Day</th>
+                        <th>Low</th>
+                        <th>High</th>
+                        <th>Precip</th>
+                        <th>Conditions</th>
+                    </tr>
+                    {% for day in report.daily %}
+                        <tr class="forecast-day" title="{{ day.summary }}">
+                            <td class="forecast-date">
+                                {{ day.name }}
+                                <span class="weather-amount">{{ day.date }}</span>
+                            </td>
+                            <td>{{ day.low }}°</td>
+                            <td>{{ day.high }}°</td>
+                            <td>
+                                {% if day.pop %}
+                                    {{ day.pop }}%
+                                {% else %}
+                                    <span class="weather-none">—</span>
+                                {% endif %}
+                                {% if day.precip %}<span class="weather-amount">{{ day.precip }} in</span>{% endif %}
+                            </td>
+                            <td>
+                                <div class="forecast-conditions">
+                                    <i class="icon-{{ day.icon }}" aria-hidden="true"></i>
+                                    <span>{{ day.description }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="forecast-day-summary">
+                            <td colspan="5">
+                                {% if day.summary %}{{ day.summary }}.{% endif %}
+                                <span class="forecast-day-extra">
+                                    Wind {{ day.wind_speed }} mph {{ day.wind_dir }}
+                                    {% if day.wind_gust %}, gusts {{ day.wind_gust }}{% endif %}
+                                    · <span {% if day.uvi >= 3 %}class="weather-uv-raised"{% endif %}>UV {{ day.uvi }} {{ day.uv_level }}</span>
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
         </div>
     </div>
-</div>
+{% endwith %}
+<script>
+    document.getElementById("weather-relocate").addEventListener("click", function(event) {
+        event.preventDefault();
+        var link = this;
+        if (!navigator.geolocation) {
+            link.textContent = "Your browser does not support geolocation.";
+            return;
+        }
+        link.textContent = "Locating…";
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                var form = new FormData();
+                form.append("lat", pos.coords.latitude);
+                form.append("lon", pos.coords.longitude);
+                fetch("{% url 'home-save-location' %}", {
+                    method: "POST",
+                    headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                    body: form
+                }).then(function() {
+                    window.location.reload();
+                });
+            },
+            function() {
+                link.textContent = "Location access was denied.";
+            }
+        );
+    });
+</script>

@@ -1,25 +1,11 @@
 
-.location-title {
-  font-size: 1.7rem;
-}
+/* ------------------------------------------------------------------------- */
+/* layout: title and today, hourly, daily; one column on a phone */
+/* ------------------------------------------------------------------------- */
 
-.location-temp {
-  text-align: center;
+.weather-data > .col {
+  min-width: 0;
 }
-
-.location-zip {
-  margin-left: 0.5rem;
-}
-
-.location-edit-icon {
-  font-size: 0.95rem;
-  margin-left: 0.5rem;
-}
-
-.zip-input {
-  max-width: 6.25rem;
-}
-
 
 @media screen and (min-width: 750px) {
 
@@ -29,13 +15,148 @@
 
 }
 
-.current-icon-image {
-  width: 3.75rem;
-  height: 3.75rem;
+@media screen and (max-width: 991.98px) {
+
+  .weather-data > .col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
 }
 
-.edit-link {
+
+/* ------------------------------------------------------------------------- */
+/* alerts */
+/* ------------------------------------------------------------------------- */
+
+.weather-alerts {
+  background: var(--alert-danger-bg);
+  border: 1px solid var(--alert-danger-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
 }
+
+.weather-alert + .weather-alert {
+  border-top: 1px solid var(--alert-danger-border);
+}
+
+.weather-alert summary {
+  align-items: baseline;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  list-style: none;
+  padding: 0.6rem 1rem;
+}
+
+.weather-alert summary::-webkit-details-marker {
+  display: none;
+}
+
+.weather-alert summary i {
+  align-self: center;
+  color: var(--alert-danger-color);
+}
+
+.weather-alert-event {
+  color: var(--alert-danger-color);
+  font-weight: 600;
+}
+
+.weather-alert-sender {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+
+.weather-alert-description {
+  font-size: 0.9rem;
+  padding: 0 1rem 0.9rem 2.6rem;
+  white-space: pre-line;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* title card */
+/* ------------------------------------------------------------------------- */
+
+.location-title {
+  font-size: 1.7rem;
+  line-height: 1.2;
+  margin-bottom: 0.35rem;
+}
+
+.location-description {
+  margin-bottom: 0.15rem;
+}
+
+.location-feels,
+.location-range {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.location-now {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.location-icon {
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.location-temp {
+  font-size: 2.2rem;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.weather-title-foot {
+  color: var(--color-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  gap: 0.25rem 1rem;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.weather-title-foot a {
+  white-space: nowrap;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* today */
+/* ------------------------------------------------------------------------- */
+
+.weather-summary-today {
+  margin-bottom: 0.5rem;
+}
+
+.weather-next-hour {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.weather-next-hour.wet {
+  color: var(--urgent);
+}
+
+.weather-uv-raised {
+  color: var(--urgent);
+  font-weight: 600;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* the tables */
+/* ------------------------------------------------------------------------- */
 
 /* Every card is outlined in the rule its table's rows use, and a table
    runs out to its card's edges and down to its bottom (the card's
@@ -57,9 +178,9 @@
   padding-bottom: 0.75rem;
 }
 
-/* Current Conditions has its headers down the side, not across the top,
-   and only a header cell carries the table's top rule; the value cells
-   in its first row take one too, so the rule spans the table */
+/* Today has its headers down the side, not across the top, and only a
+   header cell carries the table's top rule; the value cells in its first
+   row take one too, so the rule spans the table */
 .card > .table tr:first-child td {
   border-top: solid 1px var(--border-medium);
 }
@@ -67,6 +188,8 @@
 /* and its label cells are headers only in markup: no header wash */
 .current-conditions .table th {
   background: transparent;
+  vertical-align: top;
+  white-space: nowrap;
 }
 
 .card > .table th:first-child,
@@ -79,24 +202,70 @@
   padding-right: 1rem;
 }
 
-.card-title h1 {
+/* a second, smaller line under a value: an amount, a gust, a date */
+.weather-amount {
+  color: var(--color-muted);
+  display: block;
+  font-size: 0.8rem;
 }
 
-.weather-data h1 {
+.weather-none {
+  color: var(--color-muted);
 }
 
-.weather-label {
+.forecast-hour,
+.forecast-date,
+.forecast-wind {
+  white-space: nowrap;
+}
+
+.forecast-conditions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.forecast-conditions i {
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+/* the hour the day turns over */
+.weather-day-divider td {
+  background: var(--background-table-header, var(--background-control));
+  font-size: 0.8rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  padding-bottom: 0.25rem;
+  padding-top: 0.25rem;
+  text-transform: uppercase;
 }
 
-.table .forecast-description {
-  border-right: none;
+/* a day's summary sits on its own line under it, the rule after both */
+.forecast-day td {
+  border-bottom: none;
+  padding-bottom: 0.15rem;
 }
 
-.table .forecast-icon {
-  border-left: none;
+.forecast-day-summary td {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  padding-top: 0;
 }
 
-.forecast-icon-image {
+.forecast-day-extra {
+  white-space: nowrap;
+}
+
+/* on a phone the summary line gives way to the row's tooltip */
+@media screen and (max-width: 575.98px) {
+
+  .forecast-day-summary {
+    display: none;
+  }
+
+  .forecast-day td {
+    border-bottom: solid 1px var(--border-medium);
+    padding-bottom: 0.5rem;
+  }
 
 }

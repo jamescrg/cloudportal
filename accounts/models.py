@@ -133,6 +133,9 @@ class CustomUser(AbstractUser):
     home_icons_muted = models.IntegerField(default=1)
     weather_lat = models.FloatField(null=True, blank=True)
     weather_lon = models.FloatField(null=True, blank=True)
+    # the place at those coordinates, looked up once and shown as the
+    # weather page's title
+    weather_place = models.CharField(max_length=120, blank=True, default="")
     favorites_folder = models.IntegerField(default=0)
     contacts_folder = models.IntegerField(default=0)
     contacts_contact = models.IntegerField(default=0)
