@@ -267,6 +267,15 @@ Section Layout (rail / body)
   padding: 0;
 }
 
+/* As the phone's sheet (drawer.css) it keeps the sheet's rounded top
+   and the room for its grab bar, which the rules above would take */
+@media (max-width: 991.98px) {
+  .section-nav[data-drawer] {
+    border-radius: 1rem 1rem 0 0;
+    padding-top: 1.75rem;
+  }
+}
+
 .section-nav ul {
   display: flex;
   flex-direction: column;
