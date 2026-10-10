@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-lg-9 order-lg-2" id="main-content">
             <div id="notes"
-                 {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}"{% endif %}>
+                 {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}"{% endif %}>
                 {% include "notes/list.html" %}
             </div>
         </div>
@@ -85,7 +85,7 @@
           confirmBtn.disabled = true;
           errorEl.textContent = "";
           try {
-            const key = await deriveKey(passphrase, salt);
+            const key = await deriveKey(passphrase, salt, document.getElementById("notes")?.dataset.encryptionIterations);
             await storeKey(key);
             cleanup();
             resolve(key);
@@ -211,7 +211,7 @@
           confirmBtn.disabled = true;
           errorEl.textContent = "";
           try {
-            const key = await deriveKey(passphrase, salt);
+            const key = await deriveKey(passphrase, salt, document.getElementById("notes")?.dataset.encryptionIterations);
             // Verify by decrypting the actual note content
             const note = await fetchNoteContent(noteId);
             if (note && note.content) {

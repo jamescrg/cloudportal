@@ -1,7 +1,11 @@
 // E2E encryption utilities using Web Crypto API
 // AES-256-GCM with PBKDF2 key derivation
 
-const PBKDF2_ITERATIONS = 100000;
+// Rounds for a key made now (enable, change passphrase). A user's own
+// count is stored beside their salt on the server, since every note
+// they hold was encrypted under a key derived with it; raising this
+// number only reaches a user when they change their passphrase.
+export const PBKDF2_ITERATIONS = 600000;
 const SALT_BYTES = 16;
 const IV_BYTES = 12;
 const SESSION_KEY = "notes_encryption_key";
@@ -14,8 +18,14 @@ export function generateSalt() {
   return uint8ToBase64(salt);
 }
 
-// Derive an AES-256-GCM CryptoKey from passphrase + base64 salt
-export async function deriveKey(passphrase, saltB64) {
+// Derive an AES-256-GCM CryptoKey from passphrase + base64 salt, with
+// the round count the key was (or is being) made with. A missing count
+// would silently derive a key that opens nothing, so it is required.
+export async function deriveKey(passphrase, saltB64, iterations) {
+  const rounds = Number(iterations);
+  if (!Number.isInteger(rounds) || rounds < 1) {
+    throw new Error("Key derivation needs the round count");
+  }
   const enc = new TextEncoder();
   const salt = base64ToUint8(saltB64);
 
@@ -31,7 +41,7 @@ export async function deriveKey(passphrase, saltB64) {
     {
       name: "PBKDF2",
       salt: salt,
-      iterations: PBKDF2_ITERATIONS,
+      iterations: rounds,
       hash: "SHA-256",
     },
     keyMaterial,
@@ -76,42 +86,60 @@ export async function decrypt(encoded, key) {
   return new TextDecoder().decode(plainBuffer);
 }
 
-// Key management (JWK in localStorage for persistence across sessions)
+// Key management: the derived key is kept in localStorage as a JWK with
+// the time it was last used, so a note opens without the passphrase for
+// KEY_TTL_MS after the last use. Past that the key is removed the next
+// time anything asks for it, so an expired key never lingers on disk;
+// the logout form clears it too (templates/base.html).
+function readStoredKey(ttlMs = KEY_TTL_MS) {
+  let raw;
+  try {
+    raw = localStorage.getItem(SESSION_KEY);
+  } catch (e) {
+    return null;
+  }
+  if (!raw) return null;
+  let stored = null;
+  try {
+    stored = JSON.parse(raw);
+  } catch (e) { /* not ours */ }
+  const fresh = stored && stored.jwk && stored.timestamp
+    && (Date.now() - stored.timestamp) < ttlMs;
+  if (!fresh) {
+    clearStoredKey();
+    return null;
+  }
+  return stored;
+}
+
 export function hasStoredKey() {
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (!raw) return false;
-  const stored = JSON.parse(raw);
-  // Support both old (plain JWK) and new (JWK + timestamp) formats
-  return stored && (stored.jwk || stored.kty);
+  return readStoredKey() !== null;
 }
 
 export function hasFreshKey(ttlMs) {
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (!raw) return false;
-  const stored = JSON.parse(raw);
-  if (!stored || !stored.jwk || !stored.timestamp) return false;
-  return (Date.now() - stored.timestamp) < ttlMs;
+  return readStoredKey(ttlMs) !== null;
+}
+
+// How many whole minutes the stored key has left, or 0 when there is none
+export function storedKeyMinutesLeft() {
+  const stored = readStoredKey();
+  if (!stored) return 0;
+  return Math.max(0, Math.round((KEY_TTL_MS - (Date.now() - stored.timestamp)) / 60000));
 }
 
 export function refreshKeyTimestamp() {
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (!raw) return;
-  const stored = JSON.parse(raw);
-  if (!stored || !stored.jwk) return;
+  const stored = readStoredKey();
+  if (!stored) return;
   stored.timestamp = Date.now();
   localStorage.setItem(SESSION_KEY, JSON.stringify(stored));
 }
 
 export async function getStoredKey() {
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (!raw) return null;
-
-  const stored = JSON.parse(raw);
-  // Support old format (plain JWK object with "kty" property)
-  const jwk = stored.jwk || stored;
+  const stored = readStoredKey();
+  if (!stored) return null;
   return crypto.subtle.importKey(
     "jwk",
-    jwk,
+    stored.jwk,
     { name: "AES-GCM", length: 256 },
     true,
     ["encrypt", "decrypt"]
@@ -127,7 +155,9 @@ export async function storeKey(key) {
 }
 
 export function clearStoredKey() {
-  localStorage.removeItem(SESSION_KEY);
+  try {
+    localStorage.removeItem(SESSION_KEY);
+  } catch (e) { /* nothing to clear */ }
 }
 
 // Base64 helpers

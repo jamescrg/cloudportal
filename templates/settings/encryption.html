@@ -37,6 +37,13 @@
                         <span id="key-status"></span>
                     </td>
                 </tr>
+                <tr>
+                    <td class="setting-label">Strength</td>
+                    <td class="setting-control">
+                        <span id="strength-status"
+                              data-iterations="{{ user.encryption_iterations }}">{{ user.encryption_iterations }} rounds</span>
+                    </td>
+                </tr>
             {% endif %}
         </table>
         {% if not has_salt %}
@@ -76,8 +83,8 @@
             </div>
         {% else %}
             <div id="disable-section">
-                <div id="passphrase-row" class="is-hidden">
-                    <p class="card-text">Enter your passphrase to decrypt all encrypted notes.</p>
+                <div id="passphrase-row">
+                    <p class="card-text">Enter your passphrase to decrypt every encrypted note and turn encryption off.</p>
                     <div class="encryption-fields">
                         <div class="password-wrapper">
                             <input type="password"
@@ -113,9 +120,11 @@
             <div class="card-title">
                 <h1>Change Passphrase</h1>
             </div>
-            <p class="card-text">Every encrypted note is re-encrypted under the new passphrase.</p>
+            <p class="card-text">
+                Every encrypted note is re-encrypted under the new passphrase. The current passphrase is always asked for, even while the key is loaded.
+            </p>
             <div class="encryption-fields">
-                <div id="change-current-row" class="is-hidden">
+                <div id="change-current-row">
                     <div class="password-wrapper">
                         <input type="password"
                                id="change-current-passphrase"
@@ -178,12 +187,15 @@
     });
     </script>
     <script type="module">
-    import { generateSalt, deriveKey, encrypt, decrypt, storeKey, getStoredKey, hasStoredKey, hasFreshKey, clearStoredKey, KEY_TTL_MS } from "{% static_v 'js/crypto.js' %}";
+    import { generateSalt, deriveKey, encrypt, decrypt, storeKey, hasStoredKey, storedKeyMinutesLeft, clearStoredKey, PBKDF2_ITERATIONS } from "{% static_v 'js/crypto.js' %}";
 
     const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
     const messageEl = document.getElementById("encryption-message");
     const progressEl = document.getElementById("encryption-progress");
     const progressText = document.getElementById("progress-text");
+    // this user's salt and the PBKDF2 round count their key was made with
+    const salt = "{{ user.encryption_salt|escapejs }}";
+    const iterations = {{ user.encryption_iterations }};
 
     function showMessage(text, isError) {
       messageEl.textContent = text;
@@ -217,21 +229,13 @@
       return resp.ok;
     }
 
-    async function bulkDecrypt(key) {
-      showProgress("Fetching notes...");
-      const notes = await fetchNotes();
-      const toDecrypt = notes.filter(function(n) { return n.is_encrypted && n.content; });
-
-      if (toDecrypt.length > 0) {
-        const updates = [];
-        for (let i = 0; i < toDecrypt.length; i++) {
-          showProgress("Decrypting note " + (i + 1) + " of " + toDecrypt.length + "...");
-          const plaintext = await decrypt(toDecrypt[i].content, key);
-          updates.push({ id: toDecrypt[i].id, content: plaintext, is_encrypted: false });
-        }
-        showProgress("Saving decrypted notes...");
-        await saveNotes(updates);
-      }
+    async function saveSalt(newSalt, rounds) {
+      const resp = await fetch("{% url 'settings-encryption-save-salt' %}", {
+        method: "POST",
+        headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/json" },
+        body: JSON.stringify({ salt: newSalt, iterations: rounds }),
+      });
+      return resp.ok;
     }
 
     async function clearSalt() {
@@ -239,6 +243,23 @@
         method: "POST",
         headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/json" },
       });
+    }
+
+    // The key for a passphrase typed into this page, proven against the
+    // first encrypted note: a wrong passphrase is reported here, before
+    // anything is rewritten. With no encrypted note there is nothing to
+    // prove it against, and nothing a wrong one could damage.
+    async function keyForPassphrase(passphrase, notes) {
+      const key = await deriveKey(passphrase, salt, iterations);
+      const sample = notes.find(function(n) { return n.is_encrypted && n.content; });
+      if (sample) {
+        try {
+          await decrypt(sample.content, key);
+        } catch (e) {
+          throw new Error("Wrong passphrase.");
+        }
+      }
+      return key;
     }
 
     // ── State: Disabled — Enable encryption ──
@@ -265,20 +286,14 @@
 
         try {
           showProgress("Generating encryption key...");
-          const salt = generateSalt();
-          const resp = await fetch("{% url 'settings-encryption-save-salt' %}", {
-            method: "POST",
-            headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/json" },
-            body: JSON.stringify({ salt: salt }),
-          });
-          if (!resp.ok) {
+          const newSalt = generateSalt();
+          const key = await deriveKey(passphrase, newSalt, PBKDF2_ITERATIONS);
+          if (!(await saveSalt(newSalt, PBKDF2_ITERATIONS))) {
             showMessage("Failed to save encryption settings.", true);
             enableBtn.disabled = false;
             hideProgress();
             return;
           }
-
-          const key = await deriveKey(passphrase, salt);
           await storeKey(key);
 
           hideProgress();
@@ -296,55 +311,32 @@
       });
     }
 
-    // ── State: Enabled — show key status and disable button ──
+    // ── State: Enabled — key status, strength, disable and change ──
     const keyStatusEl = document.getElementById("key-status");
-    const passphraseRow = document.getElementById("passphrase-row");
+    const strengthEl = document.getElementById("strength-status");
     const disableBtn = document.getElementById("disable-btn");
     const disablePassphrase = document.getElementById("passphrase-input");
-    const keyIsLoaded = hasFreshKey(KEY_TTL_MS);
 
     if (keyStatusEl) {
-      if (keyIsLoaded) {
-        const raw = localStorage.getItem("notes_encryption_key");
-        const stored = raw ? JSON.parse(raw) : null;
-        const remaining = stored ? Math.max(0, Math.round((KEY_TTL_MS - (Date.now() - stored.timestamp)) / 60000)) : 0;
-        keyStatusEl.innerHTML = '<span class="setting-ok">Loaded (expires in ' + remaining + ' min)</span>';
-      } else if (hasStoredKey()) {
-        keyStatusEl.textContent = "Expired — re-enter passphrase when opening an encrypted note";
+      if (hasStoredKey()) {
+        keyStatusEl.innerHTML = '<span class="setting-ok">Loaded (expires in ' + storedKeyMinutesLeft() + ' min)</span>';
       } else {
         keyStatusEl.textContent = "Not loaded in this browser";
       }
     }
 
-    // Show passphrase input if key is not loaded (needed for bulk decrypt on disable/change)
-    if (passphraseRow && !keyIsLoaded) {
-      passphraseRow.classList.remove("is-hidden");
-    }
-
-    const changeCurrentRow = document.getElementById("change-current-row");
-    if (changeCurrentRow && !hasStoredKey()) {
-      changeCurrentRow.classList.remove("is-hidden");
+    if (strengthEl && iterations < PBKDF2_ITERATIONS) {
+      strengthEl.textContent = iterations.toLocaleString() + " rounds — change your passphrase to move to " + PBKDF2_ITERATIONS.toLocaleString();
+    } else if (strengthEl) {
+      strengthEl.textContent = iterations.toLocaleString() + " rounds";
     }
 
     if (disableBtn) {
       disableBtn.addEventListener("click", async function() {
-        // If key is not fresh, require passphrase
-        let key;
-        if (keyIsLoaded) {
-          key = await getStoredKey();
-        } else {
-          const passphrase = disablePassphrase ? disablePassphrase.value : "";
-          if (!passphrase) {
-            showMessage("Please enter the passphrase to decrypt notes.", true);
-            return;
-          }
-          try {
-            const salt = "{{ user.encryption_salt|escapejs }}";
-            key = await deriveKey(passphrase, salt);
-          } catch (e) {
-            showMessage("Error deriving key: " + e.message, true);
-            return;
-          }
+        const passphrase = disablePassphrase.value;
+        if (!passphrase) {
+          showMessage("Please enter the passphrase to decrypt notes.", true);
+          return;
         }
 
         const confirmed = await window.showConfirm({
@@ -359,7 +351,20 @@
         messageEl.textContent = "";
 
         try {
-          await bulkDecrypt(key);
+          showProgress("Fetching notes...");
+          const notes = await fetchNotes();
+          const key = await keyForPassphrase(passphrase, notes);
+          const toDecrypt = notes.filter(function(n) { return n.is_encrypted && n.content; });
+          const updates = [];
+          for (let i = 0; i < toDecrypt.length; i++) {
+            showProgress("Decrypting note " + (i + 1) + " of " + toDecrypt.length + "...");
+            const plaintext = await decrypt(toDecrypt[i].content, key);
+            updates.push({ id: toDecrypt[i].id, content: plaintext, is_encrypted: false });
+          }
+          if (updates.length > 0) {
+            showProgress("Saving decrypted notes...");
+            if (!(await saveNotes(updates))) throw new Error("Failed to save decrypted notes.");
+          }
 
           showProgress("Clearing encryption settings...");
           await clearSalt();
@@ -375,14 +380,12 @@
         }
       });
 
-      if (disablePassphrase) {
-        disablePassphrase.addEventListener("keydown", function(e) {
-          if (e.key === "Enter") disableBtn.click();
-        });
-      }
+      disablePassphrase.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") disableBtn.click();
+      });
     }
 
-    // ── Change Passphrase ──
+    // ── Change Passphrase: the current one is always required ──
     const changeBtn = document.getElementById("change-btn");
     const changeCurrentInput = document.getElementById("change-current-passphrase");
     const changeNewInput = document.getElementById("change-new-passphrase");
@@ -390,28 +393,13 @@
 
     if (changeBtn) {
       changeBtn.addEventListener("click", async function() {
-        // 1. Get old key: use stored key (fresh or expired) if available
-        let oldKey;
-        if (hasStoredKey()) {
-          oldKey = await getStoredKey();
-        } else {
-          const currentPassphrase = changeCurrentInput ? changeCurrentInput.value : "";
-          if (!currentPassphrase) {
-            showMessage("Please enter your current passphrase.", true);
-            return;
-          }
-          try {
-            const salt = "{{ user.encryption_salt|escapejs }}";
-            oldKey = await deriveKey(currentPassphrase, salt);
-          } catch (e) {
-            showMessage("Error deriving key: " + e.message, true);
-            return;
-          }
-        }
-
-        // 2. Validate new passphrase
+        const currentPassphrase = changeCurrentInput.value;
         const newPassphrase = changeNewInput.value;
         const confirmPassphrase = changeConfirmInput.value;
+        if (!currentPassphrase) {
+          showMessage("Please enter your current passphrase.", true);
+          return;
+        }
         if (!newPassphrase) {
           showMessage("New passphrase cannot be empty.", true);
           return;
@@ -426,17 +414,15 @@
         messageEl.textContent = "";
 
         try {
-          // 3. Generate new salt and derive new key
-          showProgress("Generating new encryption key...");
-          const newSalt = generateSalt();
-          const newKey = await deriveKey(newPassphrase, newSalt);
-
-          // 4. Fetch all notes
           showProgress("Fetching notes...");
           const notes = await fetchNotes();
-          const toRekey = notes.filter(function(n) { return n.is_encrypted && n.content; });
+          const oldKey = await keyForPassphrase(currentPassphrase, notes);
 
-          // 5. Decrypt with old key, re-encrypt with new key
+          showProgress("Generating new encryption key...");
+          const newSalt = generateSalt();
+          const newKey = await deriveKey(newPassphrase, newSalt, PBKDF2_ITERATIONS);
+
+          const toRekey = notes.filter(function(n) { return n.is_encrypted && n.content; });
           if (toRekey.length > 0) {
             const updates = [];
             for (let i = 0; i < toRekey.length; i++) {
@@ -446,20 +432,11 @@
               updates.push({ id: toRekey[i].id, content: ciphertext, is_encrypted: true });
             }
             showProgress("Saving re-encrypted notes...");
-            const ok = await saveNotes(updates);
-            if (!ok) throw new Error("Failed to save re-encrypted notes.");
+            if (!(await saveNotes(updates))) throw new Error("Failed to save re-encrypted notes.");
           }
 
-          // 6. Save new salt
           showProgress("Saving new encryption settings...");
-          const resp = await fetch("{% url 'settings-encryption-save-salt' %}", {
-            method: "POST",
-            headers: { "X-CSRFToken": csrfToken, "Content-Type": "application/json" },
-            body: JSON.stringify({ salt: newSalt }),
-          });
-          if (!resp.ok) throw new Error("Failed to save new salt.");
-
-          // 7. Store new key
+          if (!(await saveSalt(newSalt, PBKDF2_ITERATIONS))) throw new Error("Failed to save new salt.");
           await storeKey(newKey);
 
           hideProgress();

@@ -1269,8 +1269,15 @@ function importMarkdown(markdown, replace) {
 // Encryption
 // =============================================================================
 
+// The user's salt and PBKDF2 round count, carried on the note canvas
+// (templates/notes/editor-content.html); both are needed to derive the key
+function encryptionParams() {
+  const data = document.querySelector(".note-canvas")?.dataset || {};
+  return { salt: data.encryptionSalt, iterations: data.encryptionIterations };
+}
+
 function showPassphrasePrompt(container) {
-  const salt = document.querySelector(".note-canvas")?.dataset.encryptionSalt;
+  const { salt, iterations } = encryptionParams();
   if (!salt) {
     container.innerHTML =
       '<div class="locked-placeholder">' +
@@ -1354,7 +1361,7 @@ function showPassphrasePrompt(container) {
     errorEl.textContent = "";
 
     try {
-      const key = await deriveKey(passphrase, salt);
+      const key = await deriveKey(passphrase, salt, iterations);
       const content = window.NOTE_DATA.content || "";
       const decrypted = await decrypt(content, key);
 
@@ -1403,7 +1410,7 @@ function setupLockToggle() {
 
   newBtn.addEventListener("click", async function(e) {
     e.preventDefault();
-    const salt = document.querySelector(".note-canvas")?.dataset.encryptionSalt;
+    const { salt, iterations } = encryptionParams();
 
     if (noteIsEncrypted) {
       // Remove encryption
@@ -1447,7 +1454,7 @@ function setupLockToggle() {
 
       if (!encryptionKey) {
         // Show a small prompt to get passphrase
-        const passphrase = await showInlinePassphraseDialog(salt);
+        const passphrase = await showInlinePassphraseDialog(salt, iterations);
         if (!passphrase) return; // cancelled
       }
 
@@ -1460,7 +1467,7 @@ function setupLockToggle() {
   });
 }
 
-function showInlinePassphraseDialog(salt) {
+function showInlinePassphraseDialog(salt, iterations) {
   return new Promise(function(resolve) {
     const overlay = document.createElement("div");
     overlay.className = "passphrase-dialog-overlay";
@@ -1525,7 +1532,7 @@ function showInlinePassphraseDialog(salt) {
       errorEl.textContent = "";
 
       try {
-        const key = await deriveKey(passphrase, salt);
+        const key = await deriveKey(passphrase, salt, iterations);
         await storeKey(key);
         encryptionKey = key;
         cleanup();

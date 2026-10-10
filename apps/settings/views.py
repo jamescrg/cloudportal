@@ -398,6 +398,12 @@ def google_logout(request):
     return redirect("/settings/google/")
 
 
+# The PBKDF2 round counts a client may record: the old fixed count at the
+# low end, and a ceiling well above anything a phone derives in a second
+ITERATIONS_MIN = 100_000
+ITERATIONS_MAX = 10_000_000
+
+
 @login_required
 def encryption_index(request):
     """Show the Encryption settings tab."""
@@ -423,9 +429,19 @@ def encryption_save_salt(request):
 
     if not salt:
         return JsonResponse({"error": "Salt is required"}, status=400)
+    # the PBKDF2 round count the key was derived with, kept beside the
+    # salt so the key can be derived again; bounded so a typo can't lock
+    # a browser up for minutes or weaken the key below the old default
+    try:
+        iterations = int(body.get("iterations"))
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "Iterations are required"}, status=400)
+    if not ITERATIONS_MIN <= iterations <= ITERATIONS_MAX:
+        return JsonResponse({"error": "Iterations out of range"}, status=400)
 
     request.user.encryption_salt = salt
-    request.user.save(update_fields=["encryption_salt"])
+    request.user.encryption_iterations = iterations
+    request.user.save(update_fields=["encryption_salt", "encryption_iterations"])
 
     return JsonResponse({"saved": True})
 

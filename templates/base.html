@@ -116,7 +116,10 @@
                         <strong>{{ user.get_full_name|default:user.username }}</strong>
                         <span>{{ user.email }}</span>
                     </div>
-                    <form method="post" action="{% url 'logout' %}">
+                    {# Logging out also forgets the notes encryption key this browser holds (static/js/crypto.js) #}
+                    <form method="post"
+                          action="{% url 'logout' %}"
+                          onsubmit="try { localStorage.removeItem('notes_encryption_key'); } catch (e) {}">
                         {% csrf_token %}
                         <button type="submit" class="drawer-logout">
                             <i class="icon-log-out"></i> Log out

@@ -143,6 +143,10 @@ class CustomUser(AbstractUser):
     tasks_folders = models.JSONField(default=list)
     tasks_active_folder = models.IntegerField(default=0)
     encryption_salt = models.CharField(max_length=44, blank=True, default="")
+    # The PBKDF2 round count the notes key was derived with (static/js/
+    # crypto.js). Keys made before the count was recorded used 100,000; a
+    # new or changed passphrase takes the current count from the client
+    encryption_iterations = models.PositiveIntegerField(default=100000)
     # Two-step sign-in with an authenticator app (accounts.totp): the shared
     # secret, set once the user has confirmed a code from the app (empty
     # means it is off), and the last 30-second step whose code was taken,
