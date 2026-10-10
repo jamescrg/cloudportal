@@ -40,7 +40,7 @@ def test_index(client):
 def test_add(client):
     response = client.get("/favorites/add")
     assert response.status_code == 200
-    assertTemplateUsed(response, "favorites/form.html")
+    assertTemplateUsed(response, "favorites/content.html")
 
 
 def test_add_data(client, folder1):
@@ -58,7 +58,7 @@ def test_add_data(client, folder1):
 def test_edit(client, favorite):
     response = client.get(f"/favorites/{favorite.id}/edit")
     assert response.status_code == 200
-    assertTemplateUsed(response, "favorites/form.html")
+    assertTemplateUsed(response, "favorites/content.html")
 
 
 def test_edit_data(client, folder1, favorite):
@@ -113,3 +113,54 @@ def test_list_offers_the_home_mark_in_a_folder_on_home(client, user, folder1, fa
     favorite.save()
     html = client.get("/favorites/").content.decode()
     assert "status-mark is-on" in html and "Take off Home" in html
+
+
+# --- one limit on the name, whichever form it comes in by ------------------
+
+
+def test_a_name_saved_from_the_extension_can_be_edited_in_the_modal(client, folder1):
+    name = "A page title the extension picked up that runs well past fifty characters"
+    assert 50 < len(name) <= 100
+
+    response = client.post(
+        "/favorites/extension",
+        {"folder": folder1.id, "name": name, "url": "https://example.com"},
+    )
+    assert response.status_code == 200
+    favorite = Favorite.objects.get(name=name)
+
+    response = client.post(
+        f"/favorites/{favorite.id}/form",
+        {"folder": folder1.id, "name": name, "url": "https://example.com"},
+    )
+    assert response.status_code == 204
+
+
+def test_the_popup_trims_a_page_title_to_what_fits(client):
+    response = client.get(
+        "/favorites/extension", {"name": "x" * 150, "url": "https://example.com"}
+    )
+
+    assert len(response.context["form"].initial["name"]) == 100
+
+
+def test_the_modal_refuses_a_name_too_long_for_the_column_and_says_the_limit(
+    client, folder1
+):
+    response = client.post(
+        "/favorites/form",
+        {"folder": folder1.id, "name": "x" * 101, "url": "https://example.com"},
+    )
+
+    assert response.status_code == 200
+    assert "Name can be up to 100 characters" in response.content.decode()
+    assert not Favorite.objects.exists()
+
+
+def test_a_one_letter_name_is_fine(client, folder1):
+    response = client.post(
+        "/favorites/form", {"folder": folder1.id, "name": "X", "url": "https://x.com"}
+    )
+
+    assert response.status_code == 204
+    assert Favorite.objects.filter(name="X").exists()

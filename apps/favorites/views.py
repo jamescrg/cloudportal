@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from apps.favorites import site_icons
-from apps.favorites.forms import FavoriteExtensionForm, FavoriteForm
+from apps.favorites.forms import NAME_LENGTH, FavoriteExtensionForm, FavoriteForm
 from apps.favorites.models import Favorite, SiteIcon
 from apps.folders.folders import get_folders_for_page, select_folder
 from apps.folders.models import Folder
@@ -500,7 +500,8 @@ def extension_add(request):
         if request.GET.get("url"):
             initial["url"] = request.GET.get("url")
         if request.GET.get("name"):
-            initial["name"] = request.GET.get("name")
+            # A page title can run past the column; keep what fits
+            initial["name"] = request.GET.get("name")[:NAME_LENGTH]
 
         selected_folder = select_folder(request, "favorites")
         if selected_folder:

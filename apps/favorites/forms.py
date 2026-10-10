@@ -1,33 +1,50 @@
 from django import forms
-from django.core.exceptions import ValidationError
 
 from config.settings import CustomFormRenderer
 
 from .models import Favorite
 
+# The longest name a favorite can have: the width of its column. The
+# extension popup trims a page title to it, so the form never opens with a
+# name it cannot save.
+NAME_LENGTH = Favorite._meta.get_field("name").max_length
 
-class FavoriteExtensionForm(forms.ModelForm):
-    """Form for adding favorites via browser extension."""
+
+class FavoriteFormBase(forms.ModelForm):
+    """What every favorite form checks. Each text field may be as long as
+    its column, no matter which form it comes in by, so a favorite saved
+    from the extension popup can be edited on the favorites page. Only the
+    wording of the too-long messages is ours."""
 
     default_renderer = CustomFormRenderer
 
     class Meta:
+        # The model is named by each form's Meta, which lists its fields
+        error_messages = {
+            "name": {"max_length": "Name can be up to %(limit_value)d characters"},
+            "url": {"max_length": "URL can be up to %(limit_value)d characters"},
+            "description": {
+                "max_length": "Description can be up to %(limit_value)d characters"
+            },
+        }
+
+
+class FavoriteExtensionForm(FavoriteFormBase):
+    """The form in the browser extension's popup."""
+
+    class Meta(FavoriteFormBase.Meta):
         model = Favorite
         fields = ("folder", "name", "url")
 
 
-class FavoriteForm(forms.ModelForm):
-    default_renderer = CustomFormRenderer
+class FavoriteForm(FavoriteFormBase):
+    """The form on the favorites page, and in its modal."""
+
     use_required_attribute = False
 
-    class Meta:
+    class Meta(FavoriteFormBase.Meta):
         model = Favorite
-        fields = (
-            "folder",
-            "name",
-            "url",
-            "description",
-        )
+        fields = ("folder", "name", "url", "description")
         widgets = {
             "name": forms.TextInput(attrs={"class": "span2"}),
             "url": forms.TextInput(attrs={"class": "span2"}),
@@ -38,25 +55,3 @@ class FavoriteForm(forms.ModelForm):
         for field in super().__iter__():
             if field.name != "folder":
                 yield field
-
-    def clean_name(self):
-        name = self.cleaned_data["name"]
-        if len(name) < 2:
-            raise ValidationError("Name must be greater than 2 characters")
-        if len(name) > 50:
-            raise ValidationError("Name must be fewer than 50 characters")
-        return name
-
-    def clean_url(self):
-        url = self.cleaned_data["url"]
-        if url:
-            if len(url) >= 250:
-                raise ValidationError("Url must be fewer than 250 characters.")
-        return url
-
-    def clean_description(self):
-        description = self.cleaned_data["description"]
-        if description:
-            if len(description) > 250:
-                raise ValidationError("Description must be fewer than 250 characters.")
-        return description
