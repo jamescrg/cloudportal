@@ -1,5 +1,5 @@
 <div id="notes"
-     {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}" data-encryption-wrapped-key="{{ user.encryption_wrapped_key }}"{% endif %}>
+     {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}" data-encryption-wrapped-key="{{ user.encryption_wrapped_key }}" data-encryption-by-default="{{ user.encryption_by_default|yesno:'true,false' }}"{% endif %}>
     {% include "notes/list.html" %}
 </div>
 <div id="folder-tree-container" hx-swap-oob="innerHTML">{% include "folders/tree.html" %}</div>

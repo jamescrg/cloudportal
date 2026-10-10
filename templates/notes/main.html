@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-lg-9 order-lg-2" id="main-content">
             <div id="notes"
-                 {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}" data-encryption-wrapped-key="{{ user.encryption_wrapped_key }}"{% endif %}>
+                 {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}" data-encryption-wrapped-key="{{ user.encryption_wrapped_key }}" data-encryption-by-default="{{ user.encryption_by_default|yesno:'true,false' }}"{% endif %}>
                 {% include "notes/list.html" %}
             </div>
         </div>
@@ -55,13 +55,36 @@
       e.preventDefault();
 
       const noteId = parseInt(row.dataset.noteId, 10);
-      const unlocked = await showUnlockDialog(salt, noteId);
+      const unlocked = await showUnlockDialog(noteId);
       if (unlocked) {
         window.location.href = href;
       }
     });
 
-    async function showUnlockDialog(salt, noteId) {
+    // When every new note starts encrypted, the key is asked for before
+    // one is made, so nothing is created if the passphrase isn't given
+    // and the editor opens ready to type. Capture phase, ahead of htmx.
+    document.addEventListener("click", async function(e) {
+      const btn = e.target.closest("#add-note-btn");
+      if (!btn || btn.dataset.unlocked === "true") return;
+      const notes = document.getElementById("notes");
+      if (!notes || notes.dataset.encryptionByDefault !== "true" || !notes.dataset.encryptionSalt) return;
+      if (hasFreshKey(KEY_TTL_MS)) {
+        refreshKeyTimestamp();
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      if (await showUnlockDialog(null)) {
+        btn.dataset.unlocked = "true";
+        btn.click();
+        delete btn.dataset.unlocked;
+      }
+    }, true);
+
+    // The passphrase dialog; the key is kept once it opens the seal, or,
+    // for a key from before the sealed scheme, once it decrypts the note
+    async function showUnlockDialog(noteId) {
       return new Promise(function(resolve) {
         const overlay = document.createElement("div");
         overlay.className = "passphrase-dialog-overlay";
@@ -116,7 +139,7 @@
           try {
             const key = await unlock(passphrase, paramsOf(document.getElementById("notes")));
             // Verify by decrypting the actual note content
-            const note = await fetchNoteContent(noteId);
+            const note = noteId ? await fetchNoteContent(noteId) : null;
             if (note && note.content) {
               await decrypt(note.content, key);
             }
