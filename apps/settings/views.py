@@ -261,9 +261,7 @@ def ntfy_test(request):
 def notification_options(request, option, value):
     user = request.user
     val = True if value == "enable" else False
-    if option == "email_reminders":
-        user.email_reminders = val
-    elif option == "sms_notifications":
+    if option == "sms_notifications":
         user.sms_notifications = val
     user.save()
     return redirect("/settings/notifications/")

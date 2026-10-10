@@ -97,22 +97,6 @@ def test_a_closed_card_is_not_reopened_by_a_second_notification(user, task, card
     assert HomeNotice.objects.count() == 2
 
 
-def test_the_digest_goes_to_the_home_page_when_chosen(user, mailoutbox):
-    user.notify_by = "home"
-    user.email_reminders = True
-    user.save()
-    Task.objects.create(user=user, title="Old", due_date=date(2020, 1, 1))
-    Task.objects.create(user=user, title="Older", due_date=date(2019, 1, 1))
-
-    assert task_reminders.send_past_due_digests(today=date(2030, 3, 4)) == (1, 0)
-    assert task_reminders.send_past_due_digests(today=date(2030, 3, 5)) == (1, 0)
-
-    notice = HomeNotice.objects.get()
-    assert (notice.kind, notice.title) == ("digest", "2 past-due tasks")
-    assert notice.line_list == ["• Old (due Jan 1)", "• Older (due Jan 1)"]
-    assert mailoutbox == []
-
-
 def test_the_dev_machine_posts_cards_as_production_does(settings, user, task):
     settings.EMAIL_NOTIFICATIONS = False
 

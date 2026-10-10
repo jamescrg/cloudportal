@@ -1,8 +1,7 @@
-"""Notifications: an event or task reminder, or the past-due digest, sent
-by one of three channels (apps.common.models.CHANNEL_CHOICES). Each
-notification on an event or task names its own; the user's choice in
-Settings (CustomUser.notify_by) is the default for new ones and the way
-the digest goes.
+"""Notifications: an event or task reminder, sent by one of three
+channels (apps.common.models.CHANNEL_CHOICES). Each notification on an
+event or task names its own; the user's choice in Settings
+(CustomUser.notify_by) is the default for new ones.
 
 By ntfy, a notification is pushed to the topic the user's ntfy app is
 subscribed to (https://docs.ntfy.sh/publish/), arriving in seconds, with
@@ -225,43 +224,6 @@ def event_reminder(user, event, channel=None):
         pushed=pushed,
         emailed=lambda: email.send_event_reminder_email(user, event),
         posted=lambda: notices.post_event(user, event, lines),
-    )
-
-
-def _digest_lines(tasks, limit=None):
-    lines = []
-    for task in tasks[:limit]:
-        line = f"• {task.title}"
-        if task.due_date:
-            line += f" (due {task.due_date.strftime('%b %-d')})"
-        lines.append(line)
-    if limit and len(tasks) > limit:
-        lines.append(f"… and {len(tasks) - limit} more")
-    return lines
-
-
-def past_due_digest(user, tasks):
-    """The daily digest of the user's past-due tasks, the way they chose in
-    Settings."""
-    tasks = list(tasks)
-    title = f"{len(tasks)} past-due task{'s' if len(tasks) != 1 else ''}"
-
-    def pushed():
-        return push(
-            user,
-            title,
-            "\n".join(_digest_lines(tasks, limit=20)),
-            priority=3,
-            tags=["warning"],
-            click=_site(reverse("tasks")),
-        )
-
-    return _deliver(
-        user,
-        user.notify_by,
-        pushed=pushed,
-        emailed=lambda: email.send_past_due_digest_email(user, tasks),
-        posted=lambda: notices.post_digest(user, title, _digest_lines(tasks)),
     )
 
 

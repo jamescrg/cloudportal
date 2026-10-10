@@ -154,21 +154,6 @@ def test_an_event_reminder_is_pushed(ntfy_user, ntfy):
     assert message["message"] == "Monday, March 4 at 9:00 AM – 9:30 AM\nZoom"
 
 
-def test_the_digest_is_pushed(ntfy_user, ntfy):
-    tasks = [
-        Task.objects.create(
-            user=ntfy_user, title=f"Late {n}", due_date=date(2020, 1, n)
-        )
-        for n in (1, 2)
-    ]
-
-    notify.past_due_digest(ntfy_user, tasks)
-
-    message = ntfy.sent[0]["json"]
-    assert message["title"] == "2 past-due tasks"
-    assert "Late 1" in message["message"] and "Late 2" in message["message"]
-
-
 def test_a_failed_push_goes_by_email(ntfy_user, monkeypatch, mailoutbox):
     monkeypatch.setattr(notify.requests, "post", FakeNtfy(fail=True).post)
     task = Task.objects.create(

@@ -32,10 +32,7 @@ def schedule_specs():
             "task-reminders",
             "apps.tasks.reminders.send_all",
             "* * * * *",
-            description=(
-                "Sends the task notifications that have come due, and once a "
-                "day each user's digest of past-due tasks if they turned it on."
-            ),
+            description="Sends the task notifications that have come due.",
         ),
         ScheduleSpec(
             "recurring-tasks",

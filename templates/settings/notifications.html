@@ -5,7 +5,7 @@
             <h1>Notifications</h1>
         </div>
         <p class="card-text">
-            A notification is added to an event or task on its own form, and each one says how it reaches you: by email, by push to the ntfy app on your phone, or as a card on your homepage that stays until you close it. This page sets what those need: the choice offered first when you add one, where email goes, the phone for push, and the past-due digest.
+            A notification is added to an event or task on its own form, and each one says how it reaches you: by email, by push to the ntfy app on your phone, or as a card on your homepage that stays until you close it. This page sets what those need: the choice offered first when you add one, where email goes, and the phone for push.
         </p>
         {% if not_production %}
             <p class="card-text setting-note">
@@ -35,9 +35,7 @@
                                 name="notify_by"
                                 value="home">Homepage</button>
                     </form>
-                    <p class="setting-note">
-                        How a new notification goes unless you choose otherwise when you add it, and how the past-due digest goes.
-                    </p>
+                    <p class="setting-note">How a new notification goes unless you choose otherwise when you add it.</p>
                 </td>
             </tr>
             <tr>
@@ -151,21 +149,5 @@
                 Anyone who knows the topic can read what is sent to it, so it is long and random; keep it to yourself. A new topic stops the old one, and the phone needs subscribing again.
             </p>
         {% endif %}
-    </div>
-    <div class="card">
-        <div class="card-title">
-            <h1>Past-Due Digest</h1>
-        </div>
-        <p class="card-text">Once a day, a list of your tasks that are past due, by the choice offered first above.</p>
-        <table class="options">
-            <tr>
-                <td class="setting-label">Digest</td>
-                <td class="setting-control">
-                    {% url 'settings-notification-options' option='email_reminders' value='enable' as url_on %}
-                    {% url 'settings-notification-options' option='email_reminders' value='disable' as url_off %}
-                    {% include "components/setting-switch.html" with on=user.email_reminders url_on=url_on url_off=url_off label="Past-due digest" %}
-                </td>
-            </tr>
-        </table>
     </div>
 {% endblock subcontent %}

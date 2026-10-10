@@ -19,17 +19,17 @@ class HomeNoticeQuerySet(models.QuerySet):
 
 
 class HomeNotice(models.Model):
-    """A notification shown as a card on the home page: a task's, an
-    event's, or the past-due digest. It stays until the user closes it, or
-    the task or event is deleted. Fields:
+    """A notification shown as a card on the home page: a task's or an
+    event's. It stays until the user closes it, or the task or event is
+    deleted. Fields:
 
-        kind: "task", "event" or "digest"
+        kind: "task" or "event"
         title: the heading; lines: the card's text, one line each
-        task, event: what it is for, when it is for one thing
+        task, event: what it is for
         dismissed_at: when the user closed it, or None while it shows
     """
 
-    KIND_CHOICES = (("task", "Task"), ("event", "Event"), ("digest", "Digest"))
+    KIND_CHOICES = (("task", "Task"), ("event", "Event"))
 
     user = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="home_notices"
@@ -58,9 +58,8 @@ class HomeNotice(models.Model):
 
     @property
     def link(self):
-        """Where the card's title goes: the task's form, the calendar on
-        the event's day where the user is, or the tasks page for the
-        digest."""
+        """Where the card's title goes: the task's form, or the calendar
+        on the event's day where the user is."""
         if self.task_id:
             return reverse("tasks-edit", args=[self.task_id])
         if self.event_id:

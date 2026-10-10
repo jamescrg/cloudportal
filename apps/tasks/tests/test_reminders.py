@@ -1,6 +1,6 @@
 """Task notifications: set on the task, inherited by a recurring task's
 instances, shown and sent where the user is, and the command that sends
-them along with the past-due digest."""
+them."""
 
 from datetime import date, datetime, time
 from io import StringIO
@@ -333,24 +333,10 @@ def test_a_task_without_a_due_time_gets_no_automatic_notification(
     assert mailoutbox == []
 
 
-def test_the_command_sends_notifications_and_the_digest(
-    user, timed, mailoutbox, monkeypatch
-):
-    user.email_reminders = True
-    user.save()
-    Task.objects.create(user=user, title="Old", due_date=date(2020, 1, 1))
+def test_the_command_sends_the_notifications_due(user, timed, monkeypatch):
     monkeypatch.setattr(reminders, "send_due", lambda now=None: (2, 0))
     out = StringIO()
 
     call_command("send_task_reminders", stdout=out)
 
-    assert "Sent 2 notification(s), 1 digest(s), 0 error(s)" in out.getvalue()
-    assert mailoutbox[0].subject == "Past Due Tasks"
-
-
-def test_the_digest_waits_for_the_setting(user, mailoutbox):
-    Task.objects.create(user=user, title="Old", due_date=date(2020, 1, 1))
-
-    call_command("send_task_reminders", stdout=StringIO())
-
-    assert mailoutbox == []
+    assert "Sent 2 notification(s), 0 error(s)" in out.getvalue()

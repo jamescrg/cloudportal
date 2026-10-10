@@ -38,7 +38,7 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 - Folder-based task lists with due dates and optional due times
 - Recurring tasks, with the same repeat rules as events (shared in `apps/common/recurrence.py`): one open instance at a time, the next due on the rule's next day when it is done
 - Share task folders with other users for collaborative lists
-- Email notifications per task, set on the task as "N minutes/hours/days/weeks before" like event notifications; recurring tasks pass theirs on to each instance. A daily past-due digest can be switched on in Settings. Both are sent by the background worker
+- Email notifications per task, set on the task as "N minutes/hours/days/weeks before" like event notifications; recurring tasks pass theirs on to each instance, and the background worker sends them
 - Time zone aware due times: a task with a due time is a fixed moment, shown and notified where you are now
 - Quick-filter for tasks due soon; archive completed tasks
 
@@ -187,7 +187,7 @@ broker, so no cron is needed. The jobs are listed in
 | Schedule | When | Job |
 | --- | --- | --- |
 | `event-reminders` | Every minute | Sends event notifications that are due, by email or ntfy |
-| `task-reminders` | Every minute | Sends task notifications that are due, and the daily past-due digest |
+| `task-reminders` | Every minute | Sends task notifications that are due |
 | `calendar-sync` | Every 5 minutes | Two-way Google Calendar sync for users who have it on |
 | `recurring-tasks` | 1:00 daily | Gives any recurring task left without an open instance its next one |
 | `extend-event-series` | 2:00 daily | Tops up repeating events' occurrences to a year ahead |

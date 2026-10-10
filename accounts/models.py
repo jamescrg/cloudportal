@@ -73,15 +73,14 @@ class CustomUser(AbstractUser):
     zip = models.IntegerField(null=True, blank=True)
     phone_number = models.CharField(max_length=20, blank=True, default="")
     sms_notifications = models.BooleanField(default=False)
-    email_reminders = models.BooleanField(default=False)
     notification_email = models.EmailField(blank=True, default="")
     # How notifications reach the user unless one says otherwise: by email,
     # pushed to the ntfy app, or as a card on the home page (the choices
     # are apps.common.models.CHANNEL_CHOICES; see apps.common.notify). It is
-    # the default for each new notification on an event or task, and the
-    # way the past-due digest goes. ntfy delivers to anyone subscribed to a
-    # topic on a server, so the topic is long and random; a server that is
-    # not open to all wants an access token.
+    # the default for each new notification on an event or task. ntfy
+    # delivers to anyone subscribed to a topic on a server, so the topic is
+    # long and random; a server that is not open to all wants an access
+    # token.
     NOTIFY_CHOICES = (("email", "Email"), ("ntfy", "Push"), ("home", "Homepage"))
     notify_by = models.CharField(max_length=10, choices=NOTIFY_CHOICES, default="email")
     ntfy_server = models.URLField(default="https://ntfy.sh")

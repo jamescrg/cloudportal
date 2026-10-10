@@ -41,7 +41,6 @@ class Task(TimestampMixin, models.Model):
     due_time = models.TimeField(blank=True, null=True)
     # The zone the due date and time are in, so together they name a moment
     time_zone = models.CharField(max_length=64, default=settings.TIME_ZONE)
-    reminder_sent_date = models.DateField(blank=True, null=True)
 
     # A recurring task's template: the rule it repeats by
     is_recurring = models.BooleanField(default=False)
