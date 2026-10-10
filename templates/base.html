@@ -101,13 +101,13 @@
                 <ul>
                     {% include "nav-links.html" %}
                     <li {% if page == 'settings' %}class="active"{% endif %}>
-                        <a href="{% url 'settings' %}">Settings</a>
+                        <a href="{% url 'settings' %}"><i class="nav-icon icon-settings"></i>Settings</a>
                     </li>
                     <li>
                         <a href="#"
                            @click="close()"
                            hx-get="{% url 'search' %}"
-                           hx-target="#htmx-modal-container">Search</a>
+                           hx-target="#htmx-modal-container"><i class="nav-icon icon-search"></i>Search</a>
                     </li>
                 </ul>
                 <!-- The account, at the foot of the drawer: who is signed in, and Log out -->
