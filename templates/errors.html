@@ -19,7 +19,12 @@
 <div class="page-vertical-centered">
     <div class="card page-horizontal-centered">
         <div class="card-body">
-            <h1 class="card-title">{{ site_handle }}</h1>
+            {# The mark alone heads the card, as on the auth pages #}
+            <img src="{% static 'images/cloudy-matcha.svg' %}"
+                 alt="{{ site_handle }}"
+                 width="48"
+                 height="48"
+                 class="auth-logo">
             <p class="card-text">
                 {% block message %}
                 {% endblock message %}
