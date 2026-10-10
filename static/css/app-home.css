@@ -473,10 +473,10 @@
   width: 16px;
 }
 
-/* When the user has the icons desaturated, each is drained of its own
-   colours and softened, so the page reads as one colour */
+/* When the user has the icons desaturated, each keeps half its colour
+   and is softened, so the page reads as one surface */
 .favicons-muted img.favicon {
-  filter: grayscale(1) opacity(0.75);
+  filter: grayscale(0.5) opacity(0.75);
 }
 
 .favicon-none {
