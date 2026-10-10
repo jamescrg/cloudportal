@@ -51,7 +51,21 @@
         {% endif %}
         {% if theme_variant %}
             <link rel="stylesheet" href="{% static_v 'css/atmosphere.css' %}">
-            <link rel="stylesheet" href="{% static_v_theme %}">
+            {% if theme == "auto-atmosphere" %}
+                {% comment %}
+                Auto's atmosphere follows the device: Matcha Lavender over
+                the light, Hojicha Steam over the dark (theme-auto.css
+                holds Hojicha's colours behind the same condition)
+                {% endcomment %}
+                <link rel="stylesheet"
+                      href="{% static_v_theme 'matcha-lavender' %}"
+                      media="(prefers-color-scheme: light)">
+                <link rel="stylesheet"
+                      href="{% static_v_theme 'hojicha-steam' %}"
+                      media="(prefers-color-scheme: dark)">
+            {% else %}
+                <link rel="stylesheet" href="{% static_v_theme %}">
+            {% endif %}
         {% endif %}
     </head>
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'

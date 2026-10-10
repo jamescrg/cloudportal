@@ -55,8 +55,9 @@
                 <td class="setting-control">
                     {% comment %}
                     A switch: on, the theme takes its atmospheric variant
-                    (Matcha Lavender, Hojicha Steam) with the gradient wash
-                    and the weather. Auto has none, so the switch rests.
+                    (Matcha Lavender, Hojicha Steam, or the one of those
+                    the device's light or dark calls for, under Auto) with
+                    the gradient wash and the weather.
                     {% endcomment %}
                     <form action="{% url 'settings-theme-atmosphere' %}"
                           method="post"
@@ -69,8 +70,7 @@
                                 class="switch{% if theme_variant %} is-on{% endif %}"
                                 role="switch"
                                 aria-checked="{% if theme_variant %}true{% else %}false{% endif %}"
-                                aria-label="Atmosphere"
-                                {% if theme_base == "auto" %}disabled title="Not with Auto"{% endif %}>
+                                aria-label="Atmosphere">
                             <span class="switch-knob"></span>
                         </button>
                     </form>

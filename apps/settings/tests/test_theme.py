@@ -8,7 +8,11 @@ from django.urls import reverse
 pytestmark = pytest.mark.django_db
 
 
-def page_for(client, theme):
+def page_for(client, theme, atmosphere="off"):
+    """The settings page on a theme. The atmosphere is on until turned
+    off, and choosing a base theme keeps it as it is, so a test of a base
+    alone turns it off first."""
+    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": atmosphere})
     client.post(reverse("settings-theme"), {"theme": theme})
     return client.get(reverse("settings")).content.decode()
 
@@ -21,7 +25,7 @@ def test_original_theme_has_no_atmosphere(client):
 
 
 def test_matcha_lavender_builds_on_matcha(client):
-    html = page_for(client, "matcha-lavender")
+    html = page_for(client, "matcha-lavender", atmosphere="on")
     assert "css/theme-matcha.css" in html
     assert "css/atmosphere.css" in html
     assert "css/theme-matcha-lavender.css" in html
@@ -29,13 +33,13 @@ def test_matcha_lavender_builds_on_matcha(client):
 
 
 def test_matcha_mist_is_now_matcha_lavender(client):
-    html = page_for(client, "matcha-mist")
+    html = page_for(client, "matcha-mist", atmosphere="on")
     assert "css/theme-matcha-lavender.css" in html
     assert "css/theme-matcha-mist.css" not in html
 
 
 def test_hojicha_steam_builds_on_hojicha(client):
-    html = page_for(client, "hojicha-steam")
+    html = page_for(client, "hojicha-steam", atmosphere="on")
     hojicha = html.index("css/theme-hojicha.css")
     atmosphere = html.index("css/atmosphere.css")
     steam = html.index("css/theme-hojicha-steam.css")
@@ -65,19 +69,34 @@ def test_choosing_a_base_keeps_the_atmosphere(client):
     client.post(reverse("settings-theme"), {"theme": "matcha"})
     assert client.session["theme"] == "matcha-lavender"
     client.post(reverse("settings-theme"), {"theme": "auto"})
-    assert client.session["theme"] == "auto"
+    assert client.session["theme"] == "auto-atmosphere"
 
 
-def test_auto_has_no_atmosphere(client):
+def test_autos_atmosphere_follows_the_device(client):
+    """Auto's variant loads both atmospheres, each behind the device's
+    light or dark, over Auto's colours."""
     client.post(reverse("settings-theme"), {"theme": "auto"})
-    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": "on"})
+    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": "off"})
     assert client.session["theme"] == "auto"
-    assert "disabled" in client.get(reverse("settings")).content.decode()
+    html = client.get(reverse("settings")).content.decode()
+    assert "atmosphere.css" not in html and "disabled" not in html
+
+    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": "on"})
+    assert client.session["theme"] == "auto-atmosphere"
+    html = client.get(reverse("settings")).content.decode()
+    assert "css/theme-auto.css" in html and "css/atmosphere.css" in html
+    lavender = html.index("css/theme-matcha-lavender.css")
+    steam = html.index("css/theme-hojicha-steam.css")
+    assert 'media="(prefers-color-scheme: light)"' in html[lavender:][:120]
+    assert 'media="(prefers-color-scheme: dark)"' in html[steam:][:120]
+    assert "css/theme-auto-atmosphere.css" not in html
+    assert 'class="atmos"' in html
 
 
-def test_with_no_theme_chosen_it_follows_the_device(client, user):
+def test_with_no_theme_chosen_it_follows_the_device_with_the_atmosphere(client, user):
     html = client.get(reverse("settings")).content.decode()
     assert "css/theme-auto.css" in html
+    assert "css/atmosphere.css" in html and 'aria-checked="true"' in html
 
 
 def test_the_theme_is_kept_for_the_device(client, user):

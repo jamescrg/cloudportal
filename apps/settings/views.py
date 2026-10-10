@@ -20,7 +20,13 @@ from apps.finance.forms import CryptoSymbolForm, SecuritiesSymbolForm
 from apps.finance.models import CryptoSymbol, SecuritiesSymbol
 from apps.notes.models import Note
 from apps.settings.forms import ChangePasswordForm, ProfileForm
-from config.context import RENAMED_THEMES, THEME_VARIANTS, THEMES, VARIANT_OF
+from config.context import (
+    DEFAULT_THEME,
+    RENAMED_THEMES,
+    THEME_VARIANTS,
+    THEMES,
+    VARIANT_OF,
+)
 
 
 def _get_form_errors(form):
@@ -593,7 +599,7 @@ def tasks_options(request, option, value):
 
 def _current_theme(request):
     name = request.session.get("theme", "")
-    return RENAMED_THEMES.get(name, name) or "auto"
+    return RENAMED_THEMES.get(name, name) or DEFAULT_THEME
 
 
 @login_required
@@ -618,8 +624,7 @@ def theme(request):
 @require_POST
 def theme_atmosphere(request):
     """Turns the atmosphere on or off for this device: the theme's
-    atmospheric variant, or its base. Auto has no variant and is left
-    as it is."""
+    atmospheric variant, or its base."""
     current = _current_theme(request)
     base = THEME_VARIANTS.get(current, current)
     on = request.POST.get("atmosphere") == "on"
