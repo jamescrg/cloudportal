@@ -71,6 +71,27 @@
   flex: 1;
 }
 
+/* on a phone the time takes its own line under the event, and the X
+   keeps the event's line */
+@media screen and (max-width: 575.98px) {
+
+  .weather-alert summary {
+    gap: 0.15rem 0.75rem;
+  }
+
+  .weather-alert-until {
+    flex: 0 0 100%;
+    font-size: 0.9rem;
+    order: 1;
+    padding-left: 1.85rem;
+  }
+
+  .weather-alert summary .weather-alert-dismiss {
+    margin-left: auto;
+  }
+
+}
+
 .weather-alert-sender {
   color: var(--color-muted);
   margin-bottom: 0.5rem;
