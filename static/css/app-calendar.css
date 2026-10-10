@@ -863,9 +863,11 @@
     font-size: 1rem;
   }
 
+  /* The agenda's rows close up sideways but keep their height: each is
+     a tap target, and a thumb wants 44px or so */
   .fc .fc-list-day-cushion,
   .fc .fc-list-table td {
-    padding: 0.5rem;
+    padding: 0.75rem 0.5rem;
   }
 
   /* The grid is replaced by the list (events-calendar.js forces list view),

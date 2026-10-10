@@ -275,11 +275,22 @@ tr:hover .row-actions,
 }
 
 /* A touch screen has no pointer to hover: the marks and actions stay,
-   muted */
+   muted. The small controls in a row (the select box, the status mark,
+   the pencil) take a wider hit area than they draw, padded out and
+   pulled back in by the same margin so the row's layout is unchanged */
 @media (hover: none) {
   .status-mark,
   .row-actions {
     opacity: 0.5;
+  }
+
+  .status-mark,
+  .row-actions .btn-icon,
+  .fav-select-col i,
+  .select-col i {
+    display: inline-block;
+    margin: -0.6rem;
+    padding: 0.6rem;
   }
 }
 
