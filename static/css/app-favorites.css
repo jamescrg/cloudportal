@@ -111,32 +111,3 @@
 #id_description {
   height: 6.25rem;
 }
-
-
-/*------------------------------------------------
- * site icons, on the home page and the favorites page
- * ------------------------------------------------*/
-
-/* A site's icon, fetched by the worker (apps/favorites/site_icons.py),
-   or a link glyph until it is; the user can turn them off (Settings,
-   Home) */
-.favicon {
-  border-radius: 3px;
-  flex-shrink: 0;
-  height: 16px;
-  object-fit: contain;
-  width: 16px;
-}
-
-.favicon-none {
-  color: var(--color-muted);
-  font-size: 14px;
-  line-height: 16px;
-  text-align: center;
-}
-
-/* When the user has the icons desaturated, each keeps half its colour
-   and is softened, so the page reads as one surface */
-.favicons-muted img.favicon {
-  filter: grayscale(0.5) opacity(0.75);
-}
