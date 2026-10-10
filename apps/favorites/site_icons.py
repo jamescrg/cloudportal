@@ -208,6 +208,17 @@ def found_hosts(hosts):
     )
 
 
+def with_hosts(favorites):
+    """Give each favorite the host of its url and, in has_icon, whether
+    the site's icon is on hand; a page shows a link glyph otherwise."""
+    for favorite in favorites:
+        favorite.host = host_of(favorite.url)
+    found = found_hosts({f.host for f in favorites})
+    for favorite in favorites:
+        favorite.has_icon = favorite.host in found
+    return favorites
+
+
 def ensure(host):
     """Queue a fetch for a host that has no icon yet, or a stale one."""
     if not host:

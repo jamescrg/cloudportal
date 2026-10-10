@@ -257,3 +257,24 @@ def test_home_page_icons_can_be_off_or_in_their_own_colours(client, user, folder
     html = client.get("/home/").content.decode()
     assert 'class="favicon' not in html
     assert "/favorites/icons/" not in html
+
+
+def test_favorites_page_carries_the_icons_too(client, user, folder1):
+    user.favorites_folder = folder1.id
+    user.save()
+    Favorite.objects.create(
+        user=user, folder=folder1, name="Docs", url="https://docs.example/a"
+    )
+    SiteIcon.objects.create(
+        host="docs.example",
+        data=b"\x89PNG",
+        content_type="image/png",
+        found=True,
+        fetched_at=timezone.now(),
+    )
+    html = client.get("/favorites/").content.decode()
+    assert 'src="/favorites/icons/docs.example"' in html
+    assert "favicons-muted" in html
+    user.home_icons = 0
+    user.save()
+    assert "/favorites/icons/" not in client.get("/favorites/").content.decode()

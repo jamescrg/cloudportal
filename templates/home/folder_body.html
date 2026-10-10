@@ -7,18 +7,7 @@ is shown or hidden.
         <li class="list-group-item favorite-item"
             data-favorite-id="{{ favorite.id }}">
             <a class="home-link" href="{{ favorite.url }}">
-                {% if user.home_icons %}
-                    {% if favorite.has_icon %}
-                        <img class="favicon"
-                             src="{% url 'site-icon' host=favorite.host %}"
-                             alt=""
-                             width="16"
-                             height="16"
-                             loading="lazy">
-                    {% else %}
-                        <i class="favicon favicon-none icon-link"></i>
-                    {% endif %}
-                {% endif %}
+                {% include "favorites/favicon.html" %}
                 <span class="home-link-name">{{ favorite.name }}</span>
             </a>
         </li>

@@ -1,4 +1,4 @@
-<div class="table-container">
+<div class="table-container{% if user.home_icons_muted %} favicons-muted{% endif %}">
     <table class="table favorites-table">
         <tr>
             <th class="fav-select-col">
@@ -39,10 +39,13 @@
                        data-value="{{ favorite.id }}"></i>
                 </td>
                 <td class="fav-name">
-                    <a href="{{ favorite.url }}">{{ favorite.name }}</a>
-                    {% if selected_folder.home_column and favorite.home_rank %}
-                        <i class="icon-house favorite-home-indicator"></i>
-                    {% endif %}
+                    <span class="fav-title">
+                        {% include "favorites/favicon.html" %}
+                        <a href="{{ favorite.url }}">{{ favorite.name }}</a>
+                        {% if selected_folder.home_column and favorite.home_rank %}
+                            <i class="icon-house favorite-home-indicator"></i>
+                        {% endif %}
+                    </span>
                     {% if favorite.description %}<div class="description">{{ favorite.description }}</div>{% endif %}
                 </td>
                 <td class="fav-date">{{ favorite.created_at|date:"Y-m-d" }}</td>

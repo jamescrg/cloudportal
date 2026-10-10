@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from apps.favorites import site_icons
 from apps.favorites.forms import FavoriteExtensionForm, FavoriteForm
 from apps.favorites.models import Favorite, SiteIcon
 from apps.folders.folders import get_folders_for_page, select_folder
@@ -52,7 +53,7 @@ def _get_favorites_list_context(request):
         "folders": get_folders_for_page(request, "favorites"),
         "selected_folder": selected_folder,
         "favorites_folder_all": favorites_folder_all,
-        "favorites": pagination.get_object_list(),
+        "favorites": site_icons.with_hosts(list(pagination.get_object_list())),
         "pagination": pagination,
         "session_key": session_key,
         "trigger_key": trigger_key,
