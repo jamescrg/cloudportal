@@ -19,3 +19,6 @@ node_modules/
 # app logs (keep dir, ignore log files)
 logs/*
 !logs/.gitkeep
+
+# Claude Code: its local settings and the worktrees it makes for other branches
+.claude/
