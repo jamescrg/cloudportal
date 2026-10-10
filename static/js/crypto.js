@@ -10,7 +10,10 @@ const SALT_BYTES = 16;
 const IV_BYTES = 12;
 const SESSION_KEY = "notes_encryption_key";
 
-export const KEY_TTL_MS = 15 * 60 * 1000; // 15 minutes
+// How long the stored key lives without being used; each use (opening or
+// saving an encrypted note) starts it again. It measures idle time at
+// this browser, nothing else: the server never holds the key
+export const KEY_TTL_MS = 60 * 60 * 1000; // an hour
 
 // Generate a random 16-byte salt, returned as base64
 export function generateSalt() {
@@ -88,7 +91,7 @@ export async function decrypt(encoded, key) {
 
 // Key management: the derived key is kept in localStorage as a JWK with
 // the time it was last used, so a note opens without the passphrase for
-// KEY_TTL_MS after the last use. Past that the key is removed the next
+// KEY_TTL_MS after the last use (an hour). Past that the key is removed the next
 // time anything asks for it, so an expired key never lingers on disk;
 // the logout form clears it too (templates/base.html).
 function readStoredKey(ttlMs = KEY_TTL_MS) {
