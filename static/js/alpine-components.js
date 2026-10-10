@@ -6,10 +6,10 @@
 /**
  * Swipe gestures for a slide-in drawer. A side drawer (left or right)
  * opens with a swipe in from its screen edge, closes with a swipe back
- * toward it, and follows the finger in between. A bottom sheet opens by
- * its button alone (the bottom edge is the phone's own home gesture)
- * and closes with a swipe down, from anywhere on it while it sits at the
- * top of its scroll.
+ * toward it, and follows the finger in between. A bottom sheet opens
+ * with a swipe up that starts on its button, or in from the bottom edge
+ * where the phone leaves that edge to the page, and closes with a swipe
+ * down from anywhere on it while it sits at the top of its scroll.
  *
  * drawer:   the Alpine component, with isOpen, open() and close()
  * panel():  the element that slides (looked up on each use, since a page
@@ -66,8 +66,10 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     touch = null;
   }
 
-  function nearEdge(pos) {
-    if (vertical) return false;
+  function nearEdge(pos, target) {
+    if (vertical) {
+      return pos >= window.innerHeight - EDGE_ZONE || !!target.closest('.drawer-fab-panel');
+    }
     return side === 'right' ? pos >= window.innerWidth - EDGE_ZONE : pos <= EDGE_ZONE;
   }
 
@@ -90,7 +92,7 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     const t = e.touches[0];
     const state = { start: along(t), startAcross: across(t), last: along(t), lastTime: e.timeStamp, locked: false };
 
-    if (!drawer.isOpen && nearEdge(along(t))) {
+    if (!drawer.isOpen && nearEdge(along(t), e.target)) {
       touch = { ...state, mode: 'open' };
       panel().classList.add('drawer-dragging');
       backdrop.classList.add('open');
@@ -106,6 +108,14 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     const t = e.touches[0];
     const d = along(t) - touch.start;
     const dAcross = across(t) - touch.startAcross;
+
+    // A vertical drag must be claimed from its first movement: once the
+    // browser has begun scrolling the sheet (or the page, from its edge)
+    // it no longer listens. Sideways there is nothing to scroll, so the
+    // side drawers can wait for the direction to be sure.
+    if (vertical) {
+      e.preventDefault();
+    }
 
     // Lock direction after 10px of movement; movement across the axis of
     // travel is a scroll (or, on a sheet, a sideways gesture), not ours
