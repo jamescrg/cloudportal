@@ -125,14 +125,13 @@
                 </div>
             </nav>
         </div>
-        <!-- Mobile side panel: a strip along the foot of the screen, the sheet's
-             own top edge peeking up with the panel's icon on it; it raises the
-             page's panel (the folder sidebar, or the settings sections) as a
-             sheet -->
+        <!-- Mobile side panel: a floating button, upper right, raises the page's
+             panel (the folder sidebar, or the settings sections) as a sheet
+             from the bottom -->
         <div x-data="sideDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">
-            <button class="drawer-tab drawer-fab-panel"
+            <button class="drawer-fab drawer-fab-panel"
                     x-show="hasPanel"
                     @click="toggle()"
                     aria-label="{% if page == 'settings' %}Open settings sections{% else %}Open folders{% endif %}">

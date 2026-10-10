@@ -6,10 +6,10 @@
 /**
  * Swipe gestures for a slide-in drawer. A side drawer (left or right)
  * opens with a swipe in from its screen edge, closes with a swipe back
- * toward it, and follows the finger in between. A bottom sheet opens
- * with a swipe up that starts on its button, or in from the bottom edge
- * where the phone leaves that edge to the page, and closes with a swipe
- * down from anywhere on it while it sits at the top of its scroll.
+ * toward it, and follows the finger in between. A bottom sheet opens by
+ * its button, or with a swipe in from the bottom edge where the phone
+ * leaves that edge to the page, and closes with a swipe down from
+ * anywhere on it while it sits at the top of its scroll.
  *
  * drawer:   the Alpine component, with isOpen, open() and close()
  * panel():  the element that slides (looked up on each use, since a page
@@ -66,10 +66,8 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     touch = null;
   }
 
-  function nearEdge(pos, target) {
-    if (vertical) {
-      return pos >= window.innerHeight - EDGE_ZONE || !!target.closest('.drawer-fab-panel');
-    }
+  function nearEdge(pos) {
+    if (vertical) return pos >= window.innerHeight - EDGE_ZONE;
     return side === 'right' ? pos >= window.innerWidth - EDGE_ZONE : pos <= EDGE_ZONE;
   }
 
@@ -92,7 +90,7 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     const t = e.touches[0];
     const state = { start: along(t), startAcross: across(t), last: along(t), lastTime: e.timeStamp, locked: false };
 
-    if (!drawer.isOpen && nearEdge(along(t), e.target)) {
+    if (!drawer.isOpen && nearEdge(along(t))) {
       touch = { ...state, mode: 'open' };
       panel().classList.add('drawer-dragging');
       backdrop.classList.add('open');
@@ -559,7 +557,7 @@ document.addEventListener('alpine:init', () => {
    * Side Drawer Component
    * On a phone, a sheet rising from the bottom for whatever the page
    * marks with data-drawer: the folder sidebar, or the settings section
-   * nav. Its button sits at the bottom left, under the thumb.
+   * nav. Its button floats at the top right.
    * Usage: <div x-data="sideDrawer()">
    */
   Alpine.data('sideDrawer', () => ({

@@ -1,11 +1,10 @@
 /*------------------------------------------------
  * Mobile drawers
- * On viewports < 992px the nav bar collapses into a round floating
- * button at the top left, which slides its panel in from the left; the
- * page's panel (the folder sidebar, or the settings sections — whatever
- * carries data-drawer) becomes a sheet that rises from the bottom, and
- * what shows of it when closed is a tab at the foot of the screen, its
- * top edge peeking up with the grab bar and its name.
+ * On viewports < 992px the nav bar and the page's side panel each
+ * collapse into a round floating button at the top of the screen: the
+ * menu on the left, which slides its panel in from the left; the page's
+ * panel (the folder sidebar, or the settings sections — whatever carries
+ * data-drawer) on the right, which rises from the bottom as a sheet.
  * ------------------------------------------------*/
 
 /* FABs — hidden by default, shown on mobile */
@@ -31,27 +30,8 @@
   left: 0.5rem;
 }
 
-/* The sheet's tab: hidden by default, shown on mobile. A strip the width
-   of the screen, the sheet's top edge showing with the same rounded
-   shoulders, and the panel's icon on it */
-.drawer-tab {
-  align-items: center;
-  background: var(--background-section);
-  border: solid 1px var(--border-medium);
-  border-bottom: none;
-  border-radius: 1rem 1rem 0 0;
-  bottom: 0;
-  box-shadow: 0 -0.25rem 1rem var(--shadow-color-heavy);
-  color: var(--color-primary);
-  cursor: pointer;
-  display: none;
-  font-size: 1.5rem;
-  justify-content: center;
-  left: 0;
-  padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom, 0px));
-  position: fixed;
-  right: 0;
-  z-index: 1039;
+.drawer-fab-panel {
+  right: 0.5rem;
 }
 
 /* Backdrop */
@@ -78,8 +58,7 @@
 /* Mobile styles */
 @media (max-width: 991.98px) {
 
-  .drawer-fab,
-  .drawer-tab {
+  .drawer-fab {
     display: flex;
   }
 
@@ -220,11 +199,6 @@
     transform: translateY(0);
   }
 
-  /* The content keeps clear of the tab at the foot of the page */
-  body:has([data-drawer]) .content {
-    padding-bottom: 4rem;
-  }
-
   /* Disable transition while finger is dragging */
   [data-drawer].drawer-dragging {
     transition: none;
@@ -245,7 +219,6 @@
 /* Desktop — ensure FABs, drawer and backdrops stay hidden */
 @media (min-width: 992px) {
   .drawer-fab,
-  .drawer-tab,
   .drawer-backdrop,
   .nav-drawer {
     display: none !important;
