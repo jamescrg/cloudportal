@@ -239,9 +239,11 @@ tr:hover .status-mark,
   color: var(--urgent);
 }
 
-/* The row's actions sit over the last cell's text, at the right edge,
-   while the row is under the pointer; the text steps aside for them */
+/* The row's actions sit at the right edge of their cell (the name
+   column's) while the row is under the pointer; the cell keeps its text
+   clear of them */
 td:has(> .row-actions) {
+  padding-right: 2.75rem;
   position: relative;
 }
 
@@ -261,11 +263,6 @@ tr:hover .row-actions,
   opacity: 1;
 }
 
-tr:hover td:has(> .row-actions) > .row-text,
-td:has(> .row-actions:focus-within) > .row-text {
-  visibility: hidden;
-}
-
 .row-actions .btn-icon {
   color: var(--color-muted);
   font-size: 0.95rem;
@@ -278,16 +275,10 @@ td:has(> .row-actions:focus-within) > .row-text {
 }
 
 /* A touch screen has no pointer to hover: the marks and actions stay,
-   muted, the actions after the text rather than over it */
+   muted */
 @media (hover: none) {
   .status-mark,
   .row-actions {
     opacity: 0.5;
-  }
-
-  .row-actions {
-    margin-left: 0.6rem;
-    position: static;
-    transform: none;
   }
 }

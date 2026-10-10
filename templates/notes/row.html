@@ -17,11 +17,7 @@
                 <i class="{% if note.is_encrypted %}icon-lock{% else %}icon-lock-open{% endif %}"></i>
             </button>
         </span>
-    </td>
-    <td class="created">{{ note.created_at|date:"Y-m-d" }}</td>
-    <td class="updated">
-        <span class="row-text">{{ note.updated_at|date:"Y-m-d" }}</span>
-        {# the row's actions, over the date while the row is under the pointer #}
+        {# the row's actions, at the title column's far edge while the row is under the pointer #}
         <span class="row-actions">
             <button class="btn-icon"
                     type="button"
@@ -32,4 +28,6 @@
             </button>
         </span>
     </td>
+    <td class="created">{{ note.created_at|date:"Y-m-d" }}</td>
+    <td class="updated">{{ note.updated_at|date:"Y-m-d" }}</td>
 </tr>

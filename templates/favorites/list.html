@@ -52,11 +52,7 @@
                         {% endif %}
                     </span>
                     {% if favorite.description %}<div class="description">{{ favorite.description }}</div>{% endif %}
-                </td>
-                <td class="fav-date">{{ favorite.created_at|date:"Y-m-d" }}</td>
-                <td class="fav-date">
-                    <span class="row-text">{{ favorite.updated_at|date:"Y-m-d" }}</span>
-                    {# the row's actions, over the date while the row is under the pointer #}
+                    {# the row's actions, at the name column's far edge while the row is under the pointer #}
                     <span class="row-actions">
                         <button class="btn-icon"
                                 type="button"
@@ -67,6 +63,8 @@
                         </button>
                     </span>
                 </td>
+                <td class="fav-date">{{ favorite.created_at|date:"Y-m-d" }}</td>
+                <td class="fav-date">{{ favorite.updated_at|date:"Y-m-d" }}</td>
             </tr>
         {% empty %}
             <tr>
