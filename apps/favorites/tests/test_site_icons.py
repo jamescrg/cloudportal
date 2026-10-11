@@ -110,6 +110,38 @@ def test_fetch_icon_takes_the_declared_icon_then_falls_back(monkeypatch):
     ]
 
 
+def test_fetch_icon_passes_over_a_page_on_another_site(monkeypatch):
+    """Gmail's home page redirects to Google's sign-in page, whose icon
+    is Google's; Gmail's own /favicon.ico is asked instead."""
+    pages = {
+        "https://mail.google.com/": FakeResponse(
+            content_type="text/html",
+            url="https://accounts.google.com/signin",
+            text='<link rel="icon" href="/g.png">',
+        ),
+        "https://mail.google.com/favicon.ico": FakeResponse(
+            content=b"\x00\x00\x01\x00gmail", content_type="image/x-icon"
+        ),
+    }
+    asked = []
+
+    def get(self, url, timeout):
+        asked.append(url)
+        return pages.get(url, FakeResponse(status=404))
+
+    monkeypatch.setattr(requests.Session, "get", get)
+    assert site_icons.fetch_icon("mail.google.com") == (
+        b"\x00\x00\x01\x00gmail",
+        "image/x-icon",
+    )
+    assert asked == ["https://mail.google.com/", "https://mail.google.com/favicon.ico"]
+
+
+def test_same_site_ignores_www():
+    assert site_icons.same_site("example.com", "www.example.com")
+    assert not site_icons.same_site("mail.google.com", "accounts.google.com")
+
+
 def test_fetch_icon_asks_the_icon_service_last(monkeypatch):
     """A site that refuses the server gives nothing itself; the icon
     service is asked after every candidate of the site's own, and its 404

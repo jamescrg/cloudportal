@@ -10,6 +10,10 @@ A site that refuses the server (Cloudflare's bot wall, a load balancer
 rule) gives nothing directly; for those, DuckDuckGo's icon service is
 asked last. It answers a host it doesn't know with a 404, never a
 placeholder, so its answer is stored like any other.
+
+A home page that redirects to another site (Gmail to Google's sign-in
+page) says nothing about the host's own icon, so its icons are passed
+over for the host's /favicon.ico, which may redirect to the right one.
 """
 
 from datetime import timedelta
@@ -47,6 +51,11 @@ SIGNATURES = (
     (b"<svg", "image/svg+xml"),
     (b"<?xml", "image/svg+xml"),
 )
+
+
+def same_site(host, other):
+    """Whether two hosts are one site, a www. prefix aside."""
+    return host.removeprefix("www.") == other.removeprefix("www.")
 
 
 def host_of(url):
@@ -152,7 +161,8 @@ def _image(response):
 
 def fetch_icon(host):
     """Find and download a host's icon: the best one its home page
-    declares, else its /favicon.ico, else what the icon service has.
+    declares, unless the page is on another site, else its /favicon.ico,
+    else what the icon service has.
     Returns (bytes, content type) or None."""
     session = requests.Session()
     session.headers.update(HEADERS)
@@ -162,6 +172,8 @@ def fetch_icon(host):
             page = session.get(f"{scheme}://{host}/", timeout=TIMEOUT)
         except requests.RequestException:
             continue
+        if not same_site(host, host_of(page.url)):
+            break
         if page.ok and "html" in page.headers.get("Content-Type", ""):
             candidates += icon_links(page.text[:200_000], page.url)
         candidates.append(urljoin(page.url, "/favicon.ico"))
