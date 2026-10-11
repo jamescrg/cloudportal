@@ -1,21 +1,6 @@
 <tr id="task-{{ task.id }}"
-    data-task-id="{{ task.id }}"
-    class="priority-{{ task.level.slug }}{% if task.status == 1 %} complete{% endif %}{% if task.due_date and task.due_date < today and task.status != 1 %} past-due{% endif %}"
-    :class="{ 'is-selected': picked({{ task.id }}) }">
-    <td class="tasks-col-select">
-        {% comment %}
-        The box picks the task for the bulk actions, which show under the
-        list while anything is picked
-        {% endcomment %}
-        <button class="btn-icon tasks-select-box"
-                type="button"
-                :aria-pressed="picked({{ task.id }})"
-                @click="pick({{ task.id }})">
-            <i :class="picked({{ task.id }}) ? 'icon-square-check' : 'icon-square'"></i>
-        </button>
-    </td>
+    class="priority-{{ task.level.slug }}{% if task.status == 1 %} complete{% endif %}{% if task.due_date and task.due_date < today and task.status != 1 %} past-due{% endif %}">
     <td class="tasks-col-checkbox">
-        {% comment %} The circle completes the task, or sets it pending again {% endcomment %}
         <a href="#"
            onclick="event.preventDefault()"
            hx-post="{% url 'tasks-status' task.id %}"
