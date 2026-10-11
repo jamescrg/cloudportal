@@ -43,29 +43,20 @@
 <div class="table-container">
     <table class="table tasks-table">
         <tr>
-            <th class="tasks-col-checkbox">
+            <th class="tasks-col-select">
                 {% comment %}
-                Select: the circles become boxes, rows can be picked, and
-                the bulk actions under the list act on the picked ones.
-                While selecting this spot picks every task in view, or
-                clears them when they are all picked already; Done under
-                the list leaves the mode.
+                Picks every task in view, or clears them when they are all
+                picked already
                 {% endcomment %}
-                <button class="btn-icon tasks-select-toggle"
-                        type="button"
-                        x-show="!mode"
-                        title="Select tasks"
-                        @click="toggleMode()">
-                    <i class="icon-list-checks"></i>
-                </button>
                 <button class="btn-icon tasks-select-box"
                         type="button"
-                        x-show="mode"
-                        x-cloak
                         :title="allPicked() ? 'Clear the selection' : 'Select all'"
                         @click="toggleAll()">
                     <i :class="allPicked() ? 'icon-square-check' : 'icon-square'"></i>
                 </button>
+            </th>
+            <th class="tasks-col-checkbox">
+                <i class="icon-circle-check-big tasks-head-icon" title="Done"></i>
             </th>
             <th class="tasks-col-title">
                 Task
@@ -95,7 +86,7 @@
             {% include "tasks/row.html" %}
         {% empty %}
             <tr>
-                <td colspan="4" class="empty-message">No tasks found.</td>
+                <td colspan="5" class="empty-message">No tasks found.</td>
             </tr>
         {% endfor %}
     </table>
@@ -103,11 +94,11 @@
 {% include "pagination.html" %}
 {% comment %}
 Done tasks stay in the list, struck through, until archived. The button
-shows whenever the page has one, and goes while selecting, since the bulk
-bar then takes its place.
+shows whenever the page has one, and goes while anything is picked,
+since the bulk bar then takes its place.
 {% endcomment %}
 {% if has_completed_tasks %}
-    <div class="archive" x-show="!mode">
+    <div class="archive" x-show="!selecting">
         <div class="archive-buttons">
             <button class="btn btn-secondary"
                     type="button"
@@ -120,10 +111,10 @@ bar then takes its place.
     </div>
 {% endif %}
 {% comment %}
-The bulk actions, shown while selecting: each acts on the picked tasks,
-whose ids go with its request (data-bulk; see static/js/tasks.js).
+The bulk actions, shown while anything is picked: each acts on the picked
+tasks, whose ids go with its request (data-bulk; see static/js/tasks.js).
 {% endcomment %}
-<div class="archive" x-show="mode" x-cloak>
+<div class="archive" x-show="selecting" x-cloak>
     <div class="archive-buttons">
         <span class="tasks-selected-count"
               x-text="ids.length === 1 ? '1 selected' : ids.length + ' selected'"></span>
@@ -287,6 +278,7 @@ whose ids go with its request (data-bulk; see static/js/tasks.js).
         </button>
         <button class="btn btn-secondary tasks-select-done"
                 type="button"
-                @click="toggleMode()">Done</button>
+                title="Clear the selection"
+                @click="clear()">Clear</button>
     </div>
 </div>

@@ -1,14 +1,22 @@
 <tr id="task-{{ task.id }}"
     data-task-id="{{ task.id }}"
     class="priority-{{ task.level.slug }}{% if task.status == 1 %} complete{% endif %}{% if task.due_date and task.due_date < today and task.status != 1 %} past-due{% endif %}"
-    :class="{ 'is-selected': mode && picked({{ task.id }}) }">
-    <td class="tasks-col-checkbox">
+    :class="{ 'is-selected': picked({{ task.id }}) }">
+    <td class="tasks-col-select">
         {% comment %}
-        The circle completes the task. While selecting it gives way to a
-        box that picks the task for the bulk actions.
+        The box picks the task for the bulk actions, which show under the
+        list while anything is picked
         {% endcomment %}
+        <button class="btn-icon tasks-select-box"
+                type="button"
+                :aria-pressed="picked({{ task.id }})"
+                @click="pick({{ task.id }})">
+            <i :class="picked({{ task.id }}) ? 'icon-square-check' : 'icon-square'"></i>
+        </button>
+    </td>
+    <td class="tasks-col-checkbox">
+        {% comment %} The circle completes the task, or sets it pending again {% endcomment %}
         <a href="#"
-           x-show="!mode"
            onclick="event.preventDefault()"
            hx-post="{% url 'tasks-status' task.id %}"
            hx-target="#tasks-container"
@@ -19,14 +27,6 @@
                 <i class="icon-circle"></i>
             {% endif %}
         </a>
-        <button class="btn-icon tasks-select-box"
-                type="button"
-                x-show="mode"
-                x-cloak
-                :aria-pressed="picked({{ task.id }})"
-                @click="pick({{ task.id }})">
-            <i :class="picked({{ task.id }}) ? 'icon-square-check' : 'icon-square'"></i>
-        </button>
     </td>
     <td class="tasks-col-title">
         <div class="tasks-title-row">

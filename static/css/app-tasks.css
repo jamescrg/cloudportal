@@ -26,6 +26,7 @@
 /* task table */
 /* ------------------------------------------------------------------------- */
 
+.tasks-col-select,
 .tasks-col-checkbox {
   text-align: center;
   width: 2.5rem;
@@ -136,19 +137,24 @@ td.tasks-col-checkbox a:hover {
   padding-right: 1rem;
 }
 
-/* The check and priority columns are centred, so they take the same
-   padding each side rather than the edge padding above, which would
-   push the circles right and the flags left. These selectors match the
-   edge rules' weight and come after them, so they win. */
-.tasks-table th.tasks-col-checkbox,
-.tasks-table td.tasks-col-checkbox,
+/* The select, check and priority columns are centred, so they take the
+   same padding each side rather than the edge padding above, which would
+   push the boxes and circles right and the flags left. These selectors
+   match the edge rules' weight and come after them, so they win. */
 .tasks-table th.tasks-col-priority,
 .tasks-table td.tasks-col-priority {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
 }
 
-/* the check column takes the standard cell padding, the same each side */
+/* The select column keeps the edge padding on its left; the check column
+   next to it takes the standard cell padding, the same each side */
+.tasks-table th.tasks-col-select,
+.tasks-table td.tasks-col-select {
+  padding-left: 1rem;
+  padding-right: 0.25rem;
+}
+
 .tasks-table th.tasks-col-checkbox,
 .tasks-table td.tasks-col-checkbox {
   padding-left: 0.5rem;
@@ -166,8 +172,10 @@ td.tasks-col-checkbox a:hover {
   white-space: nowrap;
 }
 
-/* The check column is centred here with enough weight to beat the base
-   cells' left alignment, which a bare .tasks-col-checkbox did not. */
+/* The select and check columns are centred here with enough weight to
+   beat the base cells' left alignment, which a bare .tasks-col-checkbox
+   did not. */
+.tasks-table .tasks-col-select,
 .tasks-table .tasks-col-checkbox {
   text-align: center;
 }
@@ -395,15 +403,22 @@ tr.complete .task-date-link {
   color: var(--color-muted);
 }
 
+th.tasks-col-select,
 th.tasks-col-checkbox {
   vertical-align: middle;
 }
 
-th.tasks-col-checkbox .btn-icon {
+/* The select-all box, and the done circle that names the check column */
+th.tasks-col-select .btn-icon,
+th.tasks-col-checkbox .tasks-head-icon {
   color: var(--color-muted);
   font-size: 1.15rem;
   position: relative;
   top: 2px;
+}
+
+th.tasks-col-checkbox .tasks-head-icon {
+  display: block;
 }
 
 .tasks-table th .dropdown-menu {
@@ -554,8 +569,8 @@ th.tasks-col-priority .btn-sort.active {
 /* selecting tasks */
 /* ------------------------------------------------------------------------- */
 
-/* The box that picks a task stands where its circle does, and a picked
-   row takes the selection wash */
+/* The box that picks a task stands left of its circle, and a picked row
+   takes the selection wash */
 .tasks-select-box {
   color: var(--color-muted);
   font-size: 1.15rem;

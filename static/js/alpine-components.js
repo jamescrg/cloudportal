@@ -233,18 +233,15 @@ function repeatLabels(day) {
 }
 
 document.addEventListener('alpine:init', () => {
-  // The task list's selection: a mode the Select button turns on, and the
-  // ids picked while it is. It sits on the card, outside the list htmx
-  // swaps, so it outlives every re-render; the bulk requests carry the
-  // ids (static/js/tasks.js), and the list clears them once one is done.
+  // The task list's selection: the ids picked with the boxes in the
+  // list's first column; the bulk actions show while there are any. It
+  // sits on the card, outside the list htmx swaps, so it outlives every
+  // re-render; the bulk requests carry the ids (static/js/tasks.js), and
+  // the list clears them once one is done.
   Alpine.data("taskSelection", () => ({
-    mode: false,
     ids: [],
-    toggleMode() {
-      this.mode = !this.mode;
-      if (!this.mode) {
-        this.ids = [];
-      }
+    get selecting() {
+      return this.ids.length > 0;
     },
     picked(id) {
       return this.ids.includes(id);

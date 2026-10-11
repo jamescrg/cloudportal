@@ -497,7 +497,8 @@ def test_bulk_delete_removes_only_the_selected_tasks(client, selected):
 def test_the_list_offers_selecting_and_the_bulk_actions(client, selected):
     html = client.get(reverse("tasks-list")).content.decode()
 
-    assert "tasks-select-toggle" in html
+    assert "tasks-col-select" in html
+    assert "toggleAll()" in html
     assert f'data-task-id="{selected["a"].id}"' in html
     assert f'pick({selected["a"].id})' in html
     assert reverse("tasks-bulk-due-date") in html
