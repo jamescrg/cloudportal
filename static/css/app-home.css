@@ -346,18 +346,6 @@
   min-width: 12rem;
 }
 
-.search-bar .dropdown-item {
-  align-items: center;
-  display: flex;
-  gap: 1rem;
-}
-
-/* A faint edge keeps a pale icon (Google's thin G) from fading into the
-   light menu; a thematic icon has its own filter */
-.search:not(.favicons-thematic) img.favicon {
-  filter: drop-shadow(0 0 1px rgb(0 0 0 / 35%));
-}
-
 .search-engine-btn {
   background: var(--background-light);
   border: solid 1px var(--border-medium);
