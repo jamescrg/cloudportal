@@ -19,7 +19,6 @@
                     x-ref="button"
                     @click="toggle()"
                     :aria-expanded="open">
-                {% include "favorites/favicon.html" with favorite=search_engine %}
                 <span>{{ search_engine.name }}</span>
                 <small><i class="icon-chevron-down"></i></small>
             </button>
@@ -30,6 +29,7 @@
                            href="#"
                            hx-post="{% url 'settings-search-engine' %}"
                            hx-target="#search-section"
+                           hx-swap="outerHTML"
                            hx-vals='{"search_engine": "{{ engine.id }}"}'
                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
                             {% include "favorites/favicon.html" with favorite=engine %}
