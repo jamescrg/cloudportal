@@ -48,8 +48,8 @@ def show_tasks(request):
 
 def show_kosmos(request):
     """Whether the grid shows the user's Kosmos events beside their own:
-    it does until they hide them."""
-    return bool(request.session.get(SHOW_KOSMOS_KEY, True))
+    not until they switch them on in the calendar's menu."""
+    return bool(request.session.get(SHOW_KOSMOS_KEY, False))
 
 
 def show_holidays(request):

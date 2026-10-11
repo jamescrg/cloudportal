@@ -16,19 +16,27 @@
   min-width: 11rem;
 }
 
-/* A check row: the square icon of the lists' selection boxes, faint
-   until checked, when it takes the accent */
-.calendar-menu .calendar-menu-check {
+/* Every row is an icon then its label, laid out the same so the icons
+   line up: the check rows' squares, and the Filter and List view icons */
+.calendar-menu .dropdown-item {
   align-items: center;
-  cursor: pointer;
   display: flex;
   gap: 0.6rem;
 }
 
-.calendar-menu .calendar-menu-check i {
-  color: var(--color-faint);
+.calendar-menu .dropdown-item i {
   font-size: 1.15rem;
   margin: 0;
+}
+
+/* A check row: the square icon of the lists' selection boxes, faint
+   until checked, when it takes the accent */
+.calendar-menu .calendar-menu-check {
+  cursor: pointer;
+}
+
+.calendar-menu .calendar-menu-check i {
+  color: var(--color-faint);
 }
 
 .calendar-menu .calendar-menu-check:hover i {
@@ -42,7 +50,7 @@
 .calendar-menu .calendar-menu-note {
   color: var(--color-muted);
   font-size: 0.85em;
-  margin-left: 0.35rem;
+  margin-left: -0.25rem;
 }
 
 .view-toggle {

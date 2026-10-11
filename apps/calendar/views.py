@@ -90,7 +90,8 @@ def events_menu(request):
 @login_required
 @require_POST
 def events_show_kosmos(request, state):
-    """Show the user's Kosmos events on the grid beside their own, or
+    """Show the user's Kosmos events on the grid beside their own (they
+    start hidden), or
     hide them."""
     if state not in ("on", "off"):
         return HttpResponseBadRequest("Unknown state.")

@@ -64,11 +64,13 @@ class FakeKosmos:
 
 
 @pytest.fixture
-def connected(user):
+def connected(client, user):
+    """A user with a Kosmos, its events switched on in the menu."""
     user.kosmos_url = "https://kosmos.example.com"
     user.kosmos_token = "tok_123"
     user.time_zone = "America/New_York"
     user.save()
+    client.post(reverse("calendar:show-kosmos", args=["on"]))
     return user
 
 
@@ -143,11 +145,26 @@ def test_a_kosmos_that_answers_badly_contributes_nothing(
 def test_the_menu_offers_the_toggle_only_with_a_kosmos(client, user, connected):
     html = client.get(reverse("calendar:menu")).content.decode()
     assert reverse("calendar:show-kosmos", args=["off"]) in html
+    assert "icon-square-check" in html
 
     user.kosmos_url = ""
     user.save()
     html = client.get(reverse("calendar:menu")).content.decode()
     assert "show-kosmos" not in html and "kosmos/" not in html
+
+
+def test_kosmos_events_start_hidden_until_switched_on(client, user, fake):
+    user.kosmos_url = "https://kosmos.example.com"
+    user.kosmos_token = "tok_123"
+    user.save()
+
+    assert _feed(client) == {}
+    assert fake.calls == []
+    html = client.get(reverse("calendar:menu")).content.decode()
+    assert reverse("calendar:show-kosmos", args=["on"]) in html
+
+    client.post(reverse("calendar:show-kosmos", args=["on"]))
+    assert set(_feed(client)) == {"kosmos-7", "kosmos-8"}
 
 
 def test_hiding_kosmos_events_takes_them_off_the_feed(client, connected, fake):
