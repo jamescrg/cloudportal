@@ -21,7 +21,7 @@ Save any webpage to your CloudPortal favorites with one click.
 ## Requirements
 
 - Firefox browser
-- CloudPortal account at https://dev.cloudportal.link
+- CloudPortal account at https://cloud.dev.jamescraig.link
 
 ## Privacy
 
@@ -29,4 +29,4 @@ This extension only communicates with your CloudPortal application. No data is s
 
 ## Support
 
-For support, visit https://dev.cloudportal.link
+For support, visit https://cloud.dev.jamescraig.link

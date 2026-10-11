@@ -2,7 +2,7 @@
 
 A free, open-source personal dashboard and productivity suite. Self-hosted, fast, and minimal.
 
-**https://cloudportal.link**
+**https://cloud.jamescraig.link** (formerly cloudportal.link)
 
 
 ## Overview
@@ -241,7 +241,7 @@ Invitations are received through a [Mailgun inbound route](https://documentation
 
 1. Use a domain Mailgun already receives for: the sending domain works if its MX records point at `mxa.mailgun.org` and `mxb.mailgun.org`, as `mail.cloudportal.link` does. Otherwise add a receiving domain in Mailgun and add those MX records at the DNS host.
 2. Add a route that matches forwarding addresses on that domain and forwards to the webhook:
-   `match_recipient("^calendar-.*@mail\.cloudportal\.link$")` → `forward("https://cloudportal.link/calendar/inbound/")`.
+   `match_recipient("^calendar-.*@mail\.cloudportal\.link$")` → `forward("https://cloud.jamescraig.link/calendar/inbound/")`.
 3. Set two variables in `.env`: `CALENDAR_INBOUND_DOMAIN=mail.cloudportal.link` and `MAILGUN_WEBHOOK_SIGNING_KEY=…` (Mailgun → Settings → API Security → HTTP webhook signing key). Posts without a valid signature are refused.
 4. Under Settings → Calendar, create a forwarding address and list any addresses you forward from besides your account address.
 

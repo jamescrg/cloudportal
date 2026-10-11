@@ -67,6 +67,7 @@ SITE_URL = env(
 # trusted origins for CSRF
 CSRF_TRUSTED_ORIGINS = [
     "https://cloudportal.link",
+    "https://cloud.jamescraig.link",
     "https://cloud.dev.jamescraig.link",
 ]
 

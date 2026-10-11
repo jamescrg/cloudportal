@@ -4,7 +4,7 @@
   "version": "2.2.3",
   "description": "Save any webpage to your CloudPortal favorites with one click. Easily organize bookmarks with folders and quick access.",
   "author": "CloudPortal",
-  "homepage_url": "https://dev.cloudportal.link",
+  "homepage_url": "https://cloud.dev.jamescraig.link",
 
   "applications": {
     "gecko": {
@@ -16,7 +16,7 @@
     "activeTab",
     "contextMenus",
     "storage",
-    "https://cloudportal.link/*"
+    "https://cloud.jamescraig.link/*"
   ],
 
   "background": {
@@ -37,7 +37,7 @@
 
   "content_scripts": [
     {
-      "matches": ["https://cloudportal.link/*", "https://*.cloudportal.link/*"],
+      "matches": ["https://cloud.jamescraig.link/*", "https://cloudportal.link/*"],
       "js": ["content.js"],
       "run_at": "document_end"
     }

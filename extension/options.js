@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function loadSettings() {
     api.storage.sync.get(['favoritesDomain'], function(result) {
-      domainInput.value = result.favoritesDomain || 'cloudportal.link';
+      domainInput.value = result.favoritesDomain || 'cloud.jamescraig.link';
     });
   }
 
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Basic domain validation
     if (!isValidDomain(domain)) {
-      showStatus('Please enter a valid domain (e.g., cloudportal.link)', 'error');
+      showStatus('Please enter a valid domain (e.g., cloud.jamescraig.link)', 'error');
       return;
     }
 
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function resetToDefault() {
-    domainInput.value = 'cloudportal.link';
+    domainInput.value = 'cloud.jamescraig.link';
     saveSettings();
   }
 
