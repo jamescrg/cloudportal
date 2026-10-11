@@ -346,6 +346,12 @@
   min-width: 12rem;
 }
 
+.search-bar .dropdown-item {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .search-engine-btn {
   background: var(--background-light);
   border: solid 1px var(--border-medium);

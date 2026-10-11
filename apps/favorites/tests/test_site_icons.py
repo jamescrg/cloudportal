@@ -305,7 +305,7 @@ def test_home_page_shows_the_icon_on_hand_or_a_link_glyph(client, user, folder1)
     html = client.get("/home/").content.decode()
     assert 'src="/favorites/icons/docs.example"' in html
     assert "/favorites/icons/new.example" not in html
-    assert html.count("favicon-none icon-link") == 1
+    assert html.split("home-board")[1].count("favicon-none icon-link") == 1
 
 
 def test_home_page_icons_can_be_off_or_in_their_own_colours(client, user, folder1):
@@ -353,3 +353,23 @@ def test_favorites_page_carries_the_icons_too(client, user, folder1):
     user.home_icons = 0
     user.save()
     assert "/favorites/icons/" not in client.get("/favorites/").content.decode()
+
+
+def test_search_engines_carry_their_icons(client, user, queued):
+    SiteIcon.objects.create(
+        host="duckduckgo.com",
+        data=b"\x89PNG",
+        content_type="image/png",
+        found=True,
+        fetched_at=timezone.now(),
+    )
+    html = client.get("/home/").content.decode()
+    assert 'src="/favorites/icons/duckduckgo.com"' in html
+    # the engines without an icon show the link glyph and are fetched
+    assert "/favorites/icons/www.bing.com" not in html
+    assert sorted(queued) == ["en.wikipedia.org", "www.bing.com", "www.google.com"]
+
+    user.home_icons = 0
+    user.save()
+    html = client.get("/home/").content.decode()
+    assert "/favorites/icons/" not in html

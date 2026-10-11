@@ -38,15 +38,36 @@ def fetch_current_weather(user):
 
 
 def get_search_context(user):
-    """Get search engine context for a user"""
+    """The search engines, each with its site's icon (see
+    favorites/site_icons.py), and the user's choice of them."""
     engines = [
-        {"id": "google", "name": "Google", "url": "google.com/search"},
-        {"id": "duckduckgo", "name": "DuckDuckGo", "url": "duckduckgo.com/"},
-        {"id": "wikipedia", "name": "Wikipedia", "url": "en.wikipedia.org/w/index.php"},
-        {"id": "bing", "name": "Bing", "url": "bing.com/"},
+        {
+            "id": "google",
+            "name": "Google",
+            "url": "google.com/search",
+            "host": "www.google.com",
+        },
+        {
+            "id": "duckduckgo",
+            "name": "DuckDuckGo",
+            "url": "duckduckgo.com/",
+            "host": "duckduckgo.com",
+        },
+        {
+            "id": "wikipedia",
+            "name": "Wikipedia",
+            "url": "en.wikipedia.org/w/index.php",
+            "host": "en.wikipedia.org",
+        },
+        {"id": "bing", "name": "Bing", "url": "bing.com/", "host": "www.bing.com"},
     ]
+    found = site_icons.found_hosts({engine["host"] for engine in engines})
+    for engine in engines:
+        engine["has_icon"] = engine["host"] in found
+        if not engine["has_icon"]:
+            site_icons.ensure(engine["host"])
 
-    search_engine = "google"
+    search_engine = engines[0]
     for engine in engines:
         if engine["id"] == user.search_engine:
             search_engine = engine
