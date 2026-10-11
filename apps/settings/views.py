@@ -590,16 +590,6 @@ def encryption_notes_bulk_update(request):
 
 
 @login_required
-def tasks_settings_index(request):
-    """Show the Tasks settings tab."""
-    context = {
-        "page": "settings",
-        "subapp": "tasks",
-    }
-    return render(request, "settings/tasks.html", context)
-
-
-@login_required
 @require_POST
 def time_zone(request):
     """Record where the user is now, as their browser reports it on each
@@ -701,16 +691,6 @@ def calendar_forward_from(request):
     user.calendar_forward_from = request.POST.get("calendar_forward_from", "").strip()
     user.save(update_fields=["calendar_forward_from"])
     return redirect("/settings/calendar/")
-
-
-@login_required
-def tasks_options(request, option, value):
-    """Set task-related options on the user."""
-    user = request.user
-    if option == "completion_mode" and value in ("complete", "archive", "delete"):
-        user.task_completion_mode = value
-        user.save(update_fields=["task_completion_mode"])
-    return redirect("/settings/tasks/")
 
 
 def _current_theme(request):

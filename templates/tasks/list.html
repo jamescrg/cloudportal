@@ -58,24 +58,9 @@
         <tr>
             <th class="tasks-col-checkbox">
                 {% comment %}
-                One click completes every task in view; when they are all
-                complete already, it sets them all pending. While
-                selecting, the same spot picks every task in view, or
+                Empty until selecting, when it picks every task in view, or
                 clears them when they are all picked already.
                 {% endcomment %}
-                <button class="btn-icon"
-                        type="button"
-                        x-show="!mode"
-                        title="{% if all_complete %}Set all pending{% else %}Complete all{% endif %}"
-                        hx-post="{% url 'tasks-bulk-status' %}?all=1&status={% if all_complete %}0{% else %}1{% endif %}"
-                        hx-target="#tasks-container"
-                        hx-swap="innerHTML scroll:none">
-                    {% if all_complete %}
-                        <i class="icon-circle-check-big"></i>
-                    {% else %}
-                        <i class="icon-circle"></i>
-                    {% endif %}
-                </button>
                 <button class="btn-icon tasks-select-box"
                         type="button"
                         x-show="mode"
@@ -120,8 +105,26 @@
 </div>
 {% include "pagination.html" %}
 {% comment %}
-The bulk actions, shown while selecting: each sends the picked tasks'
-ids with its request (data-bulk; see static/js/tasks.js).
+Done tasks stay in the list, struck through, until archived. The button
+shows whenever the page has one, and goes while selecting, since the bulk
+bar then takes its place.
+{% endcomment %}
+{% if has_completed_tasks %}
+    <div class="archive" x-show="!mode">
+        <div class="archive-buttons">
+            <button class="btn btn-secondary"
+                    type="button"
+                    hx-post="{% url 'tasks-clear-htmx' %}"
+                    hx-target="#tasks-container"
+                    hx-swap="innerHTML">
+                <i class="icon-archive"></i> Archive completed
+            </button>
+        </div>
+    </div>
+{% endif %}
+{% comment %}
+The bulk actions, shown while selecting: each acts on the picked tasks,
+whose ids go with its request (data-bulk; see static/js/tasks.js).
 {% endcomment %}
 <div class="archive" x-show="mode" x-cloak>
     <div class="archive-buttons">
@@ -264,27 +267,27 @@ ids with its request (data-bulk; see static/js/tasks.js).
                 hx-swap="innerHTML scroll:none">
             <i class="icon-circle"></i>
         </button>
-        {% if has_completed_tasks %}
-            <button class="btn btn-secondary"
-                    type="button"
-                    title="Archive completed tasks"
-                    aria-label="Archive completed tasks"
-                    hx-post="{% url 'tasks-clear-htmx' %}"
-                    hx-target="#tasks-container"
-                    hx-swap="innerHTML">
-                <i class="icon-archive"></i>
-            </button>
-            <button class="btn btn-secondary"
-                    type="button"
-                    title="Delete completed tasks"
-                    aria-label="Delete completed tasks"
-                    hx-post="{% url 'tasks-delete-completed-htmx' %}"
-                    hx-target="#tasks-container"
-                    hx-swap="innerHTML"
-                    hx-confirm="Are you sure you want to delete all completed tasks?">
-                <i class="icon-circle-x"></i>
-            </button>
-        {% endif %}
+        <button class="btn btn-secondary"
+                type="button"
+                title="Archive selected"
+                aria-label="Archive selected"
+                data-bulk
+                hx-post="{% url 'tasks-bulk-archive' %}"
+                hx-target="#tasks-container"
+                hx-swap="innerHTML scroll:none">
+            <i class="icon-archive"></i>
+        </button>
+        <button class="btn btn-secondary"
+                type="button"
+                title="Delete selected"
+                aria-label="Delete selected"
+                data-bulk
+                hx-post="{% url 'tasks-bulk-delete' %}"
+                hx-target="#tasks-container"
+                hx-swap="innerHTML scroll:none"
+                hx-confirm="Delete the selected tasks?">
+            <i class="icon-circle-x"></i>
+        </button>
         <button class="btn btn-secondary tasks-select-done"
                 type="button"
                 @click="toggleMode()">Done</button>

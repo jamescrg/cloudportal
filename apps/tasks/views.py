@@ -92,10 +92,8 @@ def _get_task_list_context(request):
         "trigger_key": trigger_key,
         "filter_label": filter_label,
         "tasks_folder_all": tasks_folder_all,
+        # Shows the Archive completed button under the list
         "has_completed_tasks": any(t.status == 1 for t in task_list),
-        # The header's circle toggles: all complete means the next click
-        # sets them all pending
-        "all_complete": bool(task_list) and all(t.status == 1 for t in task_list),
         "priority_levels": levels(),
         "date_filter_label": filter_label if filter_label in presets else "all",
         "date_filter_name": DATE_FILTER_NAMES.get(filter_label, "All Dates"),
@@ -144,13 +142,7 @@ def status(request, id, origin="tasks"):
     else:
         task.status = 1
         task.completed_date = date.today()
-        mode = request.user.task_completion_mode
-        if mode == "delete":
-            task.delete()
-        else:
-            if mode == "archive":
-                task.archived = True
-            task.save()
+        task.save()
     return redirect(origin)
 
 
@@ -534,17 +526,11 @@ def reminder_delete(request, id, reminder_id):
 
 
 def complete_task(task, user):
-    """Mark a task done the way the user has chosen (keep it, archive it,
-    or delete it) and bring on a recurring task's next instance."""
+    """Mark a task done and bring on a recurring task's next instance. A
+    done task stays in its list, struck through, until it is archived."""
     task.status = 1
     task.completed_date = date.today()
-    mode = user.task_completion_mode
-    if mode == "delete":
-        task.delete()
-    else:
-        if mode == "archive":
-            task.archived = True
-        task.save()
+    task.save()
     recurring.after_completion(task)
 
 
@@ -579,13 +565,7 @@ def status_htmx(request, id):
     else:
         task.status = 1
         task.completed_date = date.today()
-        mode = request.user.task_completion_mode
-        if mode == "delete":
-            task.delete()
-        else:
-            if mode == "archive":
-                task.archived = True
-            task.save()
+        task.save()
 
     # A recurring task's instance done brings on the next, due on its
     # rule's next day
@@ -629,50 +609,40 @@ def _selected_tasks(request):
     )
 
 
-def _tasks_in_view(request):
-    """Every open task in the view the user is looking at: all folders,
-    the selected folder, or the Inbox."""
-    if request.session.get("tasks_all", False):
-        return Task.objects.filter(
-            user=request.user, is_recurring=False, archived=False
-        )
-    selected_folder = select_folder(request, "tasks")
-    if selected_folder:
-        return Task.objects.filter(
-            folder=selected_folder, is_recurring=False, archived=False
-        )
-    return Task.objects.filter(
-        user=request.user, folder__isnull=True, is_recurring=False, archived=False
-    )
-
-
 @login_required
 @require_POST
 def bulk_status_htmx(request):
-    """Mark the selected tasks complete (the way the user has chosen) or
-    pending; with ``all=1`` (the header's circle), every task in view."""
+    """Mark the selected tasks complete or pending."""
     new_status = int(request.GET.get("status", 0))
-    if request.GET.get("all"):
-        tasks = _tasks_in_view(request)
-    else:
-        tasks = _selected_tasks(request)
+    tasks = _selected_tasks(request)
     if new_status == 1:
-        pending = tasks.filter(status=0)
-        mode = request.user.task_completion_mode
-        if mode == "delete":
-            pending.delete()
-        elif mode == "archive":
-            pending.update(status=1, completed_date=date.today(), archived=True)
-        else:
-            pending.update(status=1, completed_date=date.today())
+        tasks.filter(status=0).update(status=1, completed_date=date.today())
     else:
         tasks.filter(status=1).update(status=0, completed_date=None)
     return _list_response(request)
 
 
 @login_required
+@require_POST
+def bulk_archive_htmx(request):
+    """Archive the selected tasks, done or not: they leave the list and
+    show again only when the filter asks for archived tasks."""
+    _selected_tasks(request).update(archived=True)
+    return _list_response(request)
+
+
+@login_required
+@require_POST
+def bulk_delete_htmx(request):
+    """Delete the selected tasks."""
+    _selected_tasks(request).delete()
+    return _list_response(request)
+
+
+@login_required
 def clear_htmx(request):
-    """Archive completed tasks via htmx and return updated list."""
+    """Archive every completed task in view (the Archive completed button
+    under the list) and return the updated list."""
     tasks_folder_all = request.session.get("tasks_all", False)
     selected_folder = select_folder(request, "tasks")
 
@@ -684,25 +654,6 @@ def clear_htmx(request):
         Task.objects.filter(user=request.user, folder__isnull=True, status=1).update(
             archived=True
         )
-
-    context = _get_task_list_context(request)
-    response = render(request, "tasks/list.html", context)
-    response["HX-Trigger"] = "tasksChanged"
-    return response
-
-
-@login_required
-def delete_completed_htmx(request):
-    """Delete completed tasks via htmx and return updated list."""
-    tasks_folder_all = request.session.get("tasks_all", False)
-    selected_folder = select_folder(request, "tasks")
-
-    if tasks_folder_all:
-        Task.objects.filter(user=request.user, status=1).delete()
-    elif selected_folder:
-        Task.objects.filter(folder=selected_folder, status=1).delete()
-    else:
-        Task.objects.filter(user=request.user, folder__isnull=True, status=1).delete()
 
     context = _get_task_list_context(request)
     response = render(request, "tasks/list.html", context)

@@ -113,9 +113,11 @@ td.tasks-col-checkbox a:hover {
   max-width: none;
 }
 
-/* With the bulk actions hidden (they show while selecting; Alpine hides
-   them with an inline display), the table is the card's last thing: it
-   runs to the card's bottom edge and its last row loses its rule */
+/* With no archive row showing (the bulk actions show while selecting,
+   Archive completed when there is a done task and no selecting; Alpine
+   hides each with an inline display), the table is the card's last
+   thing: it runs to the card's bottom edge and its last row loses its
+   rule */
 .card.tasks:not(:has(.archive:not([style*="none"]))) .table-container {
   margin-bottom: -1.5rem;
 }
@@ -488,9 +490,9 @@ th.tasks-col-priority .btn-sort.active {
   margin-top: 1.5rem;
 }
 
-/* The bulk actions (move, date, priority, archive, delete) are icons
-   only, named by their titles, in one run from the left; on phones the
-   run wraps */
+/* The bulk actions (move, date, priority, complete, pending, archive,
+   delete) are icons only, named by their titles, in one run from the
+   left; on phones the run wraps */
 .archive-buttons {
   display: flex;
   flex-wrap: wrap;

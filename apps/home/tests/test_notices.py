@@ -142,16 +142,6 @@ def test_done_marks_the_task_done_and_closes_the_card(client, task, card):
     assert card.dismissed_at is not None
 
 
-def test_done_on_a_task_the_user_deletes_when_done(client, user, task, card):
-    user.task_completion_mode = "delete"
-    user.save()
-
-    assert client.post(reverse("home-notice-done", args=[card.id])).status_code == 200
-
-    assert not Task.objects.filter(pk=task.pk).exists()
-    assert not HomeNotice.objects.exists()
-
-
 def test_deleting_the_task_takes_its_card(task, card):
     task.delete()
 

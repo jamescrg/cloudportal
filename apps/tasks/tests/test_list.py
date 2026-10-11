@@ -469,16 +469,29 @@ def test_bulk_status_marks_the_selected_complete_or_pending(client, user, select
     ) == (0, None, 1)
 
 
-def test_bulk_complete_follows_the_completion_mode(client, user, selected):
-    user.task_completion_mode = "delete"
-    user.save()
+def test_bulk_archive_hides_the_selected_tasks_done_or_not(client, selected):
+    selected["b"].status = 1
+    selected["b"].save()
 
     client.post(
-        reverse("tasks-bulk-status") + "?status=1", {"ids": _ids(selected["a"])}
+        reverse("tasks-bulk-archive"), {"ids": _ids(selected["a"], selected["b"])}
     )
+
+    for key in ("a", "b", "other"):
+        selected[key].refresh_from_db()
+    assert (
+        selected["a"].archived,
+        selected["b"].archived,
+        selected["other"].archived,
+    ) == (True, True, False)
+
+
+def test_bulk_delete_removes_only_the_selected_tasks(client, selected):
+    client.post(reverse("tasks-bulk-delete"), {"ids": _ids(selected["a"])})
 
     assert not Task.objects.filter(pk=selected["a"].pk).exists()
     assert Task.objects.filter(pk=selected["b"].pk).exists()
+    assert Task.objects.filter(pk=selected["other"].pk).exists()
 
 
 def test_the_list_offers_selecting_and_the_bulk_actions(client, selected):
@@ -490,24 +503,35 @@ def test_the_list_offers_selecting_and_the_bulk_actions(client, selected):
     assert reverse("tasks-bulk-due-date") in html
     assert reverse("tasks-bulk-priority", args=[5]) in html
     assert reverse("tasks-bulk-status") + "?status=1" in html
+    assert reverse("tasks-bulk-archive") in html
+    assert reverse("tasks-bulk-delete") in html
     assert "Done" in html
 
 
-def test_the_header_circle_completes_all_then_sets_all_pending(client, user):
+def test_the_header_has_no_complete_all_and_the_circle_only_keeps(client, user):
     a = Task.objects.create(user=user, title="A")
-    b = Task.objects.create(user=user, title="B", status=1)
 
-    response = client.get(reverse("tasks-list"))
-    assert response.context["all_complete"] is False
-    assert reverse("tasks-bulk-status") + "?all=1&status=1" in response.content.decode()
+    html = client.get(reverse("tasks-list")).content.decode()
+    assert "all=1" not in html
+    assert "Complete all" not in html
 
-    response = client.post(reverse("tasks-bulk-status") + "?all=1&status=1")
+    client.post(reverse("tasks-status", args=[a.id]))
     a.refresh_from_db()
-    assert a.status == 1
-    assert response.context["all_complete"] is True
-    assert reverse("tasks-bulk-status") + "?all=1&status=0" in response.content.decode()
+    assert (a.status, a.archived) == (1, False)
 
-    client.post(reverse("tasks-bulk-status") + "?all=1&status=0")
+
+def test_archive_completed_shows_only_with_a_done_task_in_view(client, user):
+    a = Task.objects.create(user=user, title="A")
+
+    html = client.get(reverse("tasks-list")).content.decode()
+    assert reverse("tasks-clear-htmx") not in html
+
+    a.status = 1
+    a.save()
+    html = client.get(reverse("tasks-list")).content.decode()
+    assert "Archive completed" in html
+    assert reverse("tasks-clear-htmx") in html
+
+    client.post(reverse("tasks-clear-htmx"))
     a.refresh_from_db()
-    b.refresh_from_db()
-    assert (a.status, b.status) == (0, 0)
+    assert a.archived is True

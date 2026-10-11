@@ -182,15 +182,6 @@ class CustomUser(AbstractUser):
     # The icon that stands for the user in the top bar, opening the account
     # menu (one of NAV_ICONS)
     nav_icon = models.CharField(max_length=40, choices=NAV_ICONS, default="user")
-    task_completion_mode = models.CharField(
-        max_length=10,
-        choices=[
-            ("complete", "Mark complete"),
-            ("archive", "Auto-archive"),
-            ("delete", "Auto-delete"),
-        ],
-        default="complete",
-    )
 
 
 class LoginThrottle(models.Model):

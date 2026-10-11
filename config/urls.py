@@ -168,11 +168,8 @@ urlpatterns = [
     ),
     path("tasks/bulk-status", tasks.bulk_status_htmx, name="tasks-bulk-status"),
     path("tasks/clear-htmx", tasks.clear_htmx, name="tasks-clear-htmx"),
-    path(
-        "tasks/delete-completed-htmx",
-        tasks.delete_completed_htmx,
-        name="tasks-delete-completed-htmx",
-    ),
+    path("tasks/bulk-archive", tasks.bulk_archive_htmx, name="tasks-bulk-archive"),
+    path("tasks/bulk-delete", tasks.bulk_delete_htmx, name="tasks-bulk-delete"),
     path("tasks/bulk-due-date", tasks.bulk_due_date_htmx, name="tasks-bulk-due-date"),
     path(
         "tasks/bulk-priority/<int:priority_value>",
@@ -313,7 +310,6 @@ urlpatterns = [
         settings.calendar_kosmos,
         name="settings-calendar-kosmos",
     ),
-    path("settings/tasks/", settings.tasks_settings_index, name="settings-tasks"),
     # settings — quotes
     path("settings/quotes/", quotes.settings_index, name="settings-quotes"),
     path("settings/quotes/add", quotes.add, name="settings-quotes-add"),
@@ -330,11 +326,6 @@ urlpatterns = [
         "settings/quotes-options/<str:option>/<str:value>",
         quotes.options,
         name="settings-quotes-options",
-    ),
-    path(
-        "settings/tasks-options/<str:option>/<str:value>",
-        settings.tasks_options,
-        name="settings-tasks-options",
     ),
     path("settings/", settings.index, name="settings"),
     path("settings/homepage/", settings.homepage_index, name="settings-homepage"),
