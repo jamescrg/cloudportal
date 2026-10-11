@@ -37,19 +37,6 @@
                 hx-target="#htmx-modal-container">
             <i class="icon-list-filter"></i>
         </button>
-        {% comment %}
-        Select: the circles become boxes, rows can be picked, and the bulk
-        actions under the list act on the picked ones. Pressing it again,
-        or Done under the list, leaves the mode.
-        {% endcomment %}
-        <button type="button"
-                class="square-button filter-button tasks-select-toggle"
-                :class="{ 'toggle-active': mode }"
-                :title="mode ? 'Done selecting' : 'Select tasks'"
-                :aria-pressed="mode"
-                @click="toggleMode()">
-            <i class="icon-list-checks"></i>
-        </button>
     </div>
 </div>
 {% include "tasks/taskform.html" %}
@@ -58,9 +45,19 @@
         <tr>
             <th class="tasks-col-checkbox">
                 {% comment %}
-                Empty until selecting, when it picks every task in view, or
-                clears them when they are all picked already.
+                Select: the circles become boxes, rows can be picked, and
+                the bulk actions under the list act on the picked ones.
+                While selecting this spot picks every task in view, or
+                clears them when they are all picked already; Done under
+                the list leaves the mode.
                 {% endcomment %}
+                <button class="btn-icon tasks-select-toggle"
+                        type="button"
+                        x-show="!mode"
+                        title="Select tasks"
+                        @click="toggleMode()">
+                    <i class="icon-list-checks"></i>
+                </button>
                 <button class="btn-icon tasks-select-box"
                         type="button"
                         x-show="mode"
