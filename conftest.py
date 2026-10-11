@@ -21,3 +21,10 @@ def cache_in_memory(settings):
     settings.CACHES = {
         "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
     }
+
+
+@pytest.fixture(autouse=True)
+def fast_password_hasher(settings):
+    """Django's real hasher is slow by design (about half a second per
+    password on dev), and fixtures set a password for most test users."""
+    settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

@@ -1,4 +1,8 @@
+import pytest
+
 import apps.finance.securities_data as securities_data
+
+pytestmark = pytest.mark.live
 
 
 def test_fetch():

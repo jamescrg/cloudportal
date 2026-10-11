@@ -1,0 +1,86 @@
+name: Test
+
+on:
+  # Every push to dev, which deploy makes on the way to master.
+  push:
+    branches: [ "dev" ]
+  # Test any pushed branch by hand (~/.bin/ci wraps this):
+  #   gh workflow run test.yaml --ref <branch> [-f tests="apps/tasks"]
+  workflow_dispatch:
+    inputs:
+      tests:
+        description: "Test paths or node ids (blank runs the whole suite)"
+        required: false
+        default: ""
+
+# A newer push to the same branch cancels the run it replaces.
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+# No secrets: the tests run against a throwaway Postgres container, and the
+# tests that call live market-data APIs (marked live) are skipped, so nothing
+# here is a real credential. Linting stays with the pre-commit hooks.
+env:
+  SITE_NAME: CloudPortal CI
+  SECRET_KEY: ci-only-not-a-secret
+  DEBUG: "True"
+  ENV: dev
+  ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+  DB_NAME: cpl
+  DB_USER: cpl
+  DB_PASSWORD: cpl
+  EMAIL_HOST: localhost
+  EMAIL_HOST_USER: ""
+  EMAIL_HOST_PASSWORD: ""
+  SERVER_EMAIL: ci@localhost
+  ADMINS_NAME: CI
+  ADMINS_EMAIL: ci@localhost
+  TEST_EMAIL_RECIPIENT: ci@localhost
+  OPEN_WEATHER_API_KEY: not-a-key
+  CRYPTO_API_KEY: not-a-key
+  ALPHAVANGAGE_STOCKS_API_KEY: not-a-key
+  FINNHUB_API_KEY: not-a-key
+  CRYPTO_SYMBOLS: BTC,ETH
+  ZIP_PRIMARY: "10001"
+  ZIP_SECONDARY: "10001"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    services:
+      database:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cpl
+          POSTGRES_PASSWORD: cpl
+          POSTGRES_DB: cpl
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python and uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: uv sync
+
+      - name: Run tests
+        env:
+          TESTS: ${{ inputs.tests }}
+        run: uv run pytest $TESTS -m "not live" -n auto --dist=loadscope --tb=short -q

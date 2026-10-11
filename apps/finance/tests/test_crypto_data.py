@@ -1,6 +1,9 @@
+import pytest
+
 import apps.finance.crypto_data as crypto_data
 
 
+@pytest.mark.live
 def test_fetch():
     symbols = "ALGO,ETH,ATOM,MATIC,BTC"
     data = crypto_data.collect(symbols)

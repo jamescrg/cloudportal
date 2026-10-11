@@ -1,10 +1,10 @@
 import pytest
-from django.urls import reverse
 from pytest_django.asserts import assertContains, assertTemplateUsed
 
 pytestmark = pytest.mark.django_db
 
 
+@pytest.mark.live
 def test_crypto(client):
     response = client.get("/crypto/")
     assert response.status_code == 200
@@ -16,6 +16,7 @@ def test_crypto(client):
     assertContains(response, "24h Chg")
 
 
+@pytest.mark.live
 def test_securities(client):
     response = client.get("/securities/")
     assert response.status_code == 200
