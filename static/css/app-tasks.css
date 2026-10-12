@@ -76,24 +76,15 @@ td.tasks-col-checkbox a:hover {
   }
 }
 
-/* The toolbar's own tools, right of the list's title */
+/* The toolbar's own tools lead the row, at the left edge a short reach
+   from the folder list, and the list's title ends it on the right */
 .tasks-tools {
   display: flex;
   gap: 0.5rem;
 }
 
-/* Beside the folder list its highlighted row names the list, so the title
-   is left to screen readers and the tools move to the left edge, a short
-   reach from the folders; where the folder list is a drawer the title shows */
-@media (width >= 992px) {
-  .tasks-list-title {
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-  }
+.tasks-list-title {
+  text-align: right;
 }
 
 /* Its text is a step smaller than the buttons' icons, on the same line
