@@ -10,6 +10,11 @@
         {% endif %}
     </h1>
     <div class="tasks-tools">
+        <button class="square-button filter-button {% if filter_label == 'custom' %}toggle-active{% endif %}"
+                hx-get="{% url 'tasks-filter' %}"
+                hx-target="#htmx-modal-container">
+            <i class="icon-list-filter"></i>
+        </button>
         <div class="dropdown" x-data="dropdown()">
             <button type="button"
                     id="tasks-date-filter"
@@ -32,11 +37,6 @@
                 {% endfor %}
             </ul>
         </div>
-        <button class="square-button filter-button {% if filter_label == 'custom' %}toggle-active{% endif %}"
-                hx-get="{% url 'tasks-filter' %}"
-                hx-target="#htmx-modal-container">
-            <i class="icon-list-filter"></i>
-        </button>
     </div>
 </div>
 {% include "tasks/taskform.html" %}
