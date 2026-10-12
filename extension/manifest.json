@@ -4,7 +4,7 @@
   "version": "2.2.3",
   "description": "Save any webpage to your CloudPortal favorites with one click. Easily organize bookmarks with folders and quick access.",
   "author": "CloudPortal",
-  "homepage_url": "https://cloud.dev.jamescraig.link",
+  "homepage_url": "https://cloud.dev-server.io",
 
   "applications": {
     "gecko": {
