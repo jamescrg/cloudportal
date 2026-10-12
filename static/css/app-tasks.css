@@ -76,10 +76,21 @@ td.tasks-col-checkbox a:hover {
   }
 }
 
-/* The toolbar's own tools, right of the list's title */
-.tasks-tools {
-  display: flex;
+/* The date menu leads the toolbar and the Filter button ends it, with the
+   list's title centred in the room between them; a long folder name is cut
+   with an ellipsis rather than wrapping the row on a narrow screen */
+.card-title.flex-center-space.tasks-title-bar {
+  flex-wrap: nowrap;
   gap: 0.5rem;
+}
+
+.card-title.tasks-title-bar > h1 {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Its text is a step smaller than the buttons' icons, on the same line

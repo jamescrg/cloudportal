@@ -1,4 +1,26 @@
-<div class="card-title flex-center-space">
+<div class="card-title flex-center-space tasks-title-bar">
+    <div class="dropdown" x-data="dropdown()">
+        <button type="button"
+                id="tasks-date-filter"
+                class="square-button filter-button select-btn tasks-date-filter"
+                x-ref="button"
+                @click="toggle()"
+                :aria-expanded="open">
+            <span><i class="icon-calendar"></i> {{ date_filter_name }}</span>
+            <small><i class="icon-chevron-down"></i></small>
+        </button>
+        <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+            {% for preset, name in date_filter_names.items %}
+                <li>
+                    <a class="dropdown-item {% if date_filter_label == preset %}active{% endif %}"
+                       href="#"
+                       hx-post="{% url 'tasks-filter-date' preset %}"
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">{{ name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
     <h1>
         {% comment %} The icon is the one the folder list shows beside the same entry {% endcomment %}
         {% if tasks_folder_all %}
@@ -9,35 +31,11 @@
             <i class="icon-inbox card-title-icon"></i>Inbox
         {% endif %}
     </h1>
-    <div class="tasks-tools">
-        <div class="dropdown" x-data="dropdown()">
-            <button type="button"
-                    id="tasks-date-filter"
-                    class="square-button filter-button select-btn tasks-date-filter"
-                    x-ref="button"
-                    @click="toggle()"
-                    :aria-expanded="open">
-                <span><i class="icon-calendar"></i> {{ date_filter_name }}</span>
-                <small><i class="icon-chevron-down"></i></small>
-            </button>
-            <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
-                {% for preset, name in date_filter_names.items %}
-                    <li>
-                        <a class="dropdown-item {% if date_filter_label == preset %}active{% endif %}"
-                           href="#"
-                           hx-post="{% url 'tasks-filter-date' preset %}"
-                           hx-target="#tasks-container"
-                           hx-swap="innerHTML scroll:none">{{ name }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-        <button class="square-button filter-button {% if filter_label == 'custom' %}toggle-active{% endif %}"
-                hx-get="{% url 'tasks-filter' %}"
-                hx-target="#htmx-modal-container">
-            <i class="icon-list-filter"></i>
-        </button>
-    </div>
+    <button class="square-button filter-button {% if filter_label == 'custom' %}toggle-active{% endif %}"
+            hx-get="{% url 'tasks-filter' %}"
+            hx-target="#htmx-modal-container">
+        <i class="icon-list-filter"></i>
+    </button>
 </div>
 {% include "tasks/taskform.html" %}
 <div class="table-container">
