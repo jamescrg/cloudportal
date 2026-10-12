@@ -76,9 +76,9 @@ td.tasks-col-checkbox a:hover {
   }
 }
 
-/* The date menu leads the toolbar, the list's title sits just right of it,
-   and the Filter button ends the row; a long folder name is cut with an
-   ellipsis rather than wrapping the row on a narrow screen */
+/* The date menu leads the toolbar and the Filter button ends it, with the
+   list's title centred in the room between them; a long folder name is cut
+   with an ellipsis rather than wrapping the row on a narrow screen */
 .card-title.flex-center-space.tasks-title-bar {
   flex-wrap: nowrap;
   gap: 0.5rem;
@@ -87,8 +87,8 @@ td.tasks-col-checkbox a:hover {
 .card-title.tasks-title-bar > h1 {
   flex: 1;
   min-width: 0;
-  margin-left: 0.75rem;
   overflow: hidden;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
