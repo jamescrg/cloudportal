@@ -77,6 +77,16 @@
     padding-top: 3.5rem;
   }
 
+  /* The buttons float over the dev banner, which already pushes the
+     content down by its height (base-app.css) */
+  body:has(> .dev-banner) .content {
+    padding-top: 2.25rem;
+  }
+
+  body[data-page="home"]:has(> .dev-banner) .content {
+    padding-top: 3.25rem;
+  }
+
   body[data-page="home"] .content {
     padding-top: 4.5rem;
   }
