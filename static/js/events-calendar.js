@@ -237,6 +237,11 @@ document.addEventListener("alpine:init", () => {
             buttonText: "Year",
             dayMaxEvents: 2,
           },
+          // Month scrolls with the page, where FullCalendar would pin its
+          // weekday row to the window's top with nothing behind it
+          dayGridMonth: {
+            stickyHeaderDates: false,
+          },
           // The agenda (the phone's only view, a choice on wider screens):
           // the month ahead from the day in view, so it opens on today and
           // runs forward rather than opening on the calendar month's first
