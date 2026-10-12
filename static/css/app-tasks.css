@@ -488,7 +488,7 @@ th.tasks-col-priority .btn-sort.active {
   margin-top: 1.5rem;
 }
 
-/* The bulk actions (archive, delete, move, date, priority) are icons
+/* The bulk actions (archive, move, date, priority, delete) are icons
    only, named by their titles, in one run from the left; on phones the
    run wraps */
 .archive-buttons {

@@ -106,15 +106,6 @@
                     hx-swap="innerHTML">
                 <i class="icon-archive"></i>
             </button>
-            <button class="btn btn-secondary"
-                    title="Delete completed tasks"
-                    aria-label="Delete completed tasks"
-                    hx-post="{% url 'tasks-delete-completed-htmx' %}"
-                    hx-target="#tasks-container"
-                    hx-swap="innerHTML"
-                    hx-confirm="Are you sure you want to delete all completed tasks?">
-                <i class="icon-circle-x"></i>
-            </button>
             <div class="dropdown" x-data="dropdown()">
                 <button class="btn btn-secondary"
                         title="Move to folder"
@@ -224,6 +215,15 @@
                     {% endfor %}
                 </ul>
             </div>
+            <button class="btn btn-secondary"
+                    title="Delete completed tasks"
+                    aria-label="Delete completed tasks"
+                    hx-post="{% url 'tasks-delete-completed-htmx' %}"
+                    hx-target="#tasks-container"
+                    hx-swap="innerHTML"
+                    hx-confirm="Are you sure you want to delete all completed tasks?">
+                <i class="icon-circle-x"></i>
+            </button>
         </div>
     </div>
 {% endif %}
