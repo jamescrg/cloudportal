@@ -499,12 +499,6 @@ th.tasks-col-priority .btn-sort.active {
   width: 100%;
 }
 
-/* Delete is a red toned down toward the theme's muted gray, so it warns
-   without shouting beside the other actions */
-.archive-buttons .btn.btn-delete-completed {
-  color: color-mix(in srgb, var(--color-danger, var(--red-700)) 40%, var(--color-muted));
-}
-
 /* The bulk Due Date menu's calendar hangs off the menu itself */
 .bulk-date-menu {
   position: relative;
