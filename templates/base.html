@@ -133,9 +133,8 @@
                 </div>
             </nav>
         </div>
-        <!-- Mobile side panel: a floating button, upper right, raises the page's
-             panel (the folder sidebar, or the settings sections) as a sheet
-             from the bottom -->
+        <!-- Mobile side panel: a floating button, upper right, slides the page's
+             panel (the folder sidebar, or the settings sections) in from the right -->
         <div x-data="sideDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">

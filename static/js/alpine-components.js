@@ -515,7 +515,7 @@ document.addEventListener('alpine:init', () => {
 
   /**
    * Side Drawer Component
-   * On a phone, a sheet rising from the bottom for whatever the page
+   * On a phone, a panel sliding in from the right for whatever the page
    * marks with data-drawer: the folder sidebar, or the settings section
    * nav. Its button floats at the top right.
    * Usage: <div x-data="sideDrawer()">
@@ -560,7 +560,7 @@ document.addEventListener('alpine:init', () => {
       attachDrawerSwipe(this, {
         panel: sidebarEl,
         backdrop: this.$el.querySelector('.drawer-backdrop'),
-        side: 'bottom',
+        side: 'right',
       });
 
       // Auto-close the drawer when a link inside it is tapped (htmx navigation)
