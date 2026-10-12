@@ -83,7 +83,10 @@ td.tasks-col-checkbox a:hover {
   gap: 0.5rem;
 }
 
+/* Held off the card's right edge by the gap between the title's icon and
+   its text */
 .tasks-list-title {
+  margin-right: 1rem;
   text-align: right;
 }
 
