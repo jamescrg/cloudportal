@@ -16,7 +16,7 @@
     "activeTab",
     "contextMenus",
     "storage",
-    "https://cloud.jamescraig.link/*"
+    "https://cloud-portal.net/*"
   ],
 
   "background": {
@@ -37,7 +37,7 @@
 
   "content_scripts": [
     {
-      "matches": ["https://cloud.jamescraig.link/*", "https://cloudportal.link/*"],
+      "matches": ["https://cloud-portal.net/*", "https://cloud.jamescraig.link/*"],
       "js": ["content.js"],
       "run_at": "document_end"
     }
