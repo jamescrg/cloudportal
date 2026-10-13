@@ -77,11 +77,11 @@ def test_an_older_code_after_a_newer_one_is_refused(protected):
 
 
 def test_the_app_entry_is_marked_off_production(settings, user):
-    settings.SITE_NAME = "cloudportal.link"
+    settings.SITE_NAME = "cloud-portal.net"
     settings.NOT_PRODUCTION = True
-    assert "issuer=cloudportal.link%20%28dev%29" in totp.provisioning_uri(user, SECRET)
+    assert "issuer=cloud-portal.net%20%28dev%29" in totp.provisioning_uri(user, SECRET)
     settings.NOT_PRODUCTION = False
-    assert "issuer=cloudportal.link&" in totp.provisioning_uri(user, SECRET) + "&"
+    assert "issuer=cloud-portal.net&" in totp.provisioning_uri(user, SECRET) + "&"
 
 
 # Signing in

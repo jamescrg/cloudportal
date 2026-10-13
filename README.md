@@ -2,7 +2,7 @@
 
 A free, open-source personal dashboard and productivity suite. Self-hosted, fast, and minimal.
 
-**https://cloud-portal.net** (formerly cloud.jamescraig.link and cloudportal.link)
+**https://cloud-portal.net**
 
 
 ## Overview
@@ -239,10 +239,10 @@ Free and open source. Self-host it, customize it, make it yours.
 
 Invitations are received through a [Mailgun inbound route](https://documentation.mailgun.com/docs/mailgun/user-manual/receive-forward-store/), on the same Mailgun account the app sends from.
 
-1. Use a domain Mailgun already receives for: the sending domain works if its MX records point at `mxa.mailgun.org` and `mxb.mailgun.org`, as `mail.cloudportal.link` does. Otherwise add a receiving domain in Mailgun and add those MX records at the DNS host.
+1. Use a domain Mailgun already receives for: the sending domain works if its MX records point at `mxa.mailgun.org` and `mxb.mailgun.org`, as `mail.cloud-portal.net` does. Otherwise add a receiving domain in Mailgun and add those MX records at the DNS host.
 2. Add a route that matches forwarding addresses on that domain and forwards to the webhook:
-   `match_recipient("^calendar-.*@mail\.cloudportal\.link$")` → `forward("https://cloud-portal.net/calendar/inbound/")`.
-3. Set two variables in `.env`: `CALENDAR_INBOUND_DOMAIN=mail.cloudportal.link` and `MAILGUN_WEBHOOK_SIGNING_KEY=…` (Mailgun → Settings → API Security → HTTP webhook signing key). Posts without a valid signature are refused.
+   `match_recipient("^calendar-[0-9a-f]+@mail\.cloud-portal\.net$")` → `forward("https://cloud-portal.net/calendar/inbound/")`.
+3. Set two variables in `.env`: `CALENDAR_INBOUND_DOMAIN=mail.cloud-portal.net` and `MAILGUN_WEBHOOK_SIGNING_KEY=…` (Mailgun → Settings → API Security → HTTP webhook signing key). Posts without a valid signature are refused.
 4. Under Settings → Calendar, create a forwarding address and list any addresses you forward from besides your account address.
 
 Each forward gets a short email back saying what was posted, updated, or removed, or why nothing was.
