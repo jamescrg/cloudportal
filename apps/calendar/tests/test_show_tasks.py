@@ -94,3 +94,37 @@ def test_the_menu_offers_the_toggle(client):
     assert reverse("calendar:show-tasks", args=["on"]) in (
         client.get("/calendar/").content.decode()
     )
+
+
+def test_the_box_completes_a_task(client, tasks):
+    client.post(reverse("calendar:show-tasks", args=["on"]))
+    task = tasks["open"]
+
+    response = client.post(reverse("tasks-done", args=[task.id]))
+
+    assert response.status_code == 204
+    assert response["HX-Trigger"] == "tasksChanged"
+    task.refresh_from_db()
+    assert task.status == 1
+    assert task.completed_date == date.today()
+    assert f"task-{task.id}" not in _feed(client)
+
+
+def test_a_second_press_leaves_it_done(client, tasks):
+    task = tasks["done"]
+
+    assert client.post(reverse("tasks-done", args=[task.id])).status_code == 204
+    task.refresh_from_db()
+    assert task.status == 1
+
+
+def test_the_box_wants_a_post(client, tasks):
+    assert client.get(reverse("tasks-done", args=[tasks["open"].id])).status_code == 405
+
+
+def test_the_box_cannot_complete_another_users_task(client, tasks):
+    task = tasks["theirs"]
+
+    assert client.post(reverse("tasks-done", args=[task.id])).status_code == 404
+    task.refresh_from_db()
+    assert task.status == 0

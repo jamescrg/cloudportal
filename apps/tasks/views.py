@@ -536,6 +536,18 @@ def complete_task(task, user):
     recurring.after_completion(task)
 
 
+@login_required
+@require_POST
+def done_htmx(request, id):
+    """Mark a task done from its box on the calendar, which shows only open
+    tasks. Unlike the list's toggle it only ever completes: a second press,
+    from a grid not yet redrawn, leaves the task done."""
+    task = get_object_or_404(Task, pk=id, user=request.user)
+    if task.status != 1:
+        complete_task(task, request.user)
+    return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
+
+
 @csrf_exempt
 @require_POST
 def notify_done(request, token):

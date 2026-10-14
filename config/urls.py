@@ -157,6 +157,7 @@ urlpatterns = [
     path("tasks/add-htmx", tasks.add_htmx, name="tasks-add-htmx"),
     path("tasks/<int:id>/form", tasks.task_form, name="tasks-form"),
     path("tasks/<int:id>/status", tasks.status_htmx, name="tasks-status"),
+    path("tasks/<int:id>/done", tasks.done_htmx, name="tasks-done"),
     path("tasks/notify/<str:token>/done", tasks.notify_done, name="tasks-notify-done"),
     path("tasks/<int:id>/priority", tasks.priority_htmx, name="tasks-priority"),
     path("tasks/<int:id>/delete-htmx", tasks.delete_htmx, name="tasks-delete-htmx"),

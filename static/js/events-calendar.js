@@ -95,6 +95,33 @@ function markRepeats(info) {
   }
 }
 
+// A task's box is an element of its own, so a click on it can be told
+// from a click on the rest of the chip: the box marks the task done, the
+// chip opens it. It goes where the dot would be in the agenda, and before
+// the title everywhere else.
+function addTaskBox(info) {
+  if ((info.event.extendedProps || {}).kind !== "task") {
+    return;
+  }
+  const host =
+    info.el.querySelector(".fc-list-event-graphic") ||
+    info.el.querySelector(".fc-event-title");
+  if (!host || host.querySelector(".fc-task-box")) {
+    return;
+  }
+  const box = document.createElement("span");
+  box.className = "fc-task-box";
+  box.setAttribute("role", "button");
+  box.setAttribute("aria-label", `Mark "${info.event.title}" done`);
+  box.title = "Mark done";
+  host.prepend(box);
+}
+
+function onEventMount(info) {
+  markRepeats(info);
+  addTaskBox(info);
+}
+
 document.addEventListener("alpine:init", () => {
   Alpine.data("eventsCalendar", () => ({
     calendar: null,
@@ -270,7 +297,7 @@ document.addEventListener("alpine:init", () => {
             // would read "12am" (that day's share starts at midnight); it
             // reads "until 3pm" instead
             eventDidMount: (info) => {
-              markRepeats(info);
+              onEventMount(info);
               if (info.isStart || !info.isEnd || info.event.allDay) {
                 return;
               }
@@ -288,9 +315,9 @@ document.addEventListener("alpine:init", () => {
           },
         },
 
-        // Every other view: the repeat tooltip (the agenda sets its own,
-        // above)
-        eventDidMount: markRepeats,
+        // Every other view: the repeat tooltip and a task's box (the
+        // agenda sets its own, above)
+        eventDidMount: onEventMount,
 
         // Event source - JSON API
         events: {
@@ -411,6 +438,12 @@ document.addEventListener("alpine:init", () => {
         }
         return;
       }
+      // A task's box marks it done; it leaves the grid, which shows only
+      // open tasks, at once, and comes back if the server says no
+      if (props.kind === "task" && info.jsEvent.target.closest(".fc-task-box")) {
+        this.completeTask(info.event);
+        return;
+      }
       const url =
         props.kind === "task"
           ? `/tasks/${props.task_id}/form`
@@ -419,6 +452,24 @@ document.addEventListener("alpine:init", () => {
         target: "#htmx-modal-container",
         swap: "innerHTML",
       });
+    },
+
+    completeTask(event) {
+      const taskId = event.extendedProps.task_id;
+      event.remove();
+      fetch(`/tasks/${taskId}/done`, {
+        method: "POST",
+        headers: { "X-CSRFToken": this.getCsrfToken() },
+      })
+        .then((response) => {
+          if (response.ok) {
+            // the task list, where it is on the page, redraws too
+            htmx.trigger(document.body, "tasksChanged");
+          } else {
+            this.calendar.refetchEvents();
+          }
+        })
+        .catch(() => this.calendar.refetchEvents());
     },
 
     handleEventDrop(info) {

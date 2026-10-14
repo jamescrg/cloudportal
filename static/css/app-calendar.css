@@ -485,18 +485,14 @@
   top: 0.5rem;
 }
 
-/* A timed task has no dot: its box stands where the dot would,
-   and not before its title as well */
-.fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event .fc-daygrid-event-dot,
-.fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event .fc-event-title::before {
+/* A timed task has no dot: its box stands where the dot would */
+.fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event .fc-daygrid-event-dot {
   display: none;
 }
 
-.fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event::before {
-  color: var(--task-icon);
-  content: "\e167";
-  font-family: lucide;
+.fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event .fc-task-box {
   left: 0.3rem;
+  margin: 0;
   position: absolute;
   top: 0.1875rem;
 }
@@ -587,15 +583,25 @@
   margin-right: 0.25rem;
 }
 
-.fc-event.fc-event-task .fc-event-title::before {
+/* A task's box: an empty square that takes a click of its own and marks
+   the task done; hovered, it shows the check it would get */
+.fc-task-box {
   color: var(--task-icon);
-  content: "\e167";
+  cursor: pointer;
   display: inline-block;
-  font-family: lucide;
   margin-right: 0.25rem;
   /* an optical nudge onto the title's centre line */
   position: relative;
   top: 2px;
+}
+
+.fc-task-box::before {
+  content: "\e167";
+  font-family: lucide;
+}
+
+.fc-task-box:hover::before {
+  content: "\e16a";
 }
 
 /* Timed entries in the month grid, as Google draws them: no fill, a dot in
@@ -827,13 +833,11 @@
   display: none;
 }
 
-.fc .fc-list-event.fc-event-task .fc-list-event-graphic::before {
-  color: var(--task-icon);
-  content: "\e167";
-  font-family: lucide;
+.fc .fc-list-event.fc-event-task .fc-task-box {
   /* an optical nudge onto the dots' centre line */
   left: -2px;
-  position: relative;
+  margin-right: 0;
+  top: 0;
 }
 
 .fc .fc-list-event:hover td {
