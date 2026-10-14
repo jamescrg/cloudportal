@@ -617,10 +617,11 @@
   text-indent: 0;
 }
 
-/* In the month grid a task's title stops at two lines, with an ellipsis;
-   the chip's tooltip has the whole of it. A timed task's time is inside
-   its title there (events-calendar.js), so the two are cut together. */
-.fc-dayGridMonth-view .fc-event-task .fc-event-title {
+/* In the month grid a chip's title stops at two lines, with an ellipsis;
+   the chip's tooltip has the whole of it. A timed entry's time is inside
+   its title there (events-calendar.js), so the two are cut together. A
+   chip that runs over several days has their width for its two lines. */
+.fc-dayGridMonth-view .fc-daygrid-event .fc-event-title {
   -webkit-box-orient: vertical;
   display: -webkit-box;
   -webkit-line-clamp: 2;

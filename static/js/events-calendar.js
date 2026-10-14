@@ -115,25 +115,36 @@ function addTaskBox(info) {
   box.setAttribute("aria-label", `Mark "${info.event.title}" done`);
   box.title = "Mark done";
   host.prepend(box);
-  // A title cut short in the month grid is read whole on hover
+}
+
+// In the month grid a chip's title stops at two lines (app-calendar.css).
+// A timed entry's time goes inside its title, after a task's box, so the
+// two are cut together as one run of text, and a title cut short is read
+// whole on hover.
+function fitMonthChip(info) {
+  if (info.view.type !== "dayGridMonth") {
+    return;
+  }
   if (!info.el.title) {
     info.el.title = info.event.title;
   }
-  // A timed task's time goes inside its title in the month grid, so the
-  // two are cut to two lines together, as one run of text
   const time = info.el.querySelector(".fc-event-time");
-  if (
-    time &&
-    info.view.type === "dayGridMonth" &&
-    info.el.classList.contains("fc-daygrid-dot-event")
-  ) {
+  const title = info.el.querySelector(".fc-event-title");
+  if (!time || !title || !info.el.classList.contains("fc-daygrid-dot-event")) {
+    return;
+  }
+  const box = title.querySelector(".fc-task-box");
+  if (box) {
     box.after(time);
+  } else {
+    title.prepend(time);
   }
 }
 
 function onEventMount(info) {
   markRepeats(info);
   addTaskBox(info);
+  fitMonthChip(info);
 }
 
 document.addEventListener("alpine:init", () => {
