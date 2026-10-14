@@ -115,6 +115,20 @@ function addTaskBox(info) {
   box.setAttribute("aria-label", `Mark "${info.event.title}" done`);
   box.title = "Mark done";
   host.prepend(box);
+  // A title cut short in the month grid is read whole on hover
+  if (!info.el.title) {
+    info.el.title = info.event.title;
+  }
+  // A timed task's time goes inside its title in the month grid, so the
+  // two are cut to two lines together, as one run of text
+  const time = info.el.querySelector(".fc-event-time");
+  if (
+    time &&
+    info.view.type === "dayGridMonth" &&
+    info.el.classList.contains("fc-daygrid-dot-event")
+  ) {
+    box.after(time);
+  }
 }
 
 function onEventMount(info) {
