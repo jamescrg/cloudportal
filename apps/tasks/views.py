@@ -135,7 +135,7 @@ def status(request, id, origin="tasks"):
         in which case, the user should be returned to the page of origin.
     """
 
-    task = get_object_or_404(Task, pk=id)
+    task = get_object_or_404(Task, pk=id, user=request.user)
     if task.status == 1:
         task.status = 0
         task.completed_date = None
@@ -571,7 +571,7 @@ def notify_done(request, token):
 @login_required
 def status_htmx(request, id):
     """Toggle task status via htmx and return updated list."""
-    task = get_object_or_404(Task, pk=id)
+    task = get_object_or_404(Task, pk=id, user=request.user)
     if task.status == 1:
         task.status = 0
         task.completed_date = None

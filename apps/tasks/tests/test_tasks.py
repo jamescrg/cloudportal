@@ -2,6 +2,7 @@ import pytest
 from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
 
+from accounts.models import CustomUser
 from apps.tasks.models import Task
 
 pytestmark = pytest.mark.django_db(transaction=True, reset_sequences=True)
@@ -50,6 +51,19 @@ def test_status(client, task):
     assert response.status_code == 302
     task = Task.objects.filter(pk=task.id).get()
     assert task.status == 1
+
+
+@pytest.mark.parametrize(
+    "path", ["/tasks/{id}/complete", "/tasks/{id}/complete/home", "/tasks/{id}/status"]
+)
+def test_status_leaves_another_users_task_alone(client, path):
+    other = CustomUser.objects.create_user("Rex", "rex@example.com", "fetch")
+    theirs = Task.objects.create(user=other, title="Theirs")
+
+    assert client.get(path.format(id=theirs.id)).status_code == 404
+    assert client.post(path.format(id=theirs.id)).status_code == 404
+    theirs.refresh_from_db()
+    assert theirs.status == 0
 
 
 def test_add_data(user, client, folder):
