@@ -194,7 +194,7 @@ def edit(request, id):
 
     if request.method == "POST":
         try:
-            task = Task.objects.filter(pk=id).get()
+            task = Task.objects.filter(pk=id, user=user).get()
         except ObjectDoesNotExist:
             raise Http404("Record not found.")
 
@@ -210,7 +210,7 @@ def edit(request, id):
         return redirect("tasks")
 
     else:
-        task = get_object_or_404(Task, pk=id)
+        task = get_object_or_404(Task, pk=id, user=request.user)
         folders = get_task_folders(request)
         try:
             selected_folder = folders.filter(id=task.folder.id).get()
@@ -431,7 +431,7 @@ def add_htmx(request):
 def task_form(request, id):
     """Return task edit form in modal, or process form submission."""
     user = request.user
-    task = get_object_or_404(Task, pk=id)
+    task = get_object_or_404(Task, pk=id, user=request.user)
     folders = get_task_folders(request)
 
     if request.method == "POST":
@@ -595,7 +595,7 @@ def status_htmx(request, id):
 @login_required
 def priority_htmx(request, id):
     """Update task priority via htmx and return updated list."""
-    task = get_object_or_404(Task, pk=id)
+    task = get_object_or_404(Task, pk=id, user=request.user)
     priority = request.GET.get("priority")
     if priority:
         task.priority = int(priority)

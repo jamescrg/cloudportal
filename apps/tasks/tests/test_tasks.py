@@ -54,16 +54,30 @@ def test_status(client, task):
 
 
 @pytest.mark.parametrize(
-    "path", ["/tasks/{id}/complete", "/tasks/{id}/complete/home", "/tasks/{id}/status"]
+    "path",
+    [
+        "/tasks/{id}/complete",
+        "/tasks/{id}/complete/home",
+        "/tasks/{id}/status",
+        "/tasks/{id}/edit",
+        "/tasks/{id}/form",
+        "/tasks/{id}/priority?priority=1",
+    ],
 )
-def test_status_leaves_another_users_task_alone(client, path):
+def test_another_users_task_is_not_found(client, user, path):
     other = CustomUser.objects.create_user("Rex", "rex@example.com", "fetch")
-    theirs = Task.objects.create(user=other, title="Theirs")
+    theirs = Task.objects.create(user=other, title="Theirs", priority=3)
+    url = path.format(id=theirs.id)
 
-    assert client.get(path.format(id=theirs.id)).status_code == 404
-    assert client.post(path.format(id=theirs.id)).status_code == 404
+    assert client.get(url).status_code == 404
+    assert client.post(url, {"title": "Mine now", "priority": 1}).status_code == 404
     theirs.refresh_from_db()
-    assert theirs.status == 0
+    assert (theirs.user, theirs.title, theirs.status, theirs.priority) == (
+        other,
+        "Theirs",
+        0,
+        3,
+    )
 
 
 def test_add_data(user, client, folder):
