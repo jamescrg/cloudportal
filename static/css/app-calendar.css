@@ -604,6 +604,19 @@
   content: "\e16a";
 }
 
+/* A long title wraps clear of the box: its later lines start under its
+   first word, not under the box. (A timed task in the month grid has its
+   box in the chip's padding already; in the agenda it has a column.) */
+.fc-event-task:not(.fc-daygrid-dot-event, .fc-list-event) .fc-event-title {
+  --task-box-width: calc(1em + 0.25rem);
+  padding-left: var(--task-box-width);
+  text-indent: calc(-1 * var(--task-box-width));
+}
+
+.fc-event-task .fc-task-box {
+  text-indent: 0;
+}
+
 /* Timed entries in the month grid, as Google draws them: no fill, a dot in
    the entry's colour, and the title in the page's text colour. All-day
    entries keep their filled block, so the two kinds are told apart at a
