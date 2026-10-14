@@ -209,8 +209,8 @@
 .fc {
   /* Entries on the calendar are neutral: events and tasks alike are a
      gray chip with no border in the page's text colour (a task is told by
-     its check mark and lighter weight). The dots take the accent's
-     lavender and the task's check mark the link's lime, the site's two
+     its box and lighter weight). The dots take the accent's
+     lavender and the task's box the link's lime, the site's two
      colours (Gruvbox purple and aqua in the dark themes). Every theme maps these through its own semantic
      tokens; a theme whose control gray matches the card sets
      --calendar-chip to a gray that shows. */
@@ -485,7 +485,7 @@
   top: 0.5rem;
 }
 
-/* A timed task has no dot: its check mark stands where the dot would,
+/* A timed task has no dot: its box stands where the dot would,
    and not before its title as well */
 .fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event .fc-daygrid-event-dot,
 .fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event .fc-event-title::before {
@@ -494,7 +494,7 @@
 
 .fc-dayGridMonth-view .fc-event-task.fc-daygrid-dot-event::before {
   color: var(--task-icon);
-  content: "\e16a";
+  content: "\e167";
   font-family: lucide;
   left: 0.3rem;
   position: absolute;
@@ -511,7 +511,7 @@
   white-space: normal;
 }
 
-/* A task on the grid: the event's chip, with a check mark before its
+/* A task on the grid: the event's chip, with an empty box before its
    title and a lighter weight, so it reads as something to do rather than
    somewhere to be */
 .fc-event.fc-event-task:not(.fc-list-event),
@@ -589,7 +589,7 @@
 
 .fc-event.fc-event-task .fc-event-title::before {
   color: var(--task-icon);
-  content: "\e16a";
+  content: "\e167";
   display: inline-block;
   font-family: lucide;
   margin-right: 0.25rem;
@@ -807,7 +807,7 @@
 
 .fc .fc-list-event-dot {
   border-color: var(--event-dot);
-  /* an optical nudge into line with the task check mark */
+  /* an optical nudge into line with the task box */
   left: 1px;
   position: relative;
 }
@@ -816,7 +816,7 @@
    for a timed event, the text colour for an all-day event and for the
    in-between days of a timed event that runs over several days (they
    read "all-day"; neither its start nor its end falls on them). A task,
-   timed or not, has its check mark in the dot's place, so every title
+   timed or not, has its box in the dot's place, so every title
    starts in the same column. */
 .fc .fc-list-event.fc-event-all-day .fc-list-event-dot,
 .fc .fc-list-event:not(.fc-event-start, .fc-event-end) .fc-list-event-dot {
@@ -829,7 +829,7 @@
 
 .fc .fc-list-event.fc-event-task .fc-list-event-graphic::before {
   color: var(--task-icon);
-  content: "\e16a";
+  content: "\e167";
   font-family: lucide;
   /* an optical nudge onto the dots' centre line */
   left: -2px;
