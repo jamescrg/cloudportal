@@ -259,10 +259,19 @@
   color: var(--calendar-task-color, var(--color-primary));
 }
 
+/* An all-day task's box stands in its title's left padding, so every
+   line of the title, the first included, starts in the same column
+   whatever space the template leaves after the box */
 .week-task.week-entry-all-day .week-entry-title {
-  --week-box-width: calc(1em + 0.25rem);
-  padding-left: var(--week-box-width);
-  text-indent: calc(-1 * var(--week-box-width));
+  padding-left: calc(1em + 0.25rem);
+  position: relative;
+}
+
+.week-task.week-entry-all-day .week-task-box {
+  left: 0;
+  margin: 0;
+  position: absolute;
+  top: 0.125rem;
 }
 
 .week-task.week-entry-timed:hover {
@@ -276,7 +285,6 @@
   margin-right: 0.25rem;
   /* an optical nudge onto the title's centre line */
   position: relative;
-  text-indent: 0;
   top: 2px;
 }
 
