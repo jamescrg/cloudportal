@@ -131,7 +131,7 @@ def _week(user, **kwargs):
     return agenda.week_days(_request(user), today=TODAY, show_tasks=True, **kwargs)
 
 
-def test_tasks_stay_off_the_strip_with_the_toggle_off(user):
+def test_tasks_stay_off_the_strip_unless_asked_for(user):
     Task.objects.create(user=user, title="Pay rent", due_date=TODAY)
     assert _titles(agenda.week_days(_request(user), today=TODAY)[WED]) == []
 
@@ -194,13 +194,13 @@ def test_other_users_tasks_stay_off_the_strip(user):
     assert _week(user)[WED].count == 0
 
 
-def test_the_setting_sets_the_toggle_until_it_is_pressed(user):
-    request = _request(user)
-    assert agenda.tasks_shown(request) is False
+def test_the_setting_alone_decides_whether_tasks_show(user):
+    Task.objects.create(user=user, title="Pay rent", due_date=TODAY)
+    context = agenda.week_context(_request(user), today=TODAY)
+    assert _titles(context["week"][WED]) == []
     user.home_due_tasks = 1
-    assert agenda.tasks_shown(request) is True
-    request.session[agenda.SHOW_TASKS_KEY] = False
-    assert agenda.tasks_shown(request) is False
+    context = agenda.week_context(_request(user), today=TODAY)
+    assert _titles(context["week"][WED]) == ["Pay rent"]
 
 
 def test_other_users_events_stay_off_the_strip(user):
@@ -221,7 +221,7 @@ def test_home_page_shows_tasks_on_the_card_when_the_setting_is_on(client, user):
         user=user, title="Forgotten", due_date=date.today() - timedelta(days=30)
     )
     page = client.get(reverse("home")).content.decode()
-    assert "From Your Calendar" in page
+    assert "<h1>Calendar</h1>" in page
     assert "Dentist" in page
     assert "Pay rent" in page
     assert "Forgotten" in page
@@ -229,44 +229,20 @@ def test_home_page_shows_tasks_on_the_card_when_the_setting_is_on(client, user):
     # the chip opens the task, its box completes it
     assert reverse("tasks-form", args=[task.id]) in page
     assert reverse("tasks-done", args=[task.id]) in page
-    assert 'aria-pressed="true"' in page
 
 
 def test_home_page_leaves_tasks_off_when_the_setting_is_off(client, user):
     Task.objects.create(user=user, title="Pay rent", due_date=date.today())
     page = client.get(reverse("home")).content.decode()
     assert "Pay rent" not in page
-    assert 'aria-pressed="false"' in page
 
 
-def test_the_toggle_shows_and_hides_the_tasks(client, user):
-    Task.objects.create(user=user, title="Pay rent", due_date=date.today())
-    start = str(agenda.week_start(date.today()))
-
-    response = client.post(reverse("home-week-tasks", args=[start, "on"]))
-    assert response.status_code == 200
-    assert "Pay rent" in response.content.decode()
-    assert "Pay rent" in client.get(reverse("home")).content.decode()
-
-    response = client.post(reverse("home-week-tasks", args=[start, "off"]))
-    assert "Pay rent" not in response.content.decode()
-    assert "Pay rent" not in client.get(reverse("home")).content.decode()
-
-
-def test_the_toggle_wants_a_post_and_a_state(client):
-    start = str(agenda.week_start(date.today()))
-    assert client.get(reverse("home-week-tasks", args=[start, "on"])).status_code == 405
-    assert (
-        client.post(reverse("home-week-tasks", args=[start, "maybe"])).status_code
-        == 404
-    )
-
-
-def test_changing_the_setting_resets_the_toggle(client, user):
-    start = str(agenda.week_start(date.today()))
-    client.post(reverse("home-week-tasks", args=[start, "off"]))
-    client.get(reverse("settings-home-options", args=["due_tasks", "enable"]))
-    assert agenda.SHOW_TASKS_KEY not in client.session
+def test_the_card_has_no_tasks_toggle(client, user):
+    user.home_due_tasks = 1
+    user.save()
+    page = client.get(reverse("home")).content.decode()
+    assert "aria-pressed" not in page
+    assert "Show tasks" not in page and "Hide tasks" not in page
 
 
 def test_the_card_shows_the_day_of_the_month_alone(client, user):
@@ -280,7 +256,7 @@ def test_home_page_keeps_an_empty_week_for_its_chevrons(client):
     response = client.get(reverse("home"))
     assert response.status_code == 200
     page = response.content.decode()
-    assert "From Your Calendar" in page
+    assert "<h1>Calendar</h1>" in page
     assert "Nothing on the calendar this week." in page
 
 

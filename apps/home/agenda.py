@@ -1,5 +1,5 @@
 """The home page's calendar card: a week of the user's calendar, with
-their open tasks on it when its toggle is on.
+their open tasks on it when the home page's setting has them.
 
 It comes from the app's own data. The strip reads the Event model, which
 the calendar app keeps in step with Google, so a user whose events live on
@@ -22,10 +22,6 @@ WEEK_DAYS = 7
 
 # How many entries a day shows before the rest fold into a link
 DAY_LIMIT = 5
-
-# The session key for the calendar card's tasks toggle; until it is
-# pressed, the home page's setting decides
-SHOW_TASKS_KEY = "home_week_tasks"
 
 
 def week_start(day):
@@ -168,27 +164,18 @@ def week_range(first, today):
     return span
 
 
-def tasks_shown(request):
-    """Whether the calendar card shows tasks: as its toggle was last left
-    this session, or else as the home page's setting has it."""
-    shown = request.session.get(SHOW_TASKS_KEY)
-    if shown is None:
-        return bool(request.user.home_due_tasks)
-    return shown
-
-
 def week_context(request, week_of=None, today=None):
     """What the calendar card shows for the week holding week_of (today's
     week by default): its days, how many entries they hold, its span, the
-    weeks either side for the chevrons, and whether its tasks are shown."""
+    weeks either side for the chevrons. Its tasks are shown where the home
+    page's setting has them."""
     today = today or timezone.localdate()
     first = week_start(week_of or today)
-    show_tasks = tasks_shown(request)
+    show_tasks = bool(request.user.home_due_tasks)
     week = week_days(request, today=today, week_of=first, show_tasks=show_tasks)
     return {
         "week": week,
         "week_first": first,
-        "week_tasks": show_tasks,
         "week_count": sum(day.count for day in week),
         "week_range": week_range(first, today),
         "week_is_current": first == week_start(today),

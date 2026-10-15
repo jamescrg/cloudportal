@@ -179,17 +179,6 @@ def week(request, start):
 
 @login_required
 @require_POST
-def week_tasks(request, start, state):
-    """The calendar card's tasks toggle: shows or hides the tasks on it for
-    the rest of the session, and redraws the card on the week in view."""
-    if state not in ("on", "off"):
-        raise Http404("Unknown state")
-    request.session[agenda.SHOW_TASKS_KEY] = state == "on"
-    return week(request, start)
-
-
-@login_required
-@require_POST
 def notice_dismiss(request, id):
     """Close a notification card. The card is swapped away in place, so
     nothing comes back."""

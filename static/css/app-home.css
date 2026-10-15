@@ -117,14 +117,6 @@
   margin-right: 0.25rem;
 }
 
-/* The tasks toggle: the heading's gray when off, the link colour when on */
-.week-tasks-toggle.is-on {
-  color: var(--link);
-}
-
-.week-tasks-toggle.is-on:hover {
-  color: var(--link-hover);
-}
 
 /* Seven equal columns, Sunday to Saturday, ruled between neighbours in
    the same weight as the site's tables and lists. The strip runs out to

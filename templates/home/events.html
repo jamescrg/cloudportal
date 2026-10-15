@@ -4,7 +4,7 @@
      hx-trigger="tasksChanged from:body"
      hx-swap="outerHTML">
     <div class="card-title week-title">
-        <h1>From Your Calendar</h1>
+        <h1>Calendar</h1>
         <div class="week-nav">
             <button type="button"
                     class="square-button close-button"
@@ -34,16 +34,6 @@
                         hx-target="#home-week"
                         hx-swap="outerHTML">This week</button>
             {% endif %}
-            <button type="button"
-                    class="square-button close-button week-tasks-toggle{% if week_tasks %} is-on{% endif %}"
-                    aria-pressed="{{ week_tasks|yesno:'true,false' }}"
-                    aria-label="{{ week_tasks|yesno:'Hide tasks,Show tasks' }}"
-                    title="{{ week_tasks|yesno:'Hide tasks,Show tasks' }}"
-                    hx-post="{% url 'home-week-tasks' start=week_first|date:'Y-m-d' state=week_tasks|yesno:'off,on' %}"
-                    hx-target="#home-week"
-                    hx-swap="outerHTML">
-                <i class="icon-list-checks"></i>
-            </button>
             <a class="square-button close-button"
                href="{% url 'home-toggle' section='events' %}">
                 <i class="icon-x"></i>
@@ -56,8 +46,8 @@
     the weekday and, in its upper right, the day of the month (the month is
     in the stepper), and opens the calendar on it. Under it the day's
     entries, drawn as the month view draws them: an all-day event a filled
-    chip, a timed one a dot, its time and its title. With the tasks toggle
-    on, open tasks are on their days as the month view has them, a box
+    chip, a timed one a dot, its time and its title. Where the home page's
+    setting has them, open tasks are on their days as the month view has them, a box
     before the title: the box marks the task done and the rest of the chip
     opens it. On this week, tasks overdue from before it are gathered at
     the top of today, dated and in the urgent colour. A day with nothing on
