@@ -274,7 +274,7 @@ def test_the_chevrons_swap_in_another_week(client, user):
     card = response.content.decode()
     assert 'id="home-week"' in card
     assert "Next week thing" in card
-    assert "This week" in card
+    assert "This Week" in card
 
 
 def test_an_empty_week_still_comes_back_from_the_chevrons(client):
