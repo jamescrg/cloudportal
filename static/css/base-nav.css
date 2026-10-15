@@ -57,8 +57,8 @@
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L0,8 L8,8 A8,8 0 0,1 0,0 Z' fill='white'/%3E%3C/svg%3E");
 }
 
-/* The account menu: a person icon in the gear's place, styled as the bar's
-   other icons, opening Settings and Log out */
+/* The account menu: a person icon after the gear, styled as the bar's
+   other icons, opening who is signed in and Log out */
 .account-button {
   background: none;
   border: none;

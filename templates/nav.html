@@ -12,12 +12,17 @@
                         <i class="icon-search"></i>
                     </a>
                 </li>
+                {# Settings, a click away; on a settings page it is the active tab #}
+                <li {% if page == 'settings' %}class="active"{% endif %}>
+                    <a href="{% url 'settings' %}" aria-label="Settings" title="Settings">
+                        <i class="icon-settings"></i>
+                    </a>
+                </li>
                 {% comment %}
-                    The account menu: who is signed in, Settings and Log out.
-                    On a settings page it stands as the active tab, as the gear
-                    did. Log out is a form: Django logs out by POST alone.
+                    The account menu: who is signed in, and Log out. Log out is
+                    a form: Django logs out by POST alone.
                 {% endcomment %}
-                <li class="account-menu {% if page == 'settings' %}active{% endif %}">
+                <li class="account-menu">
                     <div class="dropdown" x-data="dropdown()">
                         <button class="account-button"
                                 type="button"
@@ -32,9 +37,6 @@
                             <li class="account-who">
                                 <strong>{{ user.get_full_name|default:user.username }}</strong>
                                 <span>{{ user.email }}</span>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'settings' %}"><i class="icon-settings"></i> Settings</a>
                             </li>
                             <li>
                                 <form method="post" action="{% url 'logout' %}">
