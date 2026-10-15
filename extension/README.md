@@ -21,7 +21,7 @@ Save any webpage to your CloudPortal favorites with one click.
 ## Requirements
 
 - Firefox browser
-- CloudPortal account at https://cloud.dvsrv.net
+- CloudPortal account at https://cloud.darmok.link
 
 ## Privacy
 
@@ -29,4 +29,4 @@ This extension only communicates with your CloudPortal application. No data is s
 
 ## Support
 
-For support, visit https://cloud.dvsrv.net
+For support, visit https://cloud.darmok.link
