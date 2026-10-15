@@ -674,13 +674,6 @@
   background-color: transparent !important;
 }
 
-/* In the month grid today's cell carries a lavender rail along its top,
-   inside the rule, as today's column does on the home page's calendar
-   card */
-.fc-dayGridMonth-view .fc-daygrid-day.fc-day-today {
-  box-shadow: inset 0 2px 0 var(--color-accent-strong);
-}
-
 /* The circle with its margin stands as tall as the other numbers with
    their padding (2.5rem), so today's events start on the same line as
    its neighbours' and a bar spanning the days keeps clear of them. The
