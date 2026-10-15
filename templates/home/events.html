@@ -1,14 +1,7 @@
 <div class="card panel" id="home-week">
-    <div class="card-title flex-start-space">
+    <div class="card-title week-title">
         <h1>From Your Calendar</h1>
         <div class="week-nav">
-            {% if not week_is_current %}
-                <button type="button"
-                        class="button-link week-nav-today"
-                        hx-get="{% url 'home-week' start=week_today|date:'Y-m-d' %}"
-                        hx-target="#home-week"
-                        hx-swap="outerHTML">This week</button>
-            {% endif %}
             <button type="button"
                     class="square-button close-button"
                     aria-label="Previous week"
@@ -28,6 +21,15 @@
                     hx-swap="outerHTML">
                 <i class="icon-chevron-right"></i>
             </button>
+        </div>
+        <div class="week-title-end">
+            {% if not week_is_current %}
+                <button type="button"
+                        class="button-link week-nav-today"
+                        hx-get="{% url 'home-week' start=week_today|date:'Y-m-d' %}"
+                        hx-target="#home-week"
+                        hx-swap="outerHTML">This week</button>
+            {% endif %}
             <a class="square-button close-button"
                href="{% url 'home-toggle' section='events' %}">
                 <i class="icon-x"></i>

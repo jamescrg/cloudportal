@@ -73,12 +73,27 @@
  * from your calendar: the week strip
  * ------------------------------------------------*/
 
-/* The card's heading carries the week's span between its chevrons, then
-   the close button; off this week, a link back to it comes first */
-.week-nav {
+/* The card's heading in three parts: the title, the week's span between
+   its chevrons in the middle, and the close button, with a link back to
+   this week before it when the card is on another. The outer columns
+   share the width left over equally, so the stepper stays centred
+   whatever the ends hold. */
+.week-title {
+  align-items: center;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.week-nav,
+.week-title-end {
   align-items: center;
   display: flex;
   gap: 0.5rem;
+}
+
+.week-title-end {
+  justify-content: flex-end;
 }
 
 .week-nav .square-button i {
@@ -90,6 +105,11 @@
   font-size: 0.9rem;
   min-width: 7.5rem;
   text-align: center;
+}
+
+.week-nav-range,
+.week-nav-today {
+  white-space: nowrap;
 }
 
 .week-nav-today {
@@ -245,21 +265,17 @@
     display: none;
   }
 
-  /* the heading's controls drop under the title when the two would
-     crowd, rather than wrapping the title or the span */
-  #home-week .card-title {
-    flex-wrap: wrap;
+  /* the title and close button share the top line, and the stepper
+     takes its own line under them, centred */
+  .week-title {
+    grid-template-columns: minmax(0, 1fr) auto;
     row-gap: 0.25rem;
   }
 
   .week-nav {
-    margin-left: auto;
-  }
-
-  .week-nav-range,
-  .week-nav-today {
-    min-width: 0;
-    white-space: nowrap;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: center;
   }
 
   .week-nothing {
