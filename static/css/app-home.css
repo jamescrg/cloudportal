@@ -73,17 +73,47 @@
  * from your calendar: the week strip
  * ------------------------------------------------*/
 
-/* Seven equal columns, today first, ruled between neighbours in the same
-   weight as the site's tables and lists. The strip runs out to the card's
-   edges and down to its bottom: the card's padding is pulled back on
-   those three sides, so the strip's top rule spans the card and its
-   other rules meet the card's outline. Today carries an accent line
+/* The card's heading carries the week's span between its chevrons, then
+   the close button; off this week, a link back to it comes first */
+.week-nav {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.week-nav .square-button i {
+  font-size: 1.1rem;
+}
+
+.week-nav-range {
+  color: var(--color-secondary);
+  font-size: 0.9rem;
+  min-width: 7.5rem;
+  text-align: center;
+}
+
+.week-nav-today {
+  font-size: 0.9rem;
+  margin-right: 0.25rem;
+}
+
+/* Seven equal columns, Sunday to Saturday, ruled between neighbours in
+   the same weight as the site's tables and lists. The strip runs out to
+   the card's edges and down to its bottom: the card's padding is pulled
+   back on those three sides, so the strip's top rule spans the card and
+   its other rules meet the card's outline. Today carries an accent line
    along its top, inside the rule. */
 .week-strip {
   border-top: 1px solid var(--border-medium);
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   margin: 0 -1rem -1.5rem;
+  /* the calendar's dot (app-calendar.css, on .fc): the accent softened
+     toward the card */
+  --event-dot: var(
+    --calendar-dot,
+    color-mix(in oklab, var(--color-accent) 65%, var(--background-section))
+  );
 }
 
 .week-day {
@@ -127,55 +157,76 @@
 .week-entries {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.25rem;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-/* An entry is the calendar's chip, in the page's text colour */
+/* An entry as the calendar's month view draws it (app-calendar.css): its
+   text a step under 1rem and heavy, its title stopping at two lines with
+   an ellipsis, the whole of it on hover */
 .week-entry {
-  background: var(--calendar-chip, var(--background-control));
   border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
-  padding: 0.3rem 0.5rem;
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 0.125rem 0.375rem;
+  position: relative;
 }
 
-/* An all-day event takes the calendar's all-day colour, and a task its
-   task colour, where the theme gives them (app-calendar.css) */
+.week-entry-title {
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* An all-day event is a filled chip, in the all-day colour where the
+   theme gives one */
 .week-entry-all-day {
   background: var(--calendar-allday, var(--calendar-chip, var(--background-control)));
+  border: 1px solid var(--calendar-chip-border, transparent);
   color: var(--calendar-allday-color, var(--color-primary));
 }
 
-.week-entry-all-day {
-  border: 1px solid var(--calendar-chip-border, transparent);
+/* A timed event has no fill: a dot in the left padding, then its time
+   and title as one run of text */
+.week-entry-timed {
+  padding-left: 1.375rem;
 }
 
-.week-entry-time {
-  color: var(--color-secondary);
-  display: block;
-  font-size: 0.8rem;
-}
-
-.week-entry-title i {
-  font-size: 0.85em;
+.week-entry-dot {
+  border: 4px solid var(--event-dot);
+  border-radius: 4px;
+  left: 0.375rem;
+  position: absolute;
+  top: 0.5rem;
 }
 
 .week-entry-repeat {
   color: var(--color-muted);
+  font-size: 0.85em;
+  margin-left: 0.125rem;
 }
 
 .week-empty {
   color: var(--color-muted);
-  padding: 0.3rem 0.5rem;
+  padding: 0.125rem 0.375rem;
 }
 
 .week-more {
-  font-size: 0.85rem;
-  padding: 0 0.5rem;
+  font-size: 0.8125rem;
+  padding: 0 0.375rem;
+}
+
+/* A week with nothing on it says so on a phone, where its empty days
+   drop out; seven dashes say it in the columns */
+.week-nothing {
+  display: none;
 }
 
 /* On a phone the days stack, and a day with nothing on it drops out so
@@ -192,6 +243,30 @@
 
   .week-day.is-empty {
     display: none;
+  }
+
+  /* the heading's controls drop under the title when the two would
+     crowd, rather than wrapping the title or the span */
+  #home-week .card-title {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+  }
+
+  .week-nav {
+    margin-left: auto;
+  }
+
+  .week-nav-range,
+  .week-nav-today {
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .week-nothing {
+    color: var(--color-muted);
+    display: block;
+    margin: 0;
+    padding: 0.5rem 0.6rem;
   }
 
   .week-day-head {

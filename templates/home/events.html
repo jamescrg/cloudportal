@@ -1,16 +1,49 @@
-<div class="card panel">
+<div class="card panel" id="home-week">
     <div class="card-title flex-start-space">
         <h1>From Your Calendar</h1>
-        <a class="square-button close-button"
-           href="{% url 'home-toggle' section='events' %}">
-            <i class="icon-x"></i>
-        </a>
+        <div class="week-nav">
+            {% if not week_is_current %}
+                <button type="button"
+                        class="button-link week-nav-today"
+                        hx-get="{% url 'home-week' start=week_today|date:'Y-m-d' %}"
+                        hx-target="#home-week"
+                        hx-swap="outerHTML">This week</button>
+            {% endif %}
+            <button type="button"
+                    class="square-button close-button"
+                    aria-label="Previous week"
+                    title="Previous week"
+                    hx-get="{% url 'home-week' start=week_previous|date:'Y-m-d' %}"
+                    hx-target="#home-week"
+                    hx-swap="outerHTML">
+                <i class="icon-chevron-left"></i>
+            </button>
+            <span class="week-nav-range">{{ week_range }}</span>
+            <button type="button"
+                    class="square-button close-button"
+                    aria-label="Next week"
+                    title="Next week"
+                    hx-get="{% url 'home-week' start=week_next|date:'Y-m-d' %}"
+                    hx-target="#home-week"
+                    hx-swap="outerHTML">
+                <i class="icon-chevron-right"></i>
+            </button>
+            <a class="square-button close-button"
+               href="{% url 'home-toggle' section='events' %}">
+                <i class="icon-x"></i>
+            </a>
+        </div>
     </div>
     {% comment %}
-    The next seven days as a strip of columns, today first. Each column
-    heads with the day and opens the calendar on it; under it the day's
-    events, all-day ones first (its tasks are in the panel below). A day with nothing on it keeps its column (a free day is worth
-    seeing); on a phone the strip stacks and empty days drop out.
+    A week, Sunday to Saturday, as a strip of columns: a row of the
+    calendar's month view, today's column marked. Each column heads with
+    the day and opens the calendar on it; under it the day's events,
+    all-day ones first, drawn as the month view draws them (an all-day
+    event a filled chip, a timed one a dot, its time and its title). A day
+    with nothing on it keeps its column (a free day is worth seeing); on a
+    phone the strip stacks and empty days drop out. The chevrons swap in
+    the week before or after (views.week); its tasks are in the panel
+    below.
     {% endcomment %}
     <div class="week-strip">
         {% for day in week %}
@@ -22,14 +55,13 @@
                 </a>
                 <ul class="week-entries">
                     {% for entry in day.entries %}
-                        <li class="week-entry week-entry-{{ entry.kind }}{% if entry.kind == "event" and not entry.time %} week-entry-all-day{% endif %}">
-                            {% if entry.time %}<span class="week-entry-time">{{ entry.time|time:"g:i A" }}</span>{% endif %}
+                        <li class="week-entry {% if entry.time %}week-entry-timed{% else %}week-entry-all-day{% endif %}"
+                            title="{{ entry.title }}{% if entry.repeat_summary %} · {{ entry.repeat_summary }}{% endif %}">
+                            {% if entry.time %}<span class="week-entry-dot"></span>{% endif %}
                             <span class="week-entry-title">
+                                {% if entry.time %}<span class="week-entry-time">{{ entry.time_label }}</span>{% endif %}
                                 {{ entry.title }}
-                                {% if entry.repeat_summary %}
-                                    <i class="icon-repeat week-entry-repeat"
-                                       title="{{ entry.repeat_summary }}"></i>
-                                {% endif %}
+                                {% if entry.repeat_summary %}<i class="icon-repeat week-entry-repeat"></i>{% endif %}
                             </span>
                         </li>
                     {% empty %}
@@ -43,5 +75,6 @@
                 </ul>
             </div>
         {% endfor %}
+        {% if not week_count %}<p class="week-nothing">Nothing on the calendar this week.</p>{% endif %}
     </div>
 </div>

@@ -77,11 +77,10 @@ def index(request):
     # EVENTS
     # ----------------
 
-    # the next week of the user's own calendar, when the section is shown
+    # this week of the user's own calendar, when the section is shown; an
+    # empty week keeps the panel, so its chevrons can look ahead
     show_events = show_section(user, "events")
-    week = agenda.week_days(request) if show_events else []
-    # the panel is left out of a week with nothing on it
-    week_count = sum(day.count for day in week)
+    week = agenda.week_context(request) if show_events else {}
 
     # QUOTES
     # ----------------
@@ -160,8 +159,7 @@ def index(request):
         "some_tasks": some_tasks,
         "show_due_tasks": show_due_tasks,
         "due_task_groups": due_task_groups,
-        "week": week,
-        "week_count": week_count,
+        **week,
         "show_events": show_events,
         "show_quotes": show_quotes,
         "quotes": quotes,
@@ -174,6 +172,18 @@ def index(request):
     context.update(search_context)
 
     return render(request, "home/content.html", context)
+
+
+@login_required
+def week(request, start):
+    """The calendar card for another week, for its chevrons: the week that
+    holds the date given. It stays on the page even when that week is
+    empty, so the chevrons are there to go on."""
+    try:
+        week_of = date.fromisoformat(start)
+    except ValueError:
+        raise Http404("Unreadable date")
+    return render(request, "home/events.html", agenda.week_context(request, week_of))
 
 
 @login_required

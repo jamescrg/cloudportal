@@ -18,7 +18,8 @@ from apps.calendar.models import Event
 from apps.tasks.models import Task
 from apps.tasks.priority import level_for
 
-# How many days the calendar strip shows, today first
+# How many days the calendar strip shows: a week, Sunday first, as the
+# calendar's month view has it
 WEEK_DAYS = 7
 
 # How many entries a day shows before the rest fold into a link
@@ -37,6 +38,18 @@ def day_label(day, today):
     return day.strftime("%A")
 
 
+def week_start(day):
+    """The Sunday on or before the day: the first day of its week."""
+    return day - timedelta(days=(day.weekday() + 1) % 7)
+
+
+def short_time(value):
+    """A time as the calendar's month view writes it: 9:30a, 1p."""
+    hour = value.hour % 12 or 12
+    minutes = f":{value.minute:02d}" if value.minute else ""
+    return f"{hour}{minutes}{'a' if value.hour < 12 else 'p'}"
+
+
 def _entry_for_event(event, zone):
     """An event as the strip shows it: its description, and its start
     time where the user is (None for an all-day event)."""
@@ -46,6 +59,7 @@ def _entry_for_event(event, zone):
         id=event.id,
         title=event.description or "Untitled",
         time=shown.start_time,
+        time_label=short_time(shown.start_time) if shown.start_time else "",
         repeat_summary=event.series.summary if event.series_id else "",
         first_day=shown.date,
         last_day=shown.end_date or shown.date,
@@ -63,22 +77,24 @@ def _entry_key(entry):
     )
 
 
-def week_days(request, today=None):
-    """The next seven days, each with the entries the strip shows on it.
+def week_days(request, today=None, week_of=None):
+    """The week, Sunday to Saturday, that holds week_of (today's week by
+    default), each day with the entries the strip shows on it.
 
-    A day carries its date, its label (Today, Tomorrow, a weekday), the
-    entries that fit, and how many more there are. An event over several
-    days appears on each day it covers. Tasks stay off it: the Scheduled
-    Tasks panel under it has them.
+    A day carries its date, its label (the weekday, short), whether it is
+    today, the entries that fit, and how many more there are. An event over
+    several days appears on each day it covers. Tasks stay off it: the
+    Scheduled Tasks panel under it has them.
     """
     user = request.user
     zone = user.time_zone
     today = today or timezone.localdate()
-    last = today + timedelta(days=WEEK_DAYS - 1)
+    first = week_start(week_of or today)
+    last = first + timedelta(days=WEEK_DAYS - 1)
 
     # A day's margin each side covers a timed event whose date reads
     # differently in the user's zone than in its own
-    first_touch, last_touch = today - timedelta(days=1), last + timedelta(days=1)
+    first_touch, last_touch = first - timedelta(days=1), last + timedelta(days=1)
     recurrence.extend_for(user, last_touch, today)
     events = (
         Event.objects.filter(user=user, date__lte=last_touch)
@@ -89,14 +105,14 @@ def week_days(request, today=None):
 
     days = []
     for offset in range(WEEK_DAYS):
-        day = today + timedelta(days=offset)
+        day = first + timedelta(days=offset)
         on_day = sorted(
             (e for e in entries if e.first_day <= day <= e.last_day), key=_entry_key
         )
         days.append(
             SimpleNamespace(
                 date=day,
-                label=day_label(day, today),
+                label=day.strftime("%a"),
                 is_today=day == today,
                 entries=on_day[:DAY_LIMIT],
                 more=max(len(on_day) - DAY_LIMIT, 0),
@@ -104,6 +120,35 @@ def week_days(request, today=None):
             )
         )
     return days
+
+
+def week_range(first, today):
+    """The week's span for the card's heading: Oct 11 – 17, or Oct 25 –
+    Nov 1 when it crosses a month, with the year when it is not this one."""
+    last = first + timedelta(days=WEEK_DAYS - 1)
+    end = f"{last.day}" if last.month == first.month else f"{last:%b} {last.day}"
+    span = f"{first:%b} {first.day} – {end}"
+    if last.year != today.year or first.year != today.year:
+        span += f", {last.year}"
+    return span
+
+
+def week_context(request, week_of=None, today=None):
+    """What the calendar card shows for the week holding week_of (today's
+    week by default): its days, how many entries they hold, its span, and
+    the weeks either side for the chevrons."""
+    today = today or timezone.localdate()
+    first = week_start(week_of or today)
+    week = week_days(request, today=today, week_of=first)
+    return {
+        "week": week,
+        "week_count": sum(day.count for day in week),
+        "week_range": week_range(first, today),
+        "week_is_current": first == week_start(today),
+        "week_today": today,
+        "week_previous": first - timedelta(days=WEEK_DAYS),
+        "week_next": first + timedelta(days=WEEK_DAYS),
+    }
 
 
 def due_task_groups(user, today=None):
