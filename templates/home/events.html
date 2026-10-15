@@ -1,4 +1,8 @@
-<div class="card panel" id="home-week">
+<div class="card panel"
+     id="home-week"
+     hx-get="{% url 'home-week' start=week_first|date:'Y-m-d' %}"
+     hx-trigger="tasksChanged from:body"
+     hx-swap="outerHTML">
     <div class="card-title week-title">
         <h1>From Your Calendar</h1>
         <div class="week-nav">
@@ -30,6 +34,16 @@
                         hx-target="#home-week"
                         hx-swap="outerHTML">This week</button>
             {% endif %}
+            <button type="button"
+                    class="square-button close-button week-tasks-toggle{% if week_tasks %} is-on{% endif %}"
+                    aria-pressed="{{ week_tasks|yesno:'true,false' }}"
+                    aria-label="{{ week_tasks|yesno:'Hide tasks,Show tasks' }}"
+                    title="{{ week_tasks|yesno:'Hide tasks,Show tasks' }}"
+                    hx-post="{% url 'home-week-tasks' start=week_first|date:'Y-m-d' state=week_tasks|yesno:'off,on' %}"
+                    hx-target="#home-week"
+                    hx-swap="outerHTML">
+                <i class="icon-list-checks"></i>
+            </button>
             <a class="square-button close-button"
                href="{% url 'home-toggle' section='events' %}">
                 <i class="icon-x"></i>
@@ -39,13 +53,17 @@
     {% comment %}
     A week, Sunday to Saturday, as a strip of columns: a row of the
     calendar's month view, today's column marked. Each column heads with
-    the day and opens the calendar on it; under it the day's events,
-    all-day ones first, drawn as the month view draws them (an all-day
-    event a filled chip, a timed one a dot, its time and its title). A day
-    with nothing on it keeps its column (a free day is worth seeing); on a
-    phone the strip stacks and empty days drop out. The chevrons swap in
-    the week before or after (views.week); its tasks are in the panel
-    below.
+    the weekday and, in its upper right, the day of the month (the month is
+    in the stepper), and opens the calendar on it. Under it the day's
+    entries, drawn as the month view draws them: an all-day event a filled
+    chip, a timed one a dot, its time and its title. With the tasks toggle
+    on, open tasks are on their days as the month view has them, a box
+    before the title: the box marks the task done and the rest of the chip
+    opens it. On this week, tasks overdue from before it are gathered at
+    the top of today, dated and in the urgent colour. A day with nothing on
+    it keeps its column (a free day is worth seeing); on a phone the strip
+    stacks and empty days drop out. The chevrons swap in the week before or
+    after (views.week), and the card redraws itself when a task changes.
     {% endcomment %}
     <div class="week-strip">
         {% for day in week %}
@@ -53,19 +71,42 @@
                 <a class="week-day-head"
                    href="{% url 'calendar:index' %}?date={{ day.date|date:'Y-m-d' }}">
                     <span class="week-day-name">{{ day.label }}</span>
-                    <span class="week-day-date">{{ day.date|date:"M j" }}</span>
+                    <span class="week-day-date">{{ day.date|date:"j" }}</span>
                 </a>
                 <ul class="week-entries">
                     {% for entry in day.entries %}
-                        <li class="week-entry {% if entry.time %}week-entry-timed{% else %}week-entry-all-day{% endif %}"
-                            title="{{ entry.title }}{% if entry.repeat_summary %} · {{ entry.repeat_summary }}{% endif %}">
-                            {% if entry.time %}<span class="week-entry-dot"></span>{% endif %}
-                            <span class="week-entry-title">
-                                {% if entry.time %}<span class="week-entry-time">{{ entry.time_label }}</span>{% endif %}
-                                {{ entry.title }}
-                                {% if entry.repeat_summary %}<i class="icon-repeat week-entry-repeat"></i>{% endif %}
-                            </span>
-                        </li>
+                        {% if entry.kind == "task" %}
+                            <li class="week-entry week-task {% if entry.time %}week-entry-timed{% else %}week-entry-all-day{% endif %}{% if entry.overdue %} is-overdue{% endif %}"
+                                title="{{ entry.title }}"
+                                role="button"
+                                tabindex="0"
+                                hx-get="{% url 'tasks-form' entry.id %}"
+                                hx-trigger="click, keyup[key=='Enter']"
+                                hx-target="#htmx-modal-container"
+                                hx-swap="innerHTML">
+                                <span class="week-entry-title">
+                                    <span class="week-task-box"
+                                          role="button"
+                                          aria-label="Mark &quot;{{ entry.title }}&quot; done"
+                                          title="Mark done"
+                                          hx-post="{% url 'tasks-done' entry.id %}"
+                                          hx-trigger="click consume"
+                                          hx-swap="none"></span>
+                                    {% if entry.time_label %}<span class="week-entry-time">{{ entry.time_label }}</span>{% endif %}
+                                    {{ entry.title }}
+                                </span>
+                            </li>
+                        {% else %}
+                            <li class="week-entry {% if entry.time %}week-entry-timed{% else %}week-entry-all-day{% endif %}"
+                                title="{{ entry.title }}{% if entry.repeat_summary %} · {{ entry.repeat_summary }}{% endif %}">
+                                {% if entry.time %}<span class="week-entry-dot"></span>{% endif %}
+                                <span class="week-entry-title">
+                                    {% if entry.time %}<span class="week-entry-time">{{ entry.time_label }}</span>{% endif %}
+                                    {{ entry.title }}
+                                    {% if entry.repeat_summary %}<i class="icon-repeat week-entry-repeat"></i>{% endif %}
+                                </span>
+                            </li>
+                        {% endif %}
                     {% empty %}
                         <li class="week-empty">–</li>
                     {% endfor %}

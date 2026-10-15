@@ -15,11 +15,11 @@
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Due tasks</td>
+                <td class="setting-label">Tasks on the calendar</td>
                 <td class="setting-control">
                     {% url 'settings-home-options' option='due_tasks' value='enable' as url_on %}
                     {% url 'settings-home-options' option='due_tasks' value='disable' as url_off %}
-                    {% include "components/setting-switch.html" with on=user.home_due_tasks url_on=url_on url_off=url_off label="Due tasks" %}
+                    {% include "components/setting-switch.html" with on=user.home_due_tasks url_on=url_on url_off=url_off label="Tasks on the calendar" %}
                 </td>
             </tr>
             <tr>

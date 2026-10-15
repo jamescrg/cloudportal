@@ -7,9 +7,7 @@ import pytest
 from django.test import RequestFactory
 from django.urls import reverse
 
-from apps.calendar.events import SHOW_TASKS_KEY
 from apps.calendar.models import Event
-from apps.folders.models import Folder
 from apps.home import agenda
 from apps.tasks.models import Task
 
@@ -20,10 +18,10 @@ SUNDAY = date(2030, 3, 3)  # the first day of its week
 WED = 3  # today's place in the week
 
 
-def _request(user, show_tasks=False):
+def _request(user):
     request = RequestFactory().get("/")
     request.user = user
-    request.session = {SHOW_TASKS_KEY: True} if show_tasks else {}
+    request.session = {}
     return request
 
 
@@ -129,16 +127,80 @@ def test_busy_day_folds_past_the_limit(user):
     assert week[WED].count == agenda.DAY_LIMIT + 2
 
 
-def test_tasks_stay_off_the_strip_even_when_the_calendar_shows_them(user):
+def _week(user, **kwargs):
+    return agenda.week_days(_request(user), today=TODAY, show_tasks=True, **kwargs)
+
+
+def test_tasks_stay_off_the_strip_with_the_toggle_off(user):
+    Task.objects.create(user=user, title="Pay rent", due_date=TODAY)
+    assert _titles(agenda.week_days(_request(user), today=TODAY)[WED]) == []
+
+
+def test_open_tasks_fall_on_their_days_beside_events(user):
     Task.objects.create(
         user=user, title="Pay rent", due_date=TODAY, due_time=time(9, 0)
     )
+    Task.objects.create(user=user, title="Water plants", due_date=TODAY)
     Event.objects.create(
         user=user, date=TODAY, description="Standup", start_time=time(9, 0)
     )
-    assert _titles(agenda.week_days(_request(user), today=TODAY)[WED]) == ["Standup"]
-    with_tasks = agenda.week_days(_request(user, show_tasks=True), today=TODAY)
-    assert _titles(with_tasks[WED]) == ["Standup"]
+    Task.objects.create(user=user, title="Friday", due_date=TODAY + timedelta(days=2))
+    week = _week(user)
+    assert _titles(week[WED]) == ["Water plants", "Standup", "Pay rent"]
+    rent = week[WED].entries[2]
+    assert (rent.kind, rent.time_label, rent.overdue) == ("task", "9a", False)
+    assert _titles(week[WED + 2]) == ["Friday"]
+
+
+def test_done_archived_template_and_undated_tasks_stay_off(user):
+    Task.objects.create(user=user, title="Done", due_date=TODAY, status=1)
+    Task.objects.create(user=user, title="Archived", due_date=TODAY, archived=True)
+    Task.objects.create(user=user, title="Template", due_date=TODAY, is_recurring=True)
+    Task.objects.create(user=user, title="Undated")
+    assert sum(day.count for day in _week(user)) == 0
+
+
+def test_overdue_from_before_the_week_gathers_on_today(user):
+    Task.objects.create(user=user, title="Ancient", due_date=date(2029, 11, 2))
+    Task.objects.create(user=user, title="Last week", due_date=SUNDAY - timedelta(1))
+    Task.objects.create(user=user, title="Monday", due_date=SUNDAY + timedelta(1))
+    Event.objects.create(user=user, date=TODAY, description="Holiday")
+    week = _week(user)
+    assert _titles(week[WED]) == ["Ancient", "Last week", "Holiday"]
+    ancient = week[WED].entries[0]
+    assert ancient.overdue and ancient.time is None
+    assert ancient.time_label == "Nov 2"
+    # one overdue but inside the week keeps its own day
+    assert _titles(week[1]) == ["Monday"]
+    assert not week[1].entries[0].overdue
+
+
+def test_another_week_shows_only_its_own_tasks(user):
+    Task.objects.create(user=user, title="Ancient", due_date=date(2029, 11, 2))
+    Task.objects.create(
+        user=user, title="Next week", due_date=TODAY + timedelta(days=7)
+    )
+    week = _week(user, week_of=TODAY + timedelta(days=7))
+    assert [_titles(day) for day in week if day.count] == [["Next week"]]
+    week = _week(user, week_of=TODAY - timedelta(days=7))
+    assert sum(day.count for day in week) == 0
+
+
+def test_other_users_tasks_stay_off_the_strip(user):
+    from accounts.models import CustomUser
+
+    other = CustomUser.objects.create_user("Nico", "nico@gmail.com", "clawboy")
+    Task.objects.create(user=other, title="Theirs", due_date=TODAY)
+    assert _week(user)[WED].count == 0
+
+
+def test_the_setting_sets_the_toggle_until_it_is_pressed(user):
+    request = _request(user)
+    assert agenda.tasks_shown(request) is False
+    user.home_due_tasks = 1
+    assert agenda.tasks_shown(request) is True
+    request.session[agenda.SHOW_TASKS_KEY] = False
+    assert agenda.tasks_shown(request) is False
 
 
 def test_other_users_events_stay_off_the_strip(user):
@@ -150,46 +212,68 @@ def test_other_users_events_stay_off_the_strip(user):
     assert week[WED].count == 0
 
 
-def test_due_tasks_group_by_day_with_overdue_first(user):
-    folder = Folder.objects.create(user=user, name="Home", page="tasks")
-    Task.objects.create(user=user, title="Old", due_date=TODAY - timedelta(days=9))
-    Task.objects.create(user=user, title="Late", due_date=TODAY - timedelta(days=1))
-    Task.objects.create(
-        user=user, title="Noon", due_date=TODAY, due_time=time(12, 0), folder=folder
-    )
-    Task.objects.create(user=user, title="Any time", due_date=TODAY)
-    Task.objects.create(user=user, title="Soon", due_date=TODAY + timedelta(days=3))
-    Task.objects.create(user=user, title="Later", due_date=TODAY + timedelta(days=4))
-    Task.objects.create(user=user, title="Done", due_date=TODAY, status=1)
-    Task.objects.create(user=user, title="Undated")
-    groups = agenda.due_task_groups(user, today=TODAY)
-    assert [g.label for g in groups] == ["Overdue", "Today", "Saturday"]
-    assert groups[0].overdue and not groups[1].overdue
-    assert [t.title for t in groups[0].tasks] == ["Old", "Late"]
-    assert [t.title for t in groups[1].tasks] == ["Any time", "Noon"]
-    assert [t.title for t in groups[2].tasks] == ["Soon"]
-
-
-def test_home_page_renders_both_panels(client, user):
+def test_home_page_shows_tasks_on_the_card_when_the_setting_is_on(client, user):
     user.home_due_tasks = 1
     user.save()
     Event.objects.create(user=user, date=date.today(), description="Dentist")
-    Task.objects.create(user=user, title="Pay rent", due_date=date.today())
+    task = Task.objects.create(user=user, title="Pay rent", due_date=date.today())
     Task.objects.create(
-        user=user, title="Forgotten", due_date=date.today() - timedelta(days=2)
+        user=user, title="Forgotten", due_date=date.today() - timedelta(days=30)
     )
-    response = client.get(reverse("home"))
-    assert response.status_code == 200
-    page = response.content.decode()
+    page = client.get(reverse("home")).content.decode()
     assert "From Your Calendar" in page
     assert "Dentist" in page
-    assert "Scheduled Tasks" in page
-    assert "Overdue" in page
-    assert "Forgotten" in page
     assert "Pay rent" in page
-    # the rows carry the tasks page's priority classes and flag icons
-    assert 'class="priority-normal' in page
-    assert "icon-equal priority-normal" in page
+    assert "Forgotten" in page
+    assert "Scheduled Tasks" not in page
+    # the chip opens the task, its box completes it
+    assert reverse("tasks-form", args=[task.id]) in page
+    assert reverse("tasks-done", args=[task.id]) in page
+    assert 'aria-pressed="true"' in page
+
+
+def test_home_page_leaves_tasks_off_when_the_setting_is_off(client, user):
+    Task.objects.create(user=user, title="Pay rent", due_date=date.today())
+    page = client.get(reverse("home")).content.decode()
+    assert "Pay rent" not in page
+    assert 'aria-pressed="false"' in page
+
+
+def test_the_toggle_shows_and_hides_the_tasks(client, user):
+    Task.objects.create(user=user, title="Pay rent", due_date=date.today())
+    start = str(agenda.week_start(date.today()))
+
+    response = client.post(reverse("home-week-tasks", args=[start, "on"]))
+    assert response.status_code == 200
+    assert "Pay rent" in response.content.decode()
+    assert "Pay rent" in client.get(reverse("home")).content.decode()
+
+    response = client.post(reverse("home-week-tasks", args=[start, "off"]))
+    assert "Pay rent" not in response.content.decode()
+    assert "Pay rent" not in client.get(reverse("home")).content.decode()
+
+
+def test_the_toggle_wants_a_post_and_a_state(client):
+    start = str(agenda.week_start(date.today()))
+    assert client.get(reverse("home-week-tasks", args=[start, "on"])).status_code == 405
+    assert (
+        client.post(reverse("home-week-tasks", args=[start, "maybe"])).status_code
+        == 404
+    )
+
+
+def test_changing_the_setting_resets_the_toggle(client, user):
+    start = str(agenda.week_start(date.today()))
+    client.post(reverse("home-week-tasks", args=[start, "off"]))
+    client.get(reverse("settings-home-options", args=["due_tasks", "enable"]))
+    assert agenda.SHOW_TASKS_KEY not in client.session
+
+
+def test_the_card_shows_the_day_of_the_month_alone(client, user):
+    Event.objects.create(user=user, date=date(2031, 1, 8), description="Gig")
+    card = client.get(reverse("home-week", args=["2031-01-08"])).content.decode()
+    assert '<span class="week-day-date">8</span>' in card
+    assert "Jan 8" not in card
 
 
 def test_home_page_keeps_an_empty_week_for_its_chevrons(client):

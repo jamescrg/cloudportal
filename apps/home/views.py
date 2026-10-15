@@ -127,13 +127,6 @@ def index(request):
             if folder.tasks:
                 some_tasks = True
 
-    # DUE TASKS
-    # ----------------
-
-    # overdue tasks and those due in the next few days, grouped by day
-    show_due_tasks = show_section(user, "due_tasks")
-    due_task_groups = agenda.due_task_groups(user) if show_due_tasks else []
-
     # WEATHER
     # ----------------
     show_weather = bool(user.home_weather)
@@ -157,8 +150,6 @@ def index(request):
         "show_tasks": show_tasks,
         "task_folders": task_folders,
         "some_tasks": some_tasks,
-        "show_due_tasks": show_due_tasks,
-        "due_task_groups": due_task_groups,
         **week,
         "show_events": show_events,
         "show_quotes": show_quotes,
@@ -184,6 +175,17 @@ def week(request, start):
     except ValueError:
         raise Http404("Unreadable date")
     return render(request, "home/events.html", agenda.week_context(request, week_of))
+
+
+@login_required
+@require_POST
+def week_tasks(request, start, state):
+    """The calendar card's tasks toggle: shows or hides the tasks on it for
+    the rest of the session, and redraws the card on the week in view."""
+    if state not in ("on", "off"):
+        raise Http404("Unknown state")
+    request.session[agenda.SHOW_TASKS_KEY] = state == "on"
+    return week(request, start)
 
 
 @login_required

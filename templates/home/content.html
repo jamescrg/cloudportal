@@ -16,10 +16,6 @@
     {% if show_tasks and task_folders and some_tasks %}
         {% include "home/tasks.html" %}
     {% endif %}
-    {# -- due tasks -- #}
-    {% if show_due_tasks and due_task_groups %}
-        {% include "home/due_tasks.html" %}
-    {% endif %}
     {# -- search -- #}
     <div class="search-weather-row">
         {% include "home/search.html" %}

@@ -18,6 +18,7 @@ from apps.calendar import invitations, kosmos, sync as calendar_sync
 from apps.common import notify
 from apps.finance.forms import CryptoSymbolForm, SecuritiesSymbolForm
 from apps.finance.models import CryptoSymbol, SecuritiesSymbol
+from apps.home.agenda import SHOW_TASKS_KEY
 from apps.notes.models import Note
 from apps.settings.forms import ChangePasswordForm, ProfileForm
 from config.context import (
@@ -764,7 +765,10 @@ def home_options(request, option, value):
     if option == "tasks":
         user.home_tasks = value
     if option == "due_tasks":
+        # whether the home calendar card starts with its tasks shown; the
+        # card's own toggle, pressed this session, gives way to it
         user.home_due_tasks = value
+        request.session.pop(SHOW_TASKS_KEY, None)
     if option == "weather":
         user.home_weather = value
     if option == "quotes":

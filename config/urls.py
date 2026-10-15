@@ -70,6 +70,11 @@ urlpatterns = [
     path("home/toggle/<str:section>", home.toggle, name="home-toggle"),
     path("home/week/<str:start>", home.week, name="home-week"),
     path(
+        "home/week/<str:start>/tasks/<str:state>",
+        home.week_tasks,
+        name="home-week-tasks",
+    ),
+    path(
         "home/notices/<int:id>/dismiss",
         home.notice_dismiss,
         name="home-notice-dismiss",
