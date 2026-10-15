@@ -450,9 +450,16 @@ li {
   border: none;
 }
 
-/* A close button sits on the heading's line, with no padding to drop it */
+/* A close button sits on the heading's line, with no padding to drop it,
+   in the heading's muted gray (the calendar card's chevrons are close
+   buttons too), darkening to the text colour when hovered */
 .square-button.close-button {
+  color: var(--color-secondary);
   padding: 0;
+}
+
+.square-button.close-button:hover {
+  color: var(--color-primary);
 }
 
 .square-button.filter-button {
