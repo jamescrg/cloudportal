@@ -308,18 +308,13 @@
   margin-left: 0.125rem;
 }
 
-.week-empty {
-  color: var(--color-muted);
-  padding: 0.125rem 0.375rem;
-}
-
 .week-more {
   font-size: 0.8125rem;
   padding: 0 0.375rem;
 }
 
 /* A week with nothing on it says so on a phone, where its empty days
-   drop out; seven dashes say it in the columns */
+   drop out; seven blank columns say it on a wider screen */
 .week-nothing {
   display: none;
 }

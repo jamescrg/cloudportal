@@ -51,7 +51,7 @@
     before the title: the box marks the task done and the rest of the chip
     opens it. On this week, tasks overdue from before it are gathered at
     the top of today, dated and in the urgent colour. A day with nothing on
-    it keeps its column (a free day is worth seeing); on a phone the strip
+    it keeps its column, blank (a free day is worth seeing); on a phone the strip
     stacks and empty days drop out. The chevrons swap in the week before or
     after (views.week), and the card redraws itself when a task changes.
     {% endcomment %}
@@ -97,8 +97,6 @@
                                 </span>
                             </li>
                         {% endif %}
-                    {% empty %}
-                        <li class="week-empty">–</li>
                     {% endfor %}
                     {% if day.more %}
                         <li class="week-more">
