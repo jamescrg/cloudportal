@@ -74,8 +74,7 @@
  * ------------------------------------------------*/
 
 /* The card's heading in three parts: the title, the week's span between
-   its chevrons in the middle, and the close button, with a link back to
-   this week before it when the card is on another. The outer columns
+   its chevrons in the middle, and the close button. The outer columns
    share the width left over equally, so the stepper stays centred
    whatever the ends hold. */
 .week-title {
@@ -112,9 +111,25 @@
   white-space: nowrap;
 }
 
-.week-nav-today {
-  font-size: 0.9rem;
-  margin-right: 0.25rem;
+/* Off this week, a small button back to it stands just left of the
+   stepper, the way the calendar's toolbar has its Today button. It is
+   set off the stepper's edge rather than in its row, so the stepper
+   stays put when it comes and goes. */
+.week-nav {
+  position: relative;
+}
+
+.square-button.week-nav-today {
+  color: var(--button-toolbar, var(--color-primary));
+  font-size: 0.8125rem;
+  margin-right: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  position: absolute;
+  right: 100%;
+}
+
+.square-button.week-nav-today:hover {
+  color: var(--color-primary);
 }
 
 
@@ -357,6 +372,13 @@
     grid-column: 1 / -1;
     grid-row: 2;
     justify-content: center;
+  }
+
+  /* the stepper has its line to itself here, so the button back to this
+     week simply leads it */
+  .square-button.week-nav-today {
+    margin-right: 0.25rem;
+    position: static;
   }
 
   .week-nothing {
