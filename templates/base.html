@@ -47,6 +47,10 @@
             <link rel="stylesheet"
                   href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
         {% endif %}
+        {% if page and page == "home" and show_events %}
+            <!-- the calendar's grid rules, for the home page's calendar card -->
+            <link rel="stylesheet" href="{% static_v 'css/app-calendar.css' %}">
+        {% endif %}
         {% if page %}
             <link rel="stylesheet" href="{% static_v_page %}">
         {% endif %}
@@ -170,8 +174,8 @@
             <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
             <script src="{% static_v 'js/weather-radar.js' %}"></script>
         {% endif %}
-        {% if page and page == "calendar" %}
-            <!-- FullCalendar grid for the calendar page -->
+        {% if page and page == "calendar" or page and page == "home" and show_events %}
+            <!-- FullCalendar grid for the calendar page and the home page's calendar card -->
             <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
             <script src="{% static_v 'js/events-calendar.js' %}"></script>
         {% endif %}

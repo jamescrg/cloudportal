@@ -16,6 +16,7 @@ import apps.calendar.invitations as invitations
 import apps.calendar.recurrence as recurrence
 import apps.calendar.sync as sync
 from apps.calendar import holidays, kosmos
+from apps.calendar.feed import event_entry, feed_date, task_entry
 from apps.calendar.forms import EventForm, GuestForm, ReminderForm
 from apps.calendar.models import Event, EventReminder, is_zone
 
@@ -473,11 +474,6 @@ def events_delete(request, id):
     return HttpResponse(status=204, headers={"HX-Trigger": TRIGGER_KEY})
 
 
-def _feed_date(value):
-    """The date in one of the feed's ISO date or date-time parameters."""
-    return datetime.fromisoformat(value.replace("Z", "+00:00")).date()
-
-
 @login_required
 def events_api(request):
     """
@@ -490,12 +486,12 @@ def events_api(request):
     # Parse FullCalendar's ISO date parameters
     try:
         if start_param:
-            start_date = _feed_date(start_param)
+            start_date = feed_date(start_param)
         else:
             start_date = timezone.localdate() - timedelta(days=30)
 
         if end_param:
-            end_date = _feed_date(end_param)
+            end_date = feed_date(end_param)
         else:
             end_date = timezone.localdate() + timedelta(days=60)
     except ValueError:
@@ -517,39 +513,7 @@ def events_api(request):
         .select_related("series")
     )
 
-    # Convert to FullCalendar format
-    calendar_events = []
-    for event in events:
-        fc_event = {
-            "id": str(event.id),
-            "title": event.description or "Untitled",
-            "extendedProps": {
-                "location": event.location or "",
-            },
-        }
-        # A repeating event is marked, with its rule in words for a tooltip
-        if event.series:
-            fc_event["className"] = "fc-event-repeats"
-            fc_event["extendedProps"]["repeats"] = event.series.summary
-
-        # Handle timed vs all-day events. A timed event is sent as a moment
-        # with its offset, and the grid draws it in the browser's own zone.
-        # FullCalendar's end is exclusive, so an all-day event over several
-        # days ends the day after its last.
-        if event.start_time and event.end_time:
-            fc_event["start"] = event.start_at.isoformat()
-            fc_event["end"] = event.end_at.isoformat()
-            fc_event["allDay"] = False
-        elif event.start_time:
-            fc_event["start"] = event.start_at.isoformat()
-            fc_event["allDay"] = False
-        else:
-            fc_event["start"] = str(event.date)
-            if event.end_date:
-                fc_event["end"] = str(event.end_date + timedelta(days=1))
-            fc_event["allDay"] = True
-
-        calendar_events.append(fc_event)
+    calendar_events = [event_entry(event) for event in events]
 
     if show_tasks(request):
         calendar_events.extend(_task_feed(request.user, first, last))
@@ -575,23 +539,7 @@ def _task_feed(user, first, last):
         due_date__gte=first,
         due_date__lte=last,
     )
-    feed = []
-    for task in tasks:
-        fc_task = {
-            "id": f"task-{task.id}",
-            "title": task.title,
-            "className": "fc-event-task",
-            "durationEditable": False,
-            "extendedProps": {"kind": "task", "task_id": task.id},
-        }
-        if task.due_time:
-            fc_task["start"] = task.due_at.isoformat()
-            fc_task["allDay"] = False
-        else:
-            fc_task["start"] = str(task.due_date)
-            fc_task["allDay"] = True
-        feed.append(fc_task)
-    return feed
+    return [task_entry(task) for task in tasks]
 
 
 def _quick_update_changes(body):

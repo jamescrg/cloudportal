@@ -70,7 +70,7 @@
 
 
 /*------------------------------------------------
- * from your calendar: the week strip
+ * from your calendar: a week of the month view
  * ------------------------------------------------*/
 
 /* The card's heading in three parts: the title, the week's span between
@@ -133,240 +133,21 @@
 }
 
 
-/* Seven equal columns, Sunday to Saturday, ruled between neighbours in
-   the same weight as the site's tables and lists. The strip runs out to
-   the card's edges and down to its bottom: the card's padding is pulled
-   back on those three sides, so the strip's top rule spans the card and
-   its other rules meet the card's outline. */
-.week-strip {
-  border-top: 1px solid var(--border-medium);
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+/* The grid (the calendar's month view, a week of it: app-calendar.css)
+   runs out to the card's edges and down to its bottom, the card's padding
+   pulled back on those three sides, so its top rule spans the card and
+   its other rules meet the card's outline; the card's outline is its
+   bottom rule. */
+.home-week-calendar {
   margin: 0 -1rem -1.5rem;
-  /* the calendar's dot (app-calendar.css, on .fc): the accent softened
-     toward the card */
-  --event-dot: var(
-    --calendar-dot,
-    color-mix(in oklab, var(--color-accent) 65%, var(--background-section))
-  );
 }
 
-.week-day {
-  min-width: 0;
-  padding: 0.5rem 0.6rem;
+.home-week-calendar.fc .fc-scrollgrid {
+  border-bottom-width: 0 !important;
 }
 
-.week-day + .week-day {
-  border-left: 1px solid var(--border-medium);
-}
-
-/* The weekday on the left and the day of the month in the upper right,
-   as the month view numbers its cells */
-.week-day-head {
-  align-items: baseline;
-  color: var(--color-primary);
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  text-decoration: none;
-}
-
-.week-day-head:hover .week-day-name {
-  text-decoration: underline;
-}
-
-.week-day-name {
-  font-weight: 500;
-}
-
-.week-day-date {
-  color: var(--color-secondary);
-}
-
-/* Today's number as the month view marks it (app-calendar.css): in the
-   strong lavender, on a pale lavender circle. The circle is drawn behind
-   the number rather than sized round it, so the heading keeps its height
-   and today's entries start on the same line as the other days'. */
-.is-today .week-day-date {
-  color: var(--color-accent-strong);
-  font-weight: 600;
-  position: relative;
-  text-align: center;
-  z-index: 0;
-}
-
-.is-today .week-day-date::before {
-  background: var(--selected-background);
-  border-radius: 50%;
-  content: "";
-  height: 1.75rem;
-  left: 50%;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 1.75rem;
-  z-index: -1;
-}
-
-.week-entries {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* An entry as the calendar's month view draws it (app-calendar.css): its
-   text a step under 1rem and heavy, its title stopping at two lines with
-   an ellipsis, the whole of it on hover */
-.week-entry {
-  border-radius: var(--radius-sm);
-  color: var(--color-primary);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.4;
-  padding: 0.125rem 0.375rem;
-  position: relative;
-}
-
-.week-entry-title {
-  -webkit-box-orient: vertical;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-}
-
-/* An all-day event is a filled chip, in the all-day colour where the
-   theme gives one */
-.week-entry-all-day {
-  background: var(--calendar-allday, var(--calendar-chip, var(--background-control)));
-  border: 1px solid var(--calendar-chip-border, transparent);
-  color: var(--calendar-allday-color, var(--color-primary));
-}
-
-/* A timed event has no fill: a dot in the left padding, then its time
-   and title as one run of text */
-.week-entry-timed {
-  padding-left: 1.375rem;
-}
-
-.week-entry-dot {
-  border: 4px solid var(--event-dot);
-  border-radius: 4px;
-  left: 0.375rem;
-  position: absolute;
-  top: 0.5rem;
-}
-
-/* A task as the month view draws it: a lighter weight than an event,
-   so it reads as something to do rather than somewhere to be, and a box
-   before its title that marks it done (the rest of the chip opens it).
-   An all-day task is the task chip, its title wrapping clear of the box;
-   a timed one has its box where an event's dot would be. */
-.week-task {
-  color: var(--calendar-task-color, var(--color-primary));
-  cursor: pointer;
-  font-weight: normal;
-}
-
-.week-task.week-entry-all-day {
-  background: var(--calendar-task, var(--calendar-chip, var(--background-control)));
-  color: var(--calendar-task-color, var(--color-primary));
-}
-
-/* An all-day task's box stands in its title's left padding, so every
-   line of the title, the first included, starts in the same column
-   whatever space the template leaves after the box */
-.week-task.week-entry-all-day .week-entry-title {
-  padding-left: calc(1em + 0.25rem);
-  position: relative;
-}
-
-.week-task.week-entry-all-day .week-task-box {
-  left: 0;
-  margin: 0;
-  position: absolute;
-  top: calc(0.125rem - 1px);
-}
-
-/* An event opens its form, as it does in the calendar */
-.week-event {
-  cursor: pointer;
-}
-
-.week-event.week-entry-timed:hover,
-.week-task.week-entry-timed:hover {
-  background: var(--background-control);
-}
-
-.week-task-box {
-  color: var(--calendar-task-icon, var(--link));
-  cursor: pointer;
-  display: inline-block;
-  margin-right: 0.25rem;
-  /* an optical nudge onto the title's centre line */
-  position: relative;
-  top: 2px;
-}
-
-.week-task-box::before {
-  content: "\e167";
-  font-family: lucide;
-}
-
-.week-task-box:hover::before {
-  content: "\e16a";
-}
-
-.week-task.week-entry-timed .week-task-box {
-  left: 0.3rem;
-  margin: 0;
-  position: absolute;
-  top: calc(0.1875rem - 1px);
-}
-
-/* A task overdue from before the week, gathered on today: its date in
-   place of a time, and its text in the urgent colour */
-.week-task.is-overdue {
-  color: var(--urgent);
-}
-
-.week-entry-repeat {
-  color: var(--color-muted);
-  font-size: 0.85em;
-  margin-left: 0.125rem;
-}
-
-.week-more {
-  font-size: 0.8125rem;
-  padding: 0 0.375rem;
-}
-
-/* A week with nothing on it says so on a phone, where its empty days
-   drop out; seven blank columns say it on a wider screen */
-.week-nothing {
-  display: none;
-}
-
-/* On a phone the days stack, and a day with nothing on it drops out so
-   the list is the week's agenda rather than seven headings */
+/* On a phone the week is its agenda (events-calendar.js) */
 @media (max-width: 768px) {
-  .week-strip {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .week-day + .week-day {
-    border-left: none;
-    border-top: 1px solid var(--border-medium);
-  }
-
-  .week-day.is-empty {
-    display: none;
-  }
-
   /* the title and close button share the top line, and the stepper
      takes its own line under them, centred */
   .week-title {
@@ -385,13 +166,6 @@
   .square-button.week-nav-today {
     margin-right: 0.25rem;
     position: static;
-  }
-
-  .week-nothing {
-    color: var(--color-muted);
-    display: block;
-    margin: 0;
-    padding: 0.5rem 0.6rem;
   }
 }
 

@@ -1,11 +1,13 @@
 import json
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from apps.calendar.feed import feed_date
 from apps.favorites import site_icons
 from apps.favorites.models import Favorite
 from apps.folders.folders import get_accessible_folder_ids, get_folders_for_page
@@ -77,10 +79,9 @@ def index(request):
     # EVENTS
     # ----------------
 
-    # this week of the user's own calendar, when the section is shown; an
-    # empty week keeps the panel, so its chevrons can look ahead
+    # a week of the user's own calendar, when the section is shown; the
+    # grid fetches its entries from week_feed
     show_events = show_section(user, "events")
-    week = agenda.week_context(request) if show_events else {}
 
     # QUOTES
     # ----------------
@@ -150,7 +151,6 @@ def index(request):
         "show_tasks": show_tasks,
         "task_folders": task_folders,
         "some_tasks": some_tasks,
-        **week,
         "show_events": show_events,
         "show_quotes": show_quotes,
         "quotes": quotes,
@@ -166,15 +166,22 @@ def index(request):
 
 
 @login_required
-def week(request, start):
-    """The calendar card for another week, for its chevrons: the week that
-    holds the date given. It stays on the page even when that week is
-    empty, so the chevrons are there to go on."""
+def week_feed(request):
+    """The calendar card's entries for FullCalendar, from its ?start up to
+    its ?end (exclusive), as JSON: the grid needs it."""
     try:
-        week_of = date.fromisoformat(start)
+        first = feed_date(request.GET.get("start", ""))
+        last = feed_date(request.GET.get("end", "")) - timedelta(days=1)
     except ValueError:
-        raise Http404("Unreadable date")
-    return render(request, "home/events.html", agenda.week_context(request, week_of))
+        return HttpResponseBadRequest("start and end must be ISO dates.")
+    entries = agenda.week_feed(
+        request.user,
+        first,
+        last,
+        timezone.localdate(),
+        show_tasks=bool(request.user.home_due_tasks),
+    )
+    return JsonResponse(entries, safe=False)
 
 
 @login_required

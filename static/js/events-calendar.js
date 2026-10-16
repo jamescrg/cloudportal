@@ -95,6 +95,9 @@ function markRepeats(info) {
   }
 }
 
+// The views drawn as the month grid is: the month, and the home page's week
+const MONTH_GRIDS = ["dayGridMonth", "homeWeek"];
+
 // A task's box is an element of its own, so a click on it can be told
 // from a click on the rest of the chip: the box marks the task done, the
 // chip opens it. It goes where the dot would be in the agenda, and before
@@ -115,6 +118,20 @@ function addTaskBox(info) {
   box.setAttribute("aria-label", `Mark "${info.event.title}" done`);
   box.title = "Mark done";
   host.prepend(box);
+  // An overdue task gathered on today (the home page) is dated after its
+  // box, or in the agenda, where the box has a column, before its title
+  const due = info.event.extendedProps.due_label;
+  if (due) {
+    const label = document.createElement("span");
+    label.className = "fc-task-due";
+    label.textContent = due;
+    const title = info.el.querySelector(".fc-list-event-title a");
+    if (title) {
+      title.prepend(label);
+    } else {
+      box.after(label);
+    }
+  }
 }
 
 // In the month grid a chip's title stops at two lines (app-calendar.css).
@@ -122,7 +139,7 @@ function addTaskBox(info) {
 // two are cut together as one run of text, and a title cut short is read
 // whole on hover.
 function fitMonthChip(info) {
-  if (info.view.type !== "dayGridMonth") {
+  if (!MONTH_GRIDS.includes(info.view.type)) {
     return;
   }
   if (!info.el.title) {
@@ -141,6 +158,13 @@ function fitMonthChip(info) {
   }
 }
 
+// Whether an entry is an overdue task the home page's card gathers on
+// today. FullCalendar hands its order function the entry with its
+// extended props, by version either under extendedProps or spread onto it.
+function isOverdue(entry) {
+  return Number(Boolean((entry.extendedProps || entry).overdue));
+}
+
 function onEventMount(info) {
   markRepeats(info);
   addTaskBox(info);
@@ -148,10 +172,20 @@ function onEventMount(info) {
 }
 
 document.addEventListener("alpine:init", () => {
-  Alpine.data("eventsCalendar", () => ({
+  // Options, all optional:
+  //   apiUrl — the feed (default: the calendar's own)
+  //   week   — the home page's calendar card: one week of the month grid
+  //            (the agenda on a phone), stepped by the card's own heading
+  // The grid is built in the x-ref "grid" when there is one (the home
+  // card, whose heading is outside it), else in the component's own
+  // element.
+  Alpine.data("eventsCalendar", (opts = {}) => ({
     calendar: null,
-    apiUrl: "/calendar/api/",
+    apiUrl: opts.apiUrl || "/calendar/api/",
     addUrl: "/calendar/add",
+    week: Boolean(opts.week),
+    weekRange: "",
+    isCurrentWeek: true,
     menuOpen: false,
     menuButton: null,
 
@@ -237,7 +271,7 @@ document.addEventListener("alpine:init", () => {
     },
 
     initCalendar() {
-      const calendarEl = this.$el;
+      const calendarEl = this.$refs.grid || this.$el;
       // Never build twice into one element (FullCalendar marks it "fc")
       if (calendarEl.classList.contains("fc")) {
         return;
@@ -245,6 +279,99 @@ document.addEventListener("alpine:init", () => {
       const phone = onPhone();
 
       this.calendar = new FullCalendar.Calendar(calendarEl, {
+        ...this.calendarOptions(phone),
+        ...(this.week ? this.weekOptions(phone) : {}),
+      });
+
+      this.calendar.render();
+
+      // Listen for filter changes to refresh calendar
+      document.body.addEventListener("eventsChanged", () => {
+        this.calendar.refetchEvents();
+      });
+      // A task edited from the grid re-draws the tasks on it
+      document.body.addEventListener("tasksChanged", () => {
+        this.calendar.refetchEvents();
+      });
+    },
+
+    // The home page's calendar card over the calendar's own options: a
+    // week of the month grid, Sunday first (the agenda on a phone), with
+    // no toolbar (the card's heading steps it) and the heading's span kept
+    // in step. Overdue tasks gathered on today come first in it. A day's
+    // number opens the calendar on that day, and a day shows five rows
+    // before the rest fold into "+N more".
+    weekOptions(phone) {
+      return {
+        initialView: phone ? "homeAgenda" : "homeWeek",
+        initialDate: undefined,
+        headerToolbar: false,
+        dayMaxEvents: false,
+        dayMaxEventRows: 5,
+        eventOrder: [
+          (a, b) => isOverdue(b) - isOverdue(a),
+          "start",
+          "-duration",
+          "allDay",
+          "title",
+        ],
+        views: {
+          homeWeek: {
+            type: "dayGrid",
+            duration: { weeks: 1 },
+            dayHeaderFormat: { weekday: "short" },
+            // one row of days carries no numbers of its own; this puts
+            // the month view's back
+            dayCellContent: (arg) => String(arg.date.getDate()),
+          },
+          homeAgenda: {
+            type: "list",
+            duration: { weeks: 1 },
+            listDayFormat: { weekday: "short", month: "short", day: "numeric" },
+            listDaySideFormat: false,
+            displayEventEnd: false,
+            eventTimeFormat: {
+              hour: "numeric",
+              minute: "2-digit",
+              omitZeroMinute: true,
+              meridiem: "short",
+            },
+            noEventsContent: "Nothing on the calendar this week.",
+          },
+        },
+        navLinkDayClick: (date) => {
+          window.location.href = `/calendar/?date=${this.formatDate(date)}`;
+        },
+        // the view is the card's, not a choice to carry to the calendar
+        datesSet: (info) => this.setWeekHeading(info),
+        windowResize: undefined,
+      };
+    },
+
+    // The card's span (Oct 11 – 17, Oct 25 – Nov 1, the year when it is
+    // not this one) and whether the week holds today, for This Week
+    setWeekHeading(info) {
+      const first = info.view.currentStart;
+      const last = new Date(info.view.currentEnd);
+      last.setDate(last.getDate() - 1);
+      const month = (date) => date.toLocaleString("en-US", { month: "short" });
+      let range = `${month(first)} ${first.getDate()} – `;
+      range +=
+        last.getMonth() === first.getMonth()
+          ? `${last.getDate()}`
+          : `${month(last)} ${last.getDate()}`;
+      const year = new Date().getFullYear();
+      if (first.getFullYear() !== year || last.getFullYear() !== year) {
+        range += `, ${last.getFullYear()}`;
+      }
+      this.weekRange = range;
+      const now = new Date();
+      this.isCurrentWeek =
+        now >= info.view.currentStart && now < info.view.currentEnd;
+    },
+
+    calendarOptions(phone) {
+      return {
         // Core settings. A phone opens the month's agenda with a toolbar
         // pared to navigation; wider screens get the full set of views,
         // the agenda among them.
@@ -390,18 +517,7 @@ document.addEventListener("alpine:init", () => {
         windowResize: () => this.applyViewHeight(this.calendar.view.type),
 
         themeSystem: "standard",
-      });
-
-      this.calendar.render();
-
-      // Listen for filter changes to refresh calendar
-      document.body.addEventListener("eventsChanged", () => {
-        this.calendar.refetchEvents();
-      });
-      // A task edited from the grid re-draws the tasks on it
-      document.body.addEventListener("tasksChanged", () => {
-        this.calendar.refetchEvents();
-      });
+      };
     },
 
     savedView() {
@@ -592,7 +708,9 @@ document.addEventListener("alpine:init", () => {
           body: form,
         })
           .then((response) => {
-            if (!response.ok) {
+            if (response.ok) {
+              this.redrawMoved();
+            } else {
               info.revert();
             }
           })
@@ -609,7 +727,9 @@ document.addEventListener("alpine:init", () => {
         body: JSON.stringify(data),
       })
         .then((response) => {
-          if (!response.ok) {
+          if (response.ok) {
+            this.redrawMoved();
+          } else {
             // Revert on failure
             info.revert();
             console.error("Failed to update event");
@@ -619,6 +739,13 @@ document.addEventListener("alpine:init", () => {
           info.revert();
           console.error("Error updating event:", error);
         });
+    },
+
+    // A moved entry is redrawn from the feed: FullCalendar redraws a moved
+    // chip's insides in place, which puts back what the mount hooks
+    // arranged (a timed entry's time inside its title, in the month grid)
+    redrawMoved() {
+      this.calendar.refetchEvents();
     },
 
     getCsrfToken() {

@@ -1,35 +1,43 @@
+{% comment %}
+The home page's calendar card: a one-week slice of the calendar's month
+view, Sunday to Saturday, drawn by FullCalendar from home-week-feed
+(apps/home/agenda.py) through the calendar's own component
+(events-calendar.js). It works as the month view does: the weekday header
+row over the days, today's number circled, an all-day event a filled chip
+and a timed one a dot, its time and its title. An event or a task drags to
+another day; a click opens it; a click on an empty part of a day adds an
+event on that day; a day's number opens the calendar on it. Where the home
+page's setting has them, the user's open tasks are on their days, a box
+before the title that marks the task done; on the week holding today the
+overdue ones are gathered at the top of today, dated and in the urgent
+colour. The chevrons step a week; on a phone the week is its agenda. The
+grid refetches when an event or a task changes.
+{% endcomment %}
 <div class="card panel"
      id="home-week"
-     hx-get="{% url 'home-week' start=week_first|date:'Y-m-d' %}"
-     hx-trigger="tasksChanged from:body, eventsChanged from:body"
-     hx-swap="outerHTML">
+     x-data="eventsCalendar({week: true, apiUrl: '{% url 'home-week-feed' %}'})"
+     x-init="initCalendar()">
     <div class="card-title week-title">
         <h1>Calendar</h1>
         <div class="week-nav">
-            {% if not week_is_current %}
-                <button type="button"
-                        class="square-button week-nav-today"
-                        hx-get="{% url 'home-week' start=week_today|date:'Y-m-d' %}"
-                        hx-target="#home-week"
-                        hx-swap="outerHTML">This Week</button>
-            {% endif %}
+            <button type="button"
+                    class="square-button week-nav-today"
+                    x-show="!isCurrentWeek"
+                    x-cloak
+                    @click="calendar.today()">This Week</button>
             <button type="button"
                     class="square-button close-button"
                     aria-label="Previous week"
                     title="Previous week"
-                    hx-get="{% url 'home-week' start=week_previous|date:'Y-m-d' %}"
-                    hx-target="#home-week"
-                    hx-swap="outerHTML">
+                    @click="calendar.prev()">
                 <i class="icon-chevron-left"></i>
             </button>
-            <span class="week-nav-range">{{ week_range }}</span>
+            <span class="week-nav-range" x-text="weekRange"></span>
             <button type="button"
                     class="square-button close-button"
                     aria-label="Next week"
                     title="Next week"
-                    hx-get="{% url 'home-week' start=week_next|date:'Y-m-d' %}"
-                    hx-target="#home-week"
-                    hx-swap="outerHTML">
+                    @click="calendar.next()">
                 <i class="icon-chevron-right"></i>
             </button>
         </div>
@@ -40,79 +48,8 @@
             </a>
         </div>
     </div>
-    {% comment %}
-    A week, Sunday to Saturday, as a strip of columns: a row of the
-    calendar's month view, today's number circled as it is there. Each column heads with
-    the weekday and, in its upper right, the day of the month (the month is
-    in the stepper), and opens the calendar on it. Under it the day's
-    entries, drawn as the month view draws them: an all-day event a filled
-    chip, a timed one a dot, its time and its title. Where the home page's
-    setting has them, open tasks are on their days as the month view has them, a box
-    before the title: the box marks the task done and the rest of the chip
-    opens it. An event opens its form, as a click on it in the calendar does. On this week, tasks overdue from before it are gathered at
-    the top of today, dated and in the urgent colour. A day with nothing on
-    it keeps its column, blank (a free day is worth seeing); on a phone the strip
-    stacks and empty days drop out. The chevrons swap in the week before or
-    after (views.week), and the card redraws itself when a task or event
-    changes.
-    {% endcomment %}
-    <div class="week-strip">
-        {% for day in week %}
-            <div class="week-day{% if day.is_today %} is-today{% endif %}{% if not day.count %} is-empty{% endif %}">
-                <a class="week-day-head"
-                   href="{% url 'calendar:index' %}?date={{ day.date|date:'Y-m-d' }}">
-                    <span class="week-day-name">{{ day.label }}</span>
-                    <span class="week-day-date">{{ day.date|date:"j" }}</span>
-                </a>
-                <ul class="week-entries">
-                    {% for entry in day.entries %}
-                        {% if entry.kind == "task" %}
-                            <li class="week-entry week-task {% if entry.time %}week-entry-timed{% else %}week-entry-all-day{% endif %}{% if entry.overdue %} is-overdue{% endif %}"
-                                title="{{ entry.title }}"
-                                role="button"
-                                tabindex="0"
-                                hx-get="{% url 'tasks-form' entry.id %}"
-                                hx-trigger="click, keyup[key=='Enter']"
-                                hx-target="#htmx-modal-container"
-                                hx-swap="innerHTML">
-                                <span class="week-entry-title">
-                                    <span class="week-task-box"
-                                          role="button"
-                                          aria-label="Mark &quot;{{ entry.title }}&quot; done"
-                                          title="Mark done"
-                                          hx-post="{% url 'tasks-done' entry.id %}"
-                                          hx-trigger="click consume"
-                                          hx-swap="none"></span>
-                                    {% if entry.time_label %}<span class="week-entry-time">{{ entry.time_label }}</span>{% endif %}
-                                    {{ entry.title }}
-                                </span>
-                            </li>
-                        {% else %}
-                            <li class="week-entry week-event {% if entry.time %}week-entry-timed{% else %}week-entry-all-day{% endif %}"
-                                title="{{ entry.title }}{% if entry.repeat_summary %} · {{ entry.repeat_summary }}{% endif %}"
-                                role="button"
-                                tabindex="0"
-                                hx-get="{% url 'calendar:edit' entry.id %}"
-                                hx-trigger="click, keyup[key=='Enter']"
-                                hx-target="#htmx-modal-container"
-                                hx-swap="innerHTML">
-                                {% if entry.time %}<span class="week-entry-dot"></span>{% endif %}
-                                <span class="week-entry-title">
-                                    {% if entry.time %}<span class="week-entry-time">{{ entry.time_label }}</span>{% endif %}
-                                    {{ entry.title }}
-                                    {% if entry.repeat_summary %}<i class="icon-repeat week-entry-repeat"></i>{% endif %}
-                                </span>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if day.more %}
-                        <li class="week-more">
-                            <a href="{% url 'calendar:index' %}?date={{ day.date|date:'Y-m-d' }}">{{ day.more }} more</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        {% endfor %}
-        {% if not week_count %}<p class="week-nothing">Nothing on the calendar this week.</p>{% endif %}
-    </div>
+    <div class="home-week-calendar"
+         x-ref="grid"
+         hx-disinherit="*"
+         hx-boost="false"></div>
 </div>
