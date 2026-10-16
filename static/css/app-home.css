@@ -289,9 +289,15 @@
   left: 0;
   margin: 0;
   position: absolute;
-  top: 0.125rem;
+  top: calc(0.125rem - 1px);
 }
 
+/* An event opens its form, as it does in the calendar */
+.week-event {
+  cursor: pointer;
+}
+
+.week-event.week-entry-timed:hover,
 .week-task.week-entry-timed:hover {
   background: var(--background-control);
 }
@@ -319,7 +325,7 @@
   left: 0.3rem;
   margin: 0;
   position: absolute;
-  top: 0.1875rem;
+  top: calc(0.1875rem - 1px);
 }
 
 /* A task overdue from before the week, gathered on today: its date in

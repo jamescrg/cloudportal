@@ -231,6 +231,14 @@ def test_home_page_shows_tasks_on_the_card_when_the_setting_is_on(client, user):
     assert reverse("tasks-done", args=[task.id]) in page
 
 
+def test_an_event_on_the_card_opens_its_form_and_the_card_follows_changes(client, user):
+    event = Event.objects.create(user=user, date=date.today(), description="Dentist")
+    page = client.get(reverse("home")).content.decode()
+    assert reverse("calendar:edit", args=[event.id]) in page
+    assert "eventsChanged from:body" in page
+    assert client.get(reverse("calendar:edit", args=[event.id])).status_code == 200
+
+
 def test_home_page_leaves_tasks_off_when_the_setting_is_off(client, user):
     Task.objects.create(user=user, title="Pay rent", due_date=date.today())
     page = client.get(reverse("home")).content.decode()

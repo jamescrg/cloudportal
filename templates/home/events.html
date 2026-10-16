@@ -1,7 +1,7 @@
 <div class="card panel"
      id="home-week"
      hx-get="{% url 'home-week' start=week_first|date:'Y-m-d' %}"
-     hx-trigger="tasksChanged from:body"
+     hx-trigger="tasksChanged from:body, eventsChanged from:body"
      hx-swap="outerHTML">
     <div class="card-title week-title">
         <h1>Calendar</h1>
@@ -49,11 +49,12 @@
     chip, a timed one a dot, its time and its title. Where the home page's
     setting has them, open tasks are on their days as the month view has them, a box
     before the title: the box marks the task done and the rest of the chip
-    opens it. On this week, tasks overdue from before it are gathered at
+    opens it. An event opens its form, as a click on it in the calendar does. On this week, tasks overdue from before it are gathered at
     the top of today, dated and in the urgent colour. A day with nothing on
     it keeps its column, blank (a free day is worth seeing); on a phone the strip
     stacks and empty days drop out. The chevrons swap in the week before or
-    after (views.week), and the card redraws itself when a task changes.
+    after (views.week), and the card redraws itself when a task or event
+    changes.
     {% endcomment %}
     <div class="week-strip">
         {% for day in week %}
@@ -87,8 +88,14 @@
                                 </span>
                             </li>
                         {% else %}
-                            <li class="week-entry {% if entry.time %}week-entry-timed{% else %}week-entry-all-day{% endif %}"
-                                title="{{ entry.title }}{% if entry.repeat_summary %} · {{ entry.repeat_summary }}{% endif %}">
+                            <li class="week-entry week-event {% if entry.time %}week-entry-timed{% else %}week-entry-all-day{% endif %}"
+                                title="{{ entry.title }}{% if entry.repeat_summary %} · {{ entry.repeat_summary }}{% endif %}"
+                                role="button"
+                                tabindex="0"
+                                hx-get="{% url 'calendar:edit' entry.id %}"
+                                hx-trigger="click, keyup[key=='Enter']"
+                                hx-target="#htmx-modal-container"
+                                hx-swap="innerHTML">
                                 {% if entry.time %}<span class="week-entry-dot"></span>{% endif %}
                                 <span class="week-entry-title">
                                     {% if entry.time %}<span class="week-entry-time">{{ entry.time_label }}</span>{% endif %}
