@@ -663,7 +663,9 @@ def events_quick_update(request, id):
 @csrf_exempt
 @require_POST
 def calendar_inbound(request):
-    """Mailgun's post of a message sent to a user's forwarding address.
+    """Mailgun's post of a message sent to a user's own forwarding address
+    (calendar-<token>@), the older way in, kept for the addresses already
+    given out.
 
     200 takes the message. 406 refuses it for good (Mailgun does not retry
     it): an address or sender that is not a user's, or a message with no
@@ -682,13 +684,7 @@ def calendar_inbound(request):
         return HttpResponse("Unknown address", status=406)
 
     text = invitations.calendar_text(request)
-    reply = None
-    if text is not None:
-        try:
-            reply = invitations.read_reply(text)
-        except Exception:
-            # not an answer, then; the forwarded-invitation path reports it
-            reply = None
+    reply = _guest_reply(text)
     if reply is not None:
         return _record_guest_reply(user, reply)
 
@@ -697,7 +693,69 @@ def calendar_inbound(request):
         logger.info("Forwarded invitation from %s was dropped", sender)
         return HttpResponse("Sender not allowed", status=406)
 
-    subject = request.POST.get("subject", "").strip() or "(no subject)"
+    return _post_forwarded(user, text, request.POST.get("subject", ""))
+
+
+@csrf_exempt
+@require_POST
+def calendar_inbound_mime(request):
+    """Mailgun's post of a raw message sent to the calendar address.
+
+    The address is everyone's, so the message says whose it is: a guest's
+    answer by the UID of the invitation it answers, a forwarded invitation
+    by its From line, which must be a user's own address or one they list,
+    and signed by its own mail provider (DKIM), as Gmail, Proton and
+    Outlook sign. 200 takes the message; 406 refuses it for good, as
+    calendar_inbound does, and so does mail for any other address, which
+    a route posting to several projects can bring. A post without
+    Mailgun's signature is refused outright.
+    """
+    if not invitations.signature_is_valid(request.POST):
+        return HttpResponse("Bad signature", status=403)
+    if not invitations.is_calendar_address(request.POST.get("recipient", "")):
+        logger.info("Mail to an address not the calendar's was dropped")
+        return HttpResponse("Unknown address", status=406)
+    raw = invitations.raw_message(request)
+    if not raw:
+        return HttpResponse("No message", status=406)
+
+    message = invitations.parse_message(raw)
+    text = invitations.message_calendar_text(message)
+    reply = _guest_reply(text)
+    if reply is not None:
+        event = invitations.event_for_reply(reply)
+        if event is None:
+            logger.info("A guest's reply (%s) was dropped: missing", reply.email)
+            return HttpResponse("No matching invitation", status=406)
+        return _record_guest_reply(event.user, reply)
+
+    sender = parseaddr(str(message.get("From", "")))[1]
+    user = invitations.user_for_sender(sender)
+    if user is None:
+        logger.info("Forwarded invitation from %s was dropped", sender)
+        return HttpResponse("Sender not allowed", status=406)
+    if not invitations.sender_is_signed(message, raw):
+        logger.info("Forwarded invitation from %s was dropped: not signed", sender)
+        return HttpResponse("Sender not signed", status=406)
+
+    return _post_forwarded(user, text, str(message.get("Subject", "")))
+
+
+def _guest_reply(text):
+    """A guest's answer in the calendar text, or None."""
+    if text is None:
+        return None
+    try:
+        return invitations.read_reply(text)
+    except Exception:
+        # not an answer, then; the forwarded-invitation path reports it
+        return None
+
+
+def _post_forwarded(user, text, subject):
+    """A forwarded invitation, posted for the user, who is told how it
+    went either way."""
+    subject = subject.strip() or "(no subject)"
     invitation = None
     if text is not None:
         try:

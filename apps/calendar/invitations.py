@@ -1,34 +1,42 @@
 """Calendar invitations, both ways.
 
 Forwarded in: an invitation is an email with an iCalendar attachment. The
-user forwards it to their own address on the inbound domain; Mailgun
-posts the parsed message to the webhook (views.calendar_inbound), and the
-attachment is read here and posted as an event. The invitation's UID is
+user forwards it to the calendar address (settings.CALENDAR_INBOUND_ADDRESS,
+one for everyone on this machine); Mailgun posts the raw message to the
+webhook (views.calendar_inbound_mime), which knows the user by its From
+line, and takes that line only when the sender's mail provider has signed
+it (DKIM). The attachment is read here and posted as an event. The older
+addresses, one per user with a secret in it (calendar-<token>@), still
+come in through views.calendar_inbound, Mailgun posting those parsed. The invitation's UID is
 kept on the event, so a later revision of the same invitation updates it
 and a cancellation removes it.
 
 Sent out: an event's guests (EventGuest) are emailed an invitation of the
 same kind (METHOD:REQUEST), which any calendar app shows with Yes, Maybe
-and No. The organiser named in it is the user's forwarding address, so a
-guest's answer, an email with a METHOD:REPLY attachment that their
-calendar app sends on its own, comes back through the same webhook and
-is recorded on the guest. A change to the event goes out again as a new
+and No. The organiser named in it is the calendar address, so a guest's
+answer, an email with a METHOD:REPLY attachment that their calendar app
+sends on its own, comes back through the same webhook, finds its event by
+the invitation's UID (a random one, made here), and is recorded on the
+guest. A change to the event goes out again as a new
 revision (SEQUENCE); a deleted event, or a guest removed, gets a
 cancellation (METHOD:CANCEL).
 """
 
+import email
+import email.policy
 import hashlib
 import hmac
 import logging
-import secrets
 import uuid
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from email.utils import formataddr, parseaddr
 from zoneinfo import ZoneInfo
 
+import dkim
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, send_mail
+from django.db.models import Q
 from django.utils import timezone
 from icalendar import Calendar, Event as VEvent, vCalAddress, vText
 
@@ -54,10 +62,6 @@ class Invitation:
 
 
 # --- the address ----------------------------------------------------------
-
-
-def new_token():
-    return secrets.token_hex(8)
 
 
 def address_prefix():
@@ -107,6 +111,76 @@ def allowed_senders(user):
     return senders
 
 
+def calendar_address():
+    """The address everyone on this machine forwards invitations to, and
+    the organiser their invitations name, or None when there is none."""
+    return settings.CALENDAR_INBOUND_ADDRESS or None
+
+
+def is_calendar_address(recipient):
+    address = parseaddr(recipient)[1].lower()
+    return bool(address) and address == calendar_address()
+
+
+def user_for_sender(sender):
+    """The one user who forwards from this address, or None: none does,
+    or more than one has listed it, so it cannot say whose it is."""
+    address = parseaddr(sender)[1].lower()
+    if not address:
+        return None
+    candidates = CustomUser.objects.filter(
+        Q(email__iexact=address) | Q(calendar_forward_from__icontains=address)
+    )
+    users = [user for user in candidates if address in allowed_senders(user)]
+    return users[0] if len(users) == 1 else None
+
+
+# --- the sender's signature -----------------------------------------------
+
+
+def signing_domains(raw, dnsfunc=None):
+    """The domains whose DKIM signatures on the raw message hold and
+    cover its From line. Each signature's key is looked up in DNS (dnsfunc
+    in its place, for a test)."""
+    options = {"dnsfunc": dnsfunc} if dnsfunc else {}
+    domains = set()
+    try:
+        checker = dkim.DKIM(raw)
+        count = sum(
+            1 for name, _ in checker.headers if name.lower() == b"dkim-signature"
+        )
+    except Exception:
+        return domains
+    for index in range(count):
+        try:
+            if (
+                checker.verify(idx=index, **options)
+                and b"from" in checker.include_headers
+            ):
+                domains.add(checker.domain.decode("ascii").lower())
+        except Exception:
+            # a malformed signature proves nothing; the others may still
+            continue
+    return domains
+
+
+def sender_is_signed(message, raw, dnsfunc=None):
+    """Whether the message's From line is vouched for: a single From, its
+    domain the one that signed it or under it (DMARC's relaxed
+    alignment), so mail from gmail.com signed by gmail.com passes and a
+    From written by anyone else does not."""
+    froms = message.get_all("From") or []
+    if len(froms) != 1:
+        return False
+    domain = parseaddr(str(froms[0]))[1].rpartition("@")[2].lower()
+    if not domain:
+        return False
+    return any(
+        "." in signer and (domain == signer or domain.endswith("." + signer))
+        for signer in signing_domains(raw, dnsfunc)
+    )
+
+
 # --- the webhook post -----------------------------------------------------
 
 
@@ -121,6 +195,17 @@ def signature_is_valid(post):
     return hmac.compare_digest(expected, post.get("signature", ""))
 
 
+def _calendar_block(value):
+    """A calendar block pasted in some text, or None."""
+    start = value.find("BEGIN:VCALENDAR")
+    if start != -1:
+        end = value.find("END:VCALENDAR", start)
+        if end != -1:
+            stop = end + len("END:VCALENDAR")
+            return value[start:stop]
+    return None
+
+
 def calendar_text(request):
     """The iCalendar text in a posted message: the .ics attachment, or a
     calendar block pasted in the body. None when there is neither."""
@@ -130,12 +215,48 @@ def calendar_text(request):
             return upload.read().decode("utf-8", "replace")
 
     for value in request.POST.values():
-        start = value.find("BEGIN:VCALENDAR")
-        if start != -1:
-            end = value.find("END:VCALENDAR", start)
-            if end != -1:
-                stop = end + len("END:VCALENDAR")
-                return value[start:stop]
+        block = _calendar_block(value)
+        if block:
+            return block
+    return None
+
+
+def raw_message(request):
+    """The raw message Mailgun posts to a URL ending in mime (body-mime),
+    as the bytes it was signed as, or None."""
+    upload = request.FILES.get("body-mime")
+    if upload is not None:
+        return upload.read()
+    value = request.POST.get("body-mime")
+    return value.encode("utf-8") if value else None
+
+
+def parse_message(raw):
+    return email.message_from_bytes(raw, policy=email.policy.default)
+
+
+def message_calendar_text(message):
+    """The iCalendar text in a raw message: its calendar part or .ics
+    attachment, or a calendar block pasted in its text. None when there is
+    neither."""
+    parts = [part for part in message.walk() if not part.is_multipart()]
+    for part in parts:
+        name = (part.get_filename() or "").lower()
+        if part.get_content_type() in (
+            "text/calendar",
+            "application/ics",
+        ) or name.endswith(".ics"):
+            payload = part.get_payload(decode=True)
+            if payload:
+                return payload.decode(part.get_content_charset() or "utf-8", "replace")
+    for part in parts:
+        if part.get_content_maintype() == "text":
+            payload = part.get_payload(decode=True) or b""
+            block = _calendar_block(
+                payload.decode(part.get_content_charset() or "utf-8", "replace")
+            )
+            if block:
+                return block
     return None
 
 
@@ -251,9 +372,10 @@ ANSWERS = {"accepted", "declined", "tentative"}
 
 def organiser_address(user):
     """The address the user's invitations name as organiser, which their
-    guests' answers come back to: their forwarding address. None until
-    they have one."""
-    return inbound_address(user)
+    guests' answers come back to: the calendar address, or on a machine
+    without one, the user's own forwarding address. None when there is
+    neither."""
+    return calendar_address() or inbound_address(user)
 
 
 def organiser_name(user):
@@ -471,6 +593,20 @@ def read_reply(text):
                 sequence=int(vevent.get("SEQUENCE", 0) or 0),
             )
     return None
+
+
+def event_for_reply(reply):
+    """The event a guest's answer to the calendar address is about: the
+    one sent with its UID that has them as a guest. None when there is no
+    such event, or more than one."""
+    if not reply.uid:
+        return None
+    events = list(
+        Event.objects.filter(
+            invite_uid=reply.uid, guests__email__iexact=reply.email
+        ).select_related("user")[:2]
+    )
+    return events[0] if len(events) == 1 else None
 
 
 def record_reply(user, reply):

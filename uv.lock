@@ -311,6 +311,7 @@ dependencies = [
     { name = "django-mathfilters" },
     { name = "django-q2" },
     { name = "django-watson" },
+    { name = "dkimpy" },
     { name = "google-api-python-client" },
     { name = "google-auth-httplib2" },
     { name = "google-auth-oauthlib" },
@@ -349,6 +350,7 @@ requires-dist = [
     { name = "django-mathfilters", specifier = "==1.0.0" },
     { name = "django-q2", specifier = "==1.7.2" },
     { name = "django-watson", specifier = "==1.6.3" },
+    { name = "dkimpy", specifier = ">=1.1.8" },
     { name = "google-api-python-client", specifier = "==2.187.0" },
     { name = "google-auth-httplib2", specifier = "==0.2.1" },
     { name = "google-auth-oauthlib", specifier = "==1.2.3" },
@@ -525,6 +527,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/43/a9/f84a7c9691796cb4eab67405e2fd624415f7acd43bd0f04a742c7a4fb81e/django-watson-1.6.3.tar.gz", hash = "sha256:d72db173695cdfa81ebb96227cb00deca4c3fc8816770f206a676cc67a759f87", size = 21816, upload-time = "2023-01-14T14:28:21.147Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/77/14e00d54afb0eb0fd952f87eef9fe28a2b1ea4f1a1cc686e2a03a764cad5/django_watson-1.6.3-py2.py3-none-any.whl", hash = "sha256:a4ceacc57098c8e251dac1d59a717bd1204f8a49381ba9ab102f45e5c3efed48", size = 27820, upload-time = "2023-01-14T14:28:19.342Z" },
+]
+
+[[package]]
+name = "dkimpy"
+version = "1.1.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dnspython" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f0/6f/84e91828186bbfcedd7f9385ef5e0d369632444195c20e08951b7ffe0481/dkimpy-1.1.8.tar.gz", hash = "sha256:b5f60fb47bbf5d8d762f134bcea0c388eba6b498342a682a21f1686545094b77", size = 66979, upload-time = "2024-07-04T22:16:38.321Z" }
+
+[[package]]
+name = "dnspython"
+version = "2.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/4a/50822184bd67cc6493f0fb6a880749158fcd31ab3fa07409acfd91f9fc85/dnspython-2.9.0.tar.gz", hash = "sha256:b44dc6b18f07a8b1c56676a19fbfdb5209415b046a9cece286baafa87ff3f7f1", size = 423560, upload-time = "2026-10-09T00:07:24.352Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/10/02/cdcc9b7c051786a103c3b09e1003a82fa0c66bcb91ffbdabcfbf7b4163b9/dnspython-2.9.0-py3-none-any.whl", hash = "sha256:9a4aedb833c3c1b49214d04d44d3032ab7a9135f7c1d29a549b4ff78fd82fda9", size = 354822, upload-time = "2026-10-09T00:07:22.622Z" },
 ]
 
 [[package]]

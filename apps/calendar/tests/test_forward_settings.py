@@ -1,4 +1,5 @@
-"""The Forward Invitations card in Settings: the address and the senders."""
+"""The Forward Invitations card in Settings: the calendar address, the
+user's older one, and the senders."""
 
 import pytest
 from django.urls import reverse
@@ -6,33 +7,28 @@ from django.urls import reverse
 pytestmark = pytest.mark.django_db
 
 
-def test_without_a_domain_the_card_says_so(client, settings):
-    settings.CALENDAR_INBOUND_DOMAIN = ""
+def test_without_an_address_the_card_says_so(client, settings):
+    settings.CALENDAR_INBOUND_ADDRESS = ""
 
     html = client.get(reverse("settings-calendar")).content.decode()
 
     assert "not set up on this server" in html
-    assert "Create address" not in html
 
 
-def test_creating_renewing_and_removing_the_address(client, user, settings):
+def test_the_older_address_can_be_retired(client, user, settings):
     settings.CALENDAR_INBOUND_DOMAIN = "in.example.com"
-    assert "Create address" in client.get(reverse("settings-calendar")).content.decode()
-
-    client.get(reverse("settings-calendar-options", args=["inbound_address", "new"]))
-    user.refresh_from_db()
-    first = user.calendar_inbound_token
-    assert first
+    settings.CALENDAR_INBOUND_ADDRESS = "calendar@in.example.com"
+    user.calendar_inbound_token = "abc"
+    user.save()
     html = client.get(reverse("settings-calendar")).content.decode()
-    assert f"calendar-{first}@in.example.com" in html
-
-    client.get(reverse("settings-calendar-options", args=["inbound_address", "new"]))
-    user.refresh_from_db()
-    assert user.calendar_inbound_token != first
+    assert "calendar@in.example.com" in html
+    assert "calendar-abc@in.example.com" in html
 
     client.get(reverse("settings-calendar-options", args=["inbound_address", "clear"]))
     user.refresh_from_db()
     assert user.calendar_inbound_token is None
+    html = client.get(reverse("settings-calendar")).content.decode()
+    assert "calendar-abc@in.example.com" not in html
 
 
 def test_saving_the_senders(client, user):

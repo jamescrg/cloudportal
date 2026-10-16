@@ -34,4 +34,5 @@ urlpatterns = [
     path("filter/default", views.events_filter_default, name="filter-default"),
     path("filter/sort/<str:order>", views.events_filter_sort, name="filter-sort"),
     path("inbound/", views.calendar_inbound, name="inbound"),
+    path("inbound/mime", views.calendar_inbound_mime, name="inbound-mime"),
 ]

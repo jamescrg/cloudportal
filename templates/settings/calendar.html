@@ -42,33 +42,34 @@
             <h1>Forward Invitations</h1>
         </div>
         <p class="card-text">
-            Forward a calendar invitation to your forwarding address and it is posted here as an event. Forward a changed or cancelled invitation and the event follows. Only mail from your own address, or one listed below, is accepted. The invitations you send to an event's guests name this address too, so their answers come back to it.
+            Forward a calendar invitation to the calendar address and it is posted here as an event. Forward a changed or cancelled invitation and the event follows. Only mail from your own address, or one listed below, is accepted, and only when your mail provider has signed it as yours, as Gmail, Proton and Outlook do. The invitations you send to an event's guests name this address too, so their answers come back to it.
         </p>
-        {% if not inbound_domain %}
+        {% if not calendar_address %}
             <p class="card-text">Forwarding is not set up on this server yet.</p>
         {% else %}
             <table class="options">
                 <tr>
                     <td class="setting-label">Address</td>
                     <td class="setting-control">
-                        {% if inbound_address %}
-                            <code id="calendar-inbound-address">{{ inbound_address }}</code>
-                            <button class="btn btn-secondary copy-btn"
-                                    type="button"
-                                    data-copy-target="#calendar-inbound-address"
-                                    title="Copy">
-                                <i class="icon-copy"></i>
-                            </button>
-                            <a class="btn btn-secondary"
-                               href="{% url 'settings-calendar-options' option='inbound_address' value='new' %}">New address</a>
-                            <a class="btn btn-secondary"
-                               href="{% url 'settings-calendar-options' option='inbound_address' value='clear' %}">Remove</a>
-                        {% else %}
-                            <a class="btn btn-primary"
-                               href="{% url 'settings-calendar-options' option='inbound_address' value='new' %}">Create address</a>
-                        {% endif %}
+                        <code id="calendar-inbound-address">{{ calendar_address }}</code>
+                        <button class="btn btn-secondary copy-btn"
+                                type="button"
+                                data-copy-target="#calendar-inbound-address"
+                                title="Copy">
+                            <i class="icon-copy"></i>
+                        </button>
                     </td>
                 </tr>
+                {% if inbound_address %}
+                    <tr>
+                        <td class="setting-label">Older address</td>
+                        <td class="setting-control">
+                            <code>{{ inbound_address }}</code>
+                            <a class="btn btn-secondary"
+                               href="{% url 'settings-calendar-options' option='inbound_address' value='clear' %}">Retire</a>
+                        </td>
+                    </tr>
+                {% endif %}
             </table>
             <form class="calendar-forward-from"
                   method="post"

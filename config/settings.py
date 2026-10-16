@@ -358,6 +358,19 @@ CALENDAR_INBOUND_PREFIX = env(
     "CALENDAR_INBOUND_PREFIX",
     default="calendar-dev-" if NOT_PRODUCTION else "calendar-",
 )
+# The calendar address, one for everyone on the machine, which the From
+# line of a signed message tells whose it is (apps/calendar/invitations.py):
+# calendar@ on production, cpl-calendar@ elsewhere, so on a domain shared
+# with other projects (darmok.link, with Kosmos) it is plainly cpl's. Its
+# Mailgun route posts the raw message (a URL ending in mime).
+CALENDAR_INBOUND_ADDRESS = env(
+    "CALENDAR_INBOUND_ADDRESS",
+    default=(
+        f"{'cpl-calendar' if NOT_PRODUCTION else 'calendar'}@{CALENDAR_INBOUND_DOMAIN}"
+        if CALENDAR_INBOUND_DOMAIN
+        else ""
+    ),
+).lower()
 
 # set cookies (sessions) to last for two months
 # default is two weeks, multiplying by four to get two months

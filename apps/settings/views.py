@@ -609,7 +609,7 @@ def _calendar_context(request, **extra):
     return {
         "page": "settings",
         "subapp": "calendar",
-        "inbound_domain": settings.CALENDAR_INBOUND_DOMAIN,
+        "calendar_address": invitations.calendar_address(),
         "inbound_address": invitations.inbound_address(request.user),
         "kosmos_test": request.session.pop("kosmos_test", ""),
         "kosmos_test_error": request.session.pop("kosmos_test_error", ""),
@@ -634,10 +634,8 @@ def calendar_options(request, option, value):
         # a Google account does.
         if user.calendar_sync:
             calendar_sync.reconcile(user)
-    # A new forwarding address retires the old one at once
-    if option == "inbound_address" and value == "new":
-        user.calendar_inbound_token = invitations.new_token()
-        user.save(update_fields=["calendar_inbound_token"])
+    # The older forwarding address, one of the user's own, retired; the
+    # calendar address took its place
     if option == "inbound_address" and value == "clear":
         user.calendar_inbound_token = None
         user.save(update_fields=["calendar_inbound_token"])

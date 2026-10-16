@@ -13,6 +13,8 @@ def notifications_as_in_production(settings):
     settings.NOTIFY_TITLE_PREFIX = ""
     settings.EMAIL_NOTIFICATIONS = True
     settings.CALENDAR_INBOUND_PREFIX = "calendar-"
+    # the older per-user addresses, until a test sets the calendar address
+    settings.CALENDAR_INBOUND_ADDRESS = ""
 
 
 @pytest.fixture(autouse=True)
