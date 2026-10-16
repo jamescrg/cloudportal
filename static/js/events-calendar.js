@@ -158,11 +158,17 @@ function fitMonthChip(info) {
   }
 }
 
-// Whether an entry is an overdue task the home page's card gathers on
-// today. FullCalendar hands its order function the entry with its
-// extended props, by version either under extendedProps or spread onto it.
-function isOverdue(entry) {
-  return Number(Boolean((entry.extendedProps || entry).overdue));
+// Where an entry stands in its day, for the calendar's order: the events
+// first, then the tasks, led by any overdue ones the home page's card
+// gathers on today. FullCalendar hands its order function the entry with
+// its extended props, by version either under extendedProps or spread
+// onto it.
+function entryRank(entry) {
+  const props = entry.extendedProps || entry;
+  if (props.kind !== "task") {
+    return 0;
+  }
+  return props.overdue ? 1 : 2;
 }
 
 function onEventMount(info) {
@@ -298,9 +304,8 @@ document.addEventListener("alpine:init", () => {
     // The home page's calendar card over the calendar's own options: a
     // week of the month grid, Sunday first (the agenda on a phone), with
     // no toolbar (the card's heading steps it) and the heading's span kept
-    // in step. Overdue tasks gathered on today come first in it. A day's
-    // number opens the calendar on that day, and a day shows five rows
-    // before the rest fold into "+N more".
+    // in step. A day's number opens the calendar on that day, and a day
+    // shows five rows before the rest fold into "+N more".
     weekOptions(phone) {
       return {
         initialView: phone ? "homeAgenda" : "homeWeek",
@@ -308,13 +313,6 @@ document.addEventListener("alpine:init", () => {
         headerToolbar: false,
         dayMaxEvents: false,
         dayMaxEventRows: 5,
-        eventOrder: [
-          (a, b) => isOverdue(b) - isOverdue(a),
-          "start",
-          "-duration",
-          "allDay",
-          "title",
-        ],
         views: {
           homeWeek: {
             type: "dayGrid",
@@ -479,6 +477,17 @@ document.addEventListener("alpine:init", () => {
             console.error("Failed to load events");
           },
         },
+
+        // A day's events come before its tasks, then FullCalendar's own
+        // order within each (by start, longest first, all-day first, by
+        // title)
+        eventOrder: [
+          (a, b) => entryRank(a) - entryRank(b),
+          "start",
+          "-duration",
+          "allDay",
+          "title",
+        ],
 
         // Drag and drop
         editable: true,
