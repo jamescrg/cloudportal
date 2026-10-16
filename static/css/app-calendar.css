@@ -137,71 +137,6 @@
 
 
 /* ------------------------------------------------------------------------- */
-/* event form */
-/* ------------------------------------------------------------------------- */
-
-.event-note {
-  color: var(--color-muted);
-  margin: 0 0 1rem;
-}
-
-/* The event form's grid: six columns on a wide screen, so a pair takes
-   half a row each and a trio a third. Description and location have a row
-   each; the date and end date pair up, as do the times; Repeat, Every and
-   Ends share a row, and Last day or Times sits under Ends. A phone has one
-   column. */
-@media (width >= 768px) {
-  .event-form {
-    grid-template-columns: repeat(6, 1fr);
-  }
-
-  .event-form .form-group {
-    grid-column: span 3;
-  }
-
-  .event-form .field-description,
-  .event-form .field-location,
-  .event-form .field-weekdays {
-    grid-column: span 6;
-  }
-
-  .event-form .field-repeat,
-  .event-form .field-interval,
-  .event-form .field-ends {
-    grid-column: span 2;
-  }
-
-  .event-form .field-until,
-  .event-form .field-count {
-    grid-column: 5 / span 2;
-  }
-}
-
-/* The Apply to choices read across in a row */
-.repeat-scope [id$="scope"] {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-}
-
-.repeat-scope label {
-  align-items: center;
-  display: inline-flex;
-  gap: 0.25rem;
-  margin: 0;
-}
-
-/* Apply to, in the footer between Delete and Save: centred in the space
-   between them */
-.modal-footer .repeat-scope {
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  white-space: nowrap;
-}
-
-
-/* ------------------------------------------------------------------------- */
 /* FullCalendar grid */
 /* ------------------------------------------------------------------------- */
 
@@ -577,10 +512,6 @@
   font-weight: normal;
   margin-left: 0.25rem;
   opacity: 0.6;
-}
-
-.event-repeats i {
-  margin-right: 0.25rem;
 }
 
 /* A task's box: an empty square that takes a click of its own and marks
