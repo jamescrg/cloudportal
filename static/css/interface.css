@@ -263,14 +263,29 @@ tr:hover .row-actions,
   opacity: 1;
 }
 
-.row-actions .btn-icon {
+/* An edit pencil in the name's own line (the favorites list), after the
+   name and its marks, shown the same way */
+.row-edit {
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+tr:hover .row-edit,
+.row-edit:focus-visible {
+  opacity: 1;
+}
+
+.row-actions .btn-icon,
+.row-edit {
   color: var(--color-muted);
   font-size: 0.95rem;
   line-height: 1;
 }
 
 .row-actions .btn-icon:hover,
-.row-actions .btn-icon:focus-visible {
+.row-actions .btn-icon:focus-visible,
+.row-edit:hover,
+.row-edit:focus-visible {
   color: var(--color-accent);
 }
 
@@ -280,12 +295,14 @@ tr:hover .row-actions,
    pulled back in by the same margin so the row's layout is unchanged */
 @media (hover: none) {
   .status-mark,
-  .row-actions {
+  .row-actions,
+  .row-edit {
     opacity: 0.5;
   }
 
   .status-mark,
   .row-actions .btn-icon,
+  .row-edit,
   .fav-select-col i,
   .select-col i {
     display: inline-block;

@@ -50,11 +50,8 @@
                                 <i class="{% if favorite.home_rank %}icon-house{% else %}icon-house-plus{% endif %}"></i>
                             </button>
                         {% endif %}
-                    </span>
-                    {% if favorite.description %}<div class="description">{{ favorite.description }}</div>{% endif %}
-                    {# the row's actions, at the name column's far edge while the row is under the pointer #}
-                    <span class="row-actions">
-                        <button class="btn-icon"
+                        {# the edit pencil, after the name, while the row is under the pointer #}
+                        <button class="btn-icon row-edit"
                                 type="button"
                                 hx-get="{% url 'favorites-form-edit' id=favorite.id %}"
                                 hx-target="#htmx-modal-container"
@@ -62,6 +59,7 @@
                             <i class="icon-pencil"></i>
                         </button>
                     </span>
+                    {% if favorite.description %}<div class="description">{{ favorite.description }}</div>{% endif %}
                 </td>
                 <td class="fav-date">{{ favorite.created_at|date:"Y-m-d" }}</td>
                 <td class="fav-date">{{ favorite.updated_at|date:"Y-m-d" }}</td>
