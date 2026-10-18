@@ -54,7 +54,9 @@ def ntfy_ready(user):
 
 def topic(user):
     """The topic this machine pushes the user's notifications to: theirs,
-    with this machine's suffix (-dev on the dev machine)."""
+    with this machine's suffix (-dev on the dev machine). The topic itself
+    is made on production only (apps.settings.views.ntfy_new_topic): dev's
+    data is production's by each morning."""
     return user.ntfy_topic + settings.NTFY_TOPIC_SUFFIX
 
 

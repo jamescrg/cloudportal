@@ -65,11 +65,17 @@
             A notification arrives on the phone in seconds, with buttons to open the task or mark it done. If ntfy cannot be reached it goes by email instead.
         </p>
         {% if not user.ntfy_topic %}
-            <p class="card-text">Push is offered on a notification once your phone is set up here.</p>
-            <form method="post" action="{% url 'settings-ntfy-new-topic' %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Set up push</button>
-            </form>
+            {% if not_production %}
+                <p class="card-text">
+                    Push is set up on the production site; its topic serves this server too, with "{{ ntfy_suffix }}" on the end.
+                </p>
+            {% else %}
+                <p class="card-text">Push is offered on a notification once your phone is set up here.</p>
+                <form method="post" action="{% url 'settings-ntfy-new-topic' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Set up push</button>
+                </form>
+            {% endif %}
         {% else %}
             <ol class="card-text setup-steps">
                 <li>
@@ -139,14 +145,21 @@
                     <button type="submit"
                             class="btn btn-secondary"
                             formaction="{% url 'settings-ntfy-test' %}">Send a test</button>
-                    <button type="submit"
-                            class="btn btn-secondary"
-                            formaction="{% url 'settings-ntfy-new-topic' %}"
-                            formnovalidate>New topic</button>
+                    {% if not not_production %}
+                        <button type="submit"
+                                class="btn btn-secondary"
+                                formaction="{% url 'settings-ntfy-new-topic' %}"
+                                formnovalidate>New topic</button>
+                    {% endif %}
                 </div>
             </form>
             <p class="card-text setting-note">
-                Anyone who knows the topic can read what is sent to it, so it is long and random; keep it to yourself. A new topic stops the old one, and the phone needs subscribing again.
+                Anyone who knows the topic can read what is sent to it, so it ends in a random tail; keep it to yourself.
+                {% if not_production %}
+                    The topic is production's with "{{ ntfy_suffix }}" on the end, so a new one is made on the production site, where the phone subscribes to it again.
+                {% else %}
+                    A new topic stops the old one, and the phone needs subscribing again.
+                {% endif %}
             </p>
         {% endif %}
     </div>

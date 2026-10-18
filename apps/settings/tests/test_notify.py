@@ -1,6 +1,7 @@
 """Notifications by ntfy: the delivery setting, what is pushed, falling back
 to email, and the Done button."""
 
+import re
 from datetime import date, time, timedelta
 
 import pytest
@@ -53,12 +54,23 @@ def ntfy_user(user):
 # --- the setting -----------------------------------------------------------
 
 
-def test_choosing_ntfy_gives_a_long_random_topic(client, user):
+def test_choosing_ntfy_gives_a_topic_in_the_users_name_with_a_random_tail(client, user):
     client.post(reverse("settings-notify-by"), {"notify_by": "ntfy"})
 
     user.refresh_from_db()
     assert user.notify_by == "ntfy"
-    assert user.ntfy_topic.startswith("cpl-") and len(user.ntfy_topic) > 30
+    assert re.fullmatch(r"cpl-ollie-[a-z2-9]{8}", user.ntfy_topic), user.ntfy_topic
+
+
+def test_a_topic_keeps_to_what_ntfy_allows(user):
+    from apps.settings.views import _new_ntfy_topic
+
+    user.username = "Ollie O'Hara (home)"
+    assert re.fullmatch(r"cpl-ollie-o-hara-home-[a-z2-9]{8}", _new_ntfy_topic(user))
+    user.username = "x" * 150
+    assert len(_new_ntfy_topic(user) + "-dev") <= 64
+    user.username = "!!!"
+    assert re.fullmatch(r"cpl-[a-z2-9]{8}", _new_ntfy_topic(user))
 
 
 def test_choosing_the_home_page(client, user):
@@ -259,6 +271,7 @@ def test_pressing_done_twice_is_harmless(ntfy_user):
 
 @pytest.fixture
 def as_dev(settings):
+    settings.NOT_PRODUCTION = True
     settings.NTFY_TOPIC_SUFFIX = "-dev"
     settings.NOTIFY_TITLE_PREFIX = "[dev] "
     settings.EMAIL_NOTIFICATIONS = False
@@ -303,3 +316,22 @@ def test_dev_settings_offer_the_dev_topic(as_dev, client, ntfy_user):
 
     assert "ntfy://ntfy.sh/cpl-secret-topic-dev" in page
     assert "none are emailed" in page
+    assert "New topic" not in page
+
+
+def test_dev_makes_no_topic_of_its_own(as_dev, client, ntfy_user, user):
+    """Dev's data is production's by morning, so a topic made on dev would
+    be gone with the phone subscribed to it: the topic stays production's."""
+    client.post(reverse("settings-ntfy-new-topic"))
+    ntfy_user.refresh_from_db()
+    assert ntfy_user.ntfy_topic == "cpl-secret-topic"
+
+    ntfy_user.ntfy_topic = ""
+    ntfy_user.save()
+    page = client.get(reverse("settings-notifications")).content.decode()
+    assert "set up on the production site" in page
+    assert "Set up push" not in page
+
+    client.post(reverse("settings-notify-by"), {"notify_by": "ntfy"})
+    ntfy_user.refresh_from_db()
+    assert ntfy_user.notify_by == "ntfy" and ntfy_user.ntfy_topic == ""

@@ -166,12 +166,26 @@ def _notifications_context(request, **extra):
     } | extra
 
 
-def _new_ntfy_topic():
-    """A topic no one will guess: ntfy delivers a topic's messages to
-    anyone who names it."""
+# The random tail of a topic: letters and digits that are not mistaken for
+# one another when read off a phone (no 0/o, 1/l/i), eight of them (about
+# forty bits)
+TOPIC_TAIL_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"
+TOPIC_TAIL_LENGTH = 8
+
+
+def _new_ntfy_topic(user):
+    """A topic that reads as the user's (cpl-james-k3v9qx2m) yet no one will
+    guess: ntfy delivers a topic's messages to anyone who names it. ntfy
+    allows [-_A-Za-z0-9], up to 64 characters, so the name is cut to
+    what fits with the dev machine's suffix after it."""
+    import re
     import secrets
 
-    return "cpl-" + secrets.token_urlsafe(24)
+    name = re.sub(r"[^-_A-Za-z0-9]+", "-", user.username).strip("-").lower()[:40]
+    tail = "".join(
+        secrets.choice(TOPIC_TAIL_ALPHABET) for _ in range(TOPIC_TAIL_LENGTH)
+    )
+    return "-".join(part for part in ("cpl", name, tail) if part)
 
 
 @login_required
@@ -191,8 +205,9 @@ def notify_by(request):
     choice = request.POST.get("notify_by")
     if choice in dict(user.NOTIFY_CHOICES):
         user.notify_by = choice
-        if choice == "ntfy" and not user.ntfy_topic:
-            user.ntfy_topic = _new_ntfy_topic()
+        # a topic is made on production only; see ntfy_new_topic
+        if choice == "ntfy" and not user.ntfy_topic and not settings.NOT_PRODUCTION:
+            user.ntfy_topic = _new_ntfy_topic(user)
         user.save(update_fields=["notify_by", "ntfy_topic"])
     return redirect("settings-notifications")
 
@@ -231,8 +246,14 @@ def ntfy_settings(request):
 @login_required
 @require_POST
 def ntfy_new_topic(request):
-    """A new topic, for one that has got out: the old one stops."""
-    request.user.ntfy_topic = _new_ntfy_topic()
+    """A new topic, for one that has got out: the old one stops. Not on a
+    machine other than production, whose topic is production's with a
+    suffix (apps.common.notify.topic) and whose data is refreshed from
+    production's: a topic made here would be gone by morning, with the
+    phone subscribed to it."""
+    if settings.NOT_PRODUCTION:
+        return redirect("settings-notifications")
+    request.user.ntfy_topic = _new_ntfy_topic(request.user)
     request.user.save(update_fields=["ntfy_topic"])
     return redirect("settings-notifications")
 

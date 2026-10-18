@@ -78,9 +78,10 @@ class CustomUser(AbstractUser):
     # pushed to the ntfy app, or as a card on the home page (the choices
     # are apps.common.models.CHANNEL_CHOICES; see apps.common.notify). It is
     # the default for each new notification on an event or task. ntfy
-    # delivers to anyone subscribed to a topic on a server, so the topic is
-    # long and random; a server that is not open to all wants an access
-    # token.
+    # delivers to anyone subscribed to a topic on a server, so the topic,
+    # which reads as the user's (cpl-james-k3v9qx2m), ends in a random tail
+    # (apps.settings.views._new_ntfy_topic); a server that is not open to
+    # all wants an access token.
     NOTIFY_CHOICES = (("email", "Email"), ("ntfy", "Push"), ("home", "Homepage"))
     notify_by = models.CharField(max_length=10, choices=NOTIFY_CHOICES, default="email")
     ntfy_server = models.URLField(default="https://ntfy.sh")

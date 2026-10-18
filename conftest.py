@@ -9,6 +9,7 @@ def notifications_as_in_production(settings):
     from production's (config/settings.py: NOT_PRODUCTION). They start as
     production does, sending email and pushing to the topic as it stands;
     a test of the dev machine's behaviour sets these itself."""
+    settings.NOT_PRODUCTION = False
     settings.NTFY_TOPIC_SUFFIX = ""
     settings.NOTIFY_TITLE_PREFIX = ""
     settings.EMAIL_NOTIFICATIONS = True
