@@ -150,6 +150,11 @@ urlpatterns = [
     ),
     path("tasks/<int:id>/due-date", tasks.due_date_htmx, name="tasks-due-date"),
     path("tasks/order-by/<str:order>/", tasks.tasks_order_by, name="tasks-order-by"),
+    path(
+        "tasks/filter-archived/<str:mode>/",
+        tasks.filter_archived_htmx,
+        name="tasks-filter-archived",
+    ),
     path("tasks/filter", tasks.task_filter, name="tasks-filter"),
     path(
         "tasks/filter/default", tasks.task_filter_default, name="tasks-filter-default"

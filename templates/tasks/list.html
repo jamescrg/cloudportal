@@ -1,6 +1,16 @@
-<div class="card-title flex-center-space">
+<div class="card-title tasks-header">
+    <h1 class="tasks-list-title">
+        {% comment %} The icon is the one the folder list shows beside the same entry {% endcomment %}
+        {% if tasks_folder_all %}
+            <i class="icon-folders card-title-icon"></i>All
+        {% elif selected_folder %}
+            <i class="icon-folder card-title-icon"></i>{{ selected_folder.name }}
+        {% else %}
+            <i class="icon-inbox card-title-icon"></i>Inbox
+        {% endif %}
+    </h1>
     <div class="tasks-tools">
-        <button class="square-button filter-button {% if filter_label == 'custom' %}toggle-active{% endif %}"
+        <button class="square-button filter-button {% if filter_active %}toggle-active{% endif %}"
                 hx-get="{% url 'tasks-filter' %}"
                 hx-target="#htmx-modal-container">
             <i class="icon-list-filter"></i>
@@ -8,7 +18,7 @@
         <div class="dropdown" x-data="dropdown()">
             <button type="button"
                     id="tasks-date-filter"
-                    class="square-button filter-button select-btn tasks-date-filter"
+                    class="square-button filter-button select-btn tasks-date-filter {% if date_filter_scheduled %}toggle-active{% endif %}"
                     x-ref="button"
                     @click="toggle()"
                     :aria-expanded="open">
@@ -27,17 +37,39 @@
                 {% endfor %}
             </ul>
         </div>
+        {% comment %}
+        A dropdown rather than a button, which would read as Archive.
+        Lit while archived tasks are shown.
+        {% endcomment %}
+        <div class="dropdown" x-data="dropdown()">
+            <button type="button"
+                    class="square-button filter-button select-btn tasks-archived-filter {% if show_archived %}toggle-active{% endif %}"
+                    title="{% if show_archived %}Showing archived tasks{% else %}Hiding archived tasks{% endif %}"
+                    aria-label="{% if show_archived %}Showing archived tasks{% else %}Hiding archived tasks{% endif %}"
+                    x-ref="button"
+                    @click="toggle()"
+                    :aria-expanded="open">
+                <span><i class="icon-archive"></i></span>
+                <small><i class="icon-chevron-down"></i></small>
+            </button>
+            <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
+                <li>
+                    <a class="dropdown-item {% if not show_archived %}active{% endif %}"
+                       href="#"
+                       hx-post="{% url 'tasks-filter-archived' 'hide' %}"
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">Hide Archived</a>
+                </li>
+                <li>
+                    <a class="dropdown-item {% if show_archived %}active{% endif %}"
+                       href="#"
+                       hx-post="{% url 'tasks-filter-archived' 'show' %}"
+                       hx-target="#tasks-container"
+                       hx-swap="innerHTML scroll:none">Show Archived</a>
+                </li>
+            </ul>
+        </div>
     </div>
-    <h1 class="tasks-list-title">
-        {% comment %} The icon is the one the folder list shows beside the same entry {% endcomment %}
-        {% if tasks_folder_all %}
-            <i class="icon-folders card-title-icon"></i>All
-        {% elif selected_folder %}
-            <i class="icon-folder card-title-icon"></i>{{ selected_folder.name }}
-        {% else %}
-            <i class="icon-inbox card-title-icon"></i>Inbox
-        {% endif %}
-    </h1>
 </div>
 {% include "tasks/taskform.html" %}
 <div class="table-container">
@@ -103,7 +135,8 @@
                     aria-label="Archive completed tasks"
                     hx-post="{% url 'tasks-clear-htmx' %}"
                     hx-target="#tasks-container"
-                    hx-swap="innerHTML">
+                    hx-swap="innerHTML"
+                    hx-confirm="Are you sure you want to archive all completed tasks?">
                 <i class="icon-archive"></i>
             </button>
             <div class="dropdown" x-data="dropdown()">

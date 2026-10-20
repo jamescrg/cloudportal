@@ -25,6 +25,100 @@ from apps.tasks.priority import (
     quick_date_filters,
 )
 
+VALID_SORTS = (
+    "title",
+    "-title",
+    "due_date",
+    "-due_date",
+    "-created_at",
+    "priority",
+    "-priority",
+)
+
+
+# Each task list (a folder, the Inbox, All) remembers the sort and the date
+# preset last chosen for it, in the user's task_views, so a grocery list
+# stays alphabetical and unscheduled, and a working list stays on Today,
+# with nothing to set up.
+
+
+def _view_key(request):
+    """The key the list in view keeps its view under: "all", "inbox" or
+    the folder's id."""
+    if request.session.get("tasks_all", False):
+        return "all"
+    folder = select_folder(request, "tasks")
+    return str(folder.id) if folder else "inbox"
+
+
+def _list_view(request):
+    return dict((request.user.task_views or {}).get(_view_key(request), {}))
+
+
+def _save_list_view(request, **values):
+    """Remember values for the list in view; a blank one is forgotten."""
+    views = dict(request.user.task_views or {})
+    key = _view_key(request)
+    view = dict(views.get(key, {}))
+    for name, value in values.items():
+        if value:
+            view[name] = value
+        else:
+            view.pop(name, None)
+    if view:
+        views[key] = view
+    else:
+        views.pop(key, None)
+    request.user.task_views = views
+    request.user.save(update_fields=["task_views"])
+    request.session["tasks_page"] = 1
+
+
+def get_sort(request):
+    """The sort of the list in view, Priority until one is chosen."""
+    sort = _list_view(request).get("sort", "priority")
+    return sort if sort in VALID_SORTS else "priority"
+
+
+def set_sort(request, sort):
+    _save_list_view(request, sort=sort if sort in VALID_SORTS else "")
+
+
+def current_filter(request):
+    """The filter in force for the list in view: the session's filter
+    (status, archived, and the filter dialog's dates), with the list's own
+    date preset over it, unless the filter dialog's custom dates are in
+    force. A preset is worked out afresh each time, so "Today" is still
+    today tomorrow."""
+    filter_data = dict(request.session.get("tasks_filter", {}))
+    if filter_data.get("filter_label") == "custom":
+        return filter_data
+    presets = quick_date_filters(date.today())
+    preset = _list_view(request).get("date", "all")
+    if preset not in presets:
+        preset = "all"
+    filter_data.update(presets[preset])
+    filter_data["filter_label"] = preset
+    return filter_data
+
+
+# The filter dialog's fields, apart from the sort and the due dates a
+# list's date preset fills in
+DIALOG_FIELDS = (
+    "status",
+    "recurring",
+    "completed_date_min",
+    "completed_date_max",
+    "created_at_min",
+    "created_at_max",
+)
+
+
+def _filter_dialog_in_use(filter_data):
+    return filter_data.get("filter_label") == "custom" or any(
+        filter_data.get(name) for name in DIALOG_FIELDS
+    )
+
 
 def _get_task_list_context(request):
     """Helper to build context for task list partial."""
@@ -42,35 +136,20 @@ def _get_task_list_context(request):
             user=user, folder__isnull=True, is_recurring=False
         )
 
-    filter_data = dict(request.session.get("tasks_filter", {}))
-    filter_label = filter_data.get("filter_label", "")
-
-    # A date preset is worked out afresh each time, so "Today" is still
-    # today tomorrow
+    filter_data = current_filter(request)
+    filter_label = filter_data["filter_label"]
     presets = quick_date_filters(date.today())
-    if filter_label in presets:
-        filter_data.update(presets[filter_label])
 
     task_filter = TasksFilter(filter_data, queryset=queryset)
     tasks = task_filter.qs
 
     # Archived tasks show only when the filter dialog asks for them
-    if filter_label != "custom":
+    if filter_data.get("show_archived") != "true":
         tasks = tasks.filter(archived=False)
 
-    # Apply sort — always push completed tasks to the bottom
-    sort = filter_data.get("sort", "priority")
-    valid_sorts = (
-        "title",
-        "-title",
-        "due_date",
-        "-due_date",
-        "-created_at",
-        "priority",
-        "-priority",
-    )
-    if sort in valid_sorts:
-        tasks = tasks.order_by("status", sort)
+    # Each list keeps its own sort; completed tasks always go to the bottom
+    sort = get_sort(request)
+    tasks = tasks.order_by("status", sort)
 
     session_key = "tasks_page"
     trigger_key = "tasksChanged"
@@ -91,6 +170,9 @@ def _get_task_list_context(request):
         "session_key": session_key,
         "trigger_key": trigger_key,
         "filter_label": filter_label,
+        # The Filter button is lit while the dialog narrows the list
+        "filter_active": _filter_dialog_in_use(filter_data),
+        "show_archived": filter_data.get("show_archived") == "true",
         "tasks_folder_all": tasks_folder_all,
         "has_completed_tasks": any(t.status == 1 for t in task_list),
         # The header's check toggles: all checked means the next click unchecks
@@ -99,6 +181,10 @@ def _get_task_list_context(request):
         "date_filter_label": filter_label if filter_label in presets else "all",
         "date_filter_name": DATE_FILTER_NAMES.get(filter_label, "All Dates"),
         "date_filter_names": DATE_FILTER_NAMES,
+        # The dropdown is lit while it narrows the list to a span of dates;
+        # All Dates and Unscheduled leave it plain
+        "date_filter_scheduled": filter_label in presets
+        and filter_label not in ("all", "unscheduled"),
         "today": date.today(),
         "current_sort": sort,
         "all_count": base_count_qs.count(),
@@ -161,9 +247,7 @@ def add(request):
         task = Task()
 
         task.user = request.user
-        task.due_date = default_due_date(
-            request.session.get("tasks_filter", {}), date.today()
-        )
+        task.due_date = default_due_date(current_filter(request), date.today())
         task.title = request.POST.get("title")
         task.title = task.title[0].upper() + task.title[1:]
 
@@ -295,21 +379,31 @@ def tasks_all(request):
     return render(request, "tasks/tasks-with-folders-oob.html", context)
 
 
+def apply_date_preset(request, preset):
+    """Remember a date preset for the list in view, leaving status and
+    sort as they are. A preset ends the filter dialog's custom dates. False
+    when the preset is unknown."""
+    if preset not in quick_date_filters(date.today()):
+        return False
+
+    filter_data = request.session.get("tasks_filter", {})
+    if filter_data.get("filter_label") == "custom":
+        for name in ("due_date_min", "due_date_max", "has_due_date"):
+            filter_data.pop(name, None)
+        filter_data["filter_label"] = ""
+        request.session["tasks_filter"] = filter_data
+    # All Dates is the default, so it need not be kept
+    _save_list_view(request, date="" if preset == "all" else preset)
+    return True
+
+
 @login_required
 @require_POST
 def filter_date_htmx(request, preset):
     """Apply one of the date dropdown's presets, or "all" to clear it. Only
     the date dimension changes; status and sort stay as they are."""
-    presets = quick_date_filters(date.today())
-    if preset not in presets:
+    if not apply_date_preset(request, preset):
         return HttpResponse("Unknown date filter", status=400)
-
-    filter_data = request.session.get("tasks_filter", {})
-    filter_data.update(presets[preset])
-    filter_data["filter_label"] = preset
-    request.session["tasks_filter"] = filter_data
-    request.session["tasks_page"] = 1
-    request.session.modified = True
 
     context = _get_task_list_context(request)
     return render(request, "tasks/list.html", context)
@@ -347,13 +441,42 @@ def task_list(request):
 
 
 @login_required
+@require_POST
+def filter_archived_htmx(request, mode):
+    """Show or hide archived tasks, from the toolbar's Archived dropdown.
+    Like the filter dialog, it holds for every list until changed."""
+    if mode not in ("show", "hide"):
+        return HttpResponse("Unknown archived filter", status=400)
+
+    filter_data = request.session.get("tasks_filter", {})
+    filter_data["show_archived"] = "true" if mode == "show" else "false"
+    request.session["tasks_filter"] = filter_data
+    request.session["tasks_page"] = 1
+    request.session.modified = True
+
+    context = _get_task_list_context(request)
+    return render(request, "tasks/list.html", context)
+
+
+@login_required
 def task_filter(request):
     """Display or apply task filter."""
     if request.method == "POST":
         filter_data = {
             k: v for k, v in request.POST.items() if k != "csrfmiddlewaretoken"
         }
-        filter_data["filter_label"] = "custom"
+        # The sort belongs to the list in view, not the session's filter
+        if "sort" in filter_data:
+            set_sort(request, filter_data.pop("sort"))
+        # Archived tasks are shown or hidden from the toolbar's dropdown,
+        # which the dialog leaves as it was
+        show_archived = request.session.get("tasks_filter", {}).get("show_archived")
+        if show_archived:
+            filter_data["show_archived"] = show_archived
+        # Only a due-date range of the dialog's own sets the dates aside
+        # from each list's date preset
+        due_range = filter_data.get("due_date_min") or filter_data.get("due_date_max")
+        filter_data["filter_label"] = "custom" if due_range else ""
         request.session["tasks_filter"] = filter_data
         return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
@@ -364,16 +487,16 @@ def task_filter(request):
         "tasks/filter.html",
         {
             "filter": task_filter,
-            "sort_value": filter_data.get("sort", ""),
+            "sort_value": get_sort(request),
         },
     )
 
 
 @login_required
 def tasks_order_by(request, order):
-    """Sort tasks by column header click."""
-    filter_data = request.session.get("tasks_filter", {})
-    current_sort = filter_data.get("sort", "priority")
+    """Sort the list in view by a column header click; the list keeps
+    the sort until another is chosen for it."""
+    current_sort = get_sort(request)
 
     if current_sort == order:
         new_sort = f"-{order}"
@@ -382,18 +505,17 @@ def tasks_order_by(request, order):
     else:
         new_sort = order
 
-    filter_data["sort"] = new_sort
-    request.session["tasks_filter"] = filter_data
-    request.session["tasks_page"] = 1
-    request.session.modified = True
+    set_sort(request, new_sort)
 
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
 
 @login_required
 def task_filter_default(request):
-    """Clear task filter to defaults."""
+    """Clear task filter to defaults, and the list in view's sort and date
+    preset with it."""
     request.session.pop("tasks_filter", None)
+    _save_list_view(request, sort="", date="")
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
 
@@ -405,9 +527,7 @@ def add_htmx(request):
         task.user = request.user
         # The filter in force sets the date: today's view gives today,
         # tomorrow's gives tomorrow, and the rest give none
-        task.due_date = default_due_date(
-            request.session.get("tasks_filter", {}), date.today()
-        )
+        task.due_date = default_due_date(current_filter(request), date.today())
         task.title = request.POST.get("title", "").strip()
 
         if task.title:

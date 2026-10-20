@@ -64,45 +64,64 @@ td.tasks-col-checkbox a:hover {
 }
 
 /* The folder's icon before the list's title, set off from the text by the
-   same gap the folder list uses (.folder-icon); phones drop it for room */
+   same gap the folder list uses (.folder-icon). The title has its own
+   line, so phones keep it too. */
 .card-title-icon {
   color: var(--color-muted);
   margin-right: 1rem;
 }
 
-@media (width <= 768px) {
-  .card-title-icon {
+/* The list's title above its toolbar, both at the left edge, a short
+   reach from the folder list */
+.tasks-header {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  /* the title sits as far above the toolbar as the add input does above
+     the list (.tasks-add) */
+  gap: 1.5rem;
+}
+
+.tasks-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* A long folder name is cut with an ellipsis rather than wrapping */
+.tasks-header .tasks-list-title {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* On a wide screen the folder list beside the tasks already shows which
+   folder is open, so the title is left to phones */
+@media (min-width: 992px) {
+  .tasks-header .tasks-list-title {
     display: none;
   }
 }
 
-/* The toolbar's own tools lead the row, at the left edge a short reach
-   from the folder list, and the list's title ends it on the right */
-.tasks-tools {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* Held off the card's right edge by the gap between the title's icon and
-   its text */
-.tasks-list-title {
-  margin-right: 1rem;
-  text-align: right;
-}
-
 /* Its text is a step smaller than the buttons' icons, on the same line
    height, so it stands as tall as the Filter button beside it */
-.tasks-date-filter {
+.tasks-tools .select-btn {
   gap: 0.5rem;
 }
 
-.tasks-date-filter > span {
+.tasks-tools .select-btn > span {
   font-size: 1rem;
   line-height: 1.375rem;
 }
 
-.tasks-date-filter > span > i {
+.tasks-tools .select-btn > span > i {
   margin-right: 0.25rem;
+}
+
+/* The Archived dropdown is its icon alone, with no text to space from */
+.tasks-tools .tasks-archived-filter > span > i {
+  margin-right: 0;
 }
 
 /* The panel is outlined in the rule the table's rows use, and the table
@@ -210,6 +229,20 @@ td.tasks-col-checkbox a:hover {
   .tasks-table .tasks-col-folder,
   .tasks-secondary-wide {
     display: none;
+  }
+
+  /* the circles sit further in from the screen's edge */
+  .tasks-table th.tasks-col-checkbox,
+  .tasks-table td.tasks-col-checkbox {
+    padding-left: 1.25rem;
+  }
+
+  /* rows, and the header row with them, stand taller, so each is an
+     easy tap */
+  .tasks-table th,
+  .tasks-table td {
+    padding-bottom: 0.75rem;
+    padding-top: 0.75rem;
   }
 
   /* the title is then the last column shown, and takes its edge padding */

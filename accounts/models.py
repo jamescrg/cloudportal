@@ -152,6 +152,10 @@ class CustomUser(AbstractUser):
     tasks_folder = models.IntegerField(default=0)
     tasks_folders = models.JSONField(default=list)
     tasks_active_folder = models.IntegerField(default=0)
+    # each task list's view, as last chosen: "inbox", "all" or a folder's
+    # id -> {"sort": "title", "date": "unscheduled"}, the sort and the
+    # date dropdown's preset
+    task_views = models.JSONField(default=dict, blank=True)
     encryption_salt = models.CharField(max_length=44, blank=True, default="")
     # The PBKDF2 round count the notes key was derived with (static/js/
     # crypto.js). Keys made before the count was recorded used 100,000; a

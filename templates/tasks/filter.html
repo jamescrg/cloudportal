@@ -21,17 +21,6 @@
                     <div>{{ filter.form.recurring }}</div>
                 </div>
                 <div class="form-group">
-                    <label for="id_show_archived">Show Archived</label>
-                    <div>
-                        <select name="show_archived" id="id_show_archived">
-                            <option value="false"
-                                    {% if not filter.form.show_archived.value %}selected{% endif %}>No</option>
-                            <option value="true"
-                                    {% if filter.form.show_archived.value %}selected{% endif %}>Yes</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
                     <label for="id_sort">Sort By</label>
                     <div>
                         <select name="sort" id="id_sort">
