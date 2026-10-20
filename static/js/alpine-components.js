@@ -500,7 +500,7 @@ document.addEventListener('alpine:init', () => {
       attachDrawerSwipe(this, {
         panel: () => this.$el.querySelector('.nav-drawer'),
         backdrop: this.$el.querySelector('.drawer-backdrop'),
-        side: 'left',
+        side: 'right',
       });
 
       // Close if the viewport grows past the mobile breakpoint while open
@@ -515,9 +515,9 @@ document.addEventListener('alpine:init', () => {
 
   /**
    * Side Drawer Component
-   * On a phone, a panel sliding in from the right for whatever the page
+   * On a phone, a panel sliding in from the left for whatever the page
    * marks with data-drawer: the folder sidebar, or the settings section
-   * nav. Its button floats at the top right.
+   * nav. Its button floats at the top left.
    * Usage: <div x-data="sideDrawer()">
    */
   Alpine.data('sideDrawer', () => ({
@@ -560,7 +560,7 @@ document.addEventListener('alpine:init', () => {
       attachDrawerSwipe(this, {
         panel: sidebarEl,
         backdrop: this.$el.querySelector('.drawer-backdrop'),
-        side: 'right',
+        side: 'left',
       });
 
       // Auto-close the drawer when a link inside it is tapped (htmx navigation)

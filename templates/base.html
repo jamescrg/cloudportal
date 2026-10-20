@@ -96,14 +96,14 @@
         </div>
         {% include "modals.html" %}
         {% include "confirm-modal.html" %}
-        <!-- Mobile menu: the nav bar collapses into a floating button, upper left -->
+        <!-- Mobile menu: the nav bar collapses into a floating button, upper right -->
         <div x-data="navDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">
             <button class="drawer-fab drawer-fab-nav"
                     @click="toggle()"
                     aria-label="Open menu">
-                <i class="icon-panel-left"></i>
+                <i class="icon-menu"></i>
             </button>
             <div class="drawer-backdrop" @click="close()"></div>
             <nav class="nav-drawer" :class="{ 'drawer-open': isOpen }">
@@ -137,8 +137,8 @@
                 </div>
             </nav>
         </div>
-        <!-- Mobile side panel: a floating button, upper right, slides the page's
-             panel (the folder sidebar, or the settings sections) in from the right -->
+        <!-- Mobile side panel: a floating button, upper left, slides the page's
+             panel (the folder sidebar, or the settings sections) in from the left -->
         <div x-data="sideDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">

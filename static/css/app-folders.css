@@ -146,6 +146,13 @@
   [data-drawer] .card.folders .folder-tree > li:last-child {
     border-bottom: solid 1px var(--border-medium);
   }
+
+  /* the folders stand as tall as the task rows (app-tasks.css), so each
+     is an easy tap */
+  [data-drawer] .card.folders .folder-row {
+    padding-bottom: 0.75rem;
+    padding-top: 0.75rem;
+  }
 }
 
 .folder-item {
