@@ -99,6 +99,7 @@
   /* Borders a touch lighter than Hojicha's, so the lines in the cards
      hold against the wash */
   --border-medium: color-mix(in oklab, var(--gb-dark2) 75%, var(--gb-dark3));
+  --border-medium-dark: var(--gb-dark3);
   --border-dark: color-mix(in oklab, var(--gb-dark3) 85%, var(--gb-dark4));
 
   /* Calendar chips a step lighter than Hojicha's, to hold on the cards */

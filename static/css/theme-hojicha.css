@@ -15,6 +15,7 @@
 
   /* Borders */
   --border-medium: var(--gb-dark2);
+  --border-medium-dark: var(--gb-dark3);
   --border-dark: var(--gb-dark3);
 
   /* Typography */
@@ -47,9 +48,11 @@
   /* Selection */
   --selected-background: var(--background-control);
   --switch-on: var(--selected-background);
-  --switch-on-border: var(--selected-border);
+  --switch-on-border: var(--gb-purple);
   --selected-color: var(--gb-bright-purple);
-  --selected-border: var(--gb-purple);
+  /* a border a step darker than the cards' own, as in Kosmos */
+  --selected-border: var(--border-medium-dark);
+  --icon-violet: var(--gb-bright-purple);
 
   /* Highlights */
   --hl-blue: var(--blue-950);

@@ -344,3 +344,8 @@ tr:hover .row-edit,
     grayscale(1) sepia(1) hue-rotate(45deg) saturate(1.7) brightness(0.92)
   );
 }
+
+/* The filter icon is lavender wherever it appears, as in Kosmos */
+.icon-list-filter {
+  color: var(--icon-violet);
+}

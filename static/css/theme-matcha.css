@@ -46,6 +46,7 @@
 
   /* Borders */
   --border-medium: var(--stone-300);
+  --border-medium-dark: var(--stone-350);
   --border-dark: var(--stone-400);
 
   /* Shadows & Overlays */
@@ -54,14 +55,18 @@
   --overlay-backdrop: rgb(0 0 0 / 50%);
   --overlay-heavy: rgb(0 0 0 / 40%);
 
-  /* Selection */
-  --selected-background: var(--violet-100);
+  /* Selection: a lavender wash inside a border a step darker than the
+     cards' own, as in Kosmos */
+  --selected-background: var(--violet-150);
   /* the atmosphere switch's track when on: a step deeper than the
      selected wash, so it reads as on */
   --switch-on: var(--violet-400);
   --switch-on-border: var(--violet-500);
   --selected-color: var(--stone-700);
-  --selected-border: var(--stone-300);
+  --selected-border: var(--border-medium-dark);
+
+  /* The filter icon's lavender, as in Kosmos */
+  --icon-violet: var(--violet-700);
 
   /* Labels */
   --label-gray: var(--stone-150);

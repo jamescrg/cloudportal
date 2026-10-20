@@ -98,6 +98,7 @@
   /* Borders a touch darker than Matcha's, so the lines in the cards
      hold against the wash coming through them */
   --border-medium: color-mix(in oklab, var(--stone-300) 75%, var(--stone-400));
+  --border-medium-dark: color-mix(in oklab, var(--stone-350) 80%, var(--stone-400));
   --border-dark: color-mix(in oklab, var(--stone-400) 85%, var(--stone-500));
 
   /* Calendar chips a step darker than Matcha's, so they hold on the
