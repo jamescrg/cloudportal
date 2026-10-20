@@ -11,6 +11,7 @@ from django.core.management import call_command
 from django.urls import reverse
 
 from apps.tasks import reminders
+from apps.tasks.forms import TaskReminderForm
 from apps.tasks.models import Task, TaskReminder
 
 pytestmark = pytest.mark.django_db
@@ -340,3 +341,15 @@ def test_the_command_sends_the_notifications_due(user, timed, monkeypatch):
     call_command("send_task_reminders", stdout=out)
 
     assert "Sent 2 notification(s), 0 error(s)" in out.getvalue()
+
+
+def test_a_dated_task_offers_a_reminder_on_the_day(dated):
+    form = TaskReminderForm(task=dated)
+
+    assert (form.initial["amount"], form.initial["unit"]) == (0, "days")
+
+
+def test_a_timed_task_offers_a_reminder_half_an_hour_before(timed):
+    form = TaskReminderForm(task=timed)
+
+    assert (form.initial["amount"], form.initial["unit"]) == (30, "minutes")
