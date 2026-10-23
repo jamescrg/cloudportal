@@ -6,16 +6,23 @@
  * the link itself never changes. A chosen day, or the calendar's Clear,
  * posts to the task's due-date route and the list re-renders. Closing
  * the calendar without a choice removes the input again.
+ *
+ * Opened from a dropdown's item (the bulk bar's Choose a Date…), the
+ * calendar hangs off the dropdown's button instead, since the menu closes
+ * on the click. flatpickr draws its own calendar on phones too: its usual
+ * hand-off to the phone's picker needs a visible input, which this is not.
  */
 function openTaskDatePicker(anchor, postUrl, currentDate) {
   if (typeof flatpickr === "undefined" || !window.htmx) {
     return;
   }
 
+  const dropdown = anchor.closest(".dropdown-menu")?.closest(".dropdown");
+  const host = dropdown || anchor.parentElement;
   const input = document.createElement("input");
   input.type = "text";
   input.className = "task-date-picker-input";
-  anchor.parentElement.appendChild(input);
+  host.appendChild(input);
 
   const post = (dateStr) => {
     window.htmx.ajax("POST", postUrl, {
@@ -29,6 +36,8 @@ function openTaskDatePicker(anchor, postUrl, currentDate) {
     dateFormat: "Y-m-d",
     defaultDate: currentDate || null,
     allowInput: false,
+    disableMobile: true,
+    positionElement: dropdown?.querySelector("[x-ref=button]") || anchor,
     onReady: (_, __, fp) => {
       const clear = document.createElement("button");
       clear.textContent = "Clear";
