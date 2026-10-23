@@ -552,6 +552,14 @@ th.tasks-col-priority .btn-sort.active {
 
 /* The bulk actions that open a menu (folder, date, priority) carry a
    small chevron after their icon */
+/* Delete's trash icon is a muted red, the theme's danger red folded into
+   its muted text, so it stands apart from the actions that can be undone
+   without shouting */
+.archive-buttons .bulk-delete,
+.archive-buttons .bulk-delete:hover {
+  color: color-mix(in oklab, var(--color-danger) 65%, var(--color-muted));
+}
+
 .archive-buttons .btn small {
   margin-left: 0.25rem;
 }
