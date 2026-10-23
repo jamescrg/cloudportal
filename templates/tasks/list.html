@@ -136,7 +136,10 @@
                     hx-post="{% url 'tasks-clear-htmx' %}"
                     hx-target="#tasks-container"
                     hx-swap="innerHTML"
-                    hx-confirm="Are you sure you want to archive all completed tasks?">
+                    hx-confirm="Are you sure you want to archive all completed tasks?"
+                    data-confirm-title="Archive Tasks"
+                    data-confirm-text="Archive"
+                    data-confirm-dangerous="false">
                 <i class="icon-archive"></i>
             </button>
             <div class="dropdown" x-data="dropdown()">

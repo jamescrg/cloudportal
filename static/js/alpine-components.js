@@ -703,6 +703,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const title = triggerEl.dataset.confirmTitle || 'Confirm';
     const confirmText = triggerEl.dataset.confirmText || 'Delete';
     const cancelText = triggerEl.dataset.cancelText || 'Cancel';
+    // Red unless the trigger says it undoes nothing (data-confirm-dangerous="false")
+    const isDangerous = triggerEl.dataset.confirmDangerous !== 'false';
 
     const component = Alpine.$data(confirmModal);
     component.show({
@@ -710,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
       message: message,
       confirmText: confirmText,
       cancelText: cancelText,
-      isDangerous: true,
+      isDangerous: isDangerous,
       onConfirm: () => {
         e.detail.issueRequest(true);
       }
