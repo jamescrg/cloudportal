@@ -378,6 +378,17 @@ SESSION_COOKIE_AGE = 1209600 * 4
 
 SESSION_SAVE_EVERY_REQUEST = True
 
+# On dev, keep sessions off the database (as Kosmos and fin do). The nightly
+# pull of production's data drops and recreates the DB, which would empty
+# the db-backed django_session table and sign every device out each
+# morning. Sessions as files survive the reload; the user row comes back
+# unchanged, so each session's auth hash still validates. Gated on ENV,
+# which is stable, not on DEBUG, which gets toggled for testing.
+if ENV == "dev":
+    SESSION_ENGINE = "django.contrib.sessions.backends.file"
+    SESSION_FILE_PATH = os.path.join(BASE_DIR, ".dev-sessions")
+    os.makedirs(SESSION_FILE_PATH, exist_ok=True)
+
 
 class CustomFormRenderer(TemplatesSetting):
     form_template_name = "components/form-fields.html"
