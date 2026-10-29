@@ -1,14 +1,16 @@
-<div id="contact-detail"
-     class="col-lg-6 order-lg-3"
-     hx-trigger="contactDetailChanged from:body"
-     hx-get="{% url 'contacts-detail-htmx' %}"
-     hx-target="this">
-    {% if selected_contact %}
-        {% include "contacts/contact.html" %}
-    {% endif %}
+<div class="row">
+    <div id="contact-detail"
+         class="col-lg-8 order-lg-2"
+         hx-trigger="contactDetailChanged from:body"
+         hx-get="{% url 'contacts-detail-htmx' %}"
+         hx-target="this">
+        {% if selected_contact %}
+            {% include "contacts/contact.html" %}
+        {% endif %}
+    </div>
+    <div id="contacts-list"
+         class="col-lg-4 order-lg-1"
+         hx-trigger="contactsChanged from:body"
+         hx-get="{% url 'contacts-list-htmx' %}"
+         hx-target="this">{% include "contacts/list.html" %}</div>
 </div>
-<div id="contacts-list"
-     class="col-lg-3 order-lg-2"
-     hx-trigger="contactsChanged from:body"
-     hx-get="{% url 'contacts-list-htmx' %}"
-     hx-target="this">{% include "contacts/list.html" %}</div>

@@ -804,7 +804,9 @@ body[data-page="home"] .container.content {
 /* Default: stack columns on small screens */
 .col-lg,
 .col-lg-3,
+.col-lg-4,
 .col-lg-6,
+.col-lg-8,
 .col-lg-9,
 .col-md-6,
 .col-md-8 {
@@ -816,7 +818,9 @@ body[data-page="home"] .container.content {
 @media (min-width: 992px) {
   .col-lg { flex: 1; }
   .col-lg-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-lg-4 { flex: 0 0 33.333%; max-width: 33.333%; }
   .col-lg-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-lg-8 { flex: 0 0 66.666%; max-width: 66.666%; }
   .col-lg-9 { flex: 0 0 75%; max-width: 75%; }
   .order-lg-1 { order: 1; }
   .order-lg-2 { order: 2; }
