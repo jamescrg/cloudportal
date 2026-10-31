@@ -236,3 +236,34 @@ def test_the_command_reports_what_it_sent(timed, mailoutbox, monkeypatch):
     call_command("send_event_reminders", stdout=out)
 
     assert "Sent 3 notification(s), 1 error(s)" in out.getvalue()
+
+
+# --- following the dialog's date and start time -----------------------------
+
+
+def test_a_time_typed_into_the_dialog_offers_minutes_before_it_is_saved(
+    client, all_day
+):
+    html = client.get(reverse("calendar:edit", args=[all_day.id])).content.decode()
+    assert reverse("calendar:reminders", args=[all_day.id]) in html
+    assert "change from:#id_start_time" in html
+
+    html = client.get(
+        reverse("calendar:reminders", args=[all_day.id]),
+        {"date": "2030-03-04", "start_time": "15:00"},
+    ).content.decode()
+
+    assert 'value="minutes"' in html
+    assert 'name="time"' not in html
+
+
+def test_a_notification_in_minutes_goes_on_before_the_time_is_saved(client, all_day):
+    response = client.post(
+        reverse("calendar:reminder-add", args=[all_day.id]),
+        {"amount": 15, "unit": "minutes", "date": "2030-03-04", "start_time": "15:00"},
+    )
+
+    assert response.status_code == 200
+    assert "15 minutes before" in response.content.decode()
+    reminder = all_day.reminders.get()
+    assert (reminder.amount, reminder.unit, reminder.time) == (15, "minutes", None)

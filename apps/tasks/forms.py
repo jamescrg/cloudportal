@@ -85,10 +85,14 @@ class TaskReminderForm(ReminderFormBase):
     class Meta(ReminderFormBase.Meta):
         model = TaskReminder
 
-    def __init__(self, *args, task, **kwargs):
+    def __init__(self, *args, task, timed=None, **kwargs):
+        """``timed`` says whether the task has a due time as the dialog now
+        has it (apps.common.forms.dialog_timing); left out, as saved."""
+        if timed is None:
+            timed = bool(task.due_time)
         # A task with only a due date is reminded of on the day itself
         # unless asked otherwise; calendar events keep the day before
-        if not task.due_time:
+        if not timed:
             kwargs["initial"] = {"amount": 0, **(kwargs.get("initial") or {})}
-        super().__init__(*args, timed=bool(task.due_time), user=task.user, **kwargs)
+        super().__init__(*args, timed=timed, user=task.user, **kwargs)
         self.task = task

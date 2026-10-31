@@ -19,6 +19,7 @@ from apps.calendar import holidays, kosmos
 from apps.calendar.feed import event_entry, feed_date, task_entry
 from apps.calendar.forms import EventForm, GuestForm, ReminderForm
 from apps.calendar.models import Event, EventReminder, is_zone
+from apps.common.forms import dialog_timing, follow_fields
 
 from .events import (
     PAGINATION_KEY,
@@ -314,7 +315,11 @@ def events_edit(request, id):
                 result = _save_occurrence(form, event, series, request.user)
             invitations.after_change(event, before)
             return _event_change_response(result)
+        # The form comes back with its errors, the notifications following
+        # the date and time as posted
+        timing = _timing(event, request.POST)
     else:
+        timing = None
         # The form opens on the event as seen from where the user is now;
         # saving it re-anchors the same moment to that zone.
         shown = event.in_zone(request.user.time_zone)
@@ -334,7 +339,7 @@ def events_edit(request, id):
             "google_connected": bool(request.user.google_credentials),
             "form": form,
         }
-        | _reminders_context(event)
+        | _reminders_context(event, timing)
         | _guests_context(event)
     )
     return render(request, "calendar/form.html", context)
@@ -400,9 +405,19 @@ def guest_delete(request, id, guest_id):
     return render(request, "components/guests.html", _guests_context(event))
 
 
-def _reminders_context(event, reminder_form=None):
+def _timing(event, data):
+    """Whether the event has a start time as the dialog now has it, when the
+    request carries its fields, else as saved: (dated, timed), the first
+    always true of an event."""
+    return dialog_timing(data, event, "date", "start_time")
+
+
+def _reminders_context(event, timing=None, reminder_form=None):
     """The Notifications section of the edit form: the event's reminders
-    and the row that adds one (components/reminders.html)."""
+    and the row that adds one (components/reminders.html). The section
+    follows the dialog's date and start time: ``timing`` is theirs as
+    (dated, timed), or None for the event's as saved."""
+    _, timed = timing or _timing(event, {})
     reminders = list(event.reminders.all())
     for reminder in reminders:
         reminder.delete_url = reverse(
@@ -411,17 +426,31 @@ def _reminders_context(event, reminder_form=None):
     return {
         "event": event,
         "reminders": reminders,
-        "reminder_form": reminder_form or ReminderForm(event=event),
+        "reminder_form": reminder_form or ReminderForm(event=event, timed=timed),
         "reminder_add_url": reverse("calendar:reminder-add", args=[event.id]),
-    }
+    } | follow_fields(
+        reverse("calendar:reminders", args=[event.id]), "id_date", "id_start_time"
+    )
+
+
+@login_required
+def reminders_section(request, id):
+    """The Notifications section again, for the date and start time the
+    dialog now has (a change to either fetches it)."""
+    event = _event_for_user(id, request.user)
+    context = _reminders_context(event, _timing(event, request.GET))
+    return render(request, "components/reminders.html", context)
 
 
 @login_required
 @require_POST
 def reminder_add(request, id):
-    """Add a notification to the event and re-render the section."""
+    """Add a notification to the event and re-render the section. It is
+    measured against the start time the dialog has, so one in minutes goes
+    on an event whose time is typed but not yet saved."""
     event = _event_for_user(id, request.user)
-    form = ReminderForm(request.POST, event=event)
+    _, timed = timing = _timing(event, request.POST)
+    form = ReminderForm(request.POST, event=event, timed=timed)
     if form.is_valid():
         reminder = form.save(commit=False)
         reminder.event = event
@@ -429,7 +458,8 @@ def reminder_add(request, id):
         # On a repeating event it goes on the later occurrences too
         recurrence.add_reminder(event, reminder)
         form = None
-    return render(request, "components/reminders.html", _reminders_context(event, form))
+    context = _reminders_context(event, timing, form)
+    return render(request, "components/reminders.html", context)
 
 
 @login_required
@@ -442,7 +472,8 @@ def reminder_delete(request, id, reminder_id):
         reminder.delete()
         # On a repeating event it leaves the later occurrences too
         recurrence.remove_reminder(event, reminder)
-    return render(request, "components/reminders.html", _reminders_context(event))
+    context = _reminders_context(event, _timing(event, request.POST))
+    return render(request, "components/reminders.html", context)
 
 
 @login_required

@@ -167,6 +167,7 @@ urlpatterns = [
     path("tasks/notify/<str:token>/done", tasks.notify_done, name="tasks-notify-done"),
     path("tasks/<int:id>/priority", tasks.priority_htmx, name="tasks-priority"),
     path("tasks/<int:id>/delete-htmx", tasks.delete_htmx, name="tasks-delete-htmx"),
+    path("tasks/<int:id>/reminders", tasks.reminders_section, name="tasks-reminders"),
     path("tasks/<int:id>/reminders/add", tasks.reminder_add, name="tasks-reminder-add"),
     path(
         "tasks/<int:id>/reminders/<int:reminder_id>/delete",

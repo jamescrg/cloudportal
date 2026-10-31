@@ -5,6 +5,34 @@ from apps.common.models import CHANNEL_CHOICES, ReminderMixin
 from apps.common.recurrence import REPEAT_CHOICES, pattern_for
 
 
+def dialog_timing(data, saved, date_field, time_field):
+    """What a notification counts from, as the dialog has it now: (dated,
+    timed), for ReminderFormBase and components/reminders.html.
+
+    The Notifications section stands outside the main form and saves on its
+    own, so it follows the form's date and time fields as the user changes
+    them, ahead of Save: a request that carries the fields (the section is
+    re-rendered when one changes, and sends them when it adds or removes a
+    notification) is read for them; one that does not (the dialog opening)
+    reads the thing as saved. A time with no date counts for nothing."""
+    if date_field in data or time_field in data:
+        dated = bool(data.get(date_field))
+        return dated, dated and bool(data.get(time_field))
+    day = getattr(saved, date_field)
+    return bool(day), bool(day and getattr(saved, time_field))
+
+
+def follow_fields(url, *field_ids):
+    """Context for components/reminders.html to follow the dialog's date and
+    time fields: it is fetched again from ``url`` when one changes, and sends
+    them with every request (see dialog_timing)."""
+    return {
+        "reminders_url": url,
+        "reminders_fields": ", ".join(f"#{i}" for i in field_ids),
+        "reminders_watch": ", ".join(f"change from:#{i}" for i in field_ids),
+    }
+
+
 class ReminderFormBase(forms.ModelForm):
     """One notification: an amount, a unit, for something with no time of
     its own the time of day, and the channel it goes by. ``timed`` decides

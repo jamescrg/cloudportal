@@ -3,9 +3,15 @@ The Notifications section of an edit dialog, for an event or a task. It
 stands outside the main form (a form cannot hold another), and every
 change re-renders it in place. Context: reminders (each with a
 delete_url), reminder_form (None when nothing can be added yet),
-reminder_add_url, reminders_note (why nothing can be added).
+reminder_add_url, reminders_note (why nothing can be added), and from
+apps.common.forms.follow_fields the dialog's date and time fields it
+follows: reminders_url fetches it again when one changes (reminders_watch),
+and every request carries them (reminders_fields), so a time typed into
+the dialog offers minutes and hours before the dialog is saved.
 {% endcomment %}
-<div id="reminders" class="reminders">
+<div id="reminders"
+     class="reminders"
+     {% if reminders_url %}hx-get="{{ reminders_url }}" hx-trigger="{{ reminders_watch }}" hx-include="{{ reminders_fields }}" hx-target="this" hx-swap="outerHTML"{% endif %}>
     <h2>Notifications</h2>
     <ul class="reminder-list">
         {% for reminder in reminders %}
@@ -16,6 +22,7 @@ reminder_add_url, reminders_note (why nothing can be added).
                         class="btn-icon"
                         title="Remove"
                         hx-post="{{ reminder.delete_url }}"
+                        hx-include="{{ reminders_fields }}"
                         hx-target="#reminders"
                         hx-swap="outerHTML">
                     <i class="icon-x"></i>
@@ -28,6 +35,7 @@ reminder_add_url, reminders_note (why nothing can be added).
     {% if reminder_form %}
         <form class="reminder-add"
               hx-post="{{ reminder_add_url }}"
+              hx-include="{{ reminders_fields }}"
               hx-target="#reminders"
               hx-swap="outerHTML">
             {% csrf_token %}

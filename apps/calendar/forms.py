@@ -105,8 +105,12 @@ class ReminderForm(ReminderFormBase):
     class Meta(ReminderFormBase.Meta):
         model = EventReminder
 
-    def __init__(self, *args, event, **kwargs):
-        super().__init__(*args, timed=bool(event.start_time), user=event.user, **kwargs)
+    def __init__(self, *args, event, timed=None, **kwargs):
+        """``timed`` says whether the event has a start time as the dialog
+        now has it (apps.common.forms.dialog_timing); left out, as saved."""
+        if timed is None:
+            timed = bool(event.start_time)
+        super().__init__(*args, timed=timed, user=event.user, **kwargs)
         self.event = event
 
 

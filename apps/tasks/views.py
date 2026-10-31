@@ -10,6 +10,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from accounts.models import CustomUser
 from apps.common import notify
+from apps.common.forms import dialog_timing, follow_fields
 from apps.folders.folders import get_folders_for_page, get_task_folders, select_folder
 from apps.folders.models import Folder
 from apps.management.pagination import CustomPaginator
@@ -578,9 +579,12 @@ def task_form(request, id):
                 recurring.after_completion(task)
             return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
-        # Form validation failed - re-render form with errors
+        # Form validation failed - re-render form with errors, the
+        # notifications following the due date and time as posted
+        timing = _timing(task, request.POST)
 
     else:
+        timing = None
         # GET request - display the form, its due date and time as seen
         # from where the user is now
         form = TaskForm(
@@ -596,20 +600,29 @@ def task_form(request, id):
         "task": task,
         "form": form,
         "folders": get_folders_for_page(request, "tasks"),
-    } | _reminders_context(task)
+    } | _reminders_context(task, timing)
     return render(request, "tasks/modal-form.html", context)
 
 
-def _reminders_context(task, reminder_form=None):
+def _timing(task, data):
+    """Whether the task has a due date and a due time as the dialog now has
+    them, when the request carries its fields, else as saved."""
+    return dialog_timing(data, task, "due_date", "due_time")
+
+
+def _reminders_context(task, timing=None, reminder_form=None):
     """The Notifications section of the task form (components/reminders.html).
-    A task needs a due date before it can have one."""
+    A task needs a due date before it can have one. The section follows
+    the dialog's due date and time: ``timing`` is theirs as (dated, timed),
+    or None for the task's as saved."""
+    dated, timed = timing or _timing(task, {})
     task_reminders = list(task.reminders.all())
     for reminder in task_reminders:
         reminder.delete_url = reverse(
             "tasks-reminder-delete", args=[task.id, reminder.id]
         )
-    if task.due_date:
-        form = reminder_form or TaskReminderForm(task=task)
+    if dated:
+        form = reminder_form or TaskReminderForm(task=task, timed=timed)
         note = ""
     else:
         form = None
@@ -619,22 +632,37 @@ def _reminders_context(task, reminder_form=None):
         "reminder_form": form,
         "reminder_add_url": reverse("tasks-reminder-add", args=[task.id]),
         "reminders_note": note,
-    }
+    } | follow_fields(
+        reverse("tasks-reminders", args=[task.id]), "id_due_date", "id_due_time"
+    )
+
+
+@login_required
+def reminders_section(request, id):
+    """The Notifications section again, for the due date and time the dialog
+    now has (a change to either fetches it)."""
+    task = get_object_or_404(Task, pk=id, user=request.user)
+    context = _reminders_context(task, _timing(task, request.GET))
+    return render(request, "components/reminders.html", context)
 
 
 @login_required
 @require_POST
 def reminder_add(request, id):
-    """Add a notification to the task and re-render the section."""
+    """Add a notification to the task and re-render the section. It is
+    measured against the due date and time the dialog has, so one in
+    minutes goes on a task whose time is typed but not yet saved."""
     task = get_object_or_404(Task, pk=id, user=request.user)
-    form = TaskReminderForm(request.POST, task=task)
-    if task.due_date and form.is_valid():
+    dated, timed = timing = _timing(task, request.POST)
+    form = TaskReminderForm(request.POST, task=task, timed=timed)
+    if dated and form.is_valid():
         data = form.cleaned_data
         reminders.add_reminder(
             task, data["amount"], data["unit"], data["time"], data["channel"]
         )
         form = None
-    return render(request, "components/reminders.html", _reminders_context(task, form))
+    context = _reminders_context(task, timing, form)
+    return render(request, "components/reminders.html", context)
 
 
 @login_required
@@ -643,7 +671,8 @@ def reminder_delete(request, id, reminder_id):
     """Remove a notification from the task and re-render the section."""
     task = get_object_or_404(Task, pk=id, user=request.user)
     reminders.remove_reminder(task, reminder_id)
-    return render(request, "components/reminders.html", _reminders_context(task))
+    context = _reminders_context(task, _timing(task, request.POST))
+    return render(request, "components/reminders.html", context)
 
 
 def complete_task(task, user):

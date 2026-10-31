@@ -353,3 +353,74 @@ def test_a_timed_task_offers_a_reminder_half_an_hour_before(timed):
     form = TaskReminderForm(task=timed)
 
     assert (form.initial["amount"], form.initial["unit"]) == (30, "minutes")
+
+
+# --- following the dialog's due date and time -------------------------------
+
+
+def test_a_time_typed_into_the_dialog_offers_minutes_before_it_is_saved(client, dated):
+    """The section is fetched again when the due date or time changes."""
+    html = client.get(reverse("tasks-form", args=[dated.id])).content.decode()
+    assert reverse("tasks-reminders", args=[dated.id]) in html
+    assert "change from:#id_due_time" in html
+
+    html = client.get(
+        reverse("tasks-reminders", args=[dated.id]),
+        {"due_date": "2030-03-04", "due_time": "15:00"},
+    ).content.decode()
+
+    assert 'value="minutes"' in html
+    assert 'name="time"' not in html
+
+
+def test_clearing_the_time_in_the_dialog_offers_days_again(client, timed):
+    html = client.get(
+        reverse("tasks-reminders", args=[timed.id]),
+        {"due_date": "2030-03-04", "due_time": ""},
+    ).content.decode()
+
+    assert 'value="minutes"' not in html
+    assert 'name="time"' in html
+
+
+def test_a_notification_in_minutes_goes_on_before_the_time_is_saved(client, dated):
+    response = client.post(
+        reverse("tasks-reminder-add", args=[dated.id]),
+        {
+            "amount": 15,
+            "unit": "minutes",
+            "due_date": "2030-03-04",
+            "due_time": "15:00",
+        },
+    )
+    assert response.status_code == 200
+    assert "15 minutes before" in response.content.decode()
+    reminder = dated.reminders.get()
+    assert (reminder.amount, reminder.unit, reminder.time) == (15, "minutes", None)
+
+    response = client.post(
+        reverse("tasks-form", args=[dated.id]),
+        {
+            "title": dated.title,
+            "due_date": "2030-03-04",
+            "due_time": "15:00",
+            "priority": 5,
+            "status": 0,
+            "archived": "False",
+        },
+    )
+
+    assert response.status_code == 204
+    reminder = TaskReminder.objects.get(pk=reminder.pk)
+    assert reminder.fire_at == _in(EASTERN, 2030, 3, 4, 14, 45)
+
+
+def test_a_date_cleared_in_the_dialog_refuses_a_notification(client, timed):
+    response = client.post(
+        reverse("tasks-reminder-add", args=[timed.id]),
+        {"amount": 15, "unit": "minutes", "due_date": "", "due_time": "15:00"},
+    )
+
+    assert response.status_code == 200
+    assert "Set a due date to add notifications" in response.content.decode()
+    assert not timed.reminders.exists()
