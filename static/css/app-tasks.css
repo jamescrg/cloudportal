@@ -9,7 +9,7 @@
   align-items: center;
   display: flex;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .tasks-add-icon {
@@ -85,13 +85,14 @@ td.tasks-col-checkbox a:hover {
 
 /* The list's title above its toolbar, both at the left edge, a short
    reach from the folder list */
+/* The title, the toolbar, the add-a-task row and the table are spaced
+   evenly, 1.5rem apart */
 .tasks-header {
   align-items: flex-start;
   display: flex;
   flex-direction: column;
-  /* the title sits as far above the toolbar as the add input does above
-     the list (.tasks-add) */
   gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .tasks-tools {
