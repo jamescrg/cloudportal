@@ -7,14 +7,25 @@
         <meta name="description" content="Personal home management app">
         <meta name="keywords" content="tasks, notes, contacts, favorites">
         <title>&nbsp;{{ page|capfirst }}</title>
+        {% comment %}
+        The favicon is the SVG; iOS Safari takes only a PNG for bookmarks
+        and the home screen, and paints a transparent one on black, so the
+        touch icon is the same cloud on a light tile
+        {% endcomment %}
         {% if env == "dev" %}
             <link rel="icon"
                   type="image/svg+xml"
                   href="{% static_v 'images/cloudy-orange.svg' %}">
+            <link rel="apple-touch-icon"
+                  sizes="180x180"
+                  href="{% static_v 'images/apple-touch-icon-orange.png' %}">
         {% else %}
             <link rel="icon"
                   type="image/svg+xml"
                   href="{% static_v 'images/cloudy-matcha.svg' %}">
+            <link rel="apple-touch-icon"
+                  sizes="180x180"
+                  href="{% static_v 'images/apple-touch-icon-matcha.png' %}">
         {% endif %}
         <!-- set viewport for mobile devices -->
         <meta name="viewport" content="width=device-width, initial-scale=1">
