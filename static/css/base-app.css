@@ -102,7 +102,7 @@ a:hover {
 
 .card {
   background: var(--background-section);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
   padding: 1rem;
   padding-bottom: 1.5rem;
