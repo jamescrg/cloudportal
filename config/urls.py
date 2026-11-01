@@ -442,11 +442,6 @@ urlpatterns = [
         name="settings-theme-atmosphere",
     ),
     path(
-        "settings/theme/contrast",
-        settings.theme_contrast,
-        name="settings-theme-contrast",
-    ),
-    path(
         "settings/search-engine", settings.search_engine, name="settings-search-engine"
     ),
     path(

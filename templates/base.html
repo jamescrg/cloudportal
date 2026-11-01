@@ -90,7 +90,6 @@
     </head>
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
           {% if page %}data-page="{{ page }}"{% endif %}
-          data-contrast="{{ contrast }}"
           {% if user.is_authenticated %}data-user-id="{{ user.id }}" data-time-zone="{{ user.time_zone }}"{% endif %}>
         {% if theme_variant %}
             {% include "atmosphere.html" %}

@@ -51,47 +51,6 @@
                 </td>
             </tr>
             <tr>
-                <td class="setting-label">Contrast</td>
-                <td class="setting-control">
-                    {% comment %}
-                    The page's gray: soft is the theme's own, medium and
-                    hard lighten it a step and two, so the text stands
-                    harder off it. The dark themes keep their own.
-                    {% endcomment %}
-                    <form action="{% url 'settings-theme-contrast' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="contrast" value="{{ contrast }}">
-                        <div class="dropdown theme-select" x-data="dropdown()">
-                            <button class="btn btn-secondary"
-                                    type="button"
-                                    x-ref="button"
-                                    @click="toggle()"
-                                    :aria-expanded="open">
-                                <span>{{ contrast|capfirst }}</span>
-                                <i class="icon-chevron-down"></i>
-                            </button>
-                            <ul class="dropdown-menu" x-ref="menu" x-show="open">
-                                <li {% if contrast == "soft" %}class="active"{% endif %}>
-                                    <a class="dropdown-item"
-                                       href="#"
-                                       @click.prevent="$el.closest('form').querySelector('[name=contrast]').value='soft'; $el.closest('form').submit();">Soft</a>
-                                </li>
-                                <li {% if contrast == "medium" %}class="active"{% endif %}>
-                                    <a class="dropdown-item"
-                                       href="#"
-                                       @click.prevent="$el.closest('form').querySelector('[name=contrast]').value='medium'; $el.closest('form').submit();">Medium</a>
-                                </li>
-                                <li {% if contrast == "hard" %}class="active"{% endif %}>
-                                    <a class="dropdown-item"
-                                       href="#"
-                                       @click.prevent="$el.closest('form').querySelector('[name=contrast]').value='hard'; $el.closest('form').submit();">Hard</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </form>
-                </td>
-            </tr>
-            <tr>
                 <td class="setting-label">Atmosphere</td>
                 <td class="setting-control">
                     {% comment %}
