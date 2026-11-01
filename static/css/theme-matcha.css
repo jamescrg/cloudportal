@@ -136,9 +136,10 @@ body[data-contrast="medium"] {
   --background-body: var(--stone-100);
 }
 
-/* and at hard the nav comes up a step too, to keep its distance from
-   the page in proportion */
+/* and at hard the nav, the buttons and the table heads come up with
+   the page, each keeping its distance from it in proportion */
 body[data-contrast="hard"] {
   --background-body: var(--stone-50);
+  --background-control: var(--stone-100);
   --background-nav: var(--stone-200);
 }
