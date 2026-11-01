@@ -202,19 +202,14 @@ strong{
   width: 100%;
 }
 
+/* A row, and the head with it, has a little more air above and below
+   its text than beside it, and is an easy tap on a phone */
 .table th,
 .table td {
   border-bottom: solid 1px var(--border-medium);
-  padding: 0.5rem;
+  padding: 0.75rem 0.5rem;
   text-align: left;
   vertical-align: top;
-}
-
-/* A row stands taller than its head: a little more air above and below
-   its text, and an easy tap on a phone */
-.table td {
-  padding-bottom: 0.75rem;
-  padding-top: 0.75rem;
 }
 
 .table th {

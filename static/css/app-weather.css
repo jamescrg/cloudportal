@@ -265,13 +265,6 @@
   white-space: nowrap;
 }
 
-/* the column headers of the forecasts stand as tall as the card's title */
-.forecast-hourly .table th,
-.forecast-daily .table th {
-  padding-bottom: 0.85rem;
-  padding-top: 0.85rem;
-}
-
 /* a second, smaller line under a value: an amount, a gust, a date */
 .weather-amount {
   color: var(--color-muted);
