@@ -39,6 +39,17 @@
   max-width: 100%;
 }
 
+/* The name is in the ink and comes to the link green under the pointer:
+   every row goes out to its site, so green on all of them would mark none,
+   and the site's icon already says where it goes */
+.fav-title a {
+  color: var(--color-primary);
+}
+
+.fav-title a:hover {
+  color: var(--link);
+}
+
 /* A heading keeps its sort button on its line */
 .favorites-table th {
   white-space: nowrap;
