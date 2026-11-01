@@ -785,10 +785,12 @@ li {
   margin-top: 2rem;
 }
 
-/* The open folder or contact takes the selected wash, the one violet
-   that marks every selection */
+/* The open folder or contact is marked as the open page is in the nav
+   bar: a two-pixel accent stroke on the structure, here standing at the
+   row's left edge, over a wash half as strong as a chosen control's */
 .active-item {
-  background: var(--selected-background);
+  background: color-mix(in oklab, var(--selected-background) 50%, var(--background-body));
+  box-shadow: inset 2px 0 0 var(--color-accent);
 }
 
 
