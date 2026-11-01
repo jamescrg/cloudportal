@@ -227,14 +227,6 @@ Section Layout (rail / body)
   .section:has(> .section-nav) {
     min-height: calc(100vh - 6.5rem);
   }
-
-  .section-nav {
-    padding-top: 2.5rem;
-  }
-
-  .section-body {
-    padding-top: 1.5rem;
-  }
 }
 
 .section-nav {
@@ -291,6 +283,18 @@ Section Layout (rail / body)
   flex: 1;
   min-width: 0;
   padding: 0 0 0 1rem;
+}
+
+/* on a wide screen the list and the body carry the clearance the page
+   had above its content (see the section's rules above) */
+@media (min-width: 992px) {
+  .section-nav {
+    padding-top: 2.5rem;
+  }
+
+  .section-body {
+    padding-top: 1.5rem;
+  }
 }
 
 /* A setting's rows are a label beside a control, not a table: no rules,
