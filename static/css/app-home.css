@@ -352,11 +352,10 @@
   }
 }
 
-/* a box on the page, its edge a rule's and under a
-   faint shadow, since the page is nearly the box's own colour */
+/* a box on the page, its edge alone setting it off: a step darker than
+   a rule's, since the page is nearly the box's own colour and is flat */
 .folder {
-  border: 1px solid var(--border-medium);
-  box-shadow: var(--card-shadow, none);
+  border: 1px solid var(--border-medium-dark);
   break-inside: avoid;
   display: inline-block;
   margin: 0 0 1.25rem;
