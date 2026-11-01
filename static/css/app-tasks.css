@@ -54,8 +54,13 @@ td.tasks-col-checkbox a:hover {
   font-size: 1.15rem;
 }
 
+/* The circle's line box is the title's line (1.5rem), so its centre sits
+   on the title's first line whether or not the title wraps; the cells
+   align to the top, and the icon is larger than the text, so left to its
+   own line box it would sit lower */
 .tasks-col-checkbox i {
   display: block;
+  line-height: 1.5rem;
 }
 
 .tasks-col-title {
@@ -204,9 +209,17 @@ td.tasks-col-checkbox a:hover {
   border: none;
   color: var(--color-muted);
   cursor: pointer;
+  /* a block, so the button is its icon's height and no taller */
+  display: block;
   font: inherit;
   font-size: 1.1rem;
   padding: 0;
+}
+
+/* the flag, like the circle, on the title's first line */
+.btn-priority i {
+  display: block;
+  line-height: 1.5rem;
 }
 
 tr.priority-highest .btn-priority,
