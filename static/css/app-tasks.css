@@ -12,7 +12,6 @@
 
 .tasks-add .form-control {
   box-shadow: none;
-  outline: none;
   /* a touch taller than the site's inputs */
   padding-bottom: 0.5rem;
   padding-top: 0.5rem;

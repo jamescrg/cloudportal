@@ -359,7 +359,6 @@ li {
 .btn:focus,
 .btn:focus-visible {
   box-shadow: none;
-  outline: none;
 }
 
 .btn-sm {
@@ -523,7 +522,6 @@ li {
   border-radius: var(--radius-md);
   display: inline-flex;
   line-height: 1.25;
-  outline: none;
   padding: 0.5rem 0.75rem;
 }
 

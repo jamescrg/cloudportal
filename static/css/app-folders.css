@@ -28,7 +28,6 @@
 .folders input,
 .folders input:focus {
   box-shadow: none;
-  outline: none;
 }
 
 .folder-row .menu-icon {

@@ -25,6 +25,20 @@ button {
   line-height: 1.25rem;
 }
 
+/* Whatever the keyboard reaches is ringed in the accent, over and above
+   any focus border of its own; a rule that clears the outline for the
+   pointer must not clear this. A focus moved to a container by script
+   (tabindex -1, the modals) is left plain. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .large-form {
   padding-left: 0.8rem;
 }

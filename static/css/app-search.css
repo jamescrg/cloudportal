@@ -32,7 +32,6 @@
 .search .search-text:focus {
   border-color: var(--border-medium);
   box-shadow: none;
-  outline: none;
 }
 
 .search .input-group-text {
