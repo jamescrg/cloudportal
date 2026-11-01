@@ -39,6 +39,15 @@ textarea:focus-visible,
   outline-offset: 2px;
 }
 
+/* A field's ring lies on its border rather than outside it: a field is
+   focused by every click and by autofocus, so a ring standing off it
+   would be the loudest thing on the page as often as not */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: -1px;
+}
+
 .large-form {
   padding-left: 0.8rem;
 }
