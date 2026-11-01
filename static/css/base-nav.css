@@ -1,11 +1,10 @@
 
 /* The bar is a band across the top of the page in the page's own colour,
    with a rail along its foot as the page's columns have rails between
-   them; the open page's item takes the selected wash the open folder's
-   row does, filling the band's height to the rail, with a rail down
-   each side, in place of the file-folder tab the bar once drew. Every
-   item has the one line height, so each stands the band's height with
-   its text centred. */
+   them; under the open page's item the rail thickens in the accent, so
+   the structure itself marks where the open page begins, in place of
+   the file-folder tab the bar once drew. Every item has the one line
+   height, so each stands the band's height with its text centred. */
 .navbar {
   background: var(--background-nav);
   border-bottom: 1px solid var(--border-medium);
@@ -35,13 +34,19 @@
   padding: 0;
 }
 
+/* the line lies on the rail, the item standing a pixel past the band's
+   foot to cover it; the word is in the ink, as the open folder's name is */
 .navbar .active {
-  background: var(--selected-background);
-  border-left: 1px solid var(--border-medium);
-  border-right: 1px solid var(--border-medium);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
+  margin-bottom: -1px;
 }
 
 .navbar .active a {
+  color: var(--selected-color);
+}
+
+/* a word not open comes to the ink under the pointer */
+.navbar a:hover {
   color: var(--selected-color);
 }
 
