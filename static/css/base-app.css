@@ -175,10 +175,10 @@ h1 {
   margin-bottom: 0;
 }
 
-/* A settings page of several cards is one page of sections: the rail's
-   Settings is its title, so each card's is a section's */
+/* On a settings page the first card's title is the page's and any card
+   after it is a section, whatever cards the page happens to show */
 h2,
-.section-body > .card:not(:only-child) > .card-title h1 {
+.section-body > .card:not(:first-child) > .card-title h1 {
   font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.25;
