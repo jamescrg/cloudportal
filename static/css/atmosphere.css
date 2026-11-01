@@ -100,20 +100,14 @@ body {
 }
 
 /* --------------------------------------------------------------------------
- Cards: a gradient lit from the top left, a rim of light along the top
- edge, and a soft shadow that lifts them off the weather. The page's
- cards settle in as they arrive. Backwards fill only, so once it has
- played no transform is left on the card (a transform would trap the
- fixed-position menus inside it).
+ Cards: transparent, as the base themes' are, so the wash runs straight
+ through the page and its rails. The dials for a card's own gradient,
+ rim and shadow (--atmos-card and its kin) stay set by the variants for
+ what still draws a surface of its own. The page's cards settle in as
+ they arrive. Backwards fill only, so once it has played no transform is
+ left on the card (a transform would trap the fixed-position menus
+ inside it).
 -------------------------------------------------------------------------- */
-
-.card {
-  background: var(--atmos-card);
-  box-shadow:
-    inset 0 1px 0 var(--atmos-card-rim),
-    0 1px 2px var(--shadow-color),
-    0 14px 32px -18px var(--atmos-card-shadow);
-}
 
 .content .card {
   animation: atmos-card-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
@@ -127,61 +121,6 @@ body {
   from {
     opacity: 0;
     transform: translateY(0.375rem);
-  }
-}
-
-/* --------------------------------------------------------------------------
- The settings section: its rail of side tabs is the top bar's veil over
- the wash, and its body is the card, see-through, with the cards inside it
- cleared to sections of it. Rail and body lift together under one shadow,
- so none falls where the active side tab joins the body. That tab, which
- sits on the rail, is painted as the body is (the card's colour over the
- grain's average over the wash, pinned to the viewport) so it joins the
- body seamlessly. Phones keep their drawer.
--------------------------------------------------------------------------- */
-
-@media (min-width: 992px) {
-  .section:has(> .section-nav) {
-    border-radius: var(--radius-md);
-    box-shadow:
-      0 1px 2px var(--shadow-color),
-      0 14px 32px -18px var(--atmos-card-shadow);
-  }
-
-  .section-nav {
-    background: var(--atmos-nav);
-  }
-
-  .section-body {
-    background: var(--atmos-card);
-  }
-
-  .section-body .card {
-    animation: none;
-    background: transparent;
-    box-shadow: none;
-  }
-
-  .section-nav .active a,
-  .section-nav .active a::before,
-  .section-nav .active a::after {
-    background-attachment: fixed;
-    background-color: var(--background-body);
-    background-image:
-      linear-gradient(var(--atmos-card), var(--atmos-card)),
-      linear-gradient(var(--atmos-grain-tone), var(--atmos-grain-tone)),
-      var(--atmos-wash);
-  }
-}
-
-/* On mobile the cards run edge to edge on a page of their own colour
-   (base-app.css), so they drop their fill and shadow and the page reads
-   as one sheet with the wash straight through it: no bands between
-   cards. The home page keeps its gutters, and its cards. */
-@media (max-width: 991.98px) {
-  body:not([data-page="home"]) .card {
-    background: transparent;
-    box-shadow: none;
   }
 }
 
