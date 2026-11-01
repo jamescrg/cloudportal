@@ -128,14 +128,14 @@
   --search-highlight-current: var(--amber-300);
 }
 
-/* The contrast setting lightens the page a half step (medium) or a
-   step (hard) up the gray ladder from the theme's own (soft); the text
+/* The contrast setting lightens the page a step (medium) or two
+   (hard) up the gray ladder from the theme's own (soft); the text
    stands harder off the lighter gray. The dark themes keep their own
    page whatever the setting. */
 body[data-contrast="medium"] {
-  --background-body: var(--stone-125);
+  --background-body: var(--stone-100);
 }
 
 body[data-contrast="hard"] {
-  --background-body: var(--stone-100);
+  --background-body: var(--stone-50);
 }

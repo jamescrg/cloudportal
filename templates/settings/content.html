@@ -55,8 +55,8 @@
                 <td class="setting-control">
                     {% comment %}
                     The page's gray: soft is the theme's own, medium and
-                    hard lighten it a half step and a step, so the text
-                    stands harder off it. The dark themes keep their own.
+                    hard lighten it a step and two, so the text stands
+                    harder off it. The dark themes keep their own.
                     {% endcomment %}
                     <form action="{% url 'settings-theme-contrast' %}" method="post">
                         {% csrf_token %}

@@ -30,8 +30,8 @@ VARIANT_OF = {base: variant for variant, base in THEME_VARIANTS.items()}
 # A device with nothing chosen: Auto, with the atmosphere
 DEFAULT_THEME = "auto-atmosphere"
 
-# The page's contrast: the theme's own gray, or a half step or a step
-# lighter up the ladder
+# The page's contrast: the theme's own gray, or a step or two lighter
+# up the ladder
 CONTRASTS = ("soft", "medium", "hard")
 DEFAULT_CONTRAST = "soft"
 
@@ -53,7 +53,7 @@ def theme(request):
     name = session.get("theme", "")
     name = RENAMED_THEMES.get(name, name) or DEFAULT_THEME
     # The page's gray, chosen per device as the theme is: soft is the
-    # theme's own, medium and hard lighten it a half step and a step
+    # theme's own, medium and hard lighten it a step and two
     contrast = session.get("contrast", "")
     return {
         "theme": name,
