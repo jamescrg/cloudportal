@@ -352,10 +352,10 @@
   }
 }
 
-/* a box on the page, its edge alone setting it off: a step darker than
-   a rule's, since the page is nearly the box's own colour and is flat */
+/* a box on the page, its edge alone setting it off, in a rule's colour:
+   on the lighter page a darker edge read heavy */
 .folder {
-  border: 1px solid var(--border-medium-dark);
+  border: 1px solid var(--border-medium);
   break-inside: avoid;
   display: inline-block;
   margin: 0 0 1.25rem;
