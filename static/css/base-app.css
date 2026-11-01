@@ -811,6 +811,52 @@ body[data-page="home"] .container.content {
   margin-right: -0.75rem;
 }
 
+/* The sheet: on a wide screen the folder list and the content beside it
+   share one card, with a rail between them, rather than two cards with
+   a gap. The row is the card; the columns give up their gutters and the
+   cards inside give up their fill, corners, shadow and bottom margin,
+   keeping only their padding. The columns stretch to the taller one, so
+   the rail runs the sheet's full height. On contacts the content column
+   is a row of its own (the list and the detail), railed the same way,
+   stretched to the sheet's height so its rail runs full height too. On
+   a phone the folder list is the drawer, and nothing here applies. */
+@media (min-width: 992px) {
+  .row.sheet {
+    background: var(--background-section);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow, none);
+    margin: 0 0 1.5rem;
+  }
+
+  .row.sheet > .row,
+  .row.sheet #main-content > .row {
+    flex: 1;
+    margin: 0;
+  }
+
+  .row.sheet > [class*="col-"],
+  .row.sheet #main-content > .row > [class*="col-"] {
+    padding: 0;
+  }
+
+  .row.sheet #main-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .row.sheet #sidebar,
+  .row.sheet #contacts-list {
+    border-right: 1px solid var(--border-medium);
+  }
+
+  .row.sheet .card {
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+  }
+}
+
 .row > [class*="col"] {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
