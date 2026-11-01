@@ -3,7 +3,7 @@
 /* task form */
 /* ------------------------------------------------------------------------- */
 
-/* The input runs from the table's edge to a step short of the card's */
+/* The input runs the table's width */
 .tasks-add {
   align-items: center;
   display: flex;
@@ -12,7 +12,6 @@
 
 .tasks-add .form-control {
   box-shadow: none;
-  margin-right: 1rem;
   outline: none;
   /* a touch taller than the site's inputs */
   padding-bottom: 0.5rem;
