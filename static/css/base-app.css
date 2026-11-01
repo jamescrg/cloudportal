@@ -106,9 +106,8 @@ a:hover {
  * ------------------------------------------------*/
 
 .card {
-  background: var(--background-section);
+  background: transparent;
   border-radius: var(--radius-lg);
-  box-shadow: var(--card-shadow, none);
   margin-bottom: 1.5rem;
   padding: 1rem;
   padding-bottom: 1.5rem;
@@ -822,9 +821,6 @@ body[data-page="home"] .container.content {
    a phone the folder list is the drawer, and nothing here applies. */
 @media (min-width: 992px) {
   .row.sheet {
-    background: var(--background-section);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--card-shadow, none);
     margin: 0 0 1.5rem;
   }
 

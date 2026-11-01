@@ -22,7 +22,8 @@
   --radius-lg: 0.5rem;
 
   /* Body & Navigation */
-  --background-body: var(--stone-300);
+  /* the page is the cards' colour, the cards transparent on it */
+  --background-body: var(--stone-100);
   --background-nav: var(--stone-350);
   --color-nav: var(--color-primary);
 
