@@ -209,12 +209,19 @@
 }
 
 /* The grid is a rounded box, closed on every side: FullCalendar drops
-   its right and bottom rules, so they are put back */
+   its right and bottom rules, so they are put back. Its section cells
+   draw a right rule of their own, which would double the box's, so that
+   one comes off and the box draws the edge alone. */
 .fc .fc-scrollgrid {
   border-bottom-width: 1px !important;
   border-radius: var(--radius-md);
   border-right-width: 1px !important;
   overflow: hidden;
+}
+
+.fc .fc-scrollgrid-section > td,
+.fc .fc-scrollgrid-section > th {
+  border-right: 0;
 }
 
 /* Button styling */
