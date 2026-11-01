@@ -72,21 +72,17 @@
 /* ------------------------------------------------------------------------- */
 
 /* The contact's sections (address, email, phones, website, map, notes)
-   are boxes with space between them */
+   are rows ruled apart, as the site's lists are: a rule above the first
+   and one under each */
 .contact-tab-content {
-  padding-top: 0.5rem;
-}
-
-.contact-tab-content > *:last-child {
-  margin-bottom: 0;
+  border-top: 1px solid var(--border-medium);
+  margin-top: 0.5rem;
 }
 
 .contact-card {
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
+  border-bottom: 1px solid var(--border-medium);
   line-height: 1.6;
-  margin-bottom: 1rem;
-  padding: 1.25rem;
+  padding: 1rem 0.5rem;
   position: relative;
 }
 
@@ -194,10 +190,9 @@
 
 /* Notes Section */
 .contact-notes {
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
+  border-bottom: 1px solid var(--border-medium);
   line-height: 1.6;
-  padding: 1.25rem 1rem;
+  padding: 1rem 0.5rem;
 }
 
 .contact-notes :last-child {
