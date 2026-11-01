@@ -10,6 +10,7 @@
 .tasks-add {
   align-items: center;
   display: flex;
+  gap: 0.25rem;
   margin-bottom: 1.5rem;
 }
 
