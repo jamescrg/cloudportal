@@ -335,22 +335,6 @@ Section Layout (rail / body)
   vertical-align: middle;
 }
 
-/* A list on a settings page is closed in a rounded outline, like the
-   home page's panels; the rows keep their rules and the ends lose theirs */
-.section-body .table-container {
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.section-body .table-container .table th {
-  border-top: 0;
-}
-
-.section-body .table-container .table tr:last-child td {
-  border-bottom: 0;
-}
-
 /* The buttons beside a card's title */
 .card-title-actions {
   display: flex;
