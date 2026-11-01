@@ -10,8 +10,10 @@
   --hl-yellow: var(--yellow-50);
 
   /* Button Colors */
-  --button-primary-background: var(--lime-800);
-  --button-primary-color: var(--stone-100);
+  /* the primary action a solid lime, white on it, a step darker under the pointer */
+  --button-primary-background: var(--lime-700);
+  --button-primary-color: var(--stone-50);
+  --button-primary-hover: var(--lime-800);
   --button-secondary-background: var(--stone-150);
   --button-secondary-color: var(--stone-600);
   --button-toolbar: var(--stone-600);

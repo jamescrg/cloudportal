@@ -39,6 +39,9 @@
     --button-secondary-muted: var(--gb-dark4);
     --button-success-bg: var(--gb-dark);
     --button-success-color: var(--gb-bright-aqua);
+    /* its success button keeps its border and does not darken on hover */
+    --button-success-border: var(--border-medium);
+    --button-success-hover: var(--button-success-bg);
     --button-danger-bg: var(--gb-dark);
     --button-danger-color: var(--gb-bright-red);
     --button-toolbar: var(--gb-light3);

@@ -352,6 +352,14 @@ Section Layout (rail / body)
   gap: 0.5rem;
 }
 
+/* the option in force is a selection, not an action, so it takes the
+   selected wash rather than the primary fill */
+.setting-buttons .btn.chosen {
+  background: var(--selected-background);
+  border-color: var(--selected-border);
+  color: var(--selected-color);
+}
+
 
 /* ==========================================================================
 Profile Form

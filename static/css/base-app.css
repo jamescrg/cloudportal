@@ -374,20 +374,22 @@ li {
   color: var(--button-danger-color, var(--color-primary));
 }
 
+/* The primary action is a solid fill, so it reads as the thing to press;
+   a theme with its own success colours (Hojicha) keeps them, and its
+   border with them. The fill runs under the transparent border. */
+.btn-primary,
 .btn-success {
-  background: var(--button-success-bg, var(--lime-100));
-  border-color: var(--border-medium);
+  background: var(--button-success-bg, var(--button-primary-background));
+  border-color: var(--button-success-border, transparent);
   box-shadow: none;
-  color: var(--button-success-color, var(--color-primary));
+  color: var(--button-success-color, var(--button-primary-color));
 }
 
-.btn-primary,
 .btn-primary:hover,
-.btn-primary:focus {
-  background: var(--button-success-bg, var(--lime-100));
-  border-color: var(--border-medium);
-  box-shadow: none;
-  color: var(--button-success-color, var(--color-primary));
+.btn-success:hover {
+  background: var(--button-success-hover, var(--button-primary-hover));
+  /* a link drawn as the button keeps the button's text, not the link's */
+  color: var(--button-success-color, var(--button-primary-color));
 }
 
 .btn-secondary,
