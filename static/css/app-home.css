@@ -250,6 +250,13 @@
   padding: 0.5rem 0.75rem;
 }
 
+/* The field is focused as the page loads, which the browser counts as
+   keyboard focus; the ring waits for a key (home.js), the field's own
+   focus border marking it till then */
+.search-input.is-autofocused:focus-visible {
+  outline: none;
+}
+
 .search-bar .dropdown-menu {
   min-width: 12rem;
 }

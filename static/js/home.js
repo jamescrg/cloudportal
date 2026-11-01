@@ -137,3 +137,24 @@
         if (t.id === "home-favorites" || (t.classList && t.classList.contains("folder-body"))) { init(); }
     });
 })();
+
+/* The search field is autofocused, and the browser draws the keyboard
+   focus ring on it as the page lands. The ring is held back until the
+   first key or pointer on the page, or the field is left: from then on
+   a focus is the user's own. */
+(function () {
+    "use strict";
+
+    var input = document.getElementById("search-input");
+    if (!input) { return; }
+    input.classList.add("is-autofocused");
+    function lift() {
+        input.classList.remove("is-autofocused");
+        document.removeEventListener("keydown", lift, true);
+        document.removeEventListener("pointerdown", lift, true);
+        input.removeEventListener("blur", lift);
+    }
+    document.addEventListener("keydown", lift, true);
+    document.addEventListener("pointerdown", lift, true);
+    input.addEventListener("blur", lift);
+})();
