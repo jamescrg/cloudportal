@@ -166,15 +166,25 @@ a:hover {
   text-align: center;
 }
 
+/* Three steps of type: a page's or a column's title, a section's
+   within it, then the labels and table heads at the text's own size */
 h1 {
-  font-weight: normal;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.25;
   margin-bottom: 0;
 }
 
+/* A settings page of several cards is one page of sections: the rail's
+   Settings is its title, so each card's is a section's */
+h2,
+.section-body > .card:not(:only-child) > .card-title h1 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
 h2 {
-  font-weight: normal;
-  font-size: 1.05rem;
   margin-bottom: 0.5rem;
 }
 

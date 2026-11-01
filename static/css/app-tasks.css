@@ -178,7 +178,7 @@ td.tasks-col-checkbox a:hover {
 }
 
 .tasks-secondary {
-  color: var(--color-muted);
+  color: var(--color-secondary);
   font-size: 0.85rem;
   padding-left: 0.75rem;
   white-space: nowrap;

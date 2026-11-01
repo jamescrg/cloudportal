@@ -135,7 +135,7 @@
 }
 
 .account-who span {
-  color: var(--color-muted);
+  color: var(--color-secondary);
   font-size: 0.85rem;
 }
 
