@@ -216,9 +216,24 @@ Section Layout (rail / body)
 }
 
 @media (min-width: 992px) {
-  /* at least most of the window tall, so the rail runs down the page */
+  /* The section starts at the nav bar's foot, so its rail meets the
+     bar's; the list and the body carry the clearance the page had above
+     its content, and the section is as much taller: at least most of the
+     window, so the rail runs down the page */
+  .content:has(> .section > .section-nav) {
+    padding-top: 0;
+  }
+
   .section:has(> .section-nav) {
-    min-height: calc(100vh - 8rem);
+    min-height: calc(100vh - 6.5rem);
+  }
+
+  .section-nav {
+    padding-top: 2.5rem;
+  }
+
+  .section-body {
+    padding-top: 1.5rem;
   }
 }
 

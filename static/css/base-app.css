@@ -831,11 +831,22 @@ body[data-page="home"] .container.content {
    stretched to the sheet's height so its rail runs full height too. On
    a phone the folder list is the drawer, and nothing here applies. */
 @media (min-width: 992px) {
-  /* and at least most of the window tall, so the rail runs down the
-     page beside a short list rather than stopping under it */
+  /* The sheet starts at the nav bar's foot, so its rails meet the bar's
+     rail; the columns carry the clearance the page had above its content,
+     and the sheet is as much taller. And at least most of the window
+     tall, so the rail runs down the page beside a short list rather than
+     stopping under it. */
+  .content:has(> .row.sheet) {
+    padding-top: 0;
+  }
+
   .row.sheet {
     margin: 0 0 1.5rem;
-    min-height: calc(100vh - 8rem);
+    min-height: calc(100vh - 6.5rem);
+  }
+
+  .row.sheet > [class*="col-"] {
+    padding-top: 1.5rem;
   }
 
   .row.sheet > .row,
@@ -846,7 +857,13 @@ body[data-page="home"] .container.content {
 
   .row.sheet > [class*="col-"],
   .row.sheet #main-content > .row > [class*="col-"] {
-    padding: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .row.sheet #main-content > .row > [class*="col-"] {
+    padding-top: 0;
   }
 
   .row.sheet #main-content {

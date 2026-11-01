@@ -26,8 +26,18 @@
 
 /* On a wide screen the three columns are railed apart, as the folder
    list is from its content, with 2rem clear on each side of a rail: the
-   card's 1rem and as much again from the column */
+   card's 1rem and as much again from the column. With no alert above
+   them the columns start at the nav bar's foot, so the rails meet the
+   bar's rail, and carry the clearance the page had above its content. */
 @media screen and (min-width: 992px) {
+
+  .content:has(> .weather-data:first-child) {
+    padding-top: 0;
+  }
+
+  .content > .weather-data:first-child > .col {
+    padding-top: 1.5rem;
+  }
 
   .weather-data > .current-conditions,
   .weather-data > .forecast-hourly {
