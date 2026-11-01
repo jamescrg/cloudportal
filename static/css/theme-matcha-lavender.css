@@ -88,7 +88,7 @@
 
   /* Text a touch darker than Matcha's, halfway to the next stone, to
      hold against the wash through the cards */
-  --color-primary: color-mix(in oklab, var(--stone-600) 50%, var(--stone-700));
+  --color-primary: color-mix(in oklab, var(--stone-700) 50%, var(--stone-800));
 
   /* The lavender that marks what is selected (calendar buttons and
      today, filters, toggles, the settings and drawer menus), a step
