@@ -350,16 +350,6 @@
     padding-right: 0.35rem;
   }
 
-  .card > .table th:first-child,
-  .card > .table td:first-child {
-    padding-left: 0.75rem;
-  }
-
-  .card > .table th:last-child,
-  .card > .table td:last-child {
-    padding-right: 0.75rem;
-  }
-
   .forecast-day-summary {
     display: none;
   }

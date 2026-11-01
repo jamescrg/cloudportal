@@ -175,14 +175,6 @@ td.tasks-col-checkbox a:hover {
     display: none;
   }
 
-  /* rows, and the header row with them, stand taller, so each is an
-     easy tap */
-  .tasks-table th,
-  .tasks-table td {
-    padding-bottom: 0.75rem;
-    padding-top: 0.75rem;
-  }
-
   .tasks-secondary-phone {
     display: inline;
   }
