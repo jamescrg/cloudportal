@@ -55,6 +55,7 @@
     --switch-on: var(--selected-background);
     --switch-on-border: var(--gb-purple);
     --selected-color: var(--gb-bright-purple);
+    --selected-background-nav: var(--gb-dark2);
     /* a border a step darker than the cards' own, as in Kosmos */
     --selected-border: var(--border-medium-dark);
     --icon-violet: var(--gb-bright-purple);

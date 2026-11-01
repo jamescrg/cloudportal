@@ -33,7 +33,7 @@
 }
 
 .navbar .active {
-  background: var(--selected-background);
+  background: var(--selected-background-nav);
 }
 
 .navbar .active a {

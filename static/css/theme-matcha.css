@@ -72,6 +72,8 @@
   --switch-on: var(--violet-400);
   --switch-on-border: var(--violet-500);
   --selected-color: var(--stone-700);
+  /* the open page's item in the nav bar: the same wash */
+  --selected-background-nav: var(--selected-background);
   --selected-border: var(--border-medium-dark);
 
   /* The filter icon's lavender, as in Kosmos */
