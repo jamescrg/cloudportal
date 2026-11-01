@@ -132,12 +132,15 @@
    (hard) up the gray ladder from the theme's own (soft); the text
    stands harder off the lighter gray. The dark themes keep their own
    page whatever the setting. */
+/* The nav, the buttons and the table heads come up with the page, each
+   keeping its distance from it in proportion: at medium half of hard's
+   lift, the nav's half step mixed since the ladder has no rung there */
 body[data-contrast="medium"] {
   --background-body: var(--stone-100);
+  --background-control: var(--stone-150);
+  --background-nav: color-mix(in oklch, var(--stone-300), var(--stone-200));
 }
 
-/* and at hard the nav, the buttons and the table heads come up with
-   the page, each keeping its distance from it in proportion */
 body[data-contrast="hard"] {
   --background-body: var(--stone-50);
   --background-control: var(--stone-100);
