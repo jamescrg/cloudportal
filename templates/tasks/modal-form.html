@@ -24,7 +24,9 @@
                   hx-target="#htmx-modal-container"
                   class="form-compact col3">
                 {% csrf_token %}
-                <div class="form-group">
+                {{ form }}
+                {% include "components/repeat-fields.html" %}
+                <div class="form-group field-folder">
                     <label for="id_folder">Folder</label>
                     <div>
                         <select id="id_folder" name="folder">
@@ -38,16 +40,60 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="id_status">Status</label>
-                    <div>{{ form.status }}</div>
-                </div>
-                <div class="form-group">
-                    <label for="id_archived">Archived</label>
-                    <div>{{ form.archived }}</div>
-                </div>
-                {{ form }}
-                {% include "components/repeat-fields.html" %}
+                {% comment %}
+                Status and Archived are each one of two, so a switch: it sets
+                the hidden field beside it to what the form's select would
+                have sent (0 or 1, False or True).
+                {% endcomment %}
+                {% with on=form.status.value|stringformat:"s" %}
+                    <div class="form-group" x-data="{ on: '{{ on }}' === '1' }">
+                        <label for="id_status">Status</label>
+                        <div class="switch-field">
+                            <input type="hidden"
+                                   name="status"
+                                   :value="on ? '1' : '0'"
+                                   value="{% if on == '1' %}1{% else %}0{% endif %}">
+                            <button type="button"
+                                    id="id_status"
+                                    class="switch{% if on == '1' %} is-on{% endif %}"
+                                    role="switch"
+                                    aria-checked="{% if on == '1' %}true{% else %}false{% endif %}"
+                                    :class="{ 'is-on': on }"
+                                    :aria-checked="on.toString()"
+                                    @click="on = !on">
+                                <span class="switch-knob"></span>
+                            </button>
+                            <span x-text="on ? 'Completed' : 'Pending'">
+                                {% if on == '1' %}
+                                    Completed
+                                {% else %}
+                                    Pending
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                {% endwith %}
+                {% with on=form.archived.value|stringformat:"s" %}
+                    <div class="form-group" x-data="{ on: '{{ on }}' === 'True' }">
+                        <label for="id_archived">Archived</label>
+                        <div class="switch-field">
+                            <input type="hidden"
+                                   name="archived"
+                                   :value="on ? 'True' : 'False'"
+                                   value="{% if on == 'True' %}True{% else %}False{% endif %}">
+                            <button type="button"
+                                    id="id_archived"
+                                    class="switch{% if on == 'True' %} is-on{% endif %}"
+                                    role="switch"
+                                    aria-checked="{% if on == 'True' %}true{% else %}false{% endif %}"
+                                    :class="{ 'is-on': on }"
+                                    :aria-checked="on.toString()"
+                                    @click="on = !on">
+                                <span class="switch-knob"></span>
+                            </button>
+                        </div>
+                    </div>
+                {% endwith %}
             </form>
             {% include "components/reminders.html" %}
         </div>

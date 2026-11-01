@@ -121,3 +121,32 @@ def test_clear(client, tasks, folder):
     client.get("/tasks/clear")
     assert not Task.objects.filter(folder=folder, archived=False).exists()
     assert Task.objects.filter(folder=folder, archived=True).exists()
+
+
+def test_form_priority_by_level(client, task):
+    """The edit dialog offers priority by its named levels, the level a
+    task's own number falls in offering that number, so it saves unchanged."""
+    task.priority = 4
+    task.save()
+    response = client.get(f"/tasks/{task.id}/form")
+    choices = list(response.context["form"].fields["priority"].widget.choices)
+    assert choices == [
+        (1, "Highest"),
+        (3, "High"),
+        (4, "Normal"),
+        (8, "Low"),
+        (10, "Lowest"),
+    ]
+    assert 'name="status"' in response.content.decode()
+    assert 'role="switch"' in response.content.decode()
+
+
+def test_form_switches_submit(client, task):
+    """Status and Archived, switches in the dialog, send what the selects
+    did: 1 for Completed and True for archived."""
+    data = {"title": task.title, "priority": 5, "status": "1", "archived": "True"}
+    response = client.post(f"/tasks/{task.id}/form", data)
+    assert response.status_code == 204
+    task.refresh_from_db()
+    assert task.status == 1
+    assert task.archived is True
