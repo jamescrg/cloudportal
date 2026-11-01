@@ -76,9 +76,6 @@
      card's gray over the page's own light */
   --atmos-nav: color-mix(in oklab, var(--gb-dark2) 40%, transparent);
 
-  /* The active tab is lit faintly at the top by the ember */
-  --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--gb-dark3) 80%, var(--steam-light)) 30%, transparent);
-
   /* Cards: the plain card colour, let through so the wash shows behind
      them. Over the dark page a see-through card only darkens, so the
      text against it gains contrast rather than losing it. */

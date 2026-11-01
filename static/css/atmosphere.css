@@ -11,15 +11,9 @@
   --atmos-grain: 0.05;
   --atmos-nav: var(--background-nav);
   --atmos-wash: none;
-  --atmos-tab-glow: transparent;
   --atmos-card: var(--background-section);
   --atmos-card-rim: transparent;
   --atmos-card-shadow: transparent;
-
-  /* The grain's average, for what is drawn over the wash but can't carry
-     the grain itself: a flat veil of its ink at the grain's strength
-     times its mean cover, measured at 0.203 */
-  --atmos-grain-tone: color-mix(in srgb, var(--atmos-ink) calc(var(--atmos-grain) * 20.3%), transparent);
 }
 
 /* --------------------------------------------------------------------------
@@ -70,33 +64,12 @@ body {
 }
 
 /* --------------------------------------------------------------------------
- Nav and tabs: the bar takes a gradient. The active tab is a window onto
- the page below it: it and its curved corners are painted with the same
- wash, pinned to the viewport as the weather is, so they match the page
- under them exactly wherever the tab sits. A glow lights the tab from the
- top.
+ Nav: the bar takes a gradient; the open page's item keeps the base
+ theme's selected wash.
 -------------------------------------------------------------------------- */
 
 .navbar {
   background: var(--atmos-nav);
-}
-
-/* The grain can't follow the tab (its corners are masks already), so
-   the tab takes the grain's average instead (--atmos-grain-tone) */
-.navbar .active,
-.navbar .active::before,
-.navbar .active::after {
-  background-attachment: fixed;
-  background-color: var(--background-body);
-  background-image:
-    linear-gradient(var(--atmos-grain-tone), var(--atmos-grain-tone)),
-    var(--atmos-wash);
-}
-
-.navbar .active {
-  box-shadow:
-    inset 0 2.25rem 1.5rem -1.5rem var(--atmos-tab-glow),
-    0 0.0625rem 0.2rem var(--shadow-color);
 }
 
 /* --------------------------------------------------------------------------

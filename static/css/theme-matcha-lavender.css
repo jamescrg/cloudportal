@@ -72,9 +72,6 @@
      stone veil over the page's own light */
   --atmos-nav: color-mix(in oklab, var(--stone-600) 13%, transparent);
 
-  /* The active tab is lit at the top by the light's own green */
-  --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, var(--mist-light)) 50%, transparent);
-
   /* Cards carry no light of their own: they are the card colour taken
      halfway to white, let through so the wash shows behind them. Body
      text keeps better than 6:1 against them; the cards stop reading as

@@ -1,18 +1,24 @@
 
+/* The bar is a band across the top of the page with a rail along its
+   foot, as the page's columns have rails between them; the open page's
+   item takes the selected wash the open folder's row does, filling the
+   band's height to the rail, in place of the file-folder tab the bar
+   once drew */
 .navbar {
   background: var(--background-nav);
+  border-bottom: 1px solid var(--border-medium);
   margin-bottom: 0;
-  padding: 0.25rem 0 0 0;
+  padding: 0;
 }
 
 .navbar ul {
-  margin: 0.25rem 0 0 0;
+  margin: 0;
   padding: 0;
 }
 
 .navbar li {
   display: inline-block;
-  padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+  padding: 0.75rem 1.5rem;
 }
 
 /* The pages' icons are the drawer's (drawer.css); the bar is words alone */
@@ -23,38 +29,15 @@
 .navbar a {
   color: var(--color-nav);
   margin: 0;
-  padding-bottom: 0.5rem;
-  position: relative;
-  top: 0.1rem;
+  padding: 0;
 }
 
 .navbar .active {
-  background: var(--background-body);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  box-shadow: 0 0.0625rem 0.2rem var(--shadow-color);
-  position: relative;
+  background: var(--selected-background);
 }
 
-.navbar .active::before,
-.navbar .active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  width: var(--radius-lg);
-  height: var(--radius-lg);
-  background: var(--background-body);
-}
-
-.navbar .active::before {
-  left: calc(-1 * var(--radius-lg));
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M8,0 L8,8 L0,8 A8,8 0 0,0 8,0 Z' fill='white'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M8,0 L8,8 L0,8 A8,8 0 0,0 8,0 Z' fill='white'/%3E%3C/svg%3E");
-}
-
-.navbar .active::after {
-  right: calc(-1 * var(--radius-lg));
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L0,8 L8,8 A8,8 0 0,1 0,0 Z' fill='white'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L0,8 L8,8 A8,8 0 0,1 0,0 Z' fill='white'/%3E%3C/svg%3E");
+.navbar .active a {
+  color: var(--selected-color);
 }
 
 /* The account menu: a person icon after the gear, styled as the bar's
@@ -67,7 +50,6 @@
   font: inherit;
   padding: 0;
   position: relative;
-  top: 0.1rem;
 }
 
 /* The icon a little larger than the bar's others, as it stands for a
@@ -84,15 +66,10 @@
   line-height: 1;
 }
 
-/* The menu sits inside the bar's list, so it undoes the bar's tab styles */
+/* The menu sits inside the bar's list, so it undoes the bar's item styles */
 .navbar .account-dropdown li {
   display: block;
   padding: 0;
-}
-
-.navbar .account-dropdown a {
-  padding-bottom: 0.5rem;
-  top: 0;
 }
 
 .account-dropdown {
@@ -169,21 +146,15 @@
   white-space: nowrap;
 }
 
-/* Keep right-aligned items at the end. The scroll container clips what
-   overflows it, so the run keeps a corner's width clear at its end, or
-   the settings tab, active, loses its right outer corner. */
+/* Keep right-aligned items at the end */
 .navbar-right {
   margin-left: auto !important;
 }
 
-.navbar .navbar-right {
-  padding-right: var(--radius-lg);
-}
-
 /* The bar's height was set by the old 1.25rem gear, the tallest thing in
-   it, and every tab stretched to match. The icons here are the standard
+   it, and every item stretched to match. The icons here are the standard
    size now, so the run keeps the gear's line height, and the bar and its
-   tabs the height they had. */
+   items the height they had. */
 .navbar .navbar-right li {
   line-height: 1.85rem;
 }
