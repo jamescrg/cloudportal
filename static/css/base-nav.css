@@ -34,11 +34,10 @@
   padding: 0;
 }
 
-/* the line lies on the rail, the item standing a pixel past the band's
-   foot to cover it; the word is in the ink, as the open folder's name is */
+/* the line is the band's last two pixels, so it meets the rail under it;
+   the word is in the ink, as the open folder's name is */
 .navbar .active {
   box-shadow: inset 0 -2px 0 var(--color-accent);
-  margin-bottom: -1px;
 }
 
 .navbar .active a {
