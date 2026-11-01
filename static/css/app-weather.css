@@ -24,6 +24,24 @@
 
 }
 
+/* On a wide screen the three columns are railed apart, as the folder
+   list is from its content, with 2rem clear on each side of a rail: the
+   card's 1rem and as much again from the column */
+@media screen and (min-width: 992px) {
+
+  .weather-data > .current-conditions,
+  .weather-data > .forecast-hourly {
+    border-right: 1px solid var(--border-medium);
+    padding-right: 1rem;
+  }
+
+  .weather-data > .forecast-hourly,
+  .weather-data > .forecast-daily {
+    padding-left: 1rem;
+  }
+
+}
+
 
 /* ------------------------------------------------------------------------- */
 /* alerts */
