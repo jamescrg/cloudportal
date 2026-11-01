@@ -24,9 +24,9 @@
   --radius-lg: 0.5rem;
 
   /* Body & Navigation */
-  /* the page in the cards' old colour, the cards transparent on it; the nav
-     and the controls stand a step and a half-step off it */
-  --background-body: var(--stone-100);
+  /* the page a neutral stone-125, the cards transparent on it and the nav
+     the same; the controls stand a half step off it */
+  --background-body: var(--stone-125);
   --background-nav: var(--background-body);
   --color-nav: var(--color-primary);
 
