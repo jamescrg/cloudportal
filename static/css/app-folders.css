@@ -117,12 +117,22 @@
   padding: 0;
 }
 
-/* as tall as the tables' rows (base-app.css) */
+/* The list is scanned for a name, not read row by row, so its rows sit
+   a step denser than the tables' beside it */
 .folder-row {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.75rem 0.5rem;
+  padding: 0.5rem;
+}
+
+@media (max-width: 991.98px) {
+  /* in the drawer the folders stand as tall as the tables' rows
+     (base-app.css), so each is an easy tap */
+  [data-drawer] .card.folders .folder-row {
+    padding-bottom: 0.75rem;
+    padding-top: 0.75rem;
+  }
 }
 
 .folder-item {
