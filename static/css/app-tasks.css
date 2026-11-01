@@ -209,10 +209,12 @@ td.tasks-col-checkbox a:hover {
   border: none;
   color: var(--color-muted);
   cursor: pointer;
-  /* a block, so the button is its icon's height and no taller */
+  /* a block, so the button is its icon's height and no taller, centred
+     in its cell as the head's flag is */
   display: block;
   font: inherit;
   font-size: 1.1rem;
+  margin: 0 auto;
   padding: 0;
 }
 
