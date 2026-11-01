@@ -52,6 +52,8 @@
   /* Shadows & Overlays */
   --shadow-color: rgb(0 0 0 / 14%);
   --shadow-color-heavy: rgb(0 0 0 / 20%);
+  /* a card rests on the page under a faint, low shadow */
+  --card-shadow: 0 1px 2px var(--shadow-color);
   --overlay-backdrop: rgb(0 0 0 / 50%);
   --overlay-heavy: rgb(0 0 0 / 40%);
 

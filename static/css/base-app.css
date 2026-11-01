@@ -37,6 +37,11 @@ body {
   body:not([data-page="home"]) {
     background: var(--background-section);
   }
+
+  /* and with no page behind them to rest on, the cards cast no shadow */
+  body:not([data-page="home"]) .card {
+    box-shadow: none;
+  }
 }
 
 .page-vertical-centered {
@@ -103,6 +108,7 @@ a:hover {
 .card {
   background: var(--background-section);
   border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow, none);
   margin-bottom: 1.5rem;
   padding: 1rem;
   padding-bottom: 1.5rem;
