@@ -840,9 +840,17 @@ body[data-page="home"] .container.content {
     flex-direction: column;
   }
 
+  /* a rail has 1.5rem clear on each side: the card's 1rem and half
+     more from the column */
   .row.sheet #sidebar,
   .row.sheet #contacts-list {
     border-right: 1px solid var(--border-medium);
+    padding-right: 0.5rem;
+  }
+
+  .row.sheet #main-content,
+  .row.sheet #contact-detail {
+    padding-left: 0.5rem;
   }
 
   .row.sheet .card {
