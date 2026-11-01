@@ -3,24 +3,11 @@
 /* task form */
 /* ------------------------------------------------------------------------- */
 
-/* A plus leads the input, in the muted gray, centred in a box as wide
-   as the table's check column so it stands over the circles; the input
-   then starts where the title column does and runs to a step short of
-   the card's edge */
+/* The input runs from the table's edge to a step short of the card's */
 .tasks-add {
   align-items: center;
   display: flex;
-  gap: 0.25rem;
   margin-bottom: 1.5rem;
-}
-
-.tasks-add-icon {
-  color: var(--color-muted);
-  flex-shrink: 0;
-  font-size: 1.25rem;
-  line-height: 1;
-  text-align: center;
-  width: 2.5rem;
 }
 
 .tasks-add .form-control {
@@ -486,40 +473,18 @@ th.tasks-col-priority .btn-sort.active {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 /* The bulk actions (archive, move, date, priority, delete) are icons
-   only, named by their titles, in one quiet run from the left after a
-   word saying what they act on: plain icons rather than a row of boxed
-   buttons, so the run reads as a footnote to the list and not a third
-   toolbar; on phones the run wraps */
+   only, named by their titles, in one run from the left; on phones the
+   run wraps */
 .archive-buttons {
-  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  gap: 0.5rem;
   justify-content: flex-start;
-  padding-left: 0.5rem;
   width: 100%;
-}
-
-.archive-label {
-  color: var(--color-muted);
-  font-size: 0.9rem;
-  margin-right: 0.5rem;
-}
-
-.archive-buttons .btn {
-  background: none;
-  border: none;
-  box-shadow: none;
-  font-size: 1.1rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.archive-buttons .btn:hover {
-  background: var(--background-control);
 }
 
 /* The bulk Due Date menu's calendar hangs off the menu itself */

@@ -6,7 +6,6 @@
       hx-on::before-request="this.reset()">
     {% csrf_token %}
     <input type="hidden" name="folder_id" value="{{ selected_folder.id }}">
-    <i class="icon-plus tasks-add-icon"></i>
     {% comment %}
     The input is kept through the swaps that follow an add (the list,
     then the list again on tasksChanged), so what is typed during the
