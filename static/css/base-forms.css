@@ -141,6 +141,61 @@ input[type="file"]::file-selector-button:hover {
 }
 
 
+/* A switch: a pill with a knob that slides right when it is on, in the
+   selected colour. Here rather than in app-settings.css, since the task
+   form has them too */
+.switch {
+  background: var(--background-subnav);
+  border: 1px solid var(--border-medium);
+  border-radius: 1rem;
+  cursor: pointer;
+  height: 1.25rem;
+  padding: 0;
+  position: relative;
+  transition: background 0.15s;
+  width: 2.25rem;
+}
+
+.switch-knob {
+  background: var(--background-section);
+  border: 1px solid var(--border-dark);
+  border-radius: 50%;
+  display: block;
+  height: 0.875rem;
+  left: 0.125rem;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: left 0.15s;
+  width: 0.875rem;
+}
+
+/* the track when on: a theme may name a deeper tint than its selected
+   wash (Matcha does), or leave it to the wash */
+.switch.is-on {
+  background: var(--switch-on, var(--selected-background));
+  border-color: var(--switch-on-border, var(--selected-border));
+}
+
+.switch.is-on .switch-knob {
+  border-color: var(--switch-on-border, var(--selected-border));
+  left: calc(100% - 0.875rem - 0.125rem - 2px);
+}
+
+.switch:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* A switch in a form's grid stands as tall as the fields beside it, so it
+   sits on their centre line, with any word for its state after it */
+.form-compact .switch-field {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+}
+
 /* ------------------------------------------------------------------------- */
 /* Repeat fields (templates/components/repeat-fields.html), for events and   */
 /* tasks alike                                                               */
@@ -200,8 +255,13 @@ input[type="file"]::file-selector-button:hover {
 
 /* In a three-column form (the task form): Repeat, Every and Ends share a
    row, the last day or the count sits under Ends, and the weekdays have a
-   row of their own */
+   row of their own. The task's Folder starts the row after them, with
+   Status and Archived beside it, however much of the repeat shows */
 @media (width >= 768px) {
+  .col3 .field-folder {
+    grid-column: 1;
+  }
+
   .col3 .field-until,
   .col3 .field-count {
     grid-column: 3;

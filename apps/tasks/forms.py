@@ -5,6 +5,7 @@ from apps.common.recurrence import form_initial
 from config.settings import CustomFormRenderer
 
 from .models import Task, TaskReminder
+from .priority import level_for, levels
 
 
 class TaskForm(RepeatFields, forms.ModelForm):
@@ -30,7 +31,9 @@ class TaskForm(RepeatFields, forms.ModelForm):
     )
 
     priority = forms.IntegerField(
-        widget=forms.Select(choices=[(i, str(i)) for i in range(1, 11)]),
+        widget=forms.Select(
+            choices=[(level["value"], level["name"]) for level in levels()]
+        ),
         initial=5,
         label="Priority",
     )
@@ -57,6 +60,16 @@ class TaskForm(RepeatFields, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Priority is chosen by its named level. The level the task's own
+        # number falls in offers that number, so a task at 4 shows Normal
+        # and stays at 4 when saved unchanged, rather than snapping to 5
+        own = self.instance.priority if self.instance.pk else None
+        if own is not None:
+            mine = level_for(own)["slug"]
+            self.fields["priority"].widget.choices = [
+                (own if level["slug"] == mine else level["value"], level["name"])
+                for level in levels()
+            ]
         if self.is_bound:
             return
         # An instance of a recurring task opens on its template's rule; any
