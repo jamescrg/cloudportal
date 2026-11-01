@@ -1,9 +1,11 @@
 
-/* The bar is a band across the top of the page with a rail along its
-   foot, as the page's columns have rails between them; the open page's
-   item takes the selected wash the open folder's row does, filling the
-   band's height to the rail, in place of the file-folder tab the bar
-   once drew */
+/* The bar is a band across the top of the page in the page's own colour,
+   with a rail along its foot as the page's columns have rails between
+   them; the open page's item takes the selected wash the open folder's
+   row does, filling the band's height to the rail, with a rail down
+   each side, in place of the file-folder tab the bar once drew. Every
+   item has the one line height, so each stands the band's height with
+   its text centred. */
 .navbar {
   background: var(--background-nav);
   border-bottom: 1px solid var(--border-medium);
@@ -18,6 +20,7 @@
 
 .navbar li {
   display: inline-block;
+  line-height: 1.5rem;
   padding: 0.75rem 1.5rem;
 }
 
@@ -33,7 +36,9 @@
 }
 
 .navbar .active {
-  background: var(--selected-background-nav);
+  background: var(--selected-background);
+  border-left: 1px solid var(--border-medium);
+  border-right: 1px solid var(--border-medium);
 }
 
 .navbar .active a {
@@ -53,11 +58,11 @@
 }
 
 /* The icon a little larger than the bar's others, as it stands for a
-   person; the tab's fixed line height keeps the bar as it is */
+   person; the button stands the line's height so the bar keeps its own */
 .account-button {
   align-items: center;
   display: inline-flex;
-  height: 1.85rem;
+  height: 1.5rem;
   vertical-align: top;
 }
 
@@ -149,14 +154,6 @@
 /* Keep right-aligned items at the end */
 .navbar-right {
   margin-left: auto !important;
-}
-
-/* The bar's height was set by the old 1.25rem gear, the tallest thing in
-   it, and every item stretched to match. The icons here are the standard
-   size now, so the run keeps the gear's line height, and the bar and its
-   items the height they had. */
-.navbar .navbar-right li {
-  line-height: 1.85rem;
 }
 
 

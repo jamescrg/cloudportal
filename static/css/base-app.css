@@ -227,8 +227,8 @@ strong{
   vertical-align: top;
 }
 
+/* the head is ruled above as well as below, and carries no tint */
 .table th {
-  background: var(--background-table-header, var(--background-control));
   border-top: solid 1px var(--border-medium);
   vertical-align: middle;
 }

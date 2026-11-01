@@ -4,7 +4,7 @@
 
     /* Body & Navigation */
     --background-body: var(--gb-dark);
-    --background-nav: var(--gb-dark1);
+    --background-nav: var(--background-body);
     --color-nav: var(--gb-light4);
 
     /* Backgrounds */
@@ -55,7 +55,6 @@
     --switch-on: var(--selected-background);
     --switch-on-border: var(--gb-purple);
     --selected-color: var(--gb-bright-purple);
-    --selected-background-nav: var(--gb-dark2);
     /* a border a step darker than the cards' own, as in Kosmos */
     --selected-border: var(--border-medium-dark);
     --icon-violet: var(--gb-bright-purple);
@@ -121,9 +120,6 @@
       var(--gb-faded-blue)
     );
     --calendar-dot: var(--gb-dark4);
-
-    /* Tables */
-    --background-table-header: var(--hl-gray);
 
     /* Folder list */
     --folder-menu-icon-color: var(--color-muted);

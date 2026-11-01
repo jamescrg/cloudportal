@@ -9,7 +9,7 @@
   /* The dials; each variant sets its own */
   --atmos-ink: var(--color-primary);
   --atmos-grain: 0.05;
-  --atmos-nav: var(--background-nav);
+  --atmos-nav: transparent;
   --atmos-wash: none;
   --atmos-card: var(--background-section);
   --atmos-card-rim: transparent;
@@ -64,8 +64,8 @@ body {
 }
 
 /* --------------------------------------------------------------------------
- Nav: the bar takes a gradient; the open page's item keeps the base
- theme's selected wash.
+ Nav: the bar lets the page's wash through, as the page's columns do;
+ the open page's item keeps the base theme's selected wash.
 -------------------------------------------------------------------------- */
 
 .navbar {

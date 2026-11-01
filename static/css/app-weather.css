@@ -276,9 +276,8 @@
   border-top: solid 1px var(--border-medium);
 }
 
-/* and its label cells are headers only in markup: no header wash */
+/* and its label cells are headers only in markup */
 .current-conditions .table th {
-  background: transparent;
   vertical-align: top;
   white-space: nowrap;
 }
@@ -312,7 +311,7 @@
 
 /* the hour the day turns over */
 .weather-day-divider td {
-  background: var(--background-table-header, var(--background-control));
+  background: var(--background-control);
   font-size: 0.9rem;
   font-weight: 600;
   padding-bottom: 0.85rem;

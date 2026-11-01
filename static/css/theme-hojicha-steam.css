@@ -71,10 +71,8 @@
   --atmos-ink: var(--gb-light);
   --atmos-grain: 0.06;
 
-  /* The bar is the wash carried on up, a step lighter (Hojicha's bar is
-     lighter than its page, where Matcha's is darker): a thin veil of the
-     card's gray over the page's own light */
-  --atmos-nav: color-mix(in oklab, var(--gb-dark2) 40%, transparent);
+  /* The bar is the page's own light, let through */
+  --atmos-nav: transparent;
 
   /* Cards: the plain card colour, let through so the wash shows behind
      them. Over the dark page a see-through card only darkens, so the
@@ -101,9 +99,6 @@
 
   /* Calendar chips a step lighter than Hojicha's, to hold on the cards */
   --calendar-chip: color-mix(in oklab, var(--gb-dark2) 75%, var(--gb-dark3));
-
-  /* Table heads: Hojicha's gray, let through as the cards are */
-  --background-table-header: color-mix(in srgb, var(--gb-dark2) var(--steam-card-opacity), transparent);
 }
 
 /* --------------------------------------------------------------------------

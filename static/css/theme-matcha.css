@@ -27,7 +27,7 @@
   /* the page in the cards' old colour, the cards transparent on it; the nav
      and the controls stand a step and a half-step off it */
   --background-body: var(--stone-100);
-  --background-nav: color-mix(in oklch, var(--stone-300), var(--stone-200));
+  --background-nav: var(--background-body);
   --color-nav: var(--color-primary);
 
   /* Typography */
@@ -72,8 +72,6 @@
   --switch-on: var(--violet-400);
   --switch-on-border: var(--violet-500);
   --selected-color: var(--stone-700);
-  /* the open page's item in the nav bar: the same wash */
-  --selected-background-nav: var(--selected-background);
   --selected-border: var(--border-medium-dark);
 
   /* The filter icon's lavender, as in Kosmos */
