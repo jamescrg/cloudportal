@@ -23,6 +23,7 @@
   --color-secondary: var(--gb-light3);
   --color-muted: var(--gb-light4);
   --color-faint: var(--gb-gray);
+  --color-placeholder: var(--gb-light4);
   --color-strong: var(--gb-light);
 
   /* Links */

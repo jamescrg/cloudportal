@@ -28,11 +28,14 @@
   --color-nav: var(--color-primary);
 
   /* Typography */
-  --color-primary: var(--stone-600);
-  --color-secondary: var(--stone-500);
-  --color-muted: var(--stone-400);
+  /* the ink a step darker than it was, so the muted text clears 3:1 on the
+     page; placeholders stay a step lighter than any real text */
+  --color-primary: var(--stone-700);
+  --color-secondary: var(--stone-600);
+  --color-muted: var(--stone-500);
   --color-faint: var(--stone-350);
-  --color-strong: var(--stone-700);
+  --color-placeholder: var(--stone-400);
+  --color-strong: var(--stone-800);
 
   /* Links */
   --link: var(--lime-800);

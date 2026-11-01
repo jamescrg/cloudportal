@@ -197,7 +197,7 @@
 }
 
 #note-editor .ProseMirror p.is-editor-empty:first-child::before {
-  color: var(--color-muted);
+  color: var(--color-placeholder);
   content: "Start typing...";
   float: left;
   height: 0;
