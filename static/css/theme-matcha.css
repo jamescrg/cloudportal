@@ -46,9 +46,9 @@
   --background-light: var(--stone-50);
 
   /* Borders */
-  --border-medium: var(--stone-300);
-  --border-medium-dark: var(--stone-350);
-  --border-dark: var(--stone-400);
+  --border-medium: var(--stone-350);
+  --border-medium-dark: var(--stone-400);
+  --border-dark: var(--stone-500);
 
   /* Shadows & Overlays */
   --shadow-color: rgb(0 0 0 / 14%);
