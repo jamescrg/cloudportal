@@ -41,7 +41,7 @@
   /* Backgrounds */
   --background-subnav: var(--stone-200);
   --background-subnav-tab-active: var(--background-section);
-  --background-control: var(--stone-150);
+  --background-control: var(--stone-200);
   --background-section: var(--stone-100);
   --background-light: var(--stone-50);
 
