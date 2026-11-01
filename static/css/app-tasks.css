@@ -5,8 +5,8 @@
 
 /* A plus leads the input, in the muted gray, centred in a box as wide
    as the table's check column so it stands over the circles; the input
-   then starts where the title column does, and takes a sensible width
-   on a wide screen rather than the whole card */
+   then starts where the title column does and runs to a step short of
+   the card's edge */
 .tasks-add {
   align-items: center;
   display: flex;
@@ -25,7 +25,7 @@
 
 .tasks-add .form-control {
   box-shadow: none;
-  max-width: 42rem;
+  margin-right: 1rem;
   outline: none;
   /* a touch taller than the site's inputs */
   padding-bottom: 0.5rem;
