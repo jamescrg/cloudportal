@@ -3,15 +3,22 @@
       hx-post="{% url 'tasks-add-htmx' %}"
       hx-target="#tasks-container"
       hx-swap="innerHTML"
-      hx-on::after-request="this.reset()">
+      hx-on::before-request="this.reset()">
     {% csrf_token %}
     <input type="hidden" name="folder_id" value="{{ selected_folder.id }}">
     <i class="icon-plus tasks-add-icon"></i>
+    {% comment %}
+    The input is kept through the swaps that follow an add (the list,
+    then the list again on tasksChanged), so what is typed during the
+    round trip stays; the form is cleared as the request leaves, once
+    htmx has read the title, not when the response lands.
+    {% endcomment %}
     <input class="form-control mh-no-shadow"
            type="text"
            name="title"
            id="task-title-input"
            placeholder="Add a new task"
+           hx-preserve="true"
            required>
     <script>
       if (window.innerWidth >= 768 && !window._htmxSwapped) {
