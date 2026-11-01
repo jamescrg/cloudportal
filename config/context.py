@@ -30,6 +30,11 @@ VARIANT_OF = {base: variant for variant, base in THEME_VARIANTS.items()}
 # A device with nothing chosen: Auto, with the atmosphere
 DEFAULT_THEME = "auto-atmosphere"
 
+# The page's contrast: the theme's own gray, or a half step or a step
+# lighter up the ladder
+CONTRASTS = ("soft", "medium", "hard")
+DEFAULT_CONTRAST = "soft"
+
 # Every theme a user may choose
 THEMES = {"matcha", "hojicha", "auto", *THEME_VARIANTS}
 
@@ -44,10 +49,15 @@ def theme(request):
     """The theme is chosen per device, so it lives in the session alone.
     Nothing chosen (a new device, or one just signed in) follows the
     device, light or dark as it is set, with the atmosphere on."""
-    name = request.session.get("theme", "") if hasattr(request, "session") else ""
+    session = request.session if hasattr(request, "session") else {}
+    name = session.get("theme", "")
     name = RENAMED_THEMES.get(name, name) or DEFAULT_THEME
+    # The page's gray, chosen per device as the theme is: soft is the
+    # theme's own, medium and hard lighten it a half step and a step
+    contrast = session.get("contrast", "")
     return {
         "theme": name,
         "theme_base": THEME_VARIANTS.get(name, name),
         "theme_variant": name in THEME_VARIANTS,
+        "contrast": contrast if contrast in CONTRASTS else DEFAULT_CONTRAST,
     }

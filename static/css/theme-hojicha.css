@@ -123,3 +123,8 @@
   --folder-menu-icon-color: var(--color-muted);
   --folder-count-color: var(--color-muted);
 }
+
+/* the contrast setting is the light themes': the page keeps its own */
+body[data-contrast] {
+  --background-body: var(--gb-dark);
+}

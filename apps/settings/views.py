@@ -21,6 +21,7 @@ from apps.finance.models import CryptoSymbol, SecuritiesSymbol
 from apps.notes.models import Note
 from apps.settings.forms import ChangePasswordForm, ProfileForm
 from config.context import (
+    CONTRASTS,
     DEFAULT_THEME,
     RENAMED_THEMES,
     THEME_VARIANTS,
@@ -732,6 +733,17 @@ def theme(request):
         if atmosphere and name in VARIANT_OF:
             name = VARIANT_OF[name]
         request.session["theme"] = name
+    return redirect("/settings/")
+
+
+@login_required
+@require_POST
+def theme_contrast(request):
+    """Sets the page's contrast for this device: soft, medium or hard,
+    the page's gray lightening as it hardens."""
+    level = request.POST.get("contrast", "")
+    if level in CONTRASTS:
+        request.session["contrast"] = level
     return redirect("/settings/")
 
 
