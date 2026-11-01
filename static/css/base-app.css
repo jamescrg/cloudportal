@@ -785,9 +785,10 @@ li {
   margin-top: 2rem;
 }
 
-/* active/selected items */
+/* The open folder or contact takes the selected wash, the one violet
+   that marks every selection */
 .active-item {
-  background: var(--hl-gray);
+  background: var(--selected-background);
 }
 
 

@@ -304,14 +304,15 @@ Section Layout (rail / body)
   color: var(--link-hover);
 }
 
-/* the open section's row is washed, as the open folder's is, and its
-   name in the text's colour: it is where the reader is, not a link */
+/* the open section's row takes the selected wash, as the open folder's
+   does, and its name the selected colour: it is where the reader is, not
+   a link */
 .section-nav .active {
-  background: var(--hl-gray);
+  background: var(--selected-background);
 }
 
 .section-nav .active a {
-  color: var(--color-primary);
+  color: var(--selected-color);
 }
 
 /* Section Body - main content area */
@@ -430,15 +431,6 @@ Profile Form
   .section-nav a {
     font-size: 1.1rem;
     padding: 0.75rem 1.5rem;
-  }
-
-  /* In the drawer the open row is a plain highlight */
-  .section-nav .active {
-    background: var(--selected-background);
-  }
-
-  .section-nav .active a {
-    color: var(--selected-color);
   }
 
   .section-body {
