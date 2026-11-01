@@ -309,6 +309,17 @@ li {
   border-top: solid 1px var(--border-medium);
 }
 
+/* On a phone the rows, and the heads with them, stand taller still:
+   16px above and below, air for a thumb */
+@media (max-width: 768px) {
+  .table th,
+  .table td,
+  .list-group-item {
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+  }
+}
+
 
 /*------------------------------------------------
  * buttons

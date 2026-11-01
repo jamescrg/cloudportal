@@ -127,11 +127,11 @@
 }
 
 @media (max-width: 991.98px) {
-  /* in the drawer the folders stand as tall as the tables' rows
+  /* in the drawer the folders stand as tall as the phone's table rows
      (base-app.css), so each is an easy tap */
   [data-drawer] .card.folders .folder-row {
-    padding-bottom: 0.75rem;
-    padding-top: 0.75rem;
+    padding-bottom: 1rem;
+    padding-top: 1rem;
   }
 }
 
