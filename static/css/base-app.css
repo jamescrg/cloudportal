@@ -854,6 +854,13 @@ body[data-page="home"] .container.content {
     flex-direction: column;
   }
 
+  /* on a very wide screen the content stops at 72rem, starting at the
+     rail, so a table's last columns stay within a glance of its first
+     and the spare width falls to the right */
+  .row.sheet #main-content > * {
+    max-width: 72rem;
+  }
+
   /* a rail has 2rem clear on each side: the card's 1rem and as much
      again from the column */
   .row.sheet #sidebar,
