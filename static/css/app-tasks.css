@@ -105,6 +105,16 @@ td.tasks-col-checkbox a:hover {
   margin-bottom: 1.5rem;
 }
 
+/* On a wide screen the title and the filters share one line, as the
+   other lists' headings do, the filters at the right */
+@media (min-width: 992px) {
+  .tasks-header {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
 .tasks-tools {
   display: flex;
   flex-wrap: wrap;
@@ -117,14 +127,6 @@ td.tasks-col-checkbox a:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* On a wide screen the folder list beside the tasks already shows which
-   folder is open, so the title is left to phones */
-@media (min-width: 992px) {
-  .tasks-header .tasks-list-title {
-    display: none;
-  }
 }
 
 /* Its text is a step smaller than the buttons' icons, on the same line
@@ -484,18 +486,40 @@ th.tasks-col-priority .btn-sort.active {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 
 /* The bulk actions (archive, move, date, priority, delete) are icons
-   only, named by their titles, in one run from the left; on phones the
-   run wraps */
+   only, named by their titles, in one quiet run from the left after a
+   word saying what they act on: plain icons rather than a row of boxed
+   buttons, so the run reads as a footnote to the list and not a third
+   toolbar; on phones the run wraps */
 .archive-buttons {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.25rem;
   justify-content: flex-start;
+  padding-left: 0.5rem;
   width: 100%;
+}
+
+.archive-label {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+.archive-buttons .btn {
+  background: none;
+  border: none;
+  box-shadow: none;
+  font-size: 1.1rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.archive-buttons .btn:hover {
+  background: var(--background-control);
 }
 
 /* The bulk Due Date menu's calendar hangs off the menu itself */
