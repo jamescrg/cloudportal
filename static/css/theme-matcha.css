@@ -24,7 +24,7 @@
   /* Body & Navigation */
   /* the page half a step darker than the cards were, the cards transparent on it */
   --background-body: var(--stone-150);
-  --background-nav: var(--stone-350);
+  --background-nav: var(--stone-300);
   --color-nav: var(--color-primary);
 
   /* Typography */
