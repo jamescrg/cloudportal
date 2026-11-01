@@ -124,62 +124,6 @@ td.tasks-col-checkbox a:hover {
   margin-right: 0;
 }
 
-/* The panel is outlined in the rule the table's rows use, and the table
-   runs out to the panel's edges, so the header band and each row's rule
-   meet the outline. When the table is the last thing in the panel (no
-   pagination or archive row under it) it runs down to the bottom too,
-   and the card's edge closes it in place of the last row's rule. */
-.card.tasks {
-  border: 1px solid var(--border-medium);
-}
-
-.card.tasks .table-container {
-  margin: 0 -1rem;
-  /* the base rule caps the container at the card's content width, which
-     would leave it shifted left rather than widened to both edges */
-  max-width: none;
-}
-
-.card.tasks .table-container:last-child {
-  margin-bottom: -1.5rem;
-}
-
-/* The last row sits on the card's edge, so it gets a little more room
-   under it than the rows above, to breathe against the outline */
-.card.tasks .table-container:last-child tr:last-child td {
-  border-bottom: none;
-  padding-bottom: 0.75rem;
-}
-
-.tasks-table th:first-child,
-.tasks-table td:first-child {
-  padding-left: 1rem;
-}
-
-.tasks-table th:last-child,
-.tasks-table td:last-child {
-  padding-right: 1rem;
-}
-
-/* The check and priority columns are centred, so they take the same
-   padding each side rather than the edge padding above, which would
-   push the circles right and the flags left. These selectors match the
-   edge rules' weight and come after them, so they win. */
-.tasks-table th.tasks-col-checkbox,
-.tasks-table td.tasks-col-checkbox,
-.tasks-table th.tasks-col-priority,
-.tasks-table td.tasks-col-priority {
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-}
-
-/* the check column takes the standard cell padding, the same each side */
-.tasks-table th.tasks-col-checkbox,
-.tasks-table td.tasks-col-checkbox {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
 /* The folder column keeps the edge padding on its left and sits further
    off its rule on the right than the other columns */
 .tasks-table td.tasks-col-folder {
@@ -231,23 +175,12 @@ td.tasks-col-checkbox a:hover {
     display: none;
   }
 
-  /* the circles sit further in from the screen's edge */
-  .tasks-table th.tasks-col-checkbox,
-  .tasks-table td.tasks-col-checkbox {
-    padding-left: 1.25rem;
-  }
-
   /* rows, and the header row with them, stand taller, so each is an
      easy tap */
   .tasks-table th,
   .tasks-table td {
     padding-bottom: 0.75rem;
     padding-top: 0.75rem;
-  }
-
-  /* the title is then the last column shown, and takes its edge padding */
-  .tasks-table .tasks-col-title {
-    padding-right: 1rem;
   }
 
   .tasks-secondary-phone {

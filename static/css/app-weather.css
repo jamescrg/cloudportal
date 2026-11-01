@@ -247,24 +247,8 @@
 /* the tables */
 /* ------------------------------------------------------------------------- */
 
-/* Every card is outlined in the rule its table's rows use, and a table
-   runs out to its card's edges and down to its bottom (the card's
-   padding pulled back on those three sides), so the rules meet the
-   outline and the card's edge closes the table in place of the last
-   row's rule, with a little more room under that row to breathe */
-.card {
-  border: 1px solid var(--border-medium);
-}
-
 .card > .table {
-  margin: 0 -1rem -1.5rem;
-  width: calc(100% + 2rem);
-}
-
-.card > .table tr:last-child th,
-.card > .table tr:last-child td {
-  border-bottom: none;
-  padding-bottom: 0.75rem;
+  margin-bottom: 0;
 }
 
 /* Today has its headers down the side, not across the top, and only a
@@ -281,21 +265,11 @@
   white-space: nowrap;
 }
 
-.card > .table th:first-child,
-.card > .table td:first-child {
-  padding-left: 1rem;
-}
-
 /* the column headers of the forecasts stand as tall as the card's title */
 .forecast-hourly .table th,
 .forecast-daily .table th {
   padding-bottom: 0.85rem;
   padding-top: 0.85rem;
-}
-
-.card > .table th:last-child,
-.card > .table td:last-child {
-  padding-right: 1rem;
 }
 
 /* a second, smaller line under a value: an amount, a gust, a date */
@@ -432,13 +406,13 @@
 
 /* The map keeps Leaflet's stacked panes (z-index into the thousands)
    inside its own box, so nothing on the map rises over the nav or a
-   drawer, and it runs out to the card's edges like the tables do */
+   drawer; the map is a rounded box inside the card, as the tables are */
 .weather-radar-map {
-  border-bottom: 1px solid var(--border-medium);
-  border-top: 1px solid var(--border-medium);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
   height: 22rem;
   isolation: isolate;
-  margin: 0 -1rem;
+  overflow: hidden;
   position: relative;
   z-index: 0;
 }

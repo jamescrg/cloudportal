@@ -24,32 +24,6 @@
   color: var(--color-darker);
 }
 
-/* The contacts panel is outlined in the rule its rows use, and the list
-   runs out to the panel's edges, so each row's rule meets the outline
-   and the selected contact's highlight fills the width. When the list is
-   the last thing in the panel it runs down to the bottom too, and the
-   card's edge closes it; above a pagination row it keeps its own last
-   rule. */
-.card.contacts {
-  border: 1px solid var(--border-medium);
-}
-
-.card.contacts .list-group {
-  margin: 0 -1rem;
-}
-
-.card.contacts .list-group:last-child {
-  margin-bottom: -1.5rem;
-}
-
-.card.contacts .list-group:last-child > li:last-child {
-  border-bottom: none;
-}
-
-.card.contacts .list-group-item {
-  padding: 0.5rem 1rem;
-}
-
 .no-contacts {
   color: var(--color-muted);
   font-size: 3rem;
@@ -97,30 +71,23 @@
 /* contact detail cards                                                      */
 /* ------------------------------------------------------------------------- */
 
-/* The contact's panel is outlined, and its sections (address, email,
-   phones, website, map, notes) are stacked rows inside it rather than
-   boxes with space between: each is ruled off from the one above, and
-   the stack runs out to the panel's edges and down to its bottom (the
-   card's padding pulled back on those three sides), so the rules meet
-   the outline and the card's edge closes the last row. */
-.card.contact {
-  border: 1px solid var(--border-medium);
+/* The contact's sections (address, email, phones, website, map, notes)
+   are boxes with space between them */
+.contact-tab-content {
+  padding-top: 0.5rem;
 }
 
-.contact-tab-content {
-  margin: 0 -1rem -1.5rem;
+.contact-tab-content > *:last-child {
+  margin-bottom: 0;
 }
 
 .contact-card {
-  border-top: 1px solid var(--border-medium);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
   line-height: 1.6;
-  padding: 1.25rem 1rem;
+  margin-bottom: 1rem;
+  padding: 1.25rem;
   position: relative;
-}
-
-/* the last row breathes a little against the card's bottom edge */
-.contact-tab-content > :last-child {
-  padding-bottom: 1.5rem;
 }
 
 .contact-card-content-with-copy {
@@ -225,9 +192,10 @@
   color: var(--color-darker);
 }
 
-/* Notes Section: the last row of the stack */
+/* Notes Section */
 .contact-notes {
-  border-top: 1px solid var(--border-medium);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
   line-height: 1.6;
   padding: 1.25rem 1rem;
 }

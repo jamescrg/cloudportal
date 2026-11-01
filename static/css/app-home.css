@@ -14,19 +14,12 @@
   padding-left: 0.5rem;
 }
 
-/* The calendar and task panels are outlined in the rule the lists inside
-   them use, so a list that runs to the panel's edge meets the outline */
-.card.panel {
-  border: 1px solid var(--border-medium);
-}
-
 
 /*------------------------------------------------
  * notifications sent to the home page
  * ------------------------------------------------*/
 
-/* A notification card is outlined like the other panels and carries the
-   accent down its left edge, so it reads as something that arrived
+/* A notification card carries the accent down its left edge, so it reads as something that arrived
    rather than a fixture of the page */
 .card.notice {
   box-shadow: inset 4px 0 0 var(--color-accent-strong);
@@ -133,19 +126,6 @@
 }
 
 
-/* The grid (the calendar's month view, a week of it: app-calendar.css)
-   runs out to the card's edges and down to its bottom, the card's padding
-   pulled back on those three sides, so its top rule spans the card and
-   its other rules meet the card's outline; the card's outline is its
-   bottom rule. */
-.home-week-calendar {
-  margin: 0 -1rem -1.5rem;
-}
-
-.home-week-calendar.fc .fc-scrollgrid {
-  border-bottom-width: 0 !important;
-}
-
 /* On a phone the week is its agenda (events-calendar.js) */
 @media (max-width: 768px) {
   /* the title and close button share the top line, and the stepper
@@ -174,21 +154,17 @@
  * quote of the day
  * ------------------------------------------------*/
 
-/* The quotes are rows run out to the panel's edges and ruled apart, the
-   text a step larger than the page's and the author under it in the
-   secondary colour */
+/* The quotes are rows ruled apart, as the site's lists are, the text a
+   step larger than the page's and the author under it in the secondary
+   colour */
 .quote-list {
   border-top: 1px solid var(--border-medium);
-  margin: 0 -1rem -1.5rem;
 }
 
 .quote {
+  border-bottom: 1px solid var(--border-medium);
   margin: 0;
-  padding: 1rem 1rem 1.25rem;
-}
-
-.quote + .quote {
-  border-top: 1px solid var(--border-medium);
+  padding: 1rem 0.5rem 1.25rem;
 }
 
 .quote-text {
