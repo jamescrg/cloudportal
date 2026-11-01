@@ -39,15 +39,14 @@
   max-width: 100%;
 }
 
-/* The name is in the ink and comes to the link green under the pointer:
-   every row goes out to its site, so green on all of them would mark none,
-   and the site's icon already says where it goes */
+/* The name is in the link green, as the home tiles' are: a favorite
+   leaves the app for its site, where a task or note opens in it */
 .fav-title a {
-  color: var(--color-primary);
+  color: var(--link);
 }
 
 .fav-title a:hover {
-  color: var(--link);
+  color: var(--link-hover);
 }
 
 /* A heading keeps its sort button on its line */
