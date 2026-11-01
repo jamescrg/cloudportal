@@ -456,6 +456,19 @@
   text-align: center;
 }
 
+/* On a phone the table fits the screen: the dates go, leaving the
+   checkbox and the title, and the title wraps rather than running off */
+@media (max-width: 575.98px) {
+  .notes-list {
+    min-width: 0;
+  }
+
+  .notes-list .created,
+  .notes-list .updated {
+    display: none;
+  }
+}
+
 /* =============================================================================
    Search and Replace Bar
    ============================================================================= */

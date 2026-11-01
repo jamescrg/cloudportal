@@ -68,6 +68,18 @@
   text-align: center;
 }
 
+/* On a phone the table fits the screen: the dates go, leaving the
+   checkbox and the name, and the name wraps rather than running off */
+@media (max-width: 575.98px) {
+  .favorites-table {
+    min-width: 0;
+  }
+
+  .favorites-table .fav-date {
+    display: none;
+  }
+}
+
 
 /* ------------------------------------------------------------------------- */
 /* favorites form */
