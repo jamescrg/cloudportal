@@ -493,11 +493,19 @@ th.tasks-col-priority .btn-sort.active {
    only, named by their titles, in one run from the left; on phones the
    run wraps */
 .archive-buttons {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: flex-start;
   width: 100%;
+}
+
+/* The run acts on the completed tasks, so a word ahead of it says so,
+   the run's own gap after it */
+.archive-label {
+  color: var(--color-muted);
+  font-size: 0.875rem;
 }
 
 /* The bulk Due Date menu's calendar hangs off the menu itself */
