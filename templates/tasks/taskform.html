@@ -6,6 +6,7 @@
       hx-on::after-request="this.reset()">
     {% csrf_token %}
     <input type="hidden" name="folder_id" value="{{ selected_folder.id }}">
+    <i class="icon-plus tasks-add-icon"></i>
     <input class="form-control mh-no-shadow"
            type="text"
            name="title"

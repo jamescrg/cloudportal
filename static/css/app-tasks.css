@@ -3,12 +3,24 @@
 /* task form */
 /* ------------------------------------------------------------------------- */
 
+/* A plus leads the input, in the muted gray; the input takes a
+   sensible width on a wide screen rather than the whole card */
 .tasks-add {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+.tasks-add-icon {
+  color: var(--color-muted);
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
 .tasks-add .form-control {
   box-shadow: none;
+  max-width: 32rem;
   outline: none;
   /* a touch taller than the site's inputs */
   padding-bottom: 0.5rem;
