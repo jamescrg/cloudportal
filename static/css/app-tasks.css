@@ -3,29 +3,15 @@
 /* task form */
 /* ------------------------------------------------------------------------- */
 
-/* A plus leads the input, in the muted gray, centred in a box as wide
-   as the table's check column so it stands over the circles; the input
-   then starts where the title column does and runs to a step short of
-   the card's edge */
+/* The input runs the table's width */
 .tasks-add {
   align-items: center;
   display: flex;
-  gap: 0.25rem;
   margin-bottom: 1.5rem;
-}
-
-.tasks-add-icon {
-  color: var(--color-muted);
-  flex-shrink: 0;
-  font-size: 1.25rem;
-  line-height: 1;
-  text-align: center;
-  width: 2.5rem;
 }
 
 .tasks-add .form-control {
   box-shadow: none;
-  margin-right: 1rem;
   outline: none;
   /* a touch taller than the site's inputs */
   padding-bottom: 0.5rem;
@@ -105,6 +91,16 @@ td.tasks-col-checkbox a:hover {
   margin-bottom: 1.5rem;
 }
 
+/* On a wide screen the title and the filters share one line, as the
+   other lists' headings do, the filters at the right */
+@media (min-width: 992px) {
+  .tasks-header {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
 .tasks-tools {
   display: flex;
   flex-wrap: wrap;
@@ -117,14 +113,6 @@ td.tasks-col-checkbox a:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* On a wide screen the folder list beside the tasks already shows which
-   folder is open, so the title is left to phones */
-@media (min-width: 992px) {
-  .tasks-header .tasks-list-title {
-    display: none;
-  }
 }
 
 /* Its text is a step smaller than the buttons' icons, on the same line
