@@ -785,12 +785,10 @@ li {
   margin-top: 2rem;
 }
 
-/* The open folder or contact is marked as the open page is in the nav
-   bar: a two-pixel accent stroke on the structure, here standing at the
-   row's left edge, over a wash half as strong as a chosen control's */
+/* The open folder or contact takes the selected tint, as Kosmos's
+   selected items do */
 .active-item {
-  background: color-mix(in oklab, var(--selected-background) 50%, var(--background-body));
-  box-shadow: inset 2px 0 0 var(--color-accent);
+  background: var(--selected-background);
 }
 
 

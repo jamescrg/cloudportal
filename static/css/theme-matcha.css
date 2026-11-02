@@ -29,6 +29,7 @@
      sidebar is (its own --background-nav is not a surface) */
   --background-body: var(--stone-125);
   --background-nav: var(--stone-200);
+  --background-nav-hover: var(--stone-225);
   --color-nav: var(--color-primary);
 
   /* Typography */

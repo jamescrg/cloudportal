@@ -17,10 +17,13 @@
   padding: 0;
 }
 
+/* each item is a pill, as Kosmos's sidebar items are: the open page's
+   filled with the selected tint and ruled, the others taking a quiet
+   fill under the pointer */
 .navbar li {
   display: inline-block;
   line-height: 1.5rem;
-  padding: 1rem 1.5rem 0.5rem;
+  padding: 0.5rem 0.25rem;
   position: relative;
 }
 
@@ -30,31 +33,23 @@
 }
 
 .navbar a {
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
   color: var(--color-nav);
+  display: block;
   margin: 0;
-  padding: 0;
+  padding: 0.25rem 1rem;
+  text-decoration: none;
 }
 
-/* the line is the band's last two pixels, so it meets the rail under it,
-   and stops half the item's padding short of each side, so it runs a
-   little past the word rather than the item's full width; the word is in
-   the ink, as the open folder's name is */
-.navbar .active::after {
-  background: var(--color-accent);
-  bottom: 0;
-  content: "";
-  height: 2px;
-  left: 0.75rem;
-  position: absolute;
-  right: 0.75rem;
-}
-
-.navbar .active a {
-  color: var(--selected-color);
-}
-
-/* a word not open comes to the ink under the pointer */
 .navbar a:hover {
+  background: var(--background-nav-hover, var(--background-subnav));
+}
+
+.navbar .active a,
+.navbar .active a:hover {
+  background: var(--selected-background);
+  border-color: var(--selected-border);
   color: var(--selected-color);
 }
 
@@ -62,12 +57,19 @@
    other icons, opening who is signed in and Log out */
 .account-button {
   background: none;
-  border: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  box-sizing: content-box;
   color: var(--color-nav);
   cursor: pointer;
   font: inherit;
-  padding: 0;
+  padding: 0.25rem 1rem;
   position: relative;
+}
+
+.account-button:hover,
+.account-button[aria-expanded="true"] {
+  background: var(--background-nav-hover, var(--background-subnav));
 }
 
 /* The icon a little larger than the bar's others, as it stands for a

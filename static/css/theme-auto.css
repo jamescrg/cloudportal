@@ -5,6 +5,7 @@
     /* Body & Navigation */
     --background-body: var(--gb-dark);
     --background-nav: var(--background-body);
+    --background-nav-hover: var(--gb-dark1);
     --color-nav: var(--gb-light4);
 
     /* Backgrounds */

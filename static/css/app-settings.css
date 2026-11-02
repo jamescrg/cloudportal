@@ -271,8 +271,7 @@ Section Layout (rail / body)
    does, and its name the selected colour: it is where the reader is, not
    a link */
 .section-nav .active {
-  background: color-mix(in oklab, var(--selected-background) 50%, var(--background-body));
-  box-shadow: inset 2px 0 0 var(--color-accent);
+  background: var(--selected-background);
 }
 
 .section-nav .active a {
