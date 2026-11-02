@@ -774,9 +774,16 @@ li {
   margin-top: 2rem;
 }
 
-/* active/selected items */
+/* The open folder or contact is a pill: the selected tint, ruled all
+   round in the selected border with rounded corners, laid a pixel over
+   the rule of the row above and out a pixel at each side, so its edge is
+   single and its text stays in line with the other rows' */
 .active-item {
-  background: var(--hl-gray);
+  background: var(--selected-background);
+  border: 1px solid var(--selected-border);
+  border-radius: var(--radius-md);
+  margin: -1px -1px 0;
+  position: relative;
 }
 
 
