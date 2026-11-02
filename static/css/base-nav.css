@@ -17,12 +17,14 @@
   padding: 0;
 }
 
-/* each item is a pill, as Kosmos's sidebar items are: the open page's
-   filled with the selected tint and ruled, the others taking a quiet
-   fill under the pointer */
+/* each item is a pill, as Kosmos's subnav items are, and the same size:
+   half a rem above and below a line of the font's own height, the band
+   half a rem clear of the pill; the open page's pill filled with the
+   selected tint and ruled, the others taking a quiet fill under the
+   pointer */
 .navbar li {
   display: inline-block;
-  line-height: 1.5rem;
+  line-height: normal;
   padding: 0.5rem 0.25rem;
   position: relative;
 }
@@ -38,7 +40,7 @@
   color: var(--color-nav);
   display: block;
   margin: 0;
-  padding: 0.25rem 1rem;
+  padding: 0.5rem 1rem;
   text-decoration: none;
 }
 
@@ -63,7 +65,7 @@
   color: var(--color-nav);
   cursor: pointer;
   font: inherit;
-  padding: 0.25rem 1rem;
+  padding: 0.5rem 1rem;
   position: relative;
 }
 
@@ -73,11 +75,12 @@
 }
 
 /* The icon a little larger than the bar's others, as it stands for a
-   person; the button stands the line's height so the bar keeps its own */
+   person; the button stands a line of the font's own height, as the
+   links do, so its pill is theirs */
 .account-button {
   align-items: center;
   display: inline-flex;
-  height: 1.5rem;
+  height: 1.375em;
   vertical-align: top;
 }
 
