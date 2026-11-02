@@ -3,8 +3,7 @@
 
   /* Body & Navigation */
   --background-body: var(--gb-dark);
-  --background-nav: var(--background-body);
-  --background-nav-hover: var(--gb-dark1);
+  --background-nav: var(--gb-dark1);
   --color-nav: var(--gb-light4);
 
   /* Backgrounds */
@@ -24,7 +23,6 @@
   --color-secondary: var(--gb-light3);
   --color-muted: var(--gb-light4);
   --color-faint: var(--gb-gray);
-  --color-placeholder: var(--gb-light4);
   --color-strong: var(--gb-light);
 
   /* Links */
@@ -39,9 +37,6 @@
   --button-secondary-muted: var(--gb-dark4);
   --button-success-bg: var(--gb-dark);
   --button-success-color: var(--gb-bright-aqua);
-  /* its success button keeps its border and does not darken on hover */
-  --button-success-border: var(--border-medium);
-  --button-success-hover: var(--button-success-bg);
   --button-danger-bg: var(--gb-dark);
   --button-danger-color: var(--gb-bright-red);
   --button-toolbar: var(--gb-light3);
@@ -120,6 +115,9 @@
     var(--gb-faded-blue)
   );
   --calendar-dot: var(--gb-dark4);
+
+  /* Tables */
+  --background-table-header: var(--hl-gray);
 
   /* Folder list */
   --folder-menu-icon-color: var(--color-muted);

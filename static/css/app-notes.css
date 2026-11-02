@@ -195,7 +195,7 @@
 }
 
 #note-editor .ProseMirror p.is-editor-empty:first-child::before {
-  color: var(--color-placeholder);
+  color: var(--color-muted);
   content: "Start typing...";
   float: left;
   height: 0;
@@ -428,15 +428,13 @@
   white-space: normal;
 }
 
-/* The title opens the note here, so it is in the ink and comes to the link
-   green under the pointer; green is kept for what goes elsewhere */
 .notes-list .note-title-link {
-  color: var(--color-primary);
+  color: var(--link);
   text-decoration: none;
 }
 
 .notes-list .note-title-link:hover {
-  color: var(--link);
+  color: var(--link-hover);
 }
 
 /* The title, on one line with the row's actions */

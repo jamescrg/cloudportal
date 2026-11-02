@@ -352,11 +352,8 @@
   }
 }
 
-/* a box on the page, its edge alone setting it off, in a rule's colour:
-   on the lighter page a darker edge read heavy */
 .folder {
   border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md); /* the nav pills' corner */
   break-inside: avoid;
   display: inline-block;
   margin: 0 0 1.25rem;

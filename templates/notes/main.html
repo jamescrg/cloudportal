@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load cache_buster %}
 {% block content %}
-    <div class="row sheet">
+    <div class="row">
         <div class="col-lg-9 order-lg-2" id="main-content">
             <div id="notes"
                  {% if user.encryption_salt %}data-encryption-salt="{{ user.encryption_salt }}" data-encryption-iterations="{{ user.encryption_iterations }}" data-encryption-wrapped-key="{{ user.encryption_wrapped_key }}" data-encryption-by-default="{{ user.encryption_by_default|yesno:'true,false' }}"{% endif %}>

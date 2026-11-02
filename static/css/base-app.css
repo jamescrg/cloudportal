@@ -106,8 +106,9 @@ a:hover {
  * ------------------------------------------------*/
 
 .card {
-  background: transparent;
+  background: var(--background-section);
   border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow, none);
   margin-bottom: 1.5rem;
   padding: 1rem;
   padding-bottom: 1.5rem;
@@ -166,25 +167,15 @@ a:hover {
   text-align: center;
 }
 
-/* Three steps of type: a page's or a column's title, a section's
-   within it, then the labels and table heads at the text's own size */
 h1 {
-  font-size: 1.5rem;
-  font-weight: 500;
-  line-height: 1.25;
+  font-weight: normal;
+  font-size: 1.2rem;
   margin-bottom: 0;
 }
 
-/* On a settings page the first card's title is the page's and any card
-   after it is a section, whatever cards the page happens to show */
-h2,
-.section-body > .card:not(:first-child) > .card-title h1 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.25;
-}
-
 h2 {
+  font-weight: normal;
+  font-size: 1.05rem;
   margin-bottom: 0.5rem;
 }
 
@@ -227,8 +218,8 @@ strong{
   vertical-align: top;
 }
 
-/* the head is ruled above as well as below, and carries no tint */
 .table th {
+  background: var(--background-table-header, var(--background-control));
   border-top: solid 1px var(--border-medium);
   vertical-align: middle;
 }
@@ -373,22 +364,20 @@ li {
   color: var(--button-danger-color, var(--color-primary));
 }
 
-/* The primary action is a solid fill, so it reads as the thing to press;
-   a theme with its own success colours (Hojicha) keeps them, and its
-   border with them. The fill runs under the transparent border. */
-.btn-primary,
 .btn-success {
-  background: var(--button-success-bg, var(--button-primary-background));
-  border-color: var(--button-success-border, transparent);
+  background: var(--button-success-bg, var(--lime-100));
+  border-color: var(--border-medium);
   box-shadow: none;
-  color: var(--button-success-color, var(--button-primary-color));
+  color: var(--button-success-color, var(--color-primary));
 }
 
+.btn-primary,
 .btn-primary:hover,
-.btn-success:hover {
-  background: var(--button-success-hover, var(--button-primary-hover));
-  /* a link drawn as the button keeps the button's text, not the link's */
-  color: var(--button-success-color, var(--button-primary-color));
+.btn-primary:focus {
+  background: var(--button-success-bg, var(--lime-100));
+  border-color: var(--border-medium);
+  box-shadow: none;
+  color: var(--button-success-color, var(--color-primary));
 }
 
 .btn-secondary,
@@ -630,7 +619,7 @@ li {
 }
 
 .filter-input::placeholder {
-  color: var(--color-placeholder);
+  color: var(--color-muted);
   opacity: 0.6;
 }
 
@@ -785,10 +774,9 @@ li {
   margin-top: 2rem;
 }
 
-/* The open folder or contact takes the selected tint, as Kosmos's
-   selected items do */
+/* active/selected items */
 .active-item {
-  background: var(--selected-background);
+  background: var(--hl-gray);
 }
 
 
@@ -819,84 +807,6 @@ body[data-page="home"] .container.content {
   flex-wrap: wrap;
   margin-left: -0.75rem;
   margin-right: -0.75rem;
-}
-
-/* The sheet: on a wide screen the folder list and the content beside it
-   share one card, with a rail between them, rather than two cards with
-   a gap. The row is the card; the columns give up their gutters and the
-   cards inside give up their fill, corners, shadow and bottom margin,
-   keeping only their padding. The columns stretch to the taller one, so
-   the rail runs the sheet's full height. On contacts the content column
-   is a row of its own (the list and the detail), railed the same way,
-   stretched to the sheet's height so its rail runs full height too. On
-   a phone the folder list is the drawer, and nothing here applies. */
-@media (min-width: 992px) {
-  /* The sheet starts at the nav bar's foot, so its rails meet the bar's
-     rail; the columns carry the clearance the page had above its content,
-     and the sheet is as much taller. And at least most of the window
-     tall, so the rail runs down the page beside a short list rather than
-     stopping under it. */
-  .content:has(> .row.sheet) {
-    padding-top: 0;
-  }
-
-  .row.sheet {
-    margin: 0 0 1.5rem;
-    min-height: calc(100vh - 6.5rem);
-  }
-
-  .row.sheet > [class*="col-"] {
-    padding-top: 1.5rem;
-  }
-
-  .row.sheet > .row,
-  .row.sheet #main-content > .row {
-    flex: 1;
-    margin: 0;
-  }
-
-  .row.sheet > [class*="col-"],
-  .row.sheet #main-content > .row > [class*="col-"] {
-    padding-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .row.sheet #main-content > .row > [class*="col-"] {
-    padding-top: 0;
-  }
-
-  .row.sheet #main-content {
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* on a very wide screen the content stops at 64rem, starting at the
-     rail, so a table's last columns stay within a glance of its first
-     and the spare width falls to the right */
-  .row.sheet #main-content > * {
-    max-width: 64rem;
-  }
-
-  /* a rail has 2rem clear on each side: the card's 1rem and as much
-     again from the column */
-  .row.sheet #sidebar,
-  .row.sheet #contacts-list {
-    border-right: 1px solid var(--border-medium);
-    padding-right: 1rem;
-  }
-
-  .row.sheet #main-content,
-  .row.sheet #contact-detail {
-    padding-left: 1rem;
-  }
-
-  .row.sheet .card {
-    background: none;
-    border-radius: 0;
-    box-shadow: none;
-    margin-bottom: 0;
-  }
 }
 
 .row > [class*="col"] {

@@ -124,7 +124,7 @@
 }
 
 .events-table .event-detached {
-  color: var(--color-secondary);
+  color: var(--color-muted);
   display: block;
   font-size: 0.85rem;
 }

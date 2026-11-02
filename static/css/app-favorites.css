@@ -39,23 +39,13 @@
   max-width: 100%;
 }
 
-/* The name is in the link green, as the home tiles' are: a favorite
-   leaves the app for its site, where a task or note opens in it */
-.fav-title a {
-  color: var(--link);
-}
-
-.fav-title a:hover {
-  color: var(--link-hover);
-}
-
 /* A heading keeps its sort button on its line */
 .favorites-table th {
   white-space: nowrap;
 }
 
 .fav-name .description {
-  color: var(--color-secondary);
+  color: var(--color-muted);
   font-size: 0.85em;
 }
 

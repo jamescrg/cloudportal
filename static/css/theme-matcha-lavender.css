@@ -68,8 +68,12 @@
   --atmos-ink: var(--stone-700);
   --atmos-grain: 0.07;
 
-  /* The bar is the page's own light, let through */
-  --atmos-nav: transparent;
+  /* The bar is the wash itself carried on up, a step darker: a thin
+     stone veil over the page's own light */
+  --atmos-nav: color-mix(in oklab, var(--stone-600) 13%, transparent);
+
+  /* The active tab is lit at the top by the light's own green */
+  --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 80%, var(--mist-light)) 50%, transparent);
 
   /* Cards carry no light of their own: they are the card colour taken
      halfway to white, let through so the wash shows behind them. Body
@@ -84,7 +88,7 @@
 
   /* Text a touch darker than Matcha's, halfway to the next stone, to
      hold against the wash through the cards */
-  --color-primary: color-mix(in oklab, var(--stone-700) 50%, var(--stone-800));
+  --color-primary: color-mix(in oklab, var(--stone-600) 50%, var(--stone-700));
 
   /* The lavender that marks what is selected (calendar buttons and
      today, filters, toggles, the settings and drawer menus), a step
@@ -103,6 +107,10 @@
 
   /* The site icons, when thematic, washed lavender */
   --favicon-tint: grayscale(1) sepia(1) hue-rotate(215deg) saturate(2.2) brightness(0.95);
+
+  /* Table heads: the control colour, let through as the cards are, or
+     the head would sit on a card as a solid band */
+  --background-table-header: color-mix(in srgb, var(--background-control) var(--mist-card-opacity), transparent);
 }
 
 /* --------------------------------------------------------------------------

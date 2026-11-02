@@ -10,10 +10,8 @@
   --hl-yellow: var(--yellow-50);
 
   /* Button Colors */
-  /* the primary action a solid lime, white on it, a step darker under the pointer */
-  --button-primary-background: var(--lime-700);
-  --button-primary-color: var(--stone-50);
-  --button-primary-hover: var(--lime-800);
+  --button-primary-background: var(--lime-800);
+  --button-primary-color: var(--stone-100);
   --button-secondary-background: var(--stone-150);
   --button-secondary-color: var(--stone-600);
   --button-toolbar: var(--stone-600);
@@ -24,23 +22,16 @@
   --radius-lg: 0.5rem;
 
   /* Body & Navigation */
-  /* the page, bar, controls and rules on Kosmos's steps: the page
-     stone-125, the cards transparent on it, the bar stone-200 as Kosmos's
-     sidebar is (its own --background-nav is not a surface) */
-  --background-body: var(--stone-125);
-  --background-nav: var(--stone-200);
-  --background-nav-hover: var(--stone-225);
+  --background-body: var(--stone-300);
+  --background-nav: var(--stone-350);
   --color-nav: var(--color-primary);
 
   /* Typography */
-  /* the ink a step darker than it was, so the muted text clears 3:1 on the
-     page; placeholders stay a step lighter than any real text */
-  --color-primary: var(--stone-700);
-  --color-secondary: var(--stone-600);
-  --color-muted: var(--stone-500);
+  --color-primary: var(--stone-600);
+  --color-secondary: var(--stone-500);
+  --color-muted: var(--stone-400);
   --color-faint: var(--stone-350);
-  --color-placeholder: var(--stone-400);
-  --color-strong: var(--stone-800);
+  --color-strong: var(--stone-700);
 
   /* Links */
   --link: var(--lime-800);
@@ -49,8 +40,8 @@
   /* Backgrounds */
   --background-subnav: var(--stone-200);
   --background-subnav-tab-active: var(--background-section);
-  --background-control: var(--stone-200);
-  --background-section: var(--stone-150);
+  --background-control: var(--stone-150);
+  --background-section: var(--stone-100);
   --background-light: var(--stone-50);
 
   /* Borders */

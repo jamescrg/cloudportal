@@ -24,17 +24,6 @@
   color: var(--color-darker);
 }
 
-/* A name in the list opens the contact beside it, so it is in the ink and
-   comes to the link green under the pointer; the detail's phone and email
-   go elsewhere and stay green */
-#contacts-list .list-group-item a {
-  color: var(--color-primary);
-}
-
-#contacts-list .list-group-item a:hover {
-  color: var(--link);
-}
-
 .no-contacts {
   color: var(--color-muted);
   font-size: 3rem;
