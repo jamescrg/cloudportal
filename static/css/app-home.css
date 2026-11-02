@@ -523,3 +523,27 @@
 .sortable-chosen {
   background: var(--background-subnav);
 }
+
+/* The week's grid runs to its card's sides and foot, so the card's edge
+   is the grid's and there is no box within the box: the grid keeps only
+   its top rule, its outer columns lose theirs to the edge, and its foot
+   takes the card's rounded corners */
+.card.panel .home-week-calendar {
+  margin: 0 -1rem -1.5rem;
+}
+
+.card.panel .home-week-calendar .fc-scrollgrid,
+.card.panel .home-week-calendar .fc-list {
+  border-bottom-width: 0 !important;
+  border-left-width: 0 !important;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  border-right-width: 0 !important;
+}
+
+.card.panel .home-week-calendar :is(th, td):first-child {
+  border-left-width: 0;
+}
+
+.card.panel .home-week-calendar :is(th, td):last-child {
+  border-right-width: 0;
+}
