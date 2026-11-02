@@ -785,10 +785,16 @@ li {
   margin-top: 2rem;
 }
 
-/* The open folder or contact takes the selected tint, as Kosmos's
-   selected items do */
+/* The open folder or contact is a pill as the nav's open page is: the
+   selected tint, ruled all round with the nav pill's corners, drawn up a
+   pixel over the rule of the row above so the edge is single, and out a
+   pixel at each side so its text stays where the other rows' is */
 .active-item {
   background: var(--selected-background);
+  border: 1px solid var(--selected-border);
+  border-radius: var(--radius-md);
+  margin: -1px -1px 0;
+  position: relative;
 }
 
 
