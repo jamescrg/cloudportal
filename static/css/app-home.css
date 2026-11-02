@@ -198,14 +198,6 @@
   position: relative;
 }
 
-/* Shown while a widget is closed for the day: brings them all back. It
-   stands at the board's left edge, level with the search bar */
-.widgets-restore {
-  left: 0;
-  position: absolute;
-  top: 0;
-}
-
 /* The search bar spans the board's middle three columns: three fifths
    of the board's width, less the two gaps it doesn't straddle, whatever
    width the columns have come down to */

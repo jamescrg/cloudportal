@@ -18,19 +18,6 @@
     {% endif %}
     {# -- search -- #}
     <div class="search-weather-row">
-        {% if widgets_hidden %}
-            <form class="widgets-restore"
-                  method="post"
-                  action="{% url 'home-restore-widgets' %}">
-                {% csrf_token %}
-                <button type="submit"
-                        class="square-button"
-                        title="Show the hidden widgets"
-                        aria-label="Show the hidden widgets">
-                    <i class="icon-eye"></i>
-                </button>
-            </form>
-        {% endif %}
         {% include "home/search.html" %}
         {% if show_weather and weather %}
             {% include "home/weather_indicator.html" %}
