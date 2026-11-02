@@ -2,9 +2,6 @@
 {% block content %}
     <div class="section">
         <nav class="section-nav" data-drawer>
-            <div class="card-title">
-                <h1>Settings</h1>
-            </div>
             <ul>
                 <li {% if subapp == "profile" %}class="active"{% endif %}>
                     <a href="{% url 'settings-profile' %}">Profile</a>

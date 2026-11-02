@@ -46,15 +46,6 @@
                     {% include "components/setting-switch.html" with on=user.home_weather url_on=url_on url_off=url_off label="Weather" %}
                 </td>
             </tr>
-            <tr>
-                <td class="setting-label">Closed for today</td>
-                <td class="setting-control">
-                    <form method="post" action="{% url 'home-restore-widgets' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-secondary">Show them again</button>
-                    </form>
-                </td>
-            </tr>
         </table>
     </div>
     <div class="card">

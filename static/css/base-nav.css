@@ -1,32 +1,18 @@
 
-/* The bar is a band across the top of the page in the page's own colour,
-   with a rail along its foot as the page's columns have rails between
-   them; under the open page's item the rail thickens in the accent, so
-   the structure itself marks where the open page begins, in place of
-   the file-folder tab the bar once drew. Every item has the one line
-   height, so each stands the band's height with its text centred. */
 .navbar {
   background: var(--background-nav);
-  border-bottom: 1px solid var(--border-medium);
   margin-bottom: 0;
-  padding: 0;
+  padding: 0.25rem 0 0 0;
 }
 
 .navbar ul {
-  margin: 0;
+  margin: 0.25rem 0 0 0;
   padding: 0;
 }
 
-/* each item is a pill, as Kosmos's subnav items are, and the same size:
-   half a rem above and below a line of the font's own height, the band
-   half a rem clear of the pill; the open page's pill filled with the
-   selected tint and ruled, the others taking a quiet fill under the
-   pointer */
 .navbar li {
   display: inline-block;
-  line-height: normal;
-  padding: 0.75rem 0.25rem;
-  position: relative;
+  padding: 0.5rem 1.5rem 0.5rem 1.5rem;
 }
 
 /* The pages' icons are the drawer's (drawer.css); the bar is words alone */
@@ -35,52 +21,61 @@
 }
 
 .navbar a {
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
   color: var(--color-nav);
-  display: block;
   margin: 0;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
+  padding-bottom: 0.5rem;
+  position: relative;
+  top: 0.1rem;
 }
 
-.navbar a:hover {
-  background: var(--background-nav-hover, var(--background-subnav));
+.navbar .active {
+  background: var(--background-body);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 0.0625rem 0.2rem var(--shadow-color);
+  position: relative;
 }
 
-.navbar .active a,
-.navbar .active a:hover {
-  background: var(--selected-background);
-  border-color: var(--selected-border);
-  color: var(--selected-color);
+.navbar .active::before,
+.navbar .active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: var(--radius-lg);
+  height: var(--radius-lg);
+  background: var(--background-body);
+}
+
+.navbar .active::before {
+  left: calc(-1 * var(--radius-lg));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M8,0 L8,8 L0,8 A8,8 0 0,0 8,0 Z' fill='white'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M8,0 L8,8 L0,8 A8,8 0 0,0 8,0 Z' fill='white'/%3E%3C/svg%3E");
+}
+
+.navbar .active::after {
+  right: calc(-1 * var(--radius-lg));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L0,8 L8,8 A8,8 0 0,1 0,0 Z' fill='white'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L0,8 L8,8 A8,8 0 0,1 0,0 Z' fill='white'/%3E%3C/svg%3E");
 }
 
 /* The account menu: a person icon after the gear, styled as the bar's
    other icons, opening who is signed in and Log out */
 .account-button {
   background: none;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  box-sizing: content-box;
+  border: none;
   color: var(--color-nav);
   cursor: pointer;
   font: inherit;
-  padding: 0.5rem 1rem;
+  padding: 0;
   position: relative;
-}
-
-.account-button:hover,
-.account-button[aria-expanded="true"] {
-  background: var(--background-nav-hover, var(--background-subnav));
+  top: 0.1rem;
 }
 
 /* The icon a little larger than the bar's others, as it stands for a
-   person; the button stands a line of the font's own height, as the
-   links do, so its pill is theirs */
+   person; the tab's fixed line height keeps the bar as it is */
 .account-button {
   align-items: center;
   display: inline-flex;
-  height: 1.375em;
+  height: 1.85rem;
   vertical-align: top;
 }
 
@@ -89,10 +84,15 @@
   line-height: 1;
 }
 
-/* The menu sits inside the bar's list, so it undoes the bar's item styles */
+/* The menu sits inside the bar's list, so it undoes the bar's tab styles */
 .navbar .account-dropdown li {
   display: block;
   padding: 0;
+}
+
+.navbar .account-dropdown a {
+  padding-bottom: 0.5rem;
+  top: 0;
 }
 
 .account-dropdown {
@@ -135,7 +135,7 @@
 }
 
 .account-who span {
-  color: var(--color-secondary);
+  color: var(--color-muted);
   font-size: 0.85rem;
 }
 
@@ -169,9 +169,23 @@
   white-space: nowrap;
 }
 
-/* Keep right-aligned items at the end */
+/* Keep right-aligned items at the end. The scroll container clips what
+   overflows it, so the run keeps a corner's width clear at its end, or
+   the settings tab, active, loses its right outer corner. */
 .navbar-right {
   margin-left: auto !important;
+}
+
+.navbar .navbar-right {
+  padding-right: var(--radius-lg);
+}
+
+/* The bar's height was set by the old 1.25rem gear, the tallest thing in
+   it, and every tab stretched to match. The icons here are the standard
+   size now, so the run keeps the gear's line height, and the bar and its
+   tabs the height they had. */
+.navbar .navbar-right li {
+  line-height: 1.85rem;
 }
 
 

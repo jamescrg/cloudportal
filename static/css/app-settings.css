@@ -102,6 +102,7 @@
 
 /* Security: two-step sign-in */
 .security-heading {
+  font-size: 1.1rem;
   margin: 1.25rem 0 0.5rem;
 }
 
@@ -203,103 +204,96 @@ Section Layout (rail / body)
   padding: 0;
 }
 
-/* The settings sections stand as a list down the left of the body, as
-   the folder list stands beside its content: on a wide screen the two
-   are columns of the page with a rail between them, 2rem clear on each
-   side, and the list's rows are ruled apart with the open one washed,
-   as the folders' are. Below 992px the list becomes the side drawer
-   (see the end of this file). */
+/* The settings sections outgrew a tab row, so they stand as a rail down
+   the left of the body, the pattern the law app's settings use. Below
+   992px the rail becomes the side drawer (see the end of this file). */
 .section:has(> .section-nav) {
   align-items: stretch;
   display: flex;
   margin-bottom: 1.5rem; /* a card's, so a long section ends clear of the page's foot */
 }
 
-@media (min-width: 992px) {
-  /* The section starts at the nav bar's foot, so its rail meets the
-     bar's; the list and the body carry the clearance the page had above
-     its content, and the section is as much taller: at least most of the
-     window, so the rail runs down the page */
-  .content:has(> .section > .section-nav) {
-    padding-top: 0;
-  }
-
-  .section:has(> .section-nav) {
-    min-height: calc(100vh - 7rem);
-  }
-}
-
+/* No border between the rail and the body: the active tab's curves need a
+   clean edge, as the top nav's do, so the two surfaces' colours draw it. */
 .section-nav {
-  border-right: 1px solid var(--border-medium);
-  flex: 0 0 25%;
+  background: var(--background-subnav);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  flex: 0 0 10rem;
   margin: 0;
-  padding: 1rem 2rem 1.5rem 1rem;
+  padding: 0;
 }
 
-/* the heading over the list, as the folder list's */
-.section-nav .card-title {
-  margin-bottom: 1rem;
+/* As the phone's side drawer (drawer.css) it runs the screen's full
+   height, so it drops the rail's rounded corners */
+@media (max-width: 991.98px) {
+  .section-nav[data-drawer] {
+    border-radius: 0;
+  }
 }
 
 .section-nav ul {
   display: flex;
   flex-direction: column;
-  list-style: none;
-  margin: 0;
+  gap: 0.25rem;
+  margin: 1rem 0 1rem 0.75rem;
   padding: 0;
 }
 
 .section-nav li {
-  border-bottom: 1px solid var(--border-medium);
   display: block;
   padding: 0;
 }
 
 /* The whole row is the link */
 .section-nav a {
-  color: var(--link);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  color: var(--color-primary);
   display: block;
-  padding: 0.5rem;
-  text-decoration: none;
+  margin-right: 0.75rem;
+  padding: 0.5rem 0.75rem;
 }
 
-.section-nav a:hover {
-  color: var(--link-hover);
-}
-
-/* the open section's row is a pill as the open folder's is: the
-   selected wash, ruled all round with the nav pill's corners, laid over
-   its neighbours' rules so its text stays in line; its name the selected
-   colour: it is where the reader is, not a link */
-.section-nav .active {
-  background: var(--selected-background);
-  border: 1px solid var(--selected-border);
-  border-radius: var(--radius-md);
-  margin: -1px -1px 0;
+/* The active row is a side tab joined to the body, as the top nav's tabs
+   join the page: it takes the body's colour, reaches the rail's edge, and
+   curves into the body above and below. */
+.section-nav .active a {
+  background: var(--background-section);
+  margin-right: 0;
   position: relative;
 }
 
-.section-nav .active a {
-  color: var(--selected-color);
+.section-nav .active a::before,
+.section-nav .active a::after {
+  background: var(--background-section);
+  content: "";
+  height: var(--radius-lg);
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  width: var(--radius-lg);
+}
+
+/* Above the tab: a square less the quarter circle at its top left */
+.section-nav .active a::before {
+  top: calc(-1 * var(--radius-lg));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M8,0 L8,8 L0,8 A8,8 0 0,0 8,0 Z' fill='white'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M8,0 L8,8 L0,8 A8,8 0 0,0 8,0 Z' fill='white'/%3E%3C/svg%3E");
+}
+
+/* Below the tab: a square less the quarter circle at its bottom left */
+.section-nav .active a::after {
+  bottom: calc(-1 * var(--radius-lg));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L8,0 L8,8 A8,8 0 0,0 0,0 Z' fill='white'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M0,0 L8,0 L8,8 A8,8 0 0,0 0,0 Z' fill='white'/%3E%3C/svg%3E");
 }
 
 /* Section Body - main content area */
 .section-body {
+  background: var(--background-section);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   flex: 1;
   min-width: 0;
-  padding: 0 0 0 1rem;
-}
-
-/* on a wide screen the list and the body carry the clearance the page
-   had above its content (see the section's rules above) */
-@media (min-width: 992px) {
-  .section-nav {
-    padding-top: 1.75rem;
-  }
-
-  .section-body {
-    padding-top: 0.75rem;
-  }
+  padding: 1.25rem 1rem 1.5rem;
 }
 
 /* A setting's rows are a label beside a control, not a table: no rules,
@@ -313,6 +307,22 @@ Section Layout (rail / body)
   border: 0;
   padding: 0.25rem 1rem 0.25rem 0;
   vertical-align: middle;
+}
+
+/* A list on a settings page is closed in a rounded outline, like the
+   home page's panels; the rows keep their rules and the ends lose theirs */
+.section-body .table-container {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.section-body .table-container .table th {
+  border-top: 0;
+}
+
+.section-body .table-container .table tr:last-child td {
+  border-bottom: 0;
 }
 
 /* The buttons beside a card's title */
@@ -330,14 +340,6 @@ Section Layout (rail / body)
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-}
-
-/* the option in force is a selection, not an action, so it takes the
-   selected wash rather than the primary fill */
-.setting-buttons .btn.chosen {
-  background: var(--selected-background);
-  border-color: var(--selected-border);
-  color: var(--selected-color);
 }
 
 
@@ -403,26 +405,36 @@ Profile Form
 
   .section-nav {
     background: var(--background-section);
-    border-right: 0;
+    border-radius: 0;
     flex: none;
     padding: 1rem 0;
   }
 
-  .section-nav .card-title {
-    padding: 0 1.5rem;
-  }
-
-  .section-nav li {
-    border-bottom: 0;
+  .section-nav ul {
+    gap: 0;
+    margin: 0;
   }
 
   .section-nav a {
+    border-radius: 0;
     font-size: 1.1rem;
+    margin-right: 0;
     padding: 0.75rem 1.5rem;
   }
 
+  /* In the drawer the active row is a plain highlight, not a tab */
+  .section-nav .active a {
+    background: var(--selected-background);
+    color: var(--selected-color);
+  }
+
+  .section-nav .active a::before,
+  .section-nav .active a::after {
+    display: none;
+  }
+
   .section-body {
-    padding: 0;
+    border-radius: var(--radius-md);
   }
 }
 

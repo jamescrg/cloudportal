@@ -68,7 +68,6 @@ urlpatterns = [
     path("", home.index, name="home-index"),
     path("home/", home.index, name="home"),
     path("home/toggle/<str:section>", home.toggle, name="home-toggle"),
-    path("home/restore", home.restore_widgets, name="home-restore-widgets"),
     path("home/week/feed", home.week_feed, name="home-week-feed"),
     path(
         "home/notices/<int:id>/dismiss",

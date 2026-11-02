@@ -10,9 +10,9 @@
             the order you gave them.
         </p>
         <div class="setting-buttons">
-            <a class="btn btn-secondary{% if user.quotes_mode == 'random' %} chosen{% endif %}"
+            <a class="btn {% if user.quotes_mode == 'random' %}btn-primary{% else %}btn-secondary{% endif %}"
                href="{% url 'settings-quotes-options' option='mode' value='random' %}">Random shuffle</a>
-            <a class="btn btn-secondary{% if user.quotes_mode == 'serial' %} chosen{% endif %}"
+            <a class="btn {% if user.quotes_mode == 'serial' %}btn-primary{% else %}btn-secondary{% endif %}"
                href="{% url 'settings-quotes-options' option='mode' value='serial' %}">In order</a>
         </div>
     </div>

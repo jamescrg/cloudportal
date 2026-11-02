@@ -237,22 +237,6 @@ def toggle(request, section):
     return redirect("/home/")
 
 
-# The home widgets a close button hides for the day
-HIDEABLE_WIDGETS = ("events", "tasks", "due_tasks", "quotes")
-
-
-@login_required
-@require_POST
-def restore_widgets(request):
-    """Show again every home widget closed for the day (from the settings
-    page's Home section, which it returns to)."""
-    user = request.user
-    for section in HIDEABLE_WIDGETS:
-        setattr(user, f"home_{section}_hidden", None)
-    user.save(update_fields=[f"home_{s}_hidden" for s in HIDEABLE_WIDGETS])
-    return redirect("/settings/homepage/")
-
-
 def with_favorites(folders):
     """Attach to each folder the favorites chosen for the home page, in
     rank order, each with the host of its url and whether its icon is on
