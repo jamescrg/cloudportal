@@ -65,7 +65,7 @@ body {
    ends flush with the last card */
 .content {
   display: flow-root;
-  padding-top: 1.5rem;
+  padding-top: 0.75rem;
 }
 
 /* On mobile the content runs edge to edge, except on the home page; the
@@ -842,11 +842,11 @@ body[data-page="home"] .container.content {
 
   .row.sheet {
     margin: 0 0 1.5rem;
-    min-height: calc(100vh - 6.5rem);
+    min-height: calc(100vh - 7rem);
   }
 
   .row.sheet > [class*="col-"] {
-    padding-top: 1.5rem;
+    padding-top: 0.75rem;
   }
 
   .row.sheet > .row,

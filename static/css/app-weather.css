@@ -36,7 +36,7 @@
   }
 
   .content > .weather-data:first-child > .col {
-    padding-top: 1.5rem;
+    padding-top: 0.75rem;
   }
 
   .weather-data > .current-conditions,

@@ -225,7 +225,7 @@ Section Layout (rail / body)
   }
 
   .section:has(> .section-nav) {
-    min-height: calc(100vh - 6.5rem);
+    min-height: calc(100vh - 7rem);
   }
 }
 
@@ -289,11 +289,11 @@ Section Layout (rail / body)
    had above its content (see the section's rules above) */
 @media (min-width: 992px) {
   .section-nav {
-    padding-top: 2.5rem;
+    padding-top: 1.75rem;
   }
 
   .section-body {
-    padding-top: 1.5rem;
+    padding-top: 0.75rem;
   }
 }
 
