@@ -818,6 +818,9 @@ body[data-page="home"] .container.content {
   /* the favorites board's five columns and gaps, plus the padding, so the
      board fills the container and what sits at its edges lines up */
   max-width: 73rem;
+  /* its boxes stand off the bar by the page's old gap, where the other
+     pages' lists and tables start nearer it */
+  padding-top: 1.5rem;
 }
 
 .row {
