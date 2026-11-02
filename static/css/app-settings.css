@@ -267,11 +267,16 @@ Section Layout (rail / body)
   color: var(--link-hover);
 }
 
-/* the open section's row takes the selected wash, as the open folder's
-   does, and its name the selected colour: it is where the reader is, not
-   a link */
+/* the open section's row is a pill as the open folder's is: the
+   selected wash, ruled all round with the nav pill's corners, laid over
+   its neighbours' rules so its text stays in line; its name the selected
+   colour: it is where the reader is, not a link */
 .section-nav .active {
   background: var(--selected-background);
+  border: 1px solid var(--selected-border);
+  border-radius: var(--radius-md);
+  margin: -1px -1px 0;
+  position: relative;
 }
 
 .section-nav .active a {
