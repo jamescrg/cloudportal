@@ -367,6 +367,29 @@
   padding-bottom: 1rem;
 }
 
+/* The week's grid runs to the widget's sides and foot, so the widget's
+   edge is the grid's and there is no box within the box: the grid keeps
+   only its top rule, and its outer columns lose theirs to the edge */
+.card.panel .home-week-calendar {
+  margin: 0 -1rem -1rem;
+}
+
+.card.panel .home-week-calendar .fc-scrollgrid,
+.card.panel .home-week-calendar .fc-list {
+  border-bottom-width: 0 !important;
+  border-left-width: 0 !important;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-right-width: 0 !important;
+}
+
+.card.panel .home-week-calendar :is(th, td):first-child {
+  border-left-width: 0;
+}
+
+.card.panel .home-week-calendar :is(th, td):last-child {
+  border-right-width: 0;
+}
+
 /* a box on the page, its edge alone setting it off, in a rule's colour:
    on the lighter page a darker edge read heavy */
 .folder {
