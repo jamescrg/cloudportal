@@ -362,7 +362,6 @@
    boxed as the tiles are, in a rule's colour with the pill's corners, so
    they stand on the page as the tiles do and share their outer edges */
 .card.panel {
-  background-image: var(--card-sheen, none);
   border: 1px solid var(--border-card, var(--border-medium));
   border-radius: var(--radius-md);
   padding-bottom: 1rem;
@@ -394,7 +393,6 @@
 /* a box on the page, its edge alone setting it off, in a rule's colour:
    on the lighter page a darker edge read heavy */
 .folder {
-  background-image: var(--card-sheen, none);
   border: 1px solid var(--border-card, var(--border-medium));
   border-radius: var(--radius-md); /* the nav pills' corner */
   break-inside: avoid;

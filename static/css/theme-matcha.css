@@ -59,8 +59,6 @@
   /* the home cards' edge, half a step past the rules so a card holds
      its shape on the page */
   --border-card: color-mix(in oklab, var(--stone-300), var(--stone-350));
-  /* and a faint light from above inside it, fading to the page */
-  --card-sheen: linear-gradient(to bottom, rgb(255 255 255 / 30%), rgb(255 255 255 / 0%));
   --border-dark: var(--stone-400);
 
   /* Shadows & Overlays */
