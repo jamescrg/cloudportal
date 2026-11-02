@@ -169,7 +169,7 @@ a:hover {
 /* Three steps of type: a page's or a column's title, a section's
    within it, then the labels and table heads at the text's own size */
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 500;
   line-height: 1.25;
   margin-bottom: 0;
