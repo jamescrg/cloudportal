@@ -547,3 +547,13 @@
 .card.panel .home-week-calendar :is(th, td):last-child {
   border-right-width: 0;
 }
+
+/* With no rule at the card's edge, Sunday's and Saturday's events and
+   numbers take the card's own clearance from it instead */
+.card.panel .home-week-calendar .fc-daygrid-day:first-child .fc-daygrid-day-frame {
+  padding-left: 0.5rem;
+}
+
+.card.panel .home-week-calendar .fc-daygrid-day:last-child .fc-daygrid-day-frame {
+  padding-right: 0.5rem;
+}
