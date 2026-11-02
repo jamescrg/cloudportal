@@ -71,6 +71,15 @@
   color: inherit;
 }
 
+/* The chosen item takes the selected tint, as the selected pills do; set
+   after the links' reset above, which had cleared it */
+.dropdown-menu .dropdown-item.active,
+.dropdown-menu .dropdown-item.active:hover,
+.dropdown-menu li.active > a {
+  background: var(--selected-background);
+  color: var(--selected-color);
+}
+
 .dropdown-item i {
   color: var(--color-muted);
   margin-right: 0.5rem;

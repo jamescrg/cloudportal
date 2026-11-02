@@ -44,7 +44,8 @@ def theme(request):
     """The theme is chosen per device, so it lives in the session alone.
     Nothing chosen (a new device, or one just signed in) follows the
     device, light or dark as it is set, with the atmosphere on."""
-    name = request.session.get("theme", "") if hasattr(request, "session") else ""
+    session = request.session if hasattr(request, "session") else {}
+    name = session.get("theme", "")
     name = RENAMED_THEMES.get(name, name) or DEFAULT_THEME
     return {
         "theme": name,

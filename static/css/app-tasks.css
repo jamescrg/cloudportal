@@ -53,6 +53,21 @@ td.tasks-col-checkbox a:hover {
   white-space: normal;
 }
 
+/* The title opens the task in place, so it is in the ink and comes to the
+   link green under the pointer; green is kept for what goes elsewhere. A
+   done task's title keeps its muted gray */
+.tasks-col-title a {
+  color: var(--color-primary);
+}
+
+.tasks-col-title a.text-completed {
+  color: var(--color-muted);
+}
+
+.tasks-col-title a:hover {
+  color: var(--link);
+}
+
 .tasks-table .tasks-col-priority {
   text-align: center;
   width: 3rem;
@@ -162,7 +177,7 @@ td.tasks-col-checkbox a:hover {
 }
 
 .tasks-secondary {
-  color: var(--color-muted);
+  color: var(--color-secondary);
   font-size: 0.85rem;
   padding-left: 0.75rem;
   white-space: nowrap;
@@ -478,6 +493,7 @@ th.tasks-col-priority .btn-sort.active {
    only, named by their titles, in one run from the left; on phones the
    run wraps */
 .archive-buttons {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;

@@ -24,6 +24,34 @@
 
 }
 
+/* On a wide screen the three columns are railed apart, as the folder
+   list is from its content, with 2rem clear on each side of a rail: the
+   card's 1rem and as much again from the column. With no alert above
+   them the columns start at the nav bar's foot, so the rails meet the
+   bar's rail, and carry the clearance the page had above its content. */
+@media screen and (min-width: 992px) {
+
+  .content:has(> .weather-data:first-child) {
+    padding-top: 0;
+  }
+
+  .content > .weather-data:first-child > .col {
+    padding-top: 0.75rem;
+  }
+
+  .weather-data > .current-conditions,
+  .weather-data > .forecast-hourly {
+    border-right: 1px solid var(--border-medium);
+    padding-right: 1rem;
+  }
+
+  .weather-data > .forecast-hourly,
+  .weather-data > .forecast-daily {
+    padding-left: 1rem;
+  }
+
+}
+
 
 /* ------------------------------------------------------------------------- */
 /* alerts */
@@ -164,7 +192,7 @@
 }
 
 .weather-title-foot {
-  color: var(--color-muted);
+  color: var(--color-secondary);
   display: flex;
   flex-wrap: wrap;
   font-size: 0.8rem;
@@ -258,16 +286,15 @@
   border-top: solid 1px var(--border-medium);
 }
 
-/* and its label cells are headers only in markup: no header wash */
+/* and its label cells are headers only in markup */
 .current-conditions .table th {
-  background: transparent;
   vertical-align: top;
   white-space: nowrap;
 }
 
 /* a second, smaller line under a value: an amount, a gust, a date */
 .weather-amount {
-  color: var(--color-muted);
+  color: var(--color-secondary);
   display: block;
   font-size: 0.8rem;
 }
@@ -292,12 +319,13 @@
   line-height: 1.3;
 }
 
-/* the hour the day turns over */
+/* the hour the day turns over: a ruled row like the head, no tint, with
+   a little more air above the day's name than below it */
 .weather-day-divider td {
-  background: var(--background-table-header, var(--background-control));
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  padding-bottom: 0.85rem;
+  padding-bottom: 0.75rem;
+  padding-top: 1.25rem;
   padding-top: 0.85rem;
 }
 
@@ -307,9 +335,10 @@
   padding-bottom: 0.15rem;
 }
 
+/* a sentence, so muted but not smaller as well */
 .forecast-day-summary td {
   color: var(--color-muted);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   padding-top: 0;
 }
 
@@ -423,7 +452,7 @@
 
 .weather-radar-controls {
   align-items: center;
-  color: var(--color-muted);
+  color: var(--color-secondary);
   display: flex;
   font-size: 0.8rem;
   gap: 0.75rem;
