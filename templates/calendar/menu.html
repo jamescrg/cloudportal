@@ -1,11 +1,12 @@
 {% comment %}
 The calendar's menu, behind the sliders button on the grid's toolbar: the
-overlays (tasks, Kosmos, holidays) as check rows, drawn with the square
+overlays (tasks, Kosmos, holidays) as check rows, tasks and Kosmos
+only on a phone, where the toolbar has no room for their own toggles, drawn with the square
 icons the lists use for selection, then the Filter dialog and the list
 view, each behind its own icon at the same size. The items re-render on
 eventsChanged, so each row posts the state it would move to.
 {% endcomment %}
-<li>
+<li class="calendar-menu-phone">
     <div class="dropdown-item calendar-menu-check"
          hx-post="{% if show_tasks %}{% url 'calendar:show-tasks' 'off' %}{% else %}{% url 'calendar:show-tasks' 'on' %}{% endif %}"
          hx-swap="none">
@@ -13,7 +14,7 @@ eventsChanged, so each row posts the state it would move to.
     </div>
 </li>
 {% if kosmos_connected %}
-    <li>
+    <li class="calendar-menu-phone">
         <div class="dropdown-item calendar-menu-check"
              hx-post="{% if show_kosmos %}{% url 'calendar:show-kosmos' 'off' %}{% else %}{% url 'calendar:show-kosmos' 'on' %}{% endif %}"
              hx-swap="none">

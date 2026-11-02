@@ -12,12 +12,12 @@ CSS = Path(settings.BASE_DIR, "static/css/app-calendar.css").read_text()
 
 
 def test_the_toolbar_offers_the_year_view():
-    # The wide-screen toolbar; the phone's holds only Today
-    toolbars = re.findall(r"right:\s*\"([^\"]+)\"", JS)
-    views = [t for t in toolbars if "dayGridMonth" in t]
+    # The wide-screen toolbar ends in the views dropdown, whose list
+    # leads with the year
+    assert re.search(r"right: `[^`]*menu views`", JS)
+    choices = re.search(r"viewChoices: \[(.*?)\]\s*,\s*currentView", JS, re.S).group(1)
 
-    # the menu button stands before the views
-    assert views and views[0].split(" ")[-1].split(",")[0] == "multiMonthRolling"
+    assert re.findall(r"\[\"(\w+)\"", choices)[0] == "multiMonthRolling"
 
 
 def test_the_year_view_is_remembered():

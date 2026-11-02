@@ -233,7 +233,9 @@
 /* Toolbar buttons of the calendar's own: Add and the menu, drawn by
    FullCalendar with no text and given their Lucide glyphs here */
 .fc .fc-add-button::before,
-.fc .fc-menu-button::before {
+.fc .fc-menu-button::before,
+.fc .fc-tasks-button::before,
+.fc .fc-kosmos-button::before {
   display: inline-block;
   font-family: lucide;
   font-size: 1.1em;
@@ -247,6 +249,44 @@
 
 .fc .fc-menu-button::before {
   content: "\e29a";
+}
+
+/* Tasks and Kosmos toggle their overlays, lit while shown */
+.fc .fc-tasks-button::before {
+  content: "\e4c3";
+}
+
+.fc .fc-kosmos-button::before {
+  content: "\e062";
+}
+
+/* The views button names the view open, a chevron after it */
+.fc .fc-views-button::after {
+  content: "\e06d";
+  display: inline-block;
+  font-family: lucide;
+  font-size: 0.875em;
+  line-height: 1;
+  margin-left: 0.5rem;
+  vertical-align: -0.05em;
+}
+
+.calendar-views {
+  min-width: 8rem;
+}
+
+/* its items are buttons, run to the menu's width as its links would */
+.calendar-views .dropdown-item {
+  text-align: left;
+  width: 100%;
+}
+
+/* The tasks and Kosmos rows of the menu stand in for the toolbar's
+   toggles on a phone */
+@media (min-width: 769px) {
+  .calendar-menu .calendar-menu-phone {
+    display: none;
+  }
 }
 
 .fc .fc-button .fc-icon {
