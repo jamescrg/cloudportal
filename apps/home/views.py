@@ -144,16 +144,9 @@ def index(request):
     # chosen for it in their order
     columns = home_columns(request)
 
-    # a widget closed for the day can be brought back from the search row
-    widgets_hidden = any(
-        (getattr(user, f"home_{section}_hidden") or date.min) >= date.today()
-        for section in HIDEABLE_WIDGETS
-    )
-
     context = {
         "page": "home",
         "origin": "home",
-        "widgets_hidden": widgets_hidden,
         "notices": notices,
         "show_tasks": show_tasks,
         "task_folders": task_folders,
@@ -251,12 +244,13 @@ HIDEABLE_WIDGETS = ("events", "tasks", "due_tasks", "quotes")
 @login_required
 @require_POST
 def restore_widgets(request):
-    """Show again every home widget closed for the day."""
+    """Show again every home widget closed for the day (from the settings
+    page's Home section, which it returns to)."""
     user = request.user
     for section in HIDEABLE_WIDGETS:
         setattr(user, f"home_{section}_hidden", None)
     user.save(update_fields=[f"home_{s}_hidden" for s in HIDEABLE_WIDGETS])
-    return redirect("/home/")
+    return redirect("/settings/homepage/")
 
 
 def with_favorites(folders):
