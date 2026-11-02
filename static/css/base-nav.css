@@ -5,8 +5,9 @@
    the structure itself marks where the open page begins, in place of
    the file-folder tab the bar once drew. Every item has the one line
    height, so each stands the band's height with its text centred. */
+/* the bar takes the home cards' light from above, where a theme has it */
 .navbar {
-  background: var(--background-nav);
+  background: var(--card-sheen, none), var(--background-nav);
   border-bottom: 1px solid var(--border-medium);
   margin-bottom: 0;
   padding: 0;
