@@ -48,6 +48,15 @@ textarea:focus-visible {
   outline-offset: -1px;
 }
 
+/* A field focused as the page lands (the home search, the add-task
+   input) is marked so in its markup, since a script marking it would
+   run after the ring had drawn; the browser counts that focus as the
+   keyboard's, so the ring is held back until the first key or pointer
+   (main.js), the field's own focus border marking it till then */
+.is-autofocused:focus-visible {
+  outline: none;
+}
+
 .large-form {
   padding-left: 0.8rem;
 }

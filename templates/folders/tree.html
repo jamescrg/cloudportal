@@ -42,7 +42,8 @@
         </li>
     {% endif %}
     {% for folder in folders %}
-        <li class="list-group-item folder-item {% if folder.id == selected_folder.id %}active-item{% endif %}"
+        {# a folder is the open one only when its own list is shown, not the all view's, which keeps the last folder for the add form #}
+        <li class="list-group-item folder-item {% if folder.id == selected_folder.id and not favorites_folder_all and not notes_folder_all and not tasks_folder_all and not contacts_folder_all %}active-item{% endif %}"
             id="folder-{{ folder.id }}"
             data-folder-name="{{ folder.name }}"
             data-folder-owner="{{ folder.user_id }}">
