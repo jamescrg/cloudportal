@@ -257,7 +257,7 @@
 }
 
 .fc .fc-kosmos-button::before {
-  content: "\e062";
+  content: "\e5d5"; /* briefcase-business */
 }
 
 /* The views button names the view open, a chevron after it */
