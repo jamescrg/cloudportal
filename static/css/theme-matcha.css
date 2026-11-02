@@ -25,9 +25,10 @@
 
   /* Body & Navigation */
   /* the page, bar, controls and rules on Kosmos's steps: the page
-     stone-125, the cards transparent on it, the bar stone-350 */
+     stone-125, the cards transparent on it, the bar stone-200 as Kosmos's
+     sidebar is (its own --background-nav is not a surface) */
   --background-body: var(--stone-125);
-  --background-nav: var(--stone-350);
+  --background-nav: var(--stone-200);
   --color-nav: var(--color-primary);
 
   /* Typography */
