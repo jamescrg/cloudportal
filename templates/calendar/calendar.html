@@ -1,12 +1,16 @@
 {% comment %}
 The grid and its menu share one Alpine component (events-calendar.js):
 the toolbar's sliders button, which FullCalendar draws, opens the menu
-that sits beside the grid. The container takes a class, not an id: htmx
+that sits beside the grid, and the views button the list of views. The
+Tasks and Kosmos toggles read their state from the data attributes. The container takes a class, not an id: htmx
 copies an existing element's attributes onto a swapped-in element with
 the same id until it settles, which would hand the new container the old
 grid's classes and then strip the new grid's.
 {% endcomment %}
-<div x-data="eventsCalendar()">
+<div x-data="eventsCalendar()"
+     data-show-tasks="{{ show_tasks|yesno:'true,false' }}"
+     data-show-kosmos="{{ show_kosmos|yesno:'true,false' }}"
+     data-kosmos-connected="{{ kosmos_connected|yesno:'true,false' }}">
     <div class="fullcalendar-container"
          x-init="initCalendar()"
          hx-disinherit="*"
@@ -21,5 +25,19 @@ grid's classes and then strip the new grid's.
         hx-target="this"
         hx-swap="innerHTML">
         {% include "calendar/menu.html" %}
+    </ul>
+    <ul class="dropdown-menu calendar-views"
+        x-ref="views"
+        x-show="viewsOpen"
+        x-cloak>
+        <template x-for="[type, name] in viewChoices" :key="type">
+            <li>
+                <button type="button"
+                        class="dropdown-item"
+                        :class="type === currentView && 'active'"
+                        @click="chooseView(type)"
+                        x-text="name"></button>
+            </li>
+        </template>
     </ul>
 </div>

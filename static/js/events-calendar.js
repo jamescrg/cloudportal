@@ -194,10 +194,29 @@ document.addEventListener("alpine:init", () => {
     isCurrentWeek: true,
     menuOpen: false,
     menuButton: null,
+    viewsOpen: false,
+    viewsButton: null,
+    // the views the dropdown offers, in its order, with their names
+    viewChoices: [
+      ["multiMonthRolling", "Year"],
+      ["dayGridMonth", "Month"],
+      ["timeGridWeek", "Week"],
+      ["timeGridDay", "Day"],
+      ["listRolling", "Agenda"],
+    ],
+    currentView: "",
+    // the overlays toggled from the toolbar, read from the page's markup
+    showTasks: false,
+    showKosmos: false,
+    kosmosConnected: false,
 
     init() {
-      // The menu closes on a click anywhere else, on Escape, and on a
-      // choice from it (a link; a checkbox row keeps it open for the next)
+      const data = this.$el.dataset;
+      this.showTasks = data.showTasks === "true";
+      this.showKosmos = data.showKosmos === "true";
+      this.kosmosConnected = data.kosmosConnected === "true";
+      // The menus close on a click anywhere else, on Escape, and on a
+      // choice from them (a link; a checkbox row keeps it open for the next)
       this._closeOnOutsideClick = (event) => {
         if (
           this.menuOpen &&
@@ -206,11 +225,25 @@ document.addEventListener("alpine:init", () => {
         ) {
           this.closeMenu();
         }
+        if (
+          this.viewsOpen &&
+          !this.$refs.views.contains(event.target) &&
+          !(this.viewsButton && this.viewsButton.contains(event.target))
+        ) {
+          this.closeViews();
+        }
       };
       this._closeOnEscape = (event) => {
-        if (this.menuOpen && event.key === "Escape") {
+        if (event.key !== "Escape") {
+          return;
+        }
+        if (this.menuOpen) {
           this.closeMenu();
           this.menuButton?.focus();
+        }
+        if (this.viewsOpen) {
+          this.closeViews();
+          this.viewsButton?.focus();
         }
       };
       document.addEventListener("click", this._closeOnOutsideClick);
@@ -234,16 +267,88 @@ document.addEventListener("alpine:init", () => {
         this.closeMenu();
         return;
       }
+      this.closeViews();
       this.menuButton = button;
       this.menuOpen = true;
       button.classList.add("fc-button-active");
-      this.$nextTick(() => this.positionMenu());
+      this.$nextTick(() => this.positionMenu(this.$refs.menu, button));
+    },
+
+    // The views as a dropdown behind one button that names the view open
+    toggleViews(button) {
+      if (this.viewsOpen) {
+        this.closeViews();
+        return;
+      }
+      this.closeMenu();
+      this.viewsButton = button;
+      this.viewsOpen = true;
+      this.$nextTick(() => this.positionMenu(this.$refs.views, button));
+    },
+
+    closeViews() {
+      if (!this.$refs.views) {
+        return;
+      }
+      this.viewsOpen = false;
+      this.resetMenu(this.$refs.views);
+    },
+
+    chooseView(view) {
+      this.closeViews();
+      this.calendar.changeView(view);
+      this.viewsButton?.focus();
+    },
+
+    // The views button reads the open view's name and a chevron
+    labelViews(viewType) {
+      this.currentView = viewType;
+      const button = this.$el.querySelector(".fc-views-button");
+      const choice = this.viewChoices.find(([type]) => type === viewType);
+      if (button && choice) {
+        button.textContent = choice[1];
+      }
+    },
+
+    // Tasks and Kosmos are toggled from their own toolbar buttons, lit
+    // while shown; the grid refetches on the eventsChanged the post sends
+    toggleOverlay(kind, button) {
+      const key = kind === "tasks" ? "showTasks" : "showKosmos";
+      const state = this[key] ? "off" : "on";
+      htmx
+        .ajax("POST", `/calendar/${kind}/${state}`, {
+          source: this.$el,
+          swap: "none",
+        })
+        .then(() => {
+          this[key] = state === "on";
+          this.markOverlays();
+        });
+      button.blur();
+    },
+
+    markOverlays() {
+      const mark = (selector, on) => {
+        const button = this.$el.querySelector(selector);
+        if (button) {
+          button.classList.toggle("fc-button-active", on);
+          button.setAttribute("aria-pressed", on ? "true" : "false");
+        }
+      };
+      mark(".fc-tasks-button", this.showTasks);
+      mark(".fc-kosmos-button", this.showKosmos);
     },
 
     closeMenu() {
+      if (!this.$refs.menu) {
+        return;
+      }
       this.menuOpen = false;
       this.menuButton?.classList.remove("fc-button-active");
-      const menu = this.$refs.menu;
+      this.resetMenu(this.$refs.menu);
+    },
+
+    resetMenu(menu) {
       menu.classList.remove("show");
       menu.style.display = "";
       menu.style.position = "";
@@ -255,9 +360,8 @@ document.addEventListener("alpine:init", () => {
     // Fixed under the button, as the site's dropdowns are: its left edge
     // on the button's, or its right edge on the button's where the
     // viewport's edge is near (a phone)
-    positionMenu() {
-      const menu = this.$refs.menu;
-      const rect = this.menuButton.getBoundingClientRect();
+    positionMenu(menu, button) {
+      const rect = button.getBoundingClientRect();
       menu.classList.add("show");
       // shown here, not left to x-show's own turn, so the width is real
       menu.style.display = "block";
@@ -290,6 +394,7 @@ document.addEventListener("alpine:init", () => {
       });
 
       this.calendar.render();
+      this.markOverlays();
 
       // Listen for filter changes to refresh calendar
       document.body.addEventListener("eventsChanged", () => {
@@ -379,13 +484,16 @@ document.addEventListener("alpine:init", () => {
         // navigation, and the menu (the overlays, Filter, the list view)
         // behind a sliders button before the views. Both are drawn by
         // FullCalendar and iconed in CSS.
+        // On a wider screen Tasks and Kosmos (when connected) stand as
+        // toggles of their own, and the views sit behind one dropdown; on
+        // a phone the toggles stay in the menu, and the agenda is the
+        // only view.
         headerToolbar: phone
           ? { left: "prev,next add", center: "title", right: "menu today" }
           : {
               left: "prev,next today add",
               center: "title",
-              right:
-                "menu multiMonthRolling,dayGridMonth,timeGridWeek,timeGridDay,listRolling",
+              right: `${this.kosmosConnected ? "tasks,kosmos" : "tasks"} menu views`,
             },
         customButtons: {
           add: {
@@ -397,6 +505,21 @@ document.addEventListener("alpine:init", () => {
             text: "",
             hint: "Show…",
             click: (event, button) => this.toggleMenu(button),
+          },
+          tasks: {
+            text: "",
+            hint: "Show tasks",
+            click: (event, button) => this.toggleOverlay("tasks", button),
+          },
+          kosmos: {
+            text: "",
+            hint: "Show Kosmos events",
+            click: (event, button) => this.toggleOverlay("kosmos", button),
+          },
+          views: {
+            text: "",
+            hint: "View",
+            click: (event, button) => this.toggleViews(button),
           },
         },
         noEventsContent: "No events",
@@ -518,6 +641,7 @@ document.addEventListener("alpine:init", () => {
         // every view switch, so it doubles as the persistence hook.
         datesSet: (info) => {
           this.applyViewHeight(info.view.type);
+          this.labelViews(info.view.type);
           // The agenda is the phone's view, not a choice to carry over
           if (!phone) {
             localStorage.setItem("calendar-view", info.view.type);
