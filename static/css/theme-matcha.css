@@ -59,7 +59,7 @@
 
   /* Selection: a lavender wash inside a border a step darker than the
      cards' own, as in Kosmos */
-  --selected-background: var(--violet-150);
+  --selected-background: var(--violet-100);
   /* the atmosphere switch's track when on: a step deeper than the
      selected wash, so it reads as on */
   --switch-on: var(--violet-400);
