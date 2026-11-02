@@ -364,6 +364,7 @@
 .card.panel {
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow, none);
   padding-bottom: 1rem;
 }
 
@@ -395,6 +396,9 @@
 .folder {
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md); /* the nav pills' corner */
+  /* a faint, low shadow lifts the tile off the page (a theme token, so
+     the dark themes decide for themselves) */
+  box-shadow: var(--card-shadow, none);
   break-inside: avoid;
   display: inline-block;
   margin: 0 0 1.25rem;
