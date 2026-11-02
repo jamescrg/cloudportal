@@ -24,10 +24,10 @@
   --radius-lg: 0.5rem;
 
   /* Body & Navigation */
-  /* the page a neutral stone-125, the cards transparent on it; the nav a
-     step darker, the controls a half step */
+  /* the page, bar, controls and rules on Kosmos's steps: the page
+     stone-125, the cards transparent on it, the bar stone-350 */
   --background-body: var(--stone-125);
-  --background-nav: var(--stone-200);
+  --background-nav: var(--stone-350);
   --color-nav: var(--color-primary);
 
   /* Typography */
@@ -47,14 +47,14 @@
   /* Backgrounds */
   --background-subnav: var(--stone-200);
   --background-subnav-tab-active: var(--background-section);
-  --background-control: var(--stone-150);
-  --background-section: var(--stone-100);
+  --background-control: var(--stone-200);
+  --background-section: var(--stone-150);
   --background-light: var(--stone-50);
 
   /* Borders */
-  --border-medium: var(--stone-350);
-  --border-medium-dark: var(--stone-400);
-  --border-dark: var(--stone-500);
+  --border-medium: var(--stone-300);
+  --border-medium-dark: var(--stone-350);
+  --border-dark: var(--stone-400);
 
   /* Shadows & Overlays */
   --shadow-color: rgb(0 0 0 / 14%);
