@@ -873,3 +873,42 @@
 body[data-page="calendar"] .content > .card {
   padding-bottom: 1rem;
 }
+
+/* The calendar's grid runs to its card's sides and foot, as the home
+   page's week does, so the card's edge is the grid's and there is no box
+   within the box: the grid keeps only its top rule, its outer columns
+   lose theirs to the edge, and its foot takes the card's rounded corners */
+.card.calendar .fc-view-harness {
+  margin: 0 -1rem -1rem;
+}
+
+.card.calendar :is(.fc-scrollgrid, .fc-list, .fc-multimonth) {
+  border-bottom-width: 0 !important;
+  border-left-width: 0 !important;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  border-right-width: 0 !important;
+}
+
+.card.calendar .fc-scrollgrid :is(th, td):first-child {
+  border-left-width: 0;
+}
+
+.card.calendar .fc-scrollgrid :is(th, td):last-child {
+  border-right-width: 0;
+}
+
+/* With no rule at the card's edge, Sunday's and Saturday's events and
+   numbers take the card's own clearance from it instead */
+.card.calendar .fc-dayGridMonth-view .fc-daygrid-day:first-child .fc-daygrid-day-frame {
+  padding-left: 0.5rem;
+}
+
+.card.calendar .fc-dayGridMonth-view .fc-daygrid-day:last-child .fc-daygrid-day-frame {
+  padding-right: 0.5rem;
+}
+
+/* and in the week and day views the hours down the left take it too */
+.card.calendar :is(.fc-timegrid-axis-cushion, .fc-timegrid-slot-label-cushion) {
+  padding-left: 0.5rem;
+  white-space: nowrap;
+}
