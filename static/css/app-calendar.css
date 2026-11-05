@@ -762,17 +762,24 @@
 
 /* A day heading is set off from the day before it by a top rule and
    space above, rather than a wash, so a run of one-event days doesn't
-   read as stripes; it is a step smaller and in the secondary colour, a
-   heading over its events. The app's table rules strip the heading
-   cell's own borders, so the rule is put back here. */
+   read as stripes; it is in the secondary colour, a heading over its
+   events. The app's table rules strip the heading cell's own borders,
+   so the rule is put back here. FullCalendar fills the heading cell
+   with the card's colour, for a sticky heading that never sticks here
+   (the list doesn't scroll on its own); left clear, it sits on the card
+   as the events do, so a see-through card shows the same behind both. */
 .fc .fc-list-day th {
   border-top: solid 1px var(--border-medium);
 }
 
+.fc .fc-list-sticky .fc-list-day > * {
+  background: transparent;
+}
+
 .fc .fc-list-day-cushion {
   background: transparent;
-  font-size: 0.875rem;
-  padding: 1rem 0.75rem 0.25rem;
+  font-size: 1rem;
+  padding: 1rem 0.75rem 0.5rem;
 }
 
 .fc .fc-list-day-text,
@@ -781,9 +788,9 @@
   font-weight: 600;
 }
 
-/* A day's events sit with their date as one block, the only rule the
-   one above the date */
-.fc .fc-list-event td {
+/* A day's events sit together as one block: ruled off from their date,
+   not from each other */
+.fc .fc-list-event + .fc-list-event td {
   border-top-width: 0;
 }
 
@@ -868,7 +875,7 @@
   }
 
   .fc .fc-list-day-cushion {
-    padding: 1rem 0.5rem 0.25rem;
+    padding: 1rem 0.5rem 0.5rem;
   }
 
   /* The grid is replaced by the list (events-calendar.js forces list view),
