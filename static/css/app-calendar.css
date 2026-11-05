@@ -760,23 +760,31 @@
   width: 1%;
 }
 
-/* A day heading is set off from the day before it by a top rule and a
-   wash a step darker than the rows; the app's table rules strip the
-   heading cell's own borders, so the rule is put back here. */
+/* A day heading is set off from the day before it by a top rule and
+   space above, rather than a wash, so a run of one-event days doesn't
+   read as stripes; it is a step smaller and in the secondary colour, a
+   heading over its events. The app's table rules strip the heading
+   cell's own borders, so the rule is put back here. */
 .fc .fc-list-day th {
   border-top: solid 1px var(--border-medium);
 }
 
 .fc .fc-list-day-cushion {
-  background: var(--background-subnav);
-  font-size: 1rem;
-  padding: 0.5rem 0.75rem;
+  background: transparent;
+  font-size: 0.875rem;
+  padding: 1rem 0.75rem 0.25rem;
 }
 
 .fc .fc-list-day-text,
 .fc .fc-list-day-side-text {
-  color: var(--color-primary);
+  color: var(--color-secondary);
   font-weight: 600;
+}
+
+/* A day's events sit with their date as one block, the only rule the
+   one above the date */
+.fc .fc-list-event td {
+  border-top-width: 0;
 }
 
 .fc .fc-list-event-time {
@@ -855,9 +863,12 @@
 
   /* The agenda's rows close up sideways but keep their height: each is
      a tap target, and a thumb wants 44px or so */
-  .fc .fc-list-day-cushion,
   .fc .fc-list-table td {
     padding: 0.75rem 0.5rem;
+  }
+
+  .fc .fc-list-day-cushion {
+    padding: 1rem 0.5rem 0.25rem;
   }
 
   /* The grid is replaced by the list (events-calendar.js forces list view),
