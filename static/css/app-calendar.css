@@ -779,7 +779,7 @@
 .fc .fc-list-day-cushion {
   background: transparent;
   font-size: 1rem;
-  padding: 1rem 0.75rem 0.5rem;
+  padding: 1.25rem 0.75rem 0.5rem;
 }
 
 .fc .fc-list-day-text,
@@ -875,7 +875,7 @@
   }
 
   .fc .fc-list-day-cushion {
-    padding: 1rem 0.5rem 0.5rem;
+    padding: 1.25rem 0.5rem 0.5rem;
   }
 
   /* The grid is replaced by the list (events-calendar.js forces list view),
