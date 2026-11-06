@@ -41,8 +41,8 @@ DATE_FILTER_NAMES = {
     "past_due": "Past Due",
     "today": "Today",
     "tomorrow": "Tomorrow",
-    "next3": "Next 3 Days",
-    "next7": "Next 7 Days",
+    "next3": "Today + 2",
+    "next7": "Today + 6",
     "unscheduled": "Unscheduled",
 }
 
