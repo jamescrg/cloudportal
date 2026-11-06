@@ -41,6 +41,7 @@ DATE_FILTER_NAMES = {
     "past_due": "Past Due",
     "today": "Today",
     "tomorrow": "Tomorrow",
+    "next3": "Next 3 Days",
     "next7": "Next 7 Days",
     "unscheduled": "Unscheduled",
 }
@@ -71,8 +72,8 @@ def quick_date_filters(today):
     filter. A preset touches only the date dimension, so the rest of a
     saved filter (status, sort) is left as it is.
 
-    Today and the next seven days are open-ended at the start, so past-due
-    tasks stay in view.
+    Today and the next three and seven days are open-ended at the start,
+    so past-due tasks stay in view.
     """
     day = "%Y-%m-%d"
 
@@ -97,6 +98,11 @@ def quick_date_filters(today):
         "tomorrow": {
             "due_date_min": (today + timedelta(days=1)).strftime(day),
             "due_date_max": (today + timedelta(days=1)).strftime(day),
+            "has_due_date": "",
+        },
+        "next3": {
+            "due_date_min": "",
+            "due_date_max": (today + timedelta(days=2)).strftime(day),
             "has_due_date": "",
         },
         "next7": {

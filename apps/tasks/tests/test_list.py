@@ -152,6 +152,7 @@ def test_the_presets_window_the_dates():
         "past_due",
         "today",
         "tomorrow",
+        "next3",
         "next7",
     ]
     assert presets["past_due"]["due_date_max"] == "2030-03-05"
@@ -159,6 +160,11 @@ def test_the_presets_window_the_dates():
     assert presets["tomorrow"] == {
         "due_date_min": "2030-03-07",
         "due_date_max": "2030-03-07",
+        "has_due_date": "",
+    }
+    assert presets["next3"] == {
+        "due_date_min": "",
+        "due_date_max": "2030-03-08",
         "has_due_date": "",
     }
     assert presets["next7"]["due_date_max"] == "2030-03-12"
@@ -417,6 +423,7 @@ def test_new_tasks_start_at_normal_with_no_date_by_default(client):
     [
         ("today", date.today()),
         ("tomorrow", date.today() + timedelta(days=1)),
+        ("next3", None),
         ("next7", None),
         ("past_due", None),
         ("unscheduled", None),
