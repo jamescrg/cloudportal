@@ -423,8 +423,8 @@ def test_new_tasks_start_at_normal_with_no_date_by_default(client):
     [
         ("today", date.today()),
         ("tomorrow", date.today() + timedelta(days=1)),
-        ("next3", None),
-        ("next7", None),
+        ("next3", date.today()),
+        ("next7", date.today()),
         ("past_due", None),
         ("unscheduled", None),
         ("all", None),

@@ -50,12 +50,13 @@ DATE_FILTER_NAMES = {
 def default_due_date(filter_data, today):
     """The due date a new task starts with, from the filter in force.
 
-    A task added while looking at today's tasks is due today, and while
+    A task added while looking at today's tasks is due today, as it is
+    while looking at the days from today (Today + 2, Today + 6), and while
     looking at tomorrow's, tomorrow. More generally, a filter pinned to a
     single day (its from and to the same) gives that day, which is what the
     Tomorrow preset is. Any other view gives no date.
     """
-    if filter_data.get("filter_label") == "today":
+    if filter_data.get("filter_label") in ("today", "next3", "next7"):
         return today
     start = filter_data.get("due_date_min") or ""
     end = filter_data.get("due_date_max") or ""
