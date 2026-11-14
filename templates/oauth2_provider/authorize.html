@@ -1,0 +1,41 @@
+{% extends "registration/base.html" %}
+{% comment %}
+The page Claude sends the user to when connecting (django-oauth-toolkit's
+AuthorizationView), after the site's own sign-in. It names the app and the
+site it identifies itself from, so a look-alike is told apart.
+{% endcomment %}
+{% block content %}
+    {% if not error %}
+        <form id="authorizationForm"
+              class="account-form consent-form"
+              method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.is_hidden %}{{ field }}{% endif %}
+            {% endfor %}
+            <h2 class="consent-heading">Connect {{ application.name|default:"this app" }}?</h2>
+            <p class="consent-from">
+                Identifies itself from <strong>{{ client_host }}</strong>
+            </p>
+            <p>It will be able to:</p>
+            <ul class="consent-scopes">
+                {% for scope in scopes_descriptions %}<li>{{ scope }}</li>{% endfor %}
+            </ul>
+            <p class="consent-note">It can't delete anything. You can disconnect it any time in Settings, under Connected Apps.</p>
+            {{ form.non_field_errors }}
+            <div class="flex-container login-bottom">
+                <div class="login-bottom-left">
+                    <button class="btn btn-primary" type="submit" name="allow" value="Authorize">Allow</button>
+                </div>
+                <div class="login-bottom-right">
+                    <button class="btn btn-secondary" type="submit">Cancel</button>
+                </div>
+            </div>
+        </form>
+    {% else %}
+        <div class="account-form">
+            <h2 class="consent-heading">This connection can't go ahead</h2>
+            <p>{{ error.description|default:error.error }}</p>
+        </div>
+    {% endif %}
+{% endblock content %}

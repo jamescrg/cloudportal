@@ -100,3 +100,39 @@ li {
 .password-reveal-button[aria-pressed="true"] {
   color: var(--color-primary);
 }
+
+/* The page Claude sends the user to when connecting (oauth2_provider/
+   authorize.html): what is asking, from where, and what it may do, all
+   centred under the logo as one short statement */
+.consent-form {
+  text-align: center;
+}
+
+.consent-heading {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.consent-from {
+  color: var(--color-secondary);
+}
+
+.consent-scopes {
+  font-weight: 500;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.consent-scopes li {
+  list-style: none;
+}
+
+.consent-note {
+  color: var(--color-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.consent-form .login-bottom {
+  text-align: left;
+}

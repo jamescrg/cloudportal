@@ -1,8 +1,11 @@
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
+from oauth2_provider import views as oauth_views
+from oauth2_provider.urls import metadata_urlpatterns
 
 from accounts import views as account_views
+from apps.connector import views as connector
 from apps.contacts import views as contacts
 from apps.favorites import views as favorites
 from apps.finance import views as finance
@@ -17,7 +20,23 @@ from apps.settings.users import views as user_settings
 from apps.tasks import views as tasks
 from apps.weather import views as weather
 
+# Claude's sign-in (django-oauth-toolkit): the discovery documents at the
+# site's root, and only the authorize, token and revoke endpoints; the
+# toolkit's own app and token management pages are left out
+oauth_urlpatterns = metadata_urlpatterns + [
+    path("oauth/authorize/", connector.ConsentView.as_view(), name="authorize"),
+    path("oauth/token/", oauth_views.TokenView.as_view(), name="token"),
+    path(
+        "oauth/revoke_token/",
+        oauth_views.RevokeTokenView.as_view(),
+        name="revoke-token",
+    ),
+]
+
 urlpatterns = [
+    path("", include((oauth_urlpatterns, "oauth2_provider"))),
+    # Claude's connector: the MCP endpoint
+    path("mcp", connector.mcp, name="connector-mcp"),
     # The admin signs in through the site's own sign-in (accounts.views)
     path("admin/login/", account_views.admin_login),
     path("admin/", admin.site.urls),
@@ -341,6 +360,12 @@ urlpatterns = [
     ),
     path("settings/", settings.index, name="settings"),
     path("settings/homepage/", settings.homepage_index, name="settings-homepage"),
+    path("settings/connected/", connector.connected_index, name="settings-connected"),
+    path(
+        "settings/connected/<int:application_id>/disconnect",
+        connector.disconnect,
+        name="settings-connected-disconnect",
+    ),
     path("settings/google/", settings.google_index, name="settings-google"),
     path("settings/security/", security_settings.index, name="settings-security"),
     path(

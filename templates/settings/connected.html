@@ -1,0 +1,38 @@
+{% extends "settings/main.html" %}
+{% block subcontent %}
+    <div class="card">
+        <div class="card-title">
+            <h1>Connected Apps</h1>
+        </div>
+        <p class="card-text">
+            Claude can read and change your tasks and calendar: find, add, change and complete tasks, and list, add and change events. It can't delete anything. To connect it, add a custom connector in Claude with the address below, then sign in here when Claude asks.
+        </p>
+        <table class="options">
+            <tr>
+                <td class="setting-label">Connector address</td>
+                <td class="setting-control">
+                    <code class="connector-url">{{ connector_url }}</code>
+                </td>
+            </tr>
+            {% for app in connections %}
+                <tr>
+                    <td class="setting-label">{{ app.name }}</td>
+                    <td class="setting-control">
+                        <form method="post"
+                              action="{% url 'settings-connected-disconnect' app.id %}"
+                              class="connected-app">
+                            {% csrf_token %}
+                            <span class="connected-since">Connected {{ app.since|date:"M j, Y" }}</span>
+                            <button class="btn btn-secondary" type="submit">Disconnect</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="setting-label">Connected</td>
+                    <td class="setting-control">Nothing yet</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock subcontent %}
