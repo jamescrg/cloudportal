@@ -6,20 +6,23 @@ code in this repository.
 
 ## Project Overview
 
-Minhome is a personal home page and organizer. It manages
-favorites, tasks, contacts, and notes. It also provides some weather data
-and some crypto and securities data via api connections.
+CloudPortal is a personal home page and organizer. It manages
+favorites, tasks, a calendar, contacts, and notes. It also provides some
+weather data and some crypto and securities data via api connections.
 
 ## Development Commands
 
 ### Environment Setup
 
-```bash
-# Activate virtual environment
-source venv/bin/activate
+Dependencies are managed with uv (pyproject.toml, uv.lock); the virtual
+environment is `.venv`.
 
+```bash
 # Install dependencies
-pip install -r requirements.txt
+uv sync
+
+# Activate virtual environment
+source .venv/bin/activate
 
 # Run migrations
 python manage.py migrate
@@ -44,7 +47,7 @@ pytest
 pytest -n auto
 
 # Run specific app tests
-pytest apps/matters/tests/
+pytest apps/tasks/tests/
 ```
 
 ### Code Quality
