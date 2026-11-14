@@ -20,6 +20,7 @@ def site_handle(request):
 # condition).
 THEME_VARIANTS = {
     "matcha-lavender": "matcha",
+    "matcha-paper-sage": "matcha-paper",
     "hojicha-steam": "hojicha",
     "auto-atmosphere": "auto",
 }
@@ -30,8 +31,7 @@ VARIANT_OF = {base: variant for variant, base in THEME_VARIANTS.items()}
 # A device with nothing chosen: Auto, with the atmosphere
 DEFAULT_THEME = "auto-atmosphere"
 
-# Every theme a user may choose. Matcha Paper has no atmospheric variant:
-# it is Matcha on warm paper, and the wash is made for the stone.
+# Every theme a user may choose
 THEMES = {"matcha", "matcha-paper", "hojicha", "auto", *THEME_VARIANTS}
 
 # Renamed themes, so a session still holding the old name keeps its theme

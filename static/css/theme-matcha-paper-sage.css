@@ -1,0 +1,272 @@
+/* ==========================================================================
+ Matcha Paper Sage: Matcha Paper's colours (theme-matcha.css and
+ theme-matcha-paper.css, loaded first) with the atmosphere (atmosphere.css)
+ on top. A sheet of paper in the shade of leaves.
+========================================================================== */
+
+/* --------------------------------------------------------------------------
+ The light. Every gradient in the theme is the same light: it falls from
+ the top left, a pale straw barely warmer than the paper, and where it runs out the shade is sage, the
+ green of the Paper desktop and Obsidian themes' accent. Both stay in the
+ paper's own warm family: a pale cool tint goes grey on this ground, so
+ the lavender is kept out of the wash and left as the small pop it is.
+ Surfaces are not given colours of their own; they take a sheen, the light
+ laid as a translucent layer over whatever colour the surface already
+ has, at one of two strengths. Cards and buttons are the exception: they
+ take no sheen, and the cards let the wash through.
+ Turn these dials and every surface follows.
+-------------------------------------------------------------------------- */
+
+:root {
+  --sage-light: oklch(0.955 0.034 100);
+  --sage-shade: oklch(0.8 0.05 150);
+  /* a third note, low on the page: the paper's own tan, a little
+     deeper, with none of the red a low sun would bring */
+  --sage-ground: oklch(0.87 0.028 85);
+
+  /* The sheens: a pool of light in the lit corner and a pool of shade
+     in the far one, each a fixed size, so a tall card is lit like a
+     short one rather than stretched into a band. Soft for menus and
+     other quiet surfaces, plain for dialogs and the mobile drawer. */
+  --sage-sheen-soft:
+    radial-gradient(
+      24rem 12rem at 0% 0%,
+      color-mix(in oklab, var(--sage-light) 30%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      20rem 10rem at 100% 100%,
+      color-mix(in oklab, var(--sage-shade) 14%, transparent),
+      transparent
+    );
+  --sage-sheen:
+    radial-gradient(
+      48rem 18rem at 0% 0%,
+      color-mix(in oklab, var(--sage-light) 48%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      40rem 16rem at 100% 100%,
+      color-mix(in oklab, var(--sage-shade) 22%, transparent),
+      transparent
+    );
+
+  /* Shadows take the paper's colour too: a warm brown, not black */
+  --sage-shadow: oklch(0.3 0.04 70 / 26%);
+
+  /* The page: a still wash of the same light. Straw along the top left
+     and low on the left, sage high on the right and gathering in the far
+     corner, a little of the paper's tan underfoot. Quieter than Matcha Lavender's:
+     the paper's page and cards stand closer together, so the cards have
+     less room before they stop reading as panels.
+     It sits under the moving weather (paused for now), runs up under the
+     bar, and the active tab shows it too (atmosphere.css). */
+  --atmos-wash:
+    radial-gradient(55vmax 20vmax at 15% 0%, color-mix(in oklab, var(--sage-light) 60%, transparent), transparent 70%),
+    radial-gradient(60vmax 45vmax at 10% 55%, color-mix(in oklab, var(--sage-light) 50%, transparent), transparent 70%),
+    radial-gradient(50vmax 40vmax at 95% 10%, color-mix(in oklab, var(--sage-shade) 38%, transparent), transparent 70%),
+    radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--sage-shade) 32%, transparent), transparent 70%),
+    radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--sage-ground) 35%, transparent), transparent 70%);
+
+  /* ------------------------------------------------------------------
+     The atmosphere's dials, drawn from the light
+     ------------------------------------------------------------------ */
+  /* More grain than the others: on paper it is the sheet's own tooth */
+  --atmos-ink: oklch(0.36 0.02 70);
+  --atmos-grain: 0.09;
+
+  /* The bar is the wash itself carried on up, a step darker: a thin
+     warm veil over the page's own light */
+  --atmos-nav: oklch(0.45 0.03 80 / 13%);
+
+  /* The active tab is lit at the top by the light's own straw */
+  --atmos-tab-glow: color-mix(in oklab, color-mix(in oklab, var(--stone-50) 75%, var(--sage-light)) 55%, transparent);
+
+  /* Cards carry no light of their own: they are the card colour taken a
+     little way to the lightest paper, let through so the wash shows
+     behind them */
+  --sage-card-opacity: 68%;
+  --atmos-card: color-mix(in srgb, color-mix(in oklab, var(--background-section) 60%, var(--stone-50)) var(--sage-card-opacity), transparent);
+  --atmos-card-rim: transparent;
+  --atmos-card-shadow: oklch(0.3 0.04 70 / 18%);
+
+  /* Text a touch darker than Matcha's, halfway to the next stone, to
+     hold against the wash through the cards */
+  --color-primary: color-mix(in oklab, var(--stone-600) 50%, var(--stone-700));
+
+  /* The selected step a little deeper, to hold on the see-through cards */
+  --selected-background: color-mix(in oklab, var(--stone-150) 50%, var(--stone-200));
+
+  /* Borders a touch darker, so the lines in the cards hold against the
+     wash coming through them */
+  --border-medium: color-mix(in oklab, var(--stone-300) 75%, var(--stone-400));
+  --border-medium-dark: color-mix(in oklab, var(--stone-350) 80%, var(--stone-400));
+  --border-dark: color-mix(in oklab, var(--stone-400) 85%, var(--stone-500));
+
+  /* Calendar chips a step darker, so they hold on the see-through cards */
+  --calendar-chip: color-mix(in oklab, var(--stone-300) 80%, transparent);
+
+  /* The site icons, when thematic, washed in the paper's tan */
+  --favicon-tint: grayscale(1) sepia(0.6) saturate(1.1) brightness(0.95);
+
+  /* Table heads: the control colour, let through as the cards are, or
+     the head would sit on a card as a solid band */
+  --background-table-header: color-mix(in srgb, var(--background-control) var(--sage-card-opacity), transparent);
+}
+
+/* --------------------------------------------------------------------------
+ The surfaces. Each keeps its own colour and takes a sheen over it.
+-------------------------------------------------------------------------- */
+
+.modal-content {
+  background-image: var(--sage-sheen);
+  box-shadow: 0 1.5rem 3rem -1rem var(--sage-shadow), 0 0.25rem 0.5rem var(--shadow-color);
+}
+
+/* Menus: the sheen on the menu, so the items are cleared to let it
+   through (the hovered one still lights up) */
+.dropdown-menu {
+  background-image: var(--sage-sheen-soft);
+  box-shadow: 0 0.75rem 1.5rem -0.75rem var(--sage-shadow);
+}
+
+.dropdown-menu li {
+  background-color: transparent;
+}
+
+@media (max-width: 991.98px) {
+  .nav-drawer {
+    background-image: var(--sage-sheen);
+  }
+}
+
+/* The selected folder or contact: the selected step, a little let
+   through so it sits in the card */
+.active-item {
+  background: color-mix(in srgb, var(--selected-background) 85%, transparent);
+}
+
+/* The calendar's weekday headings: FullCalendar paints its header row in
+   the solid page colour, which reads as a band on a see-through card;
+   here it is left clear, so it sits on the card like the day cells */
+.fc .fc-scrollgrid .fc-scrollgrid-section-header > * {
+  background: transparent;
+}
+
+/* The home page's search box and engine picker sit on the wash as the
+   cards do, so they take the cards' shadow (atmosphere.css), without the
+   rim */
+body[data-page="home"] :is(.search-input, .search-engine-btn) {
+  box-shadow:
+    0 1px 2px var(--shadow-color),
+    0 14px 32px -18px var(--atmos-card-shadow);
+}
+
+/* --------------------------------------------------------------------------
+ The weather in motion, over the wash. Paused for now (atmosphere.css).
+-------------------------------------------------------------------------- */
+
+/* Light through leaves. Each patch is a soft-edged ellipse of colour,
+   larger than the screen, drifting on its own slow loop so they never
+   line up the same way twice. */
+.atmos-cloud {
+  border-radius: 50%;
+  height: 70vmax;
+  width: 90vmax;
+}
+
+.atmos-cloud-1 {
+  animation: sage-a 95s ease-in-out infinite alternate;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--sage-light) 60%, transparent), color-mix(in oklab, var(--sage-light) 30%, transparent) 50%, transparent);
+  left: -30vmax;
+  top: 5vh;
+}
+
+.atmos-cloud-2 {
+  animation: sage-b 120s ease-in-out infinite alternate -40s;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--stone-50) 70%, transparent), color-mix(in oklab, var(--stone-50) 35%, transparent) 50%, transparent);
+  right: -35vmax;
+  top: 20vh;
+}
+
+.atmos-cloud-3 {
+  animation: sage-a 140s ease-in-out infinite alternate-reverse -70s;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--sage-ground) 40%, transparent), color-mix(in oklab, var(--sage-ground) 20%, transparent) 50%, transparent);
+  bottom: -40vmax;
+  left: 10vw;
+}
+
+.atmos-cloud-4 {
+  animation: sage-b 110s ease-in-out infinite alternate-reverse -20s;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--sage-shade) 40%, transparent), color-mix(in oklab, var(--sage-shade) 20%, transparent) 50%, transparent);
+  height: 50vmax;
+  right: -10vmax;
+  bottom: -20vmax;
+  width: 60vmax;
+}
+
+/* A patch of sage shade, the one cool colour on the sheet */
+.atmos-cloud-5 {
+  animation: sage-a 160s ease-in-out infinite alternate -100s;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--sage-shade) 32%, transparent), color-mix(in oklab, var(--sage-shade) 16%, transparent) 50%, transparent);
+  height: 40vmax;
+  left: 35vw;
+  top: 35vh;
+  width: 70vmax;
+}
+
+/* A pool of light high on the left, where it comes in, coming and
+   going */
+.atmos-glow {
+  animation: sage-glow 48s ease-in-out infinite alternate;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--sage-light) 55%, transparent), color-mix(in oklab, var(--sage-light) 28%, transparent) 50%, transparent);
+  border-radius: 50%;
+  height: 60vmax;
+  left: -12vmax;
+  top: -8vmax;
+  width: 60vmax;
+}
+
+@keyframes sage-a {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(14vw, -4vh) scale(1.12);
+  }
+
+  100% {
+    transform: translate(26vw, 3vh) scale(0.96);
+  }
+}
+
+@keyframes sage-b {
+  0% {
+    transform: translate(0, 0) scale(1.05);
+  }
+
+  50% {
+    transform: translate(-12vw, 5vh) scale(0.94);
+  }
+
+  100% {
+    transform: translate(-22vw, -3vh) scale(1.1);
+  }
+}
+
+@keyframes sage-glow {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.95);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.75;
+    transform: scale(1.08);
+  }
+}

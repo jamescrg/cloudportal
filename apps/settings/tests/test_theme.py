@@ -32,23 +32,26 @@ def test_matcha_lavender_builds_on_matcha(client):
     assert 'class="atmos"' in html
 
 
-def test_matcha_paper_builds_on_matcha_and_has_no_atmosphere(client):
+def test_matcha_paper_builds_on_matcha(client):
     html = page_for(client, "matcha-paper")
     matcha = html.index("css/theme-matcha.css")
     paper = html.index("css/theme-matcha-paper.css")
     assert matcha < paper
     assert "Matcha Paper" in html
-
-    # with the atmosphere on, choosing Paper leaves it behind, and the
-    # switch cannot turn it on there
-    client.post(reverse("settings-theme"), {"theme": "matcha-lavender"})
-    client.post(reverse("settings-theme"), {"theme": "matcha-paper"})
-    assert client.session["theme"] == "matcha-paper"
-    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": "on"})
-    assert client.session["theme"] == "matcha-paper"
-    html = client.get(reverse("settings")).content.decode()
     assert "atmosphere.css" not in html
-    assert 'aria-checked="false"' in html and "disabled" in html
+
+
+def test_matcha_paper_sage_builds_on_matcha_paper(client):
+    client.post(reverse("settings-theme"), {"theme": "matcha-paper"})
+    client.post(reverse("settings-theme-atmosphere"), {"atmosphere": "on"})
+    assert client.session["theme"] == "matcha-paper-sage"
+    html = client.get(reverse("settings")).content.decode()
+    paper = html.index("css/theme-matcha-paper.css")
+    atmosphere = html.index("css/atmosphere.css")
+    sage = html.index("css/theme-matcha-paper-sage.css")
+    assert paper < atmosphere < sage
+    assert 'class="atmos"' in html and 'aria-checked="true"' in html
+    assert "Matcha Paper Sage" not in html
 
 
 def test_matcha_mist_is_now_matcha_lavender(client):
