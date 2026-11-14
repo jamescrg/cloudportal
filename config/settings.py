@@ -101,6 +101,9 @@ OAUTH2_PROVIDER = {
     # Claude Code signs in through a browser that returns to a local port
     "ALLOW_LOCALHOST_LOOPBACK": True,
     "CIMD_ENABLED": True,
+    # claude.ai's document lists a grant CloudPortal doesn't offer, which
+    # the toolkit would refuse it for (apps/connector/cimd.py)
+    "CIMD_METADATA_FETCHER": "apps.connector.cimd.OfferedGrantsFetcher",
     "CIMD_REGISTRATION_PERMISSION_CLASSES": (
         "oauth2_provider.cimd.HostAllowlistCIMDPermission",
     ),
