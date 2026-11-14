@@ -71,6 +71,47 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
+# Claude's connector (apps.connector): an MCP server at /mcp, which Claude
+# signs in to with OAuth (django-oauth-toolkit). The site is its own
+# authorization server; Claude identifies itself with a client metadata
+# document on its own domain (CIMD), and only Anthropic's domains may.
+# Access tokens last an hour and are refreshed; a refresh token is changed
+# at each use and lapses after 90 days unused.
+CONNECTOR_URL = f"{SITE_URL}/mcp"
+CONNECTOR_SCOPE = "minhome"
+
+OAUTH2_PROVIDER = {
+    "SCOPES": {CONNECTOR_SCOPE: "Read and change your tasks and calendar"},
+    "DEFAULT_SCOPES": [CONNECTOR_SCOPE],
+    "OIDC_ISS_ENDPOINT": SITE_URL,
+    "PKCE_REQUIRED": True,
+    # The current security best practice (RFC 9700) throughout: no implicit
+    # or password grants, S256 only, tokens never in URLs, the issuer named
+    # in each sign-in response, and tokens kept only as hashes
+    "COMPLIANT_BCP_RFC9700_IMPLICIT_GRANT": True,
+    "COMPLIANT_BCP_RFC9700_PASSWORD_GRANT": True,
+    "COMPLIANT_BCP_RFC9700_PKCE_METHOD": True,
+    "COMPLIANT_BCP_RFC9700_ACCESS_TOKEN_TRANSPORT": True,
+    "COMPLIANT_BCP_RFC9700_AUTHZ_RESPONSE_ISS": True,
+    "COMPLIANT_BCP_RFC9700_TOKEN_STORAGE": True,
+    "ACCESS_TOKEN_EXPIRE_SECONDS": 60 * 60,
+    "REFRESH_TOKEN_EXPIRE_SECONDS": 90 * 24 * 60 * 60,
+    "ROTATE_REFRESH_TOKEN": True,
+    "REFRESH_TOKEN_REUSE_PROTECTION": True,
+    # Claude Code signs in through a browser that returns to a local port
+    "ALLOW_LOCALHOST_LOOPBACK": True,
+    "CIMD_ENABLED": True,
+    "CIMD_REGISTRATION_PERMISSION_CLASSES": (
+        "oauth2_provider.cimd.HostAllowlistCIMDPermission",
+    ),
+    "CIMD_ALLOWED_HOSTS": [".claude.ai", ".claude.com", ".anthropic.com"],
+    "OAUTH2_TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED": ["none"],
+    "OAUTH2_PROTECTED_RESOURCE_IDENTIFIER": CONNECTOR_URL,
+    "OAUTH2_PROTECTED_RESOURCE_AUTHORIZATION_SERVERS": [SITE_URL],
+    "OAUTH2_PROTECTED_RESOURCE_NAME": "Minhome",
+}
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -100,6 +141,8 @@ INSTALLED_APPS = [
     "apps.quotes",
     "apps.search",
     "apps.settings",
+    "oauth2_provider",
+    "apps.connector",
 ]
 
 # Django-Q2: the background worker that runs the scheduled jobs (see

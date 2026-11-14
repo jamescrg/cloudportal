@@ -29,6 +29,9 @@
                 <li {% if subapp == "google" %}class="active"{% endif %}>
                     <a href="{% url 'settings-google' %}">Google</a>
                 </li>
+                <li {% if subapp == "connected" %}class="active"{% endif %}>
+                    <a href="{% url 'settings-connected' %}">Connected Apps</a>
+                </li>
                 <li {% if subapp == "crypto" %}class="active"{% endif %}>
                     <a href="{% url 'settings-crypto-symbols' %}">Crypto</a>
                 </li>

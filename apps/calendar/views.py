@@ -296,6 +296,24 @@ def _save_occurrence(form, event, series, user):
     return result
 
 
+def save_event_edit(form, event, series, user, before):
+    """Save a valid edit form for an event, as the event dialog does: a
+    lone event may be given a repeat, an occurrence is saved by its scope,
+    and the guests are sent the change. ``before`` is what the guests were
+    told (invitations.details), taken before the form was bound. Also used
+    by Claude's connector (apps.connector). Returns the Google push's
+    result."""
+    if series is None:
+        result = _save_event(form, user)
+        rule = form.rule()
+        if rule:
+            recurrence.start_series(event, rule)
+    else:
+        result = _save_occurrence(form, event, series, user)
+    invitations.after_change(event, before)
+    return result
+
+
 @login_required
 def events_edit(request, id):
     event = _event_for_user(id, request.user)
@@ -306,14 +324,7 @@ def events_edit(request, id):
         before = invitations.details(event)
         form = EventForm(request.POST, instance=event, series=series)
         if form.is_valid():
-            if series is None:
-                result = _save_event(form, request.user)
-                rule = form.rule()
-                if rule:
-                    recurrence.start_series(event, rule)
-            else:
-                result = _save_occurrence(form, event, series, request.user)
-            invitations.after_change(event, before)
+            result = save_event_edit(form, event, series, request.user, before)
             return _event_change_response(result)
         # The form comes back with its errors, the notifications following
         # the date and time as posted

@@ -9,6 +9,7 @@ dependencies = [
     "django-environ==0.12.0",
     "django-filter==25.2",
     "django-mathfilters==1.0.0",
+    "django-oauth-toolkit==3.4.1",
     "django-q2==1.7.2",
     "django-watson==1.6.3",
     "dkimpy>=1.1.8",

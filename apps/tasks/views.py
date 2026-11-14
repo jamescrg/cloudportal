@@ -561,22 +561,7 @@ def task_form(request, id):
         form = TaskForm(request.POST, instance=task, use_required_attribute=False)
         form.fields["folder"].queryset = folders
         if form.is_valid():
-            task = form.save(commit=False)
-            task.user = user
-            task.time_zone = user.time_zone
-            task.title = task.title[0].upper() + task.title[1:]
-
-            # Update completed_date when status changes
-            if task.status == 1 and old_status != 1:
-                task.completed_date = date.today()
-            elif task.status != 1 and old_status == 1:
-                task.completed_date = None
-
-            task.save()
-            recurring.apply_edit(task, form.rule(), form.repeat_start())
-            # A recurring task's instance marked done here brings on the next
-            if task.status == 1 and old_status != 1:
-                recurring.after_completion(task)
+            save_task_form(form, user, old_status)
             return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
         # Form validation failed - re-render form with errors, the
@@ -602,6 +587,31 @@ def task_form(request, id):
         "folders": get_folders_for_page(request, "tasks"),
     } | _reminders_context(task, timing)
     return render(request, "tasks/modal-form.html", context)
+
+
+def save_task_form(form, user, old_status):
+    """Save a valid task form for the user, as the task dialog does, and
+    bring its recurrence in step. ``old_status`` is the task's status
+    before the form was bound (binding writes the posted one onto it).
+    Also used by Claude's connector (apps.connector), so a task changed
+    there is changed exactly as from the dialog."""
+    task = form.save(commit=False)
+    task.user = user
+    task.time_zone = user.time_zone
+    task.title = task.title[0].upper() + task.title[1:]
+
+    # Update completed_date when status changes
+    if task.status == 1 and old_status != 1:
+        task.completed_date = date.today()
+    elif task.status != 1 and old_status == 1:
+        task.completed_date = None
+
+    task.save()
+    recurring.apply_edit(task, form.rule(), form.repeat_start())
+    # A recurring task's instance marked done here brings on the next
+    if task.status == 1 and old_status != 1:
+        recurring.after_completion(task)
+    return task
 
 
 def _timing(task, data):
