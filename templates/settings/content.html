@@ -19,7 +19,9 @@
                                     @click="toggle()"
                                     :aria-expanded="open">
                                 <span>
-                                    {% if theme_base == "hojicha" %}
+                                    {% if theme_base == "matcha-paper" %}
+                                        Matcha Paper
+                                    {% elif theme_base == "hojicha" %}
                                         Hojicha
                                     {% elif theme_base == "auto" %}
                                         Auto
@@ -34,6 +36,11 @@
                                     <a class="dropdown-item"
                                        href="#"
                                        @click.prevent="$el.closest('form').querySelector('[name=theme]').value='matcha'; $el.closest('form').submit();">Matcha</a>
+                                </li>
+                                <li {% if theme_base == "matcha-paper" %}class="active"{% endif %}>
+                                    <a class="dropdown-item"
+                                       href="#"
+                                       @click.prevent="$el.closest('form').querySelector('[name=theme]').value='matcha-paper'; $el.closest('form').submit();">Matcha Paper</a>
                                 </li>
                                 <li {% if theme_base == "hojicha" %}class="active"{% endif %}>
                                     <a class="dropdown-item"
@@ -57,7 +64,8 @@
                     A switch: on, the theme takes its atmospheric variant
                     (Matcha Lavender, Hojicha Steam, or the one of those
                     the device's light or dark calls for, under Auto) with
-                    the gradient wash and the weather.
+                    the gradient wash and the weather. Matcha Paper has no
+                    such variant, so there the switch is off and disabled.
                     {% endcomment %}
                     <form action="{% url 'settings-theme-atmosphere' %}"
                           method="post"
@@ -70,7 +78,8 @@
                                 class="switch{% if theme_variant %} is-on{% endif %}"
                                 role="switch"
                                 aria-checked="{% if theme_variant %}true{% else %}false{% endif %}"
-                                aria-label="Atmosphere">
+                                aria-label="Atmosphere"
+                                {% if theme_base == "matcha-paper" %}disabled{% endif %}>
                             <span class="switch-knob"></span>
                         </button>
                     </form>

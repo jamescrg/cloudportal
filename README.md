@@ -69,7 +69,7 @@ CloudPortal is an all-in-one personal home page built on Django. It brings toget
 - Scope filtering and phone number digit matching
 
 ### Settings
-- Theme selection (matcha, hojicha, original, auto/system)
+- Theme selection (matcha, matcha paper, hojicha, auto/system)
 - Homepage section toggles
 - Google account linking (Calendar and Contacts)
 - Notification preferences (email and SMS via Twilio)

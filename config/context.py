@@ -30,8 +30,9 @@ VARIANT_OF = {base: variant for variant, base in THEME_VARIANTS.items()}
 # A device with nothing chosen: Auto, with the atmosphere
 DEFAULT_THEME = "auto-atmosphere"
 
-# Every theme a user may choose
-THEMES = {"matcha", "hojicha", "auto", *THEME_VARIANTS}
+# Every theme a user may choose. Matcha Paper has no atmospheric variant:
+# it is Matcha on warm paper, and the wash is made for the stone.
+THEMES = {"matcha", "matcha-paper", "hojicha", "auto", *THEME_VARIANTS}
 
 # Renamed themes, so a session still holding the old name keeps its theme
 

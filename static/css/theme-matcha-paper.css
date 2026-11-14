@@ -1,0 +1,88 @@
+/* ==========================================================================
+ Matcha Paper: Matcha's colours (theme-matcha.css, always loaded) on warm
+ paper. The grounds take the hues of the Mint-Y-Paper desktop theme and
+ the Matcha Paper Obsidian theme, a light Gruvbox: each stone step that
+ serves as a ground or a rule keeps its place in the ramp and takes the
+ paper's warmth, so every surface, border and control follows at once.
+ The ink, the lime and the lavender stay Matcha's.
+
+ A card is the Paper base (#edebe5), where Matcha's is stone-100, and
+ the page is its own ground, lighter than the stone-300 the rules keep,
+ so the two stand a little closer together than Matcha's do on the stone.
+========================================================================== */
+
+:root {
+  /* Grounds, lightest to darkest. The Paper colour and its hex alongside. */
+  --stone-50: oklch(0.955 0.008 91.5); /* paper            #f2f0ea */
+  --stone-100: oklch(0.94 0.008 91); /* base             #edebe5 */
+  --stone-125: oklch(0.928 0.011 90); /* insensitive_bg   #eae7df */
+  --stone-150: oklch(0.916 0.014 89); /* bg_color         #e7e3d9 */
+  --stone-200: oklch(0.898 0.018 88); /* between bg_color and wm_highlight */
+  --stone-300: oklch(0.856 0.025 88); /* stone-300, warmed as the desktop's greys are */
+  --stone-350: oklch(0.822 0.03 88); /* borders          #cdc4af */
+  --stone-400: oklch(0.709 0.02 75); /* placeholder      #aca397, at stone-400's lightness */
+
+  /* The page and the bar over it: lighter than the steps Matcha gives
+     them, which stay as they are for the rules */
+  --background-body: oklch(0.88 0.021 88);
+  --background-nav: oklch(0.846 0.027 88);
+
+  /* Calendar entries: the same breath of lime, at the paper's lightness
+     for the step each stands on, and a little stronger so it still
+     reads as green against the warmth */
+  --calendar-allday: oklch(0.85 0.034 122);
+  --calendar-task: oklch(0.89 0.03 122);
+
+  /* The 50 steps are brighter than this paper, and a highlight lighter
+     than its page reads as a hole. Each keeps its hue and comes down to
+     just under the card. */
+  --hl-blue: oklch(0.915 0.03 240);
+  --hl-green: oklch(0.915 0.045 122);
+  --hl-orange: oklch(0.915 0.04 70);
+  --hl-purple: oklch(0.915 0.03 305);
+  --hl-red: oklch(0.915 0.03 20);
+  --hl-slate: oklch(0.915 0.012 250);
+  --hl-yellow: oklch(0.925 0.05 98);
+
+  /* Selection: a pale lavender goes grey against the paper's yellow, so
+     the selected wash is a deeper step of the paper itself, as in the
+     Obsidian theme, though lighter than its wm_highlight: the step the
+     controls stand on (bg_color #e7e3d9). The
+     lavender stays where it is strong enough to hold its own: the
+     switch, the icons, today. */
+  --selected-background: var(--stone-150);
+  --selected-border: var(--stone-350);
+  /* and its words carry the lavender instead */
+  --selected-color: var(--paper-lavender);
+
+  /* The lavender: Matcha's violet hue, a little deeper and at well under
+     its strength, so it sits with the paper's muted tones rather than
+     standing out as a visited link would. Every use of the lavender is
+     this one colour, or a lighter step of it where Matcha's own is
+     lighter: the focus ring and check marks, and the switch's track. */
+  --paper-lavender: oklch(0.45 0.17 295);
+  --paper-lavender-light: oklch(0.56 0.16 295);
+  --paper-lavender-lighter: oklch(0.68 0.12 295);
+  --icon-violet: var(--paper-lavender);
+  --color-accent-strong: var(--paper-lavender);
+  --color-accent: var(--paper-lavender-light);
+  --switch-on: var(--paper-lavender-lighter);
+  --switch-on-border: var(--paper-lavender-light);
+
+  /* Table headers stand on the same step as the selected wash */
+  --background-table-header: var(--selected-background);
+}
+
+/* The open folder or contact is a link, and keeps the links' lime unless
+   told otherwise: here its name takes the selected colour */
+.active-item a,
+.active-item a:hover {
+  color: var(--selected-color);
+}
+
+/* A high priority's flag is the lavender too, where Matcha names the
+   violet step itself */
+tr.priority-high .btn-priority,
+i.priority-high {
+  color: var(--paper-lavender);
+}
