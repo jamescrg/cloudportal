@@ -18,7 +18,7 @@ def test_initialize_echoes_an_older_version_it_knows(claude):
 
     result = response.json()["result"]
     assert result["protocolVersion"] == "2025-06-18"
-    assert result["serverInfo"]["name"] == "minhome"
+    assert result["serverInfo"]["name"] == "cloudportal"
     assert result["capabilities"] == {"tools": {"listChanged": False}}
     assert "America/New_York" in result["instructions"]
     assert "Mcp-Session-Id" not in response
@@ -35,7 +35,9 @@ def test_discover_lists_every_version(claude):
 
     assert result["resultType"] == "complete"
     assert result["supportedVersions"] == protocol.SUPPORTED
-    assert result["_meta"]["io.modelcontextprotocol/serverInfo"]["name"] == "minhome"
+    assert (
+        result["_meta"]["io.modelcontextprotocol/serverInfo"]["name"] == "cloudportal"
+    )
 
 
 def test_a_header_that_disagrees_with_the_body_is_let_pass(claude):

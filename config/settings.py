@@ -78,7 +78,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Access tokens last an hour and are refreshed; a refresh token is changed
 # at each use and lapses after 90 days unused.
 CONNECTOR_URL = f"{SITE_URL}/mcp"
-CONNECTOR_SCOPE = "minhome"
+CONNECTOR_SCOPE = "cloudportal"
 
 OAUTH2_PROVIDER = {
     "SCOPES": {CONNECTOR_SCOPE: "Read and change your tasks and calendar"},
@@ -108,7 +108,7 @@ OAUTH2_PROVIDER = {
     "OAUTH2_TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED": ["none"],
     "OAUTH2_PROTECTED_RESOURCE_IDENTIFIER": CONNECTOR_URL,
     "OAUTH2_PROTECTED_RESOURCE_AUTHORIZATION_SERVERS": [SITE_URL],
-    "OAUTH2_PROTECTED_RESOURCE_NAME": "Minhome",
+    "OAUTH2_PROTECTED_RESOURCE_NAME": "CloudPortal",
 }
 
 

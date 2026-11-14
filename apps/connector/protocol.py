@@ -22,7 +22,7 @@ LEGACY = ["2025-11-25", "2025-06-18", "2025-03-26"]
 SUPPORTED = [CURRENT, *LEGACY]
 VERSION_KEY = "io.modelcontextprotocol/protocolVersion"
 
-SERVER_INFO = {"name": "minhome", "title": "Minhome", "version": "1.0.0"}
+SERVER_INFO = {"name": "cloudportal", "title": "CloudPortal", "version": "1.0.0"}
 CAPABILITIES = {"tools": {"listChanged": False}}
 
 PARSE_ERROR = -32700
@@ -45,7 +45,7 @@ class RpcError(Exception):
 def instructions(user):
     zone = user.time_zone
     return (
-        "Minhome is the user's own organizer: their task list and calendar. "
+        "CloudPortal is the user's own organizer: their task list and calendar. "
         f"Dates are YYYY-MM-DD and times 24-hour HH:MM, in the user's time "
         f"zone ({zone}); work out relative days (today, next Friday) in that "
         f"zone, where today is {tools._today(user).isoformat()}. Look tasks "
@@ -120,7 +120,7 @@ def handle(user, message):
         return error.status, _error(message_id, error)
     except Exception:
         logger.exception("connector: %s failed", method)
-        error = RpcError(INTERNAL_ERROR, "Something went wrong in Minhome.")
+        error = RpcError(INTERNAL_ERROR, "Something went wrong in CloudPortal.")
         return 500, _error(message_id, error)
 
     # The newer era marks every result complete

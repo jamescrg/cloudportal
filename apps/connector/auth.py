@@ -48,6 +48,8 @@ def challenge(request):
     ]
     if request.headers.get("Authorization"):
         params.append('error="invalid_token"')
-    response = JsonResponse({"error": "Sign in to Minhome to continue."}, status=401)
+    response = JsonResponse(
+        {"error": "Sign in to CloudPortal to continue."}, status=401
+    )
     response["WWW-Authenticate"] = "Bearer " + ", ".join(params)
     return response
