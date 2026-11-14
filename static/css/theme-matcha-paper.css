@@ -60,8 +60,8 @@
      standing out as a visited link would. Every use of the lavender is
      this one colour, or a lighter step of it where Matcha's own is
      lighter: the focus ring and check marks, and the switch's track. */
-  --paper-lavender: oklch(0.45 0.17 295);
-  --paper-lavender-light: oklch(0.56 0.16 295);
+  --paper-lavender: oklch(0.45 0.19 295);
+  --paper-lavender-light: oklch(0.56 0.18 295);
   --paper-lavender-lighter: oklch(0.68 0.12 295);
   --icon-violet: var(--paper-lavender);
   --color-accent-strong: var(--paper-lavender);
