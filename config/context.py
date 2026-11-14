@@ -38,6 +38,7 @@ THEMES = {"matcha", "matcha-paper", "hojicha", "auto", *THEME_VARIANTS}
 
 RENAMED_THEMES = {
     "matcha-mist": "matcha-lavender",
+    "matcha-paper-sun": "matcha-paper-sage",
 }
 
 

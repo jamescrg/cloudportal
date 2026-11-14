@@ -60,6 +60,15 @@ def test_matcha_mist_is_now_matcha_lavender(client):
     assert "css/theme-matcha-mist.css" not in html
 
 
+def test_matcha_paper_sun_is_now_matcha_paper_sage(client):
+    session = client.session
+    session["theme"] = "matcha-paper-sun"
+    session.save()
+    html = client.get(reverse("settings")).content.decode()
+    assert "css/theme-matcha-paper-sage.css" in html
+    assert "css/theme-matcha-paper-sun.css" not in html
+
+
 def test_hojicha_steam_builds_on_hojicha(client):
     html = page_for(client, "hojicha-steam", atmosphere="on")
     hojicha = html.index("css/theme-hojicha.css")

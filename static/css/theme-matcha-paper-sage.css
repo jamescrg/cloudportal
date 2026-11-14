@@ -54,19 +54,30 @@
   /* Shadows take the paper's colour too: a warm brown, not black */
   --sage-shadow: oklch(0.3 0.04 70 / 26%);
 
-  /* The page: a still wash of the same light. Straw along the top left
-     and low on the left, sage high on the right and gathering in the far
-     corner, a little of the paper's tan underfoot. Quieter than Matcha Lavender's:
-     the paper's page and cards stand closer together, so the cards have
-     less room before they stop reading as panels.
+  /* The page: a still wash of the same light, laid on the diagonal. The
+     straw comes in at the top left and the sage deepens toward the
+     bottom right, but neither keeps to its side: the shade reaches up
+     into the top right and low into the bottom left, a thin band of it
+     crosses the middle, and the light breaks through again on the
+     right, as it does under leaves. A little of the paper's tan lies
+     underfoot. Quieter than Matcha Lavender's: the paper's page and
+     cards stand closer together, so the cards have less room before
+     they stop reading as panels.
      It sits under the moving weather (paused for now), runs up under the
      bar, and the active tab shows it too (atmosphere.css). */
   --atmos-wash:
-    radial-gradient(55vmax 20vmax at 15% 0%, color-mix(in oklab, var(--sage-light) 60%, transparent), transparent 70%),
-    radial-gradient(60vmax 45vmax at 10% 55%, color-mix(in oklab, var(--sage-light) 50%, transparent), transparent 70%),
-    radial-gradient(50vmax 40vmax at 95% 10%, color-mix(in oklab, var(--sage-shade) 38%, transparent), transparent 70%),
-    radial-gradient(60vmax 50vmax at 90% 100%, color-mix(in oklab, var(--sage-shade) 32%, transparent), transparent 70%),
-    radial-gradient(55vmax 40vmax at 35% 110%, color-mix(in oklab, var(--sage-ground) 35%, transparent), transparent 70%);
+    /* the light: where it comes in, and where it breaks through again */
+    radial-gradient(60vmax 28vmax at 8% 0%, color-mix(in oklab, var(--sage-light) 62%, transparent), transparent 70%),
+    radial-gradient(38vmax 26vmax at 30% 42%, color-mix(in oklab, var(--sage-light) 40%, transparent), transparent 70%),
+    radial-gradient(34vmax 24vmax at 80% 58%, color-mix(in oklab, var(--sage-light) 42%, transparent), transparent 70%),
+    /* the shade: deepest at the bottom right, reaching round both ways */
+    radial-gradient(48vmax 30vmax at 96% 4%, color-mix(in oklab, var(--sage-shade) 30%, transparent), transparent 70%),
+    radial-gradient(42vmax 34vmax at 6% 96%, color-mix(in oklab, var(--sage-shade) 28%, transparent), transparent 70%),
+    radial-gradient(70vmax 50vmax at 92% 104%, color-mix(in oklab, var(--sage-shade) 42%, transparent), transparent 70%),
+    radial-gradient(44vmax 22vmax at 56% 26%, color-mix(in oklab, var(--sage-shade) 20%, transparent), transparent 70%),
+    radial-gradient(40vmax 26vmax at 50% 78%, color-mix(in oklab, var(--sage-ground) 34%, transparent), transparent 70%),
+    /* the diagonal under them all */
+    linear-gradient(135deg, color-mix(in oklab, var(--sage-light) 22%, transparent), transparent 45%, color-mix(in oklab, var(--sage-shade) 20%, transparent));
 
   /* ------------------------------------------------------------------
      The atmosphere's dials, drawn from the light
