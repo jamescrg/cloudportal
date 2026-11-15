@@ -85,20 +85,42 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     return !el.scrollTop;
   }
 
+  // A gesture given up: by a touchcancel, or found still standing when
+  // the next touch begins. The drawer goes back to where it was.
+  function abortDrag() {
+    if (!touch) return;
+    clearDrag();
+    if (!drawer.isOpen) {
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+
   function onTouchStart(e) {
     if (mql.matches || !panel()) return; // desktop, or no panel on this page
+    // A touch whose end never came (see below) must not be left standing
+    abortDrag();
     const t = e.touches[0];
     const state = { start: along(t), startAcross: across(t), last: along(t), lastTime: e.timeStamp, locked: false };
 
+    // Nothing shows until the finger has moved along the drawer's axis:
+    // a tap near the edge (a task's check mark sits there) is only a tap,
+    // and must raise no backdrop over the page
     if (!drawer.isOpen && nearEdge(along(t))) {
       touch = { ...state, mode: 'open' };
-      panel().classList.add('drawer-dragging');
-      backdrop.classList.add('open');
-      document.body.style.overflow = 'hidden';
     } else if (drawer.isOpen && (overPanel(along(t)) || e.target.closest('.drawer-backdrop')) && canDragClosed(e.target)) {
       touch = { ...state, mode: 'close' };
-      panel().classList.add('drawer-dragging');
     }
+    if (!touch) return;
+    panel().classList.add('drawer-dragging');
+
+    // A touch ends on the element it began on, even one since taken out
+    // of the page, and then the end never reaches the document: checking
+    // off a task re-renders the list, and a finger already down on the
+    // next row is on an element that is gone by the time it lifts. So the
+    // end is listened for on the element itself as well.
+    e.target.addEventListener('touchend', onTouchEnd, { once: true, passive: true });
+    e.target.addEventListener('touchcancel', abortDrag, { once: true, passive: true });
   }
 
   function onTouchMove(e) {
@@ -120,15 +142,14 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
     if (!touch.locked) {
       if (Math.abs(d) < 10 && Math.abs(dAcross) < 10) return;
       if (Math.abs(dAcross) > Math.abs(d) || (vertical && d < 0)) {
-        const wasOpening = touch.mode === 'open';
-        clearDrag();
-        if (wasOpening) {
-          backdrop.classList.remove('open');
-          document.body.style.overflow = '';
-        }
+        abortDrag();
         return;
       }
       touch.locked = true;
+      // now it is a drag: the page behind holds still while it lasts
+      if (touch.mode === 'open') {
+        document.body.style.overflow = 'hidden';
+      }
     }
 
     e.preventDefault();
@@ -167,6 +188,7 @@ function attachDrawerSwipe(drawer, { panel, backdrop, side }) {
   document.addEventListener('touchstart', onTouchStart, { passive: true });
   document.addEventListener('touchmove', onTouchMove, { passive: false });
   document.addEventListener('touchend', onTouchEnd, { passive: true });
+  document.addEventListener('touchcancel', abortDrag, { passive: true });
 }
 
 
