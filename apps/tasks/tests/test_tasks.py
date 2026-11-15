@@ -80,6 +80,49 @@ def test_another_users_task_is_not_found(client, user, path):
     )
 
 
+@pytest.fixture
+def shared_task(user):
+    """Another user's task in a folder of theirs that is shared with the
+    signed-in user, as a grocery list two people add to."""
+    from apps.folders.models import Folder
+
+    other = CustomUser.objects.create_user("Rex", "rex@example.com", "fetch")
+    folder = Folder.objects.create(user=other, page="tasks", name="Groceries")
+    folder.editors.add(user)
+    return Task.objects.create(user=other, folder=folder, title="Oat milk")
+
+
+def test_a_shared_folders_task_can_be_checked_off(client, shared_task):
+    assert client.post(f"/tasks/{shared_task.id}/status").status_code == 200
+    shared_task.refresh_from_db()
+    assert shared_task.status == 1
+
+
+def test_a_shared_folders_task_opens_and_saves_and_stays_its_owners(
+    client, shared_task
+):
+    owner = shared_task.user
+    path = f"/tasks/{shared_task.id}/form"
+    assert client.get(path).status_code == 200
+
+    data = {
+        "title": "Oat milk, two",
+        "folder": shared_task.folder_id,
+        "status": 0,
+        "priority": shared_task.priority,
+    }
+    assert client.post(path, data).status_code == 204
+    shared_task.refresh_from_db()
+    assert shared_task.title == "Oat milk, two"
+    assert shared_task.user == owner
+
+
+def test_a_task_in_a_folder_no_longer_shared_is_not_found(client, user, shared_task):
+    shared_task.folder.editors.remove(user)
+    assert client.post(f"/tasks/{shared_task.id}/status").status_code == 404
+    assert client.get(f"/tasks/{shared_task.id}/form").status_code == 404
+
+
 def test_add_data(user, client, folder):
     data = {
         "user": user,

@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -11,7 +12,12 @@ from django.views.decorators.http import require_http_methods, require_POST
 from accounts.models import CustomUser
 from apps.common import notify
 from apps.common.forms import dialog_timing, follow_fields
-from apps.folders.folders import get_folders_for_page, get_task_folders, select_folder
+from apps.folders.folders import (
+    get_accessible_folder_ids,
+    get_folders_for_page,
+    get_task_folders,
+    select_folder,
+)
 from apps.folders.models import Folder
 from apps.management.pagination import CustomPaginator
 from apps.tasks import recurring, reminders
@@ -35,6 +41,19 @@ VALID_SORTS = (
     "priority",
     "-priority",
 )
+
+
+def _task_for(request, id):
+    """The task a view acts on, or a 404: one of the user's own, or one in
+    a folder they own or share. A shared folder's list shows everyone's
+    tasks in it (a grocery list two people add to), so each of them must
+    be able to check off, open and change whatever it shows; a task that
+    is neither theirs nor in a folder of theirs is not found."""
+    user = request.user
+    folder_ids = get_accessible_folder_ids(user, "tasks")
+    return get_object_or_404(
+        Task.objects.filter(Q(user=user) | Q(folder_id__in=folder_ids)), pk=id
+    )
 
 
 # Each task list (a folder, the Inbox, All) remembers the sort and the date
@@ -222,7 +241,7 @@ def status(request, id, origin="tasks"):
         in which case, the user should be returned to the page of origin.
     """
 
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     if task.status == 1:
         task.status = 0
         task.completed_date = None
@@ -295,7 +314,7 @@ def edit(request, id):
         return redirect("tasks")
 
     else:
-        task = get_object_or_404(Task, pk=id, user=request.user)
+        task = _task_for(request, id)
         folders = get_task_folders(request)
         try:
             selected_folder = folders.filter(id=task.folder.id).get()
@@ -329,7 +348,7 @@ def delete(request, id):
     Args:
         id (int): A Task instance id
     """
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     task.delete()
     return redirect("tasks")
 
@@ -415,7 +434,7 @@ def filter_date_htmx(request, preset):
 def due_date_htmx(request, id):
     """Set or clear a task's due date from the list's Due column. Clearing
     the date clears the time with it."""
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     value = request.POST.get("due_date", "").strip()
     if value:
         try:
@@ -552,7 +571,7 @@ def add_htmx(request):
 def task_form(request, id):
     """Return task edit form in modal, or process form submission."""
     user = request.user
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     folders = get_task_folders(request)
 
     if request.method == "POST":
@@ -596,7 +615,10 @@ def save_task_form(form, user, old_status):
     Also used by Claude's connector (apps.connector), so a task changed
     there is changed exactly as from the dialog."""
     task = form.save(commit=False)
-    task.user = user
+    # A new task is the user's; one changed in a shared folder stays its
+    # owner's
+    if task.user_id is None:
+        task.user = user
     task.time_zone = user.time_zone
     task.title = task.title[0].upper() + task.title[1:]
 
@@ -651,7 +673,7 @@ def _reminders_context(task, timing=None, reminder_form=None):
 def reminders_section(request, id):
     """The Notifications section again, for the due date and time the dialog
     now has (a change to either fetches it)."""
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     context = _reminders_context(task, _timing(task, request.GET))
     return render(request, "components/reminders.html", context)
 
@@ -662,7 +684,7 @@ def reminder_add(request, id):
     """Add a notification to the task and re-render the section. It is
     measured against the due date and time the dialog has, so one in
     minutes goes on a task whose time is typed but not yet saved."""
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     dated, timed = timing = _timing(task, request.POST)
     form = TaskReminderForm(request.POST, task=task, timed=timed)
     if dated and form.is_valid():
@@ -679,7 +701,7 @@ def reminder_add(request, id):
 @require_http_methods(["POST", "DELETE"])
 def reminder_delete(request, id, reminder_id):
     """Remove a notification from the task and re-render the section."""
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     reminders.remove_reminder(task, reminder_id)
     context = _reminders_context(task, _timing(task, request.POST))
     return render(request, "components/reminders.html", context)
@@ -701,7 +723,7 @@ def done_htmx(request, id):
     """Mark a task done from its box on the calendar, which shows only open
     tasks. Unlike the list's toggle it only ever completes: a second press,
     from a grid not yet redrawn, leaves the task done."""
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     if task.status != 1:
         complete_task(task, request.user)
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
@@ -730,7 +752,7 @@ def notify_done(request, token):
 @login_required
 def status_htmx(request, id):
     """Toggle task status via htmx and return updated list."""
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     if task.status == 1:
         task.status = 0
         task.completed_date = None
@@ -754,7 +776,7 @@ def status_htmx(request, id):
 @login_required
 def priority_htmx(request, id):
     """Update task priority via htmx and return updated list."""
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     priority = request.GET.get("priority")
     if priority:
         task.priority = int(priority)
@@ -767,7 +789,7 @@ def priority_htmx(request, id):
 @login_required
 def delete_htmx(request, id):
     """Delete task via htmx and close modal."""
-    task = get_object_or_404(Task, pk=id, user=request.user)
+    task = _task_for(request, id)
     task.delete()
     return HttpResponse(status=204, headers={"HX-Trigger": "tasksChanged"})
 
