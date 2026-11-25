@@ -1,10 +1,10 @@
 from django.db import models
 
 from accounts.models import CustomUser
-from apps.common.models import TimestampMixin
+from apps.common.models import TrackedTimestampMixin
 
 
-class Folder(TimestampMixin, models.Model):
+class Folder(TrackedTimestampMixin, models.Model):
     """A folder for categorizing favorites, contacts, notes or other data.
 
     Attributes:
