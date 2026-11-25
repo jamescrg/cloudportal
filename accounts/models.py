@@ -81,8 +81,16 @@ class CustomUser(AbstractUser):
     # delivers to anyone subscribed to a topic on a server, so the topic,
     # which reads as the user's (cpl-james-k3v9qx2m), ends in a random tail
     # (apps.settings.views._new_ntfy_topic); a server that is not open to
-    # all wants an access token.
-    NOTIFY_CHOICES = (("email", "Email"), ("ntfy", "Push"), ("home", "Homepage"))
+    # all wants an access token. The phone app (Android, for tasks only:
+    # apps.common.models.TASK_CHANNEL_CHOICES) may be the default too; an
+    # event's notification, or a task's while the app is not connected,
+    # then goes by email (apps.common.forms.ReminderFormBase).
+    NOTIFY_CHOICES = (
+        ("email", "Email"),
+        ("ntfy", "Push"),
+        ("home", "Homepage"),
+        ("app", "Phone app"),
+    )
     notify_by = models.CharField(max_length=10, choices=NOTIFY_CHOICES, default="email")
     ntfy_server = models.URLField(default="https://ntfy.sh")
     ntfy_topic = models.CharField(max_length=64, blank=True, default="")

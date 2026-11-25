@@ -34,8 +34,21 @@
                         <button class="btn {% if user.notify_by == 'home' %}btn-primary{% else %}btn-secondary{% endif %}"
                                 name="notify_by"
                                 value="home">Homepage</button>
+                        {% if app_connected or user.notify_by == 'app' %}
+                            <button class="btn {% if user.notify_by == 'app' %}btn-primary{% else %}btn-secondary{% endif %}"
+                                    name="notify_by"
+                                    value="app">Phone app</button>
+                        {% endif %}
                     </form>
                     <p class="setting-note">How a new notification goes unless you choose otherwise when you add it.</p>
+                    {% if app_connected or user.notify_by == 'app' %}
+                        <p class="setting-note">
+                            By Phone app, the CloudPortal app on your phone shows a task's notification itself, even offline, and nothing is sent from here. It is for tasks only: an event's goes by email.
+                            {% if not app_connected %}
+                                The app is not connected now, so new notifications go by email; ones already set to Phone app are left as they are, for the app to show.
+                            {% endif %}
+                        </p>
+                    {% endif %}
                 </td>
             </tr>
             <tr>

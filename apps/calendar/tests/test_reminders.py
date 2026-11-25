@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from apps.calendar import reminders
 from apps.calendar.models import Event, EventReminder
+from apps.common import notify
 
 pytestmark = pytest.mark.django_db
 
@@ -106,6 +107,36 @@ def test_adding_a_notification(client, timed):
     assert "2 hours before" in response.content.decode()
     reminder = timed.reminders.get()
     assert (reminder.amount, reminder.unit, reminder.time) == (2, "hours", None)
+
+
+def test_an_event_is_never_offered_the_phone_app(
+    client, user, timed, mailoutbox, connect_phone_app
+):
+    """The app shows tasks only, so an event's notification by it would
+    never arrive: it is not offered even with the app connected, and a
+    default of the phone app is email here."""
+    connect_phone_app(user)
+    user.notify_by = "app"
+    user.save()
+
+    html = client.get(reverse("calendar:edit", args=[timed.id])).content.decode()
+    assert 'value="app"' not in html
+    assert '<option value="email" selected>Email</option>' in html
+
+    client.post(
+        reverse("calendar:reminder-add", args=[timed.id]),
+        {"amount": 1, "unit": "hours", "channel": "app"},
+    )
+    assert not timed.reminders.exists()
+
+    client.post(
+        reverse("calendar:reminder-add", args=[timed.id]),
+        {"amount": 1, "unit": "hours"},
+    )
+    assert timed.reminders.get().channel == "email"
+
+    assert notify.event_reminder(user, timed)["success"]
+    assert len(mailoutbox) == 1
 
 
 def test_adding_to_an_all_day_event_keeps_the_time(client, all_day):

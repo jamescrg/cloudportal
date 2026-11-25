@@ -96,6 +96,15 @@ def test_a_full_snapshot(app, user, groceries):
     assert sent["updated_at"].endswith("Z")
 
 
+def test_the_phone_app_as_the_users_default(app, user):
+    user.notify_by = "app"
+    user.save()
+
+    assert app.sync()["user"]["notify_by"] == "app"
+    user.refresh_from_db()
+    assert user.notify_by == "app"
+
+
 def test_due_dates_are_sent_as_stored_with_their_zone(app, user):
     Task.objects.create(
         user=user,

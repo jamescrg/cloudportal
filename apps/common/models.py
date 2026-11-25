@@ -63,6 +63,11 @@ def is_zone(name):
 # pushed to the ntfy app, or as a card on the home page that stays until
 # they close it. The user's choice in Settings is the default for new ones.
 CHANNEL_CHOICES = (("email", "Email"), ("ntfy", "Push"), ("home", "Homepage"))
+# A task's notification may also be left to CloudPortal's Android app,
+# which schedules and shows it on the phone itself, so it works offline;
+# the server sends nothing for it (apps.tasks.reminders.send_due). Events
+# are not offered it: the app shows only tasks.
+TASK_CHANNEL_CHOICES = CHANNEL_CHOICES + (("app", "Phone app"),)
 
 
 class ReminderMixin(models.Model):

@@ -1,5 +1,7 @@
 """Settings every test starts from."""
 
+from datetime import timedelta
+
 import pytest
 
 
@@ -31,3 +33,31 @@ def fast_password_hasher(settings):
     """Django's real hasher is slow by design (about half a second per
     password on dev), and fixtures set a password for most test users."""
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+
+@pytest.fixture
+def connect_phone_app():
+    """Connect a user's Android app, as signing in to it does: a call gives
+    them an access token for its OAuth client (settings.ANDROID_CLIENT_ID),
+    good for ``expires_in``, and returns it."""
+    from django.conf import settings
+    from django.utils import timezone
+    from oauth2_provider.models import AccessToken, Application
+
+    def connect(user, expires_in=timedelta(hours=1)):
+        application, _ = Application.objects.get_or_create(
+            client_id=settings.ANDROID_CLIENT_ID,
+            defaults={
+                "client_type": "public",
+                "authorization_grant_type": "authorization-code",
+            },
+        )
+        return AccessToken.objects.create(
+            user=user,
+            application=application,
+            token=f"access-{user.pk}-{AccessToken.objects.count()}",
+            expires=timezone.now() + expires_in,
+            scope=settings.CONNECTOR_SCOPE,
+        )
+
+    return connect

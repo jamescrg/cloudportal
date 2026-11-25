@@ -1,6 +1,7 @@
 """Notifications: an event or task reminder, sent by one of three
-channels (apps.common.models.CHANNEL_CHOICES). Each notification on an
-event or task names its own; the user's choice in Settings
+channels (apps.common.models.CHANNEL_CHOICES), or for a task a fourth the
+server leaves alone (the phone app shows it itself). Each notification on
+an event or task names its own; the user's choice in Settings
 (CustomUser.notify_by) is the default for new ones.
 
 By ntfy, a notification is pushed to the topic the user's ntfy app is
@@ -14,6 +15,11 @@ By email, it is the message config.email has always sent.
 
 To the home page, it is a card (apps.home.notices) that stays there until
 the user closes it.
+
+By the phone app (a task's only), CloudPortal's Android app schedules it
+from what it syncs (apps.api) and shows it on the phone, offline too. The
+server sends nothing: the reminder job never picks one up
+(apps.tasks.reminders.send_due), and _deliver passes one by.
 
 A machine other than production (settings.NOT_PRODUCTION) pushes to each
 topic with a suffix (settings.NTFY_TOPIC_SUFFIX), so it has a channel of
@@ -32,6 +38,8 @@ import requests
 from django.conf import settings
 from django.core import signing
 from django.urls import reverse
+from django.utils import timezone
+from oauth2_provider.models import AccessToken, RefreshToken
 
 from apps.home import notices
 from config import email
@@ -41,6 +49,25 @@ logger = logging.getLogger(__name__)
 # How long a notification's Done button works
 DONE_LINK_AGE = 60 * 60 * 24 * 30
 DONE_SALT = "notify-task-done"
+
+
+# --- the phone app -----------------------------------------------------------
+
+
+def app_ready(user):
+    """Whether the user has the Android app connected: it holds an access
+    token that has not expired, or a refresh token that has not been
+    revoked, for its OAuth client (settings.ANDROID_CLIENT_ID). Only then
+    is the phone app offered as a task's channel."""
+    client = {"application__client_id": settings.ANDROID_CLIENT_ID}
+    return (
+        AccessToken.objects.filter(
+            user=user, expires__gt=timezone.now(), **client
+        ).exists()
+        or RefreshToken.objects.filter(
+            user=user, revoked__isnull=True, **client
+        ).exists()
+    )
 
 
 # --- ntfy -------------------------------------------------------------------
@@ -98,7 +125,9 @@ def _deliver(user, channel, *, pushed, emailed, posted):
     push fails or ntfy is not set up; by email it is emailed. Where email
     notifications are off (the dev machine), nothing is emailed, and the
     notification counts as handled so it is not tried again every
-    minute."""
+    minute. By the phone app nothing is sent: the app shows it itself."""
+    if channel == "app":
+        return {"success": True, "skipped": "phone app"}
     if channel == "home":
         posted()
         return {"success": True}
@@ -220,9 +249,13 @@ def event_reminder(user, event, channel=None):
             actions=actions,
         )
 
+    channel = channel or user.notify_by
+    # The phone app shows tasks only, so an event goes by email instead
+    if channel == "app":
+        channel = "email"
     return _deliver(
         user,
-        channel or user.notify_by,
+        channel,
         pushed=pushed,
         emailed=lambda: email.send_event_reminder_email(user, event),
         posted=lambda: notices.post_event(user, event, lines),
