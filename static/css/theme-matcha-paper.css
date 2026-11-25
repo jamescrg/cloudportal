@@ -22,10 +22,13 @@
   --stone-350: oklch(0.822 0.03 88); /* borders          #cdc4af */
   --stone-400: oklch(0.709 0.02 75); /* placeholder      #aca397, at stone-400's lightness */
 
-  /* The page and the bar over it: lighter than the steps Matcha gives
-     them, which stay as they are for the rules */
-  --background-body: oklch(0.88 0.021 88);
-  --background-nav: oklch(0.846 0.027 88);
+  /* The page and the bar over it: well lighter than the steps Matcha
+     gives them, which stay as they are for the rules. The page is a
+     little under the step the controls stand on (bg_color), so a card
+     and a control both still show against it, and the bar is one step
+     under the page. */
+  --background-body: oklch(0.907 0.016 88.5);
+  --background-nav: oklch(0.88 0.021 88);
 
   /* Calendar entries: the same breath of lime, at the paper's lightness
      for the step each stands on, and a little stronger so it still
@@ -85,4 +88,88 @@
 tr.priority-high .btn-priority,
 i.priority-high {
   color: var(--paper-lavender);
+}
+
+/* The bar is only a step under the page, so a hairline rules its lower
+   edge, and runs up over the open tab and round its flared corners. The
+   line stands in for the tab's soft shadow, which stopped at the tab's
+   straight sides and left the corners out.
+
+   Every part of it is a border, which a browser draws on whole device
+   pixels, so it is as thin as the app's other rules on a scaled display
+   (a shadow there comes out a pixel thicker). The corners give up their
+   masks for it: each is a quarter of the bar, ruled along its curve, with
+   the page's colour filling the rest of its square.
+
+   On a display scaled by a fraction, two things drawn to the same edge
+   can land a device pixel apart. So nothing here hides a line by ending
+   exactly where the line does: the tab runs a pixel past the bar's foot,
+   over the bar's rule, and each corner's fill runs a pixel into the tab
+   and a pixel below the bar, over the tab's own side.
+
+   Matcha Paper Sage keeps the plain bar: its tab and corners are windows
+   onto the wash, and the masks are what cut them. */
+:root {
+  --nav-rule: var(--stone-300);
+}
+
+body:not(:has(> .atmos)) .navbar {
+  position: relative;
+}
+
+body:not(:has(> .atmos)) .navbar::before {
+  border-bottom: 1px solid var(--nav-rule);
+  bottom: 0;
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+}
+
+/* The tabs' scroller clips what leaves it, so it is let a pixel below
+   the bar for the open tab to run into. Its holder keeps the margin
+   that takes the pixel back, which would otherwise fall through the bar
+   and leave it a pixel taller. */
+body:not(:has(> .atmos)) .navbar > .container {
+  display: flow-root;
+}
+
+body:not(:has(> .atmos)) .nav-scroll-container {
+  margin-bottom: -1px;
+  padding-bottom: 1px;
+}
+
+/* The tab's border is taken back out of its size, so the tabs stand
+   where they did */
+body:not(:has(> .atmos)) .navbar .active {
+  border: 1px solid var(--nav-rule);
+  border-bottom: 0;
+  box-shadow: none;
+  margin: -1px -1px -1px;
+}
+
+body:not(:has(> .atmos)) .navbar .active::before,
+body:not(:has(> .atmos)) .navbar .active::after {
+  background: none;
+  border-bottom: 1px solid var(--nav-rule);
+  bottom: 1px;
+  box-shadow: 0 0 0 var(--radius-lg) var(--background-body);
+  box-sizing: border-box;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* The fill is kept to the corner's square and the pixel past it on the
+   tab's side and below; it stops a pixel short at the top and at the far
+   end, where there is only the line to show */
+body:not(:has(> .atmos)) .navbar .active::before {
+  border-bottom-right-radius: var(--radius-lg);
+  border-right: 1px solid var(--nav-rule);
+  clip-path: inset(1px -1px -1px 1px);
+}
+
+body:not(:has(> .atmos)) .navbar .active::after {
+  border-bottom-left-radius: var(--radius-lg);
+  border-left: 1px solid var(--nav-rule);
+  clip-path: inset(1px 1px -1px -1px);
 }
