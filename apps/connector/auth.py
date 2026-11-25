@@ -35,6 +35,11 @@ def token_for(request):
         return None
     if not access.allows_audience(settings.CONNECTOR_URL):
         return None
+    # The Android app's tokens are for the mobile API (apps.api) alone,
+    # even one it asked for without naming the API as its resource
+    application = access.application
+    if application is not None and application.client_id == settings.ANDROID_CLIENT_ID:
+        return None
     if access.user is None or not access.user.is_active:
         return None
     return access

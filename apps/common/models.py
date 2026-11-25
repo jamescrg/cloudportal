@@ -16,6 +16,33 @@ class TimestampMixin(models.Model):
         abstract = True
 
 
+class TouchingQuerySet(models.QuerySet):
+    """A queryset whose update() moves updated_at, as save() does, so a
+    change made in bulk is seen as a change (by the mobile sync, which asks
+    what has changed since a moment; apps.api)."""
+
+    def update(self, **kwargs):
+        kwargs.setdefault("updated_at", timezone.now())
+        return super().update(**kwargs)
+
+
+class TrackedTimestampMixin(TimestampMixin):
+    """TimestampMixin whose updated_at moves on every write: a bulk
+    update() (TouchingQuerySet) and a save() of only some fields as well as
+    a full save()."""
+
+    objects = TouchingQuerySet.as_manager()
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = {*update_fields, "updated_at"}
+        super().save(*args, **kwargs)
+
+
 def zone_or_default(name):
     """The zone of that name, or the app's when the name is not one."""
     try:

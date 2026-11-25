@@ -10,6 +10,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from oauth2_provider.http import OAuth2ResponseRedirect
 from oauth2_provider.models import AccessToken, RefreshToken
 from oauth2_provider.views import AuthorizationView
 
@@ -103,15 +104,30 @@ def connected_index(request):
     return render(request, "settings/connected.html", context)
 
 
+def _is_android_app(application):
+    return getattr(application, "client_id", None) == settings.ANDROID_CLIENT_ID
+
+
 class ConsentView(AuthorizationView):
     """The toolkit's authorize page, naming where the app identifies itself
     from: the host of its client id when that is a web address (as
     Claude's is), else of where it sends the user back to. An app's name is
-    its own to choose; its host is not."""
+    its own to choose; its host is not. CloudPortal's own Android app
+    (apps.api), registered by the site, has no host and says so."""
+
+    def redirect(self, redirect_to, application):
+        # The Android app is sent back by its own URI scheme, allowed for it
+        # alone; every other app keeps the toolkit's allowed schemes
+        if _is_android_app(application):
+            scheme = urlparse(settings.ANDROID_REDIRECT_URI).scheme
+            schemes = [*application.get_allowed_schemes(), scheme]
+            return OAuth2ResponseRedirect(redirect_to, schemes)
+        return super().redirect(redirect_to, application)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         application = context.get("application")
+        context["android_app"] = _is_android_app(application)
         client_id = getattr(application, "client_id", "") or ""
         host = (
             urlparse(client_id).hostname if client_id.startswith("https://") else None

@@ -5,12 +5,53 @@ from django.conf import settings
 from django.db import models
 
 from accounts.models import CustomUser
-from apps.common.models import ReminderMixin, TimestampMixin, zone_or_default
+from apps.common.models import (
+    ReminderMixin,
+    TouchingQuerySet,
+    TrackedTimestampMixin,
+    zone_or_default,
+)
 from apps.common.recurrence import FREQUENCY_CHOICES, MONTHLY_BY_CHOICES, Rule, describe
 from apps.folders.models import Folder
+from apps.tasks.signals import tasks_moved
+
+# A template's fields that make its rule, which its instances show
+RULE_FIELDS = (
+    "repeat_frequency",
+    "repeat_interval",
+    "repeat_weekdays",
+    "repeat_monthly_by",
+    "repeat_start",
+    "repeat_until",
+    "repeat_count",
+)
 
 
-class Task(TimestampMixin, models.Model):
+class TaskQuerySet(TouchingQuerySet):
+    """Tasks, whose bulk update() moves updated_at and says which tasks a
+    change of folder took out of which folder (tasks_moved), as a save
+    does, so the mobile sync can tell the people who could see them there
+    (apps.api.tracking)."""
+
+    def update(self, **kwargs):
+        if "folder" not in kwargs and "folder_id" not in kwargs:
+            return super().update(**kwargs)
+        new = kwargs.get("folder", kwargs.get("folder_id"))
+        new_id = getattr(new, "pk", new)
+        moved = [
+            row
+            for row in self.exclude(folder=None).values_list(
+                "id", "user_id", "folder_id"
+            )
+            if row[2] != new_id
+        ]
+        count = super().update(**kwargs)
+        if moved:
+            tasks_moved.send(sender=Task, moved=moved, folder_id=new_id)
+        return count
+
+
+class Task(TrackedTimestampMixin, models.Model):
     """A user's task.
 
     Attributes:
@@ -64,8 +105,40 @@ class Task(TimestampMixin, models.Model):
     )
     last_generated = models.DateField(blank=True, null=True)
 
+    objects = TaskQuerySet.as_manager()
+
     def __str__(self):
         return f"{self.title} : {self.id}"
+
+    # What the task was when read or last saved, so a save can tell what
+    # it changed: the folder it left (tasks_moved) and, for a template,
+    # whether its rule changed (apps.api.tracking)
+
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        instance = super().from_db(db, field_names, values)
+        instance._remember_saved()
+        return instance
+
+    def _rule_key(self):
+        return tuple(self.__dict__.get(name) for name in RULE_FIELDS)
+
+    def _remember_saved(self):
+        self._saved_folder_id = self.__dict__.get("folder_id")
+        self._saved_rule = self._rule_key()
+
+    def save(self, *args, **kwargs):
+        fields = kwargs.get("update_fields")
+        folder_saved = fields is None or {"folder", "folder_id"} & set(fields)
+        left = getattr(self, "_saved_folder_id", None)
+        super().save(*args, **kwargs)
+        if folder_saved and left is not None and left != self.folder_id:
+            tasks_moved.send(
+                sender=Task,
+                moved=[(self.pk, self.user_id, left)],
+                folder_id=self.folder_id,
+            )
+        self._remember_saved()
 
     @property
     def rule(self):
