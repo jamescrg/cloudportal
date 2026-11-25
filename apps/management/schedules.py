@@ -45,6 +45,15 @@ def schedule_specs():
             ),
         ),
         ScheduleSpec(
+            "api-prune",
+            "apps.api.tracking.prune",
+            "15 1 * * *",
+            description=(
+                "Forgets the mobile sync's records of deletions and of the "
+                "changes the apps sent, once they are 90 days old."
+            ),
+        ),
+        ScheduleSpec(
             "calendar-sync",
             "apps.calendar.sync.sync_all",
             "*/5 * * * *",

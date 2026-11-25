@@ -707,12 +707,13 @@ def reminder_delete(request, id, reminder_id):
     return render(request, "components/reminders.html", context)
 
 
-def complete_task(task, user):
+def complete_task(task, user, day=None):
     """Mark a task done and bring on a recurring task's next instance. A
     done task stays in its list, checked and struck through, until the
-    buttons under the list archive or delete it."""
+    buttons under the list archive or delete it. ``day`` is the day it was
+    done, today unless said (the mobile app says where the user was)."""
     task.status = 1
-    task.completed_date = date.today()
+    task.completed_date = day or date.today()
     task.save()
     recurring.after_completion(task)
 

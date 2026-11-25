@@ -80,6 +80,14 @@ CSRF_TRUSTED_ORIGINS = [
 CONNECTOR_URL = f"{SITE_URL}/mcp"
 CONNECTOR_SCOPE = "cloudportal"
 
+# The mobile sync API (apps.api) for the CloudPortal Android app, which
+# signs in through the same provider as a public client of its own, created
+# by a migration, returning to the app by its own URI scheme. Its tokens are
+# for the API's address (RFC 8707), and the connector's are not taken there.
+API_URL = f"{SITE_URL}/api/v1/"
+ANDROID_CLIENT_ID = "cloudportal-android"
+ANDROID_REDIRECT_URI = "net.cloudportal.tasks:/oauth"
+
 OAUTH2_PROVIDER = {
     "SCOPES": {CONNECTOR_SCOPE: "Read and change your tasks and calendar"},
     "DEFAULT_SCOPES": [CONNECTOR_SCOPE],
@@ -146,6 +154,7 @@ INSTALLED_APPS = [
     "apps.settings",
     "oauth2_provider",
     "apps.connector",
+    "apps.api",
 ]
 
 # Django-Q2: the background worker that runs the scheduled jobs (see
