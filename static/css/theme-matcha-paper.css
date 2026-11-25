@@ -110,7 +110,8 @@ i.priority-high {
    Matcha Paper Sage keeps the plain bar: its tab and corners are windows
    onto the wash, and the masks are what cut them. */
 :root {
-  --nav-rule: var(--stone-300);
+  /* the border step (stone-350) */
+  --nav-rule: var(--stone-350);
 }
 
 body:not(:has(> .atmos)) .navbar {
