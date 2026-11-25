@@ -224,7 +224,8 @@ DATABASES = {
         "NAME": env("DB_NAME"),
         "USER": env("DB_USER"),
         "PASSWORD": env("DB_PASSWORD"),
-        "HOST": "localhost",
+        # Empty for the local socket (peer authentication) on a dev machine
+        "HOST": env("DB_HOST", default="localhost"),
     }
 }
 
