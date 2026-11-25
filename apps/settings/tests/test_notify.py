@@ -80,6 +80,42 @@ def test_choosing_the_home_page(client, user):
     assert user.notify_by == "home"
 
 
+def test_the_phone_app_is_a_default_once_it_is_connected(
+    client, user, connect_phone_app
+):
+    page = client.get(reverse("settings-notifications")).content.decode()
+    assert 'value="app"' not in page
+    client.post(reverse("settings-notify-by"), {"notify_by": "app"})
+    user.refresh_from_db()
+    assert user.notify_by == "email"
+
+    access = connect_phone_app(user)
+    page = client.get(reverse("settings-notifications")).content.decode()
+    assert 'value="app">Phone app' in page
+    client.post(reverse("settings-notify-by"), {"notify_by": "app"})
+    user.refresh_from_db()
+    assert user.notify_by == "app"
+
+    # Disconnected, the choice is kept and the page says what happens now
+    access.delete()
+    page = client.get(reverse("settings-notifications")).content.decode()
+    assert 'value="app">Phone app' in page
+    assert "The app is not connected now" in page
+    user.refresh_from_db()
+    assert user.notify_by == "app"
+
+
+def test_the_phone_app_is_never_sent_to_by_the_server(user, ntfy, mailoutbox):
+    task = Task.objects.create(user=user, title="Water plants", due_date=date.today())
+
+    assert notify.task_reminder(user, task, "app") == {
+        "success": True,
+        "skipped": "phone app",
+    }
+    assert ntfy.sent == [] and mailoutbox == []
+    assert not task.notices.exists()
+
+
 def test_choosing_ntfy_again_keeps_the_topic(client, ntfy_user):
     client.post(reverse("settings-notify-by"), {"notify_by": "email"})
     client.post(reverse("settings-notify-by"), {"notify_by": "ntfy"})

@@ -163,6 +163,7 @@ def _notifications_context(request, **extra):
         "email_notifications": settings.EMAIL_NOTIFICATIONS,
         "test_result": request.GET.get("test"),
         "test_error": request.session.pop("ntfy_test_error", ""),
+        "app_connected": notify.app_ready(request.user),
     } | extra
 
 
@@ -198,11 +199,13 @@ def notifications_index(request):
 @login_required
 @require_POST
 def notify_by(request):
-    """Choose the default channel for notifications: email, ntfy (push) or
-    the home page. Choosing ntfy the first time gives the user their
-    topic."""
+    """Choose the default channel for notifications: email, ntfy (push),
+    the home page, or the phone app while it is connected. Choosing ntfy
+    the first time gives the user their topic."""
     user = request.user
     choice = request.POST.get("notify_by")
+    if choice == "app" and not notify.app_ready(user):
+        choice = None
     if choice in dict(user.NOTIFY_CHOICES):
         user.notify_by = choice
         # a topic is made on production only; see ntfy_new_topic
