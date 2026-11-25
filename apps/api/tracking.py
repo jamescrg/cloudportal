@@ -13,8 +13,9 @@ handlers here cover what changes a row through another one:
   which show the rule;
 - a task folder shared or unshared moves the folder (its people) and the
   tasks in it, so someone given access receives them on their next sync
-  and someone whose own task sits in a folder they have lost sees it again
-  (in their Inbox, as the site lists it);
+  and someone whose own task sits in a folder they have lost (taken off it,
+  or leaving it) receives it again, still naming that folder, which is no
+  longer in their folder_ids;
 - a task folder deleted moves its tasks, which go to the Inbox;
 - a user deleted moves the folders shared with them, whose people change.
 

@@ -315,9 +315,11 @@ def test_someone_taken_off_a_folder_loses_it(other_app, user, other_user, grocer
     data = other_app.sync(cursor)
 
     assert data["folder_ids"] == []
-    # Their own task in it is theirs still, in their Inbox as the site lists it
+    # Their own task in it is theirs still, sent again naming the folder
+    # they no longer reach
     assert task_ids(data) == {own.pk}
-    assert by_id(data, own.pk)["folder_id"] is None
+    assert by_id(data, own.pk)["folder_id"] == groceries.pk
+    assert by_id(data, own.pk)["mine"] is True
 
 
 def test_a_task_moved_out_of_a_shared_folder_is_gone_for_the_editor(
@@ -409,3 +411,38 @@ def test_the_prune_job_is_scheduled():
     from apps.management.schedules import schedule_specs
 
     assert "apps.api.tracking.prune" in {spec.func for spec in schedule_specs()}
+
+
+def test_an_editor_leaving_keeps_their_own_tasks(
+    other_app, user, other_user, groceries
+):
+    """Deleting a shared folder from the app, as its editor, leaves it: the
+    next delta drops the folder from folder_ids and sends their own task in
+    it again, with its folder as stored; the owner's tasks are no longer
+    theirs to see. A full snapshot afterwards says the same."""
+    from apps.api.tests.conftest import op
+
+    own = Task.objects.create(user=other_user, title="Eggs", folder=groceries)
+    owners = Task.objects.create(user=user, title="Milk", folder=groceries)
+    cursor = other_app.sync()["cursor"]
+    settle()
+
+    other_app.ok(op("folder.delete", folder=groceries.pk))
+    delta = other_app.sync(cursor)
+
+    assert delta["folder_ids"] == []
+    assert delta["folders"] == []
+    assert task_ids(delta) == {own.pk}
+    assert by_id(delta, own.pk)["folder_id"] == groceries.pk
+    assert owners.pk not in task_ids(delta)
+    full = other_app.sync()
+    assert task_ids(full) == {own.pk}
+    assert by_id(full, own.pk)["folder_id"] == groceries.pk
+
+    # Changing it from the app keeps it in that folder unless moved
+    other_app.ok(op("task.update", task=own.pk, fields={"title": "Duck eggs"}))
+    own.refresh_from_db()
+    assert (own.title, own.folder_id) == ("Duck eggs", groceries.pk)
+    other_app.ok(op("task.update", task=own.pk, fields={"folder_id": None}))
+    own.refresh_from_db()
+    assert own.folder_id is None

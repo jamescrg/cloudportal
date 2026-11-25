@@ -128,15 +128,15 @@ def reminder_data(reminder, task):
     }
 
 
-def task_data(task, user, folder_ids):
+def task_data(task, user):
     template = task.parent_task
     rule = template.rule if template is not None else None
     return {
         "id": task.id,
         "title": task.title,
-        # The user's own task in a folder they no longer reach is in their
-        # Inbox, as the site lists it
-        "folder_id": task.folder_id if task.folder_id in folder_ids else None,
+        # As stored, even for the user's own task left in a folder they no
+        # longer reach (not in folder_ids): the app shows it in the Inbox
+        "folder_id": task.folder_id,
         "mine": task.user_id == user.pk,
         "done": task.status == 1,
         "completed_date": day(task.completed_date),
@@ -217,6 +217,6 @@ def snapshot(user, cursor=None):
         "user": user_data(user),
         "folder_ids": sorted(folder_ids),
         "folders": [folder_data(f, user) for f in folders],
-        "tasks": [task_data(t, user, folder_ids) for t in tasks],
+        "tasks": [task_data(t, user) for t in tasks],
         "deleted": deleted,
     }

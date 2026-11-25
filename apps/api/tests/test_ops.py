@@ -55,6 +55,18 @@ def test_an_oversized_body_is_refused(app):
     assert "too large" in response.json()["error"]
 
 
+def test_the_paths_answer_without_a_trailing_slash_or_redirect(app):
+    """The app calls these exact paths and follows no redirects."""
+    sync = app.client.get("/api/v1/sync", **app.headers())
+    sent = app.post({"ops": []})
+
+    assert sync.status_code == 200
+    assert sent.status_code == 200
+    assert sent.json() == {"results": []}
+    for response in (sync, sent):
+        assert "Location" not in response
+
+
 def test_only_get_syncs_and_only_post_sends(app):
     assert app.client.post("/api/v1/sync", **app.headers()).status_code == 405
     assert app.client.get("/api/v1/ops", **app.headers()).status_code == 405
