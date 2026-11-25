@@ -6,6 +6,7 @@ from django.db import models
 
 from accounts.models import CustomUser
 from apps.common.models import (
+    TASK_CHANNEL_CHOICES,
     ReminderMixin,
     TouchingQuerySet,
     TrackedTimestampMixin,
@@ -215,8 +216,12 @@ class Task(TrackedTimestampMixin, models.Model):
 class TaskReminder(ReminderMixin):
     """A notification for a task (see ReminderMixin). A task with a due
     time counts back from that moment; one with only a due date counts
-    back in days or weeks to a time of day."""
+    back in days or weeks to a time of day. It may go by the phone app,
+    as an event's may not (TASK_CHANNEL_CHOICES)."""
 
+    channel = models.CharField(
+        max_length=10, choices=TASK_CHANNEL_CHOICES, default="email"
+    )
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="reminders")
 
     class Meta(ReminderMixin.Meta):

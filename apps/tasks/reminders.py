@@ -34,11 +34,17 @@ def remove_reminder(task, reminder_id):
 
 def send_due(now=None):
     """Send every task notification that is due, each the way it says: for
-    open, unarchived tasks that are not recurring templates. Returns
-    (sent, errors)."""
-    queryset = TaskReminder.objects.filter(
-        task__status=0, task__archived=False, task__is_recurring=False
-    ).select_related("task", "task__user", "task__folder")
+    open, unarchived tasks that are not recurring templates. One by the
+    phone app is left out: the app shows it itself, so the server never
+    sends it, nor marks it sent (it is never due here). Returns (sent,
+    errors)."""
+    queryset = (
+        TaskReminder.objects.filter(
+            task__status=0, task__archived=False, task__is_recurring=False
+        )
+        .exclude(channel="app")
+        .select_related("task", "task__user", "task__folder")
+    )
     return _send_due(queryset, notify.task_reminder, now)
 
 

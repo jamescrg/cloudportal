@@ -2,14 +2,16 @@
 instances, shown and sent where the user is, and the command that sends
 them."""
 
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from io import StringIO
 from zoneinfo import ZoneInfo
 
 import pytest
 from django.core.management import call_command
 from django.urls import reverse
+from oauth2_provider.models import RefreshToken
 
+from apps.common import notify
 from apps.tasks import reminders
 from apps.tasks.forms import TaskReminderForm
 from apps.tasks.models import Task, TaskReminder
@@ -160,6 +162,68 @@ def test_the_users_default_channel_is_offered_first_and_push_once_set_up(
     assert timed.reminders.get().channel == "ntfy"
 
 
+def test_the_phone_app_is_offered_only_while_the_app_is_connected(
+    client, user, timed, connect_phone_app
+):
+    html = client.get(reverse("tasks-form", args=[timed.id])).content.decode()
+    assert 'value="app"' not in html
+    client.post(
+        reverse("tasks-reminder-add", args=[timed.id]),
+        {"amount": 1, "unit": "days", "channel": "app"},
+    )
+    assert not timed.reminders.exists()
+
+    access = connect_phone_app(user)
+    html = client.get(reverse("tasks-form", args=[timed.id])).content.decode()
+    assert '<option value="app">Phone app</option>' in html
+    response = client.post(
+        reverse("tasks-reminder-add", args=[timed.id]),
+        {"amount": 1, "unit": "days", "channel": "app"},
+    )
+    assert "Phone app" in response.content.decode()
+    assert timed.reminders.get().channel == "app"
+
+    # Disconnected (Settings → Connected apps), the reminder stays as it was
+    access.delete()
+    html = client.get(reverse("tasks-form", args=[timed.id])).content.decode()
+    assert '<option value="app">' not in html
+    assert "Phone app" in html
+    assert timed.reminders.get().channel == "app"
+
+
+def test_an_expired_token_does_not_count_but_a_live_refresh_token_does(
+    user, timed, connect_phone_app
+):
+    access = connect_phone_app(user, expires_in=timedelta(hours=-1))
+    assert "app" not in dict(TaskReminderForm(task=timed).fields["channel"].choices)
+
+    RefreshToken.objects.create(
+        user=user, application=access.application, token="refresh", access_token=access
+    )
+    assert "app" in dict(TaskReminderForm(task=timed).fields["channel"].choices)
+
+
+def test_the_phone_app_as_default_falls_back_to_email_when_not_connected(
+    client, user, timed, connect_phone_app
+):
+    user.notify_by = "app"
+    user.save()
+    html = client.get(reverse("tasks-form", args=[timed.id])).content.decode()
+    assert '<option value="email" selected>Email</option>' in html
+    client.post(
+        reverse("tasks-reminder-add", args=[timed.id]), {"amount": 1, "unit": "days"}
+    )
+    assert timed.reminders.get().channel == "email"
+
+    connect_phone_app(user)
+    html = client.get(reverse("tasks-form", args=[timed.id])).content.decode()
+    assert '<option value="app" selected>Phone app</option>' in html
+    client.post(
+        reverse("tasks-reminder-add", args=[timed.id]), {"amount": 2, "unit": "days"}
+    )
+    assert timed.reminders.get(amount=2).channel == "app"
+
+
 def test_a_dated_task_refuses_minutes(client, dated):
     response = client.post(
         reverse("tasks-reminder-add", args=[dated.id]),
@@ -279,6 +343,24 @@ def test_the_recurring_command_gives_new_instances_the_notifications(user):
     assert instance.reminders.get().describe() == "15 minutes before"
 
 
+def test_a_new_instance_keeps_a_phone_app_notification(user):
+    template = Task.objects.create(
+        user=user,
+        title="Water plants",
+        is_recurring=True,
+        repeat_frequency="daily",
+        repeat_start=date(2030, 3, 4),
+        due_date=date(2030, 3, 4),
+        due_time=time(8, 0),
+    )
+    TaskReminder.objects.create(task=template, amount=15, unit="minutes", channel="app")
+
+    call_command("create_recurring_tasks", stdout=StringIO())
+
+    instance = Task.objects.get(parent_task=template)
+    assert instance.reminders.get().channel == "app"
+
+
 # --- sending ---------------------------------------------------------------
 
 
@@ -294,6 +376,40 @@ def test_a_due_notification_is_sent_once(timed, mailoutbox):
 
     assert reminders.send_due(now=due) == (0, 0)
     assert len(mailoutbox) == 1
+
+
+def test_a_phone_app_notification_is_left_to_the_app(timed, mailoutbox, monkeypatch):
+    """The server sends nothing for it and never counts it due, so it is
+    not picked up again each minute, and the others go as usual."""
+    channels = []
+    send = notify.task_reminder
+
+    def spy(user, task, channel=None):
+        channels.append(channel)
+        return send(user, task, channel)
+
+    monkeypatch.setattr(notify, "task_reminder", spy)
+    by_app = TaskReminder.objects.create(
+        task=timed, amount=30, unit="minutes", channel="app"
+    )
+    TaskReminder.objects.create(task=timed, amount=15, unit="minutes")
+    TaskReminder.objects.create(task=timed, amount=20, unit="minutes", channel="home")
+
+    assert reminders.send_due(now=_in(EASTERN, 2030, 3, 4, 13, 50)) == (2, 0)
+    assert len(mailoutbox) == 1
+    assert timed.notices.count() == 1
+    assert sorted(channels) == ["email", "home"]
+    by_app.refresh_from_db()
+    assert by_app.sent_for is None
+
+    # Moved, the others are notified again; the app's still is not
+    timed.due_date = date(2030, 3, 5)
+    timed.save()
+    assert reminders.send_due(now=_in(EASTERN, 2030, 3, 5, 13, 50)) == (2, 0)
+    assert len(mailoutbox) == 2
+    assert "app" not in channels
+    by_app.refresh_from_db()
+    assert by_app.sent_for is None
 
 
 def test_a_completed_or_template_task_is_not_notified(user, timed, mailoutbox):

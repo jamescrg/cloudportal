@@ -303,6 +303,35 @@ def test_set_reminders_replaces_the_list(app, user):
     assert not task.reminders.exists()
 
 
+def test_a_reminder_by_the_phone_app(app, user):
+    """The app shows it itself; the server keeps it and sends it back."""
+    task = Task.objects.create(
+        user=user, title="T", due_date=date(2026, 12, 1), due_time=time(9)
+    )
+    user.notify_by = "app"
+    user.save()
+
+    app.ok(
+        op(
+            "task.set_reminders",
+            task=task.pk,
+            reminders=[
+                {"channel": "app", "amount": 30, "unit": "minutes", "time": None},
+                {"channel": "", "amount": 1, "unit": "hours", "time": None},
+                {"channel": "email", "amount": 1, "unit": "days", "time": None},
+            ],
+        )
+    )
+
+    reminders = by_id(app.sync(), task.pk)["reminders"]
+    assert sorted((r["channel"], r["amount"], r["unit"]) for r in reminders) == [
+        ("app", 1, "hours"),
+        ("app", 30, "minutes"),
+        ("email", 1, "days"),
+    ]
+    assert {"id", "channel", "amount", "unit", "time"} == set(reminders[0])
+
+
 def test_an_all_day_tasks_reminders_count_in_days(app, user):
     task = Task.objects.create(user=user, title="T", due_date=date(2026, 12, 1))
 
