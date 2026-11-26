@@ -34,6 +34,32 @@
   left: 0.5rem;
 }
 
+/* On a page of folders the panel's button names the open folder, so it
+   is a rounded rectangle as wide as the name, up to a gap short of the
+   menu button; a longer name is cut with an ellipsis */
+.drawer-fab-folder {
+  border-radius: var(--radius-lg);
+  font-family: inherit;
+  font-size: 1rem;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  max-width: calc(100vw - 4rem);
+  padding: 0 0.75rem;
+  width: auto;
+}
+
+.drawer-fab-folder i {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+}
+
+.drawer-fab-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Backdrop */
 .drawer-backdrop {
   background: var(--overlay-backdrop);
@@ -89,6 +115,19 @@
 
   body[data-page="home"] .content {
     padding-top: 4.5rem;
+  }
+
+  /* The folder's name is on the panel's button, so the page's own
+     heading for it goes, and the filter beside it takes its place on the
+     line with the add button */
+  .folder-title {
+    display: none;
+  }
+
+  .card-title.flex-center-space:has(> .folder-title) > .filter-input {
+    flex: 1;
+    order: 0;
+    width: auto;
   }
 
   /* Menu drawer: the site's pages stacked, off-screen right until opened */

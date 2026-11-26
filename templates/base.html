@@ -149,20 +149,28 @@
             </nav>
         </div>
         <!-- Mobile side panel: a floating button, upper left, slides the page's
-             panel (the folder sidebar, or the settings sections) in from the left -->
+             panel (the folder sidebar, or the settings sections) in from the left.
+             On a page of folders the button names the open one, in place of a
+             heading in the page (sideDrawer, alpine-components.js) -->
         <div x-data="sideDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">
-            <button class="drawer-fab drawer-fab-panel"
-                    x-show="hasPanel"
-                    @click="toggle()"
-                    aria-label="{% if page == 'settings' %}Open settings sections{% else %}Open folders{% endif %}">
-                {% if page == 'settings' %}
+            {% if page == 'settings' %}
+                <button class="drawer-fab drawer-fab-panel"
+                        x-show="hasPanel"
+                        @click="toggle()"
+                        aria-label="Open settings sections">
                     <i class="icon-settings-2"></i>
-                {% else %}
-                    <i class="icon-folders"></i>
-                {% endif %}
-            </button>
+                </button>
+            {% else %}
+                <button class="drawer-fab drawer-fab-panel drawer-fab-folder"
+                        x-show="hasPanel"
+                        @click="toggle()"
+                        :aria-label="'Folders: ' + folderName">
+                    <i :class="folderIcon"></i>
+                    <span class="drawer-fab-label" x-text="folderName"></span>
+                </button>
+            {% endif %}
             <div class="drawer-backdrop" @click="close()"></div>
         </div>
         <!-- javascript -->

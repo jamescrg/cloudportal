@@ -3,7 +3,7 @@
      hx-get="{% url 'notes:list' %}"
      hx-target="#notes">
     <div class="card-title flex-center-space" id="notes-normal-toolbar">
-        <h1>
+        <h1 class="folder-title">
             {% if notes_folder_all %}
                 All
             {% elif selected_folder %}

@@ -546,6 +546,18 @@ document.addEventListener('alpine:init', () => {
     isOpen: false,
     hasPanel: false,
 
+    // The open folder, as the folder list marks it, for the button to
+    // name: the list is where a page says which folder it is showing
+    folderName: 'Folders',
+    folderIcon: 'icon-folders',
+
+    readFolder() {
+      const item = document.querySelector('[data-drawer] .folder-tree .active-item');
+      const name = item?.querySelector('.folder-link')?.textContent.replace(/\s+/g, ' ').trim();
+      this.folderName = name || 'Folders';
+      this.folderIcon = item?.querySelector('.folder-icon i')?.className || 'icon-folders';
+    },
+
     // Swipe state
     _touch: null,
 
@@ -584,6 +596,11 @@ document.addEventListener('alpine:init', () => {
         backdrop: this.$el.querySelector('.drawer-backdrop'),
         side: 'left',
       });
+
+      // The button follows the folder list: choosing a folder, renaming
+      // or deleting one each re-render it
+      this.readFolder();
+      document.addEventListener('htmx:afterSettle', () => this.readFolder());
 
       // Auto-close the drawer when a link inside it is tapped (htmx navigation)
       document.addEventListener('htmx:beforeRequest', (e) => {
