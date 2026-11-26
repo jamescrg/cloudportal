@@ -524,6 +524,55 @@ th.tasks-col-priority .btn-sort.active {
   }
 }
 
+/* ------------------------------------------------------------------------- */
+/* swipe a task left to check it off (static/js/tasks.js) */
+/* ------------------------------------------------------------------------- */
+
+/* A sideways drag on a task is the swipe's; up and down still scroll.
+   (The rule is on the cells: a table row takes no touch-action.) */
+.tasks-table td {
+  touch-action: pan-y;
+}
+
+/* The strip that opens behind the row as it slides: laid over the table
+   at the row's place, growing in from the right, its check mark at the
+   right-hand end */
+.tasks .table-container {
+  position: relative;
+}
+
+.task-swipe-reveal {
+  align-items: center;
+  background: var(--hl-green);
+  color: var(--link);
+  display: flex;
+  justify-content: flex-end;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  width: 0;
+}
+
+.task-swipe-reveal i {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  padding-right: 1rem;
+}
+
+/* Far enough to check the task off when let go */
+.task-swipe-reveal.armed {
+  background: color-mix(in oklab, var(--link) 30%, var(--hl-green));
+}
+
+/* Let go: the row slides back, or off */
+.tasks-table td.task-swipe-settling {
+  transition: transform 0.15s ease;
+}
+
+.task-swipe-reveal.task-swipe-settling {
+  transition: width 0.15s ease;
+}
+
 /* The bulk actions' check-all is for phones, where the table's heading
    row, which holds the button on a wide screen, is not shown */
 .bulk-check-all {
