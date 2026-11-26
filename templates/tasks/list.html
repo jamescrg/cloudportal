@@ -16,8 +16,10 @@
                     class="square-button filter-button select-btn tasks-date-filter {% if date_filter_scheduled %}toggle-active{% endif %}"
                     x-ref="button"
                     @click="toggle()"
+                    title="Dates: {{ date_filter_name }}"
+                    aria-label="Dates: {{ date_filter_name }}"
                     :aria-expanded="open">
-                <span><i class="icon-calendar"></i> {{ date_filter_name }}</span>
+                <span><i class="icon-calendar"></i> <span class="tasks-date-name">{{ date_filter_name }}</span></span>
                 <small><i class="icon-chevron-down"></i></small>
             </button>
             <ul class="dropdown-menu" x-ref="menu" x-show="open" @click="close()">
@@ -65,6 +67,8 @@
             </ul>
         </div>
         <button class="square-button filter-button {% if filter_active %}toggle-active{% endif %}"
+                title="Filter and sort"
+                aria-label="Filter and sort"
                 hx-get="{% url 'tasks-filter' %}"
                 hx-target="#htmx-modal-container">
             <i class="icon-list-filter"></i>
@@ -130,6 +134,20 @@
 {% if has_completed_tasks %}
     <div class="archive">
         <div class="archive-buttons">
+            {% comment %}
+            On a phone the table's heading row is gone, and its check-all
+            button with it, so the bulk actions carry one: lit when every
+            task in view is checked, when it unchecks them instead.
+            {% endcomment %}
+            <button class="btn btn-secondary bulk-check-all {% if all_complete %}toggle-active{% endif %}"
+                    type="button"
+                    title="{% if all_complete %}Uncheck all{% else %}Check all{% endif %}"
+                    aria-label="{% if all_complete %}Uncheck all{% else %}Check all{% endif %}"
+                    hx-post="{% url 'tasks-bulk-status' %}?status={% if all_complete %}0{% else %}1{% endif %}"
+                    hx-target="#tasks-container"
+                    hx-swap="innerHTML scroll:none">
+                <i class="icon-check-check"></i>
+            </button>
             <button class="btn btn-secondary"
                     title="Archive completed tasks"
                     aria-label="Archive completed tasks"

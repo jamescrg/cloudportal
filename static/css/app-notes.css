@@ -49,6 +49,15 @@
   z-index: 50;
 }
 
+/* On a phone the toolbar and the search bar stick under the bar across
+   the top of the screen (drawer.css), not behind it */
+@media (max-width: 991.98px) {
+  .note-toolbar-wrapper,
+  .search-replace-bar {
+    top: calc(var(--phone-top) + var(--phone-bar));
+  }
+}
+
 /* =============================================================================
    Toolbar - Constrained Width
    ============================================================================= */

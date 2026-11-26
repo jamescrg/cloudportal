@@ -107,7 +107,9 @@
         </div>
         {% include "modals.html" %}
         {% include "confirm-modal.html" %}
-        <!-- Mobile menu: the nav bar collapses into a floating button, upper right -->
+        <!-- Mobile: a bar across the top of the screen holds the two buttons below -->
+        <div class="drawer-bar"></div>
+        <!-- Mobile menu: the nav bar collapses into a button at the bar's right -->
         <div x-data="navDrawer()"
              x-cloak
              @keydown.escape.window="if(isOpen) close()">
@@ -148,7 +150,7 @@
                 </div>
             </nav>
         </div>
-        <!-- Mobile side panel: a floating button, upper left, slides the page's
+        <!-- Mobile side panel: a button at the bar's left slides the page's
              panel (the folder sidebar, or the settings sections) in from the left.
              On a page of folders the button names the open one, in place of a
              heading in the page (sideDrawer, alpine-components.js) -->

@@ -692,8 +692,8 @@ li {
  * dev banner
  * ------------------------------------------------*/
 
-/* Exactly 1.25rem tall, which the phone's band under the floating
-   buttons takes back (drawer.css) */
+/* Exactly 1.25rem tall, which the phone's bar is told to start under
+   (--phone-top, drawer.css) */
 .dev-banner {
   background: var(--orange-800);
   color: var(--stone-100);

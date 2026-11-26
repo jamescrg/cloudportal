@@ -1,50 +1,76 @@
 /*------------------------------------------------
  * Mobile drawers
  * On viewports < 992px the nav bar and the page's side panel each
- * collapse into a round floating button at the top of the screen: the
- * page's panel (the folder sidebar, or the settings sections — whatever
- * carries data-drawer) on the left, which slides in from the left; the
- * menu on the right, which slides its panel in from the right.
+ * collapse into a button in a bar across the top of the screen, there
+ * wherever the page is scrolled: the page's panel (the folder sidebar,
+ * or the settings sections — whatever carries data-drawer) on the left,
+ * which slides in from the left; the menu on the right, which slides its
+ * panel in from the right.
  * ------------------------------------------------*/
 
-/* FABs — hidden by default, shown on mobile */
+/* The bar's height, its border included, and where its top is: under
+   the dev banner, where there is one (base-app.css gives the banner's
+   height). It stands as tall as a row of a list on a phone, and a bar
+   at the foot of the screen (the task list's tools, app-tasks.css) is
+   the same height. */
+:root {
+  --phone-bar: 3.5rem;
+  --phone-top: 0rem;
+}
+
+body:has(> .dev-banner) {
+  --phone-top: 1.25rem;
+}
+
+/* The bar itself — hidden by default, shown on mobile */
+.drawer-bar {
+  background: var(--background-nav);
+  border-bottom: solid 1px var(--border-medium);
+  display: none;
+  height: var(--phone-bar);
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: var(--phone-top);
+  z-index: 1038;
+}
+
+/* The bar's buttons — hidden by default, shown on mobile. Each is the
+   bar's full height, with no ground or border of its own. */
 .drawer-fab {
   align-items: center;
-  background: var(--background-subnav);
-  border: solid 1px var(--border-medium);
-  border-radius: 50%;
-  box-shadow: 0 0.125rem 0.5rem var(--shadow-color);
+  background: none;
+  border: none;
   color: var(--color-primary);
   cursor: pointer;
   display: none;
   font-size: 1.25rem;
-  height: 2.5rem;
+  height: var(--phone-bar);
   justify-content: center;
   position: fixed;
-  top: 0.5rem;
-  width: 2.5rem;
+  top: var(--phone-top);
+  width: var(--phone-bar);
   z-index: 1039;
 }
 
 .drawer-fab-nav {
-  right: 0.5rem;
+  right: 0;
 }
 
 .drawer-fab-panel {
-  left: 0.5rem;
+  left: 0;
 }
 
 /* On a page of folders the panel's button names the open folder, so it
-   is a rounded rectangle as wide as the name, up to a gap short of the
-   menu button; a longer name is cut with an ellipsis */
+   is as wide as the name, up to a gap short of the menu button; a longer
+   name is cut with an ellipsis */
 .drawer-fab-folder {
-  border-radius: var(--radius-lg);
   font-family: inherit;
   font-size: 1rem;
   gap: 0.5rem;
   justify-content: flex-start;
-  max-width: calc(100vw - 4rem);
-  padding: 0 0.75rem;
+  max-width: calc(100vw - var(--phone-bar) - 0.5rem);
+  padding: 0 1rem;
   width: auto;
 }
 
@@ -88,6 +114,20 @@
     display: flex;
   }
 
+  .drawer-bar {
+    display: block;
+  }
+
+  /* The dev banner stays at the top with the bar under it, rather than
+     scrolling away and leaving the bar a gap below the screen's edge */
+  .dev-banner {
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1038;
+  }
+
   .drawer-backdrop {
     display: block;
     pointer-events: none;
@@ -97,24 +137,15 @@
     pointer-events: auto;
   }
 
-  /* The buttons sit in a band above the content, with a little more
-     gap below them than above. The home page keeps further clear. */
+  /* The content starts under the bar. The cards run edge to edge here
+     and carry their own padding; the home page's do not, so it keeps a
+     gap of its own. */
   .content {
-    padding-top: 3.75rem;
-  }
-
-  /* The buttons float over the dev banner, which already pushes the
-     content down by its height (base-app.css) */
-  body:has(> .dev-banner) .content {
-    padding-top: 2.5rem;
-  }
-
-  body[data-page="home"]:has(> .dev-banner) .content {
-    padding-top: 3.25rem;
+    padding-top: calc(var(--phone-top) + var(--phone-bar));
   }
 
   body[data-page="home"] .content {
-    padding-top: 4.5rem;
+    padding-top: calc(var(--phone-top) + var(--phone-bar) + 1rem);
   }
 
   /* The folder's name is on the panel's button, so the page's own
@@ -254,6 +285,7 @@
 /* Desktop — ensure FABs, drawer and backdrops stay hidden */
 @media (min-width: 992px) {
   .drawer-fab,
+  .drawer-bar,
   .drawer-backdrop,
   .nav-drawer {
     display: none !important;

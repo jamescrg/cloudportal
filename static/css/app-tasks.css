@@ -524,6 +524,119 @@ th.tasks-col-priority .btn-sort.active {
   }
 }
 
+/* The bulk actions' check-all is for phones, where the table's heading
+   row, which holds the button on a wide screen, is not shown */
+.bulk-check-all {
+  display: none;
+}
+
+/* ------------------------------------------------------------------------- */
+/* phones: the tools dock at the foot of the screen */
+/* ------------------------------------------------------------------------- */
+
+/* The date filter, the archived filter and the filter dialog are three
+   icons in a bar across the foot of the screen, there wherever the list
+   is scrolled, as tall as the bar across its top (drawer.css).
+   The table's heading row goes: sorting is in the filter dialog, and
+   checking every task is among the bulk actions. With the folder's name
+   on the folder button the heading holds nothing more in the page, so
+   the add-a-task row leads. */
+@media (max-width: 991.98px) {
+  .tasks-header {
+    margin-bottom: 0;
+  }
+
+  /* The add-a-task row sits midway between the bar above it and the
+     first task's rule: the card's padding above, the same below */
+  .tasks-add {
+    margin-bottom: 1rem;
+  }
+
+  .tasks-tools {
+    border-top: solid 1px var(--border-medium);
+    bottom: 0;
+    flex-wrap: nowrap;
+    gap: 0;
+    left: 0;
+    padding: 0 0.5rem;
+    position: fixed;
+    right: 0;
+    z-index: 1038;
+  }
+
+  /* The bar's colour is painted behind its buttons rather than set on
+     the bar: a phone's browser colours the strip it keeps under the page
+     (for the gesture bar, or its own toolbar) after whatever is fixed to
+     the foot of the screen, and so made the bar look twice its height */
+  .tasks-tools::before {
+    background: var(--background-nav);
+    content: "";
+    inset: 0;
+    position: absolute;
+    z-index: -1;
+  }
+
+  /* Each tool takes a third of the bar, its icon in the middle */
+  .tasks-tools > * {
+    flex: 1;
+  }
+
+  .tasks-tools .square-button {
+    background: none;
+    border-color: transparent;
+    font-size: 1.25rem;
+    height: calc(var(--phone-bar) - 1px);
+    justify-content: center;
+    padding-bottom: 0;
+    padding-top: 0;
+    width: 100%;
+  }
+
+  /* The three icons are one size, with no name beside them to space from */
+  .tasks-tools .select-btn > span {
+    flex: none;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .tasks-tools .select-btn > span > i {
+    margin-right: 0;
+  }
+
+  /* Icons alone: the date filter's name and the menus' chevrons go */
+  .tasks-tools .tasks-date-name,
+  .tasks-tools .select-btn > small {
+    display: none;
+  }
+
+  /* A filter that is on lights its icon, in a wash no wider than a button */
+  .tasks-tools .square-button.toggle-active {
+    background: var(--selected-background);
+    border-color: var(--selected-border);
+    margin: 0 auto;
+    max-width: 4rem;
+  }
+
+  /* The list clears the bar at its foot */
+  body[data-page="tasks"] .content {
+    padding-bottom: calc(var(--phone-bar) + 1rem);
+  }
+
+  /* With no heading row above it, the first task is ruled off from the
+     add-a-task row as each task is from the next */
+  .tasks-table {
+    border-top: solid 1px var(--border-medium);
+  }
+
+  .tasks-table tr:has(> th) {
+    display: none;
+  }
+
+  .bulk-check-all {
+    display: inline-block;
+  }
+}
+
 /* ------------------------------------------------------------------------- */
 /* task edit form */
 /* ------------------------------------------------------------------------- */
