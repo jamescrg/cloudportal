@@ -354,7 +354,9 @@ tr:hover .row-edit,
   );
 }
 
-/* The filter icon is lavender wherever it appears, as in Kosmos */
-.icon-list-filter {
+/* The filter icon is lavender while its button is lit, which is while a
+   filter other than the default is in force; otherwise it takes the
+   button's own colour, like the icons beside it */
+.toggle-active .icon-list-filter {
   color: var(--icon-violet);
 }

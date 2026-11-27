@@ -476,7 +476,7 @@ th.tasks-col-priority .btn-sort.active {
 
 /* The bulk actions (archive, move, date, priority, delete) are icons
    only, named by their titles, in one run from the left; on phones the
-   run wraps */
+   run fills the row (below) */
 .archive-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -683,6 +683,28 @@ th.tasks-col-priority .btn-sort.active {
 
   .bulk-check-all {
     display: inline-block;
+  }
+
+  /* The bulk actions are one row of six equal buttons across the list's
+     width: icons alone, the menus' chevrons gone as in the bar below */
+  .archive-buttons {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+  }
+
+  .archive-buttons > * {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .archive-buttons .btn {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+  }
+
+  .archive-buttons .btn small {
+    display: none;
   }
 }
 
