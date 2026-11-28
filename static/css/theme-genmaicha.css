@@ -581,20 +581,12 @@ input[type="radio"]:focus-visible {
 }
 
 /* ==========================================================================
- Lists: the name that a row is about is in the semibold, as a book's
- title is, and what stands beside it is quieter
+ Lists: the name that a row is about is in the ink at the common weight,
+ and what stands beside it is quieter
 ========================================================================== */
-
-.tasks-col-title a,
-.note-title a,
-.fav-title a,
-.contacts .list-group-item a {
-  font-weight: 600;
-}
 
 .tasks-col-title a.text-completed {
   color: var(--gm-quiet);
-  font-weight: 400;
 }
 
 .tasks-table .tasks-col-due,
