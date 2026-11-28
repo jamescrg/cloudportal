@@ -87,6 +87,17 @@ CONNECTOR_SCOPE = "cloudportal"
 API_URL = f"{SITE_URL}/api/v1/"
 ANDROID_CLIENT_ID = "cloudportal-android"
 ANDROID_REDIRECT_URI = "net.cloudportal.tasks:/oauth"
+# The weather app for Android is a client of its own, so that being signed
+# in to it is never taken for the tasks app being connected (which is what
+# offers a task's reminder to the phone). Its tokens reach the API's
+# weather alone.
+WEATHER_ANDROID_CLIENT_ID = "cloudportal-weather-android"
+WEATHER_ANDROID_REDIRECT_URI = "net.cloudportal.weather:/oauth"
+# Each of the site's own Android apps, and where it is sent back to
+ANDROID_APPS = {
+    ANDROID_CLIENT_ID: ANDROID_REDIRECT_URI,
+    WEATHER_ANDROID_CLIENT_ID: WEATHER_ANDROID_REDIRECT_URI,
+}
 
 OAUTH2_PROVIDER = {
     "SCOPES": {CONNECTOR_SCOPE: "Read and change your tasks and calendar"},

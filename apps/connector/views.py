@@ -105,21 +105,27 @@ def connected_index(request):
 
 
 def _is_android_app(application):
-    return getattr(application, "client_id", None) == settings.ANDROID_CLIENT_ID
+    """Whether this is one of the site's own Android apps: tasks or weather."""
+    return getattr(application, "client_id", None) in settings.ANDROID_APPS
+
+
+def _is_weather_app(application):
+    client_id = getattr(application, "client_id", None)
+    return client_id == settings.WEATHER_ANDROID_CLIENT_ID
 
 
 class ConsentView(AuthorizationView):
     """The toolkit's authorize page, naming where the app identifies itself
     from: the host of its client id when that is a web address (as
     Claude's is), else of where it sends the user back to. An app's name is
-    its own to choose; its host is not. CloudPortal's own Android app
-    (apps.api), registered by the site, has no host and says so."""
+    its own to choose; its host is not. CloudPortal's own Android apps
+    (apps.api), registered by the site, have no host and say so."""
 
     def redirect(self, redirect_to, application):
-        # The Android app is sent back by its own URI scheme, allowed for it
+        # An Android app is sent back by its own URI scheme, allowed for it
         # alone; every other app keeps the toolkit's allowed schemes
         if _is_android_app(application):
-            scheme = urlparse(settings.ANDROID_REDIRECT_URI).scheme
+            scheme = urlparse(settings.ANDROID_APPS[application.client_id]).scheme
             schemes = [*application.get_allowed_schemes(), scheme]
             return OAuth2ResponseRedirect(redirect_to, schemes)
         return super().redirect(redirect_to, application)
@@ -128,6 +134,7 @@ class ConsentView(AuthorizationView):
         context = super().get_context_data(**kwargs)
         application = context.get("application")
         context["android_app"] = _is_android_app(application)
+        context["weather_app"] = _is_weather_app(application)
         client_id = getattr(application, "client_id", "") or ""
         host = (
             urlparse(client_id).hostname if client_id.startswith("https://") else None
