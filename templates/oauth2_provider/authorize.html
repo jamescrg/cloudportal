@@ -18,7 +18,11 @@ site it identifies itself from, so a look-alike is told apart.
                 <p class="consent-from">
                     CloudPortal's own app, on your <strong>Android</strong> device
                 </p>
-                <p>It will be able to read, add, change and delete your tasks and task lists, and those shared with you.</p>
+                {% if weather_app %}
+                    <p>It will be able to read your weather, and change its location and units and clear its alerts.</p>
+                {% else %}
+                    <p>It will be able to read, add, change and delete your tasks and task lists, and those shared with you.</p>
+                {% endif %}
                 <p class="consent-note">You can disconnect it any time in Settings, under Connected Apps.</p>
             {% else %}
                 <p class="consent-from">

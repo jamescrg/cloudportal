@@ -5,7 +5,7 @@ from oauth2_provider import views as oauth_views
 from oauth2_provider.urls import metadata_urlpatterns
 
 from accounts import views as account_views
-from apps.api import views as api
+from apps.api import views as api, weather as api_weather
 from apps.connector import views as connector
 from apps.contacts import views as contacts
 from apps.favorites import views as favorites
@@ -41,6 +41,15 @@ urlpatterns = [
     # The mobile sync API, for the Android app
     path("api/v1/sync", api.sync, name="api-sync"),
     path("api/v1/ops", api.ops, name="api-ops"),
+    # and the weather, for the Android weather app
+    path("api/v1/weather", api_weather.weather, name="api-weather"),
+    path("api/v1/weather/location", api_weather.location, name="api-weather-location"),
+    path("api/v1/weather/units", api_weather.units, name="api-weather-units"),
+    path(
+        "api/v1/weather/alerts/dismiss",
+        api_weather.dismiss,
+        name="api-weather-dismiss",
+    ),
     # The admin signs in through the site's own sign-in (accounts.views)
     path("admin/login/", account_views.admin_login),
     path("admin/", admin.site.urls),

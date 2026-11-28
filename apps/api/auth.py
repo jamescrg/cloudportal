@@ -10,8 +10,10 @@ from django.http import JsonResponse
 from oauth2_provider.models import AccessToken
 
 
-def token_for(request):
-    """The valid access token the request carries for the API, or None."""
+def token_for(request, weather=False):
+    """The valid access token the request carries for the API, or None.
+    The weather app's token is taken for the weather alone (weather=True),
+    never for the tasks."""
     header = request.headers.get("Authorization", "")
     scheme, _, token = header.partition(" ")
     token = token.strip()
@@ -28,6 +30,10 @@ def token_for(request):
     if not access.allows_audience(settings.API_URL):
         return None
     if access.user is None or not access.user.is_active:
+        return None
+    application = access.application
+    client_id = getattr(application, "client_id", None)
+    if client_id == settings.WEATHER_ANDROID_CLIENT_ID and not weather:
         return None
     return access
 
