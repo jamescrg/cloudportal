@@ -150,3 +150,15 @@ def test_a_theme_that_isnt_one_is_ignored(client, user):
     client.post(reverse("settings-theme"), {"theme": "../../secrets"})
     assert "theme" not in client.session
     assert client.get(reverse("settings")).status_code == 200
+
+
+def test_genmaicha_stands_alone(client):
+    """Genmaicha is laid over Matcha, has no atmosphere, and offers none"""
+    html = page_for(client, "genmaicha", atmosphere="on")
+    assert client.session["theme"] == "genmaicha"
+    matcha = html.index("css/theme-matcha.css")
+    genmaicha = html.index("css/theme-genmaicha.css")
+    assert matcha < genmaicha
+    assert "atmosphere.css" not in html
+    assert 'class="atmos"' not in html
+    assert 'aria-label="Atmosphere"' not in html

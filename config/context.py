@@ -32,7 +32,9 @@ VARIANT_OF = {base: variant for variant, base in THEME_VARIANTS.items()}
 DEFAULT_THEME = "auto-atmosphere"
 
 # Every theme a user may choose
-THEMES = {"matcha", "matcha-paper", "hojicha", "auto", *THEME_VARIANTS}
+# Genmaicha has no atmospheric variant: it is flat paper and ink, light or
+# dark as the device is set (static/css/theme-genmaicha.css)
+THEMES = {"matcha", "matcha-paper", "hojicha", "auto", "genmaicha", *THEME_VARIANTS}
 
 # Renamed themes, so a session still holding the old name keeps its theme
 

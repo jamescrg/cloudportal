@@ -1,0 +1,775 @@
+/* ==========================================================================
+ Genmaicha: the Booklist app's look (~/booklist), which is the blog's
+ gruvbox paper. Two grounds and no more: the page, and a card a little
+ lighter than it. Everything is ruled in one warm line, nothing casts a
+ shadow on the page, the ink is a warm near-black, and one muted green
+ does all the accent's work: links under the pointer, what is on, what
+ is chosen, the focus ring.
+
+ It follows the device, light or dark, as Booklist does, and has no
+ atmosphere. It is laid over Matcha (theme-matcha.css, always loaded):
+ first the colours, by the tokens every stylesheet reads, then the parts
+ the tokens cannot reach.
+========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Booklist's nine colours */
+  --gm-bg: #edebe5;
+  --gm-card: #f2f0ea;
+  --gm-ink: color-mix(in srgb, var(--gb-dark1) 88%, #f2f0ea);
+  --gm-muted: oklch(0.5 0.023 62.529);
+  --gm-line: var(--gb-light3);
+  --gm-accent: var(--gb-faded-aqua);
+  --gm-accent-ink: #f2f0ea;
+  --gm-star: #b57614;
+  --gm-error: #9d0006;
+  --gm-orange: var(--gb-faded-orange);
+  --gm-blue: var(--gb-faded-blue);
+  --gm-purple: var(--gb-faded-purple);
+
+  /* and what it makes of them: the rule between rows is the line at a
+     little over half strength, a row under the pointer has a breath of
+     the accent in it, and a chosen one twice that */
+  --gm-line-soft: color-mix(in srgb, var(--gm-line) 55%, transparent);
+  --gm-line-strong: color-mix(in srgb, var(--gm-muted) 45%, var(--gm-line));
+  --gm-hover: color-mix(in srgb, var(--gm-accent) 7%, var(--gm-card));
+  --gm-selected: color-mix(in srgb, var(--gm-accent) 14%, var(--gm-card));
+  --gm-selected-line: color-mix(in srgb, var(--gm-accent) 40%, var(--gm-line));
+  /* an icon that only marks a row: the muted ink, let back toward the card */
+  --gm-quiet: color-mix(in srgb, var(--gm-muted) 70%, var(--gm-card));
+
+  /* The check mark of a ticked box, drawn in the accent's ink */
+  --gm-tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2f0ea' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+
+  --gm-font: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Border Radius: rounder than Matcha's, as Booklist's are */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* Body & Navigation: the bar is a card laid across the top */
+  --background-body: var(--gm-bg);
+  --background-nav: var(--gm-card);
+  --color-nav: var(--gm-muted);
+
+  /* Typography */
+  --color-primary: var(--gm-ink);
+  --color-secondary: var(--gm-muted);
+  --color-muted: var(--gm-quiet);
+  --color-faint: var(--gm-line);
+  --color-strong: var(--gm-ink);
+
+  /* Links */
+  --link: var(--gm-accent);
+  --link-hover: color-mix(in srgb, var(--gm-accent) 75%, var(--gm-ink));
+
+  /* Backgrounds: a field is a hollow in its card, the page's colour; a
+     control is the card's own colour inside the line */
+  --background-subnav: var(--gm-bg);
+  --background-subnav-tab-active: var(--gm-card);
+  --background-control: var(--gm-card);
+  --background-section: var(--gm-card);
+  --background-light: var(--gm-bg);
+
+  /* Borders */
+  --border-medium: var(--gm-line);
+  --border-medium-dark: var(--gm-line-strong);
+  --border-dark: var(--gm-line-strong);
+
+  /* Buttons */
+  --button-primary-background: var(--gm-accent);
+  --button-primary-color: var(--gm-accent-ink);
+  --button-secondary-background: var(--gm-card);
+  --button-secondary-color: var(--gm-ink);
+  --button-secondary-muted: var(--gm-muted);
+  --button-success-bg: var(--gm-accent);
+  --button-success-color: var(--gm-accent-ink);
+  --button-danger-bg: var(--gm-card);
+  --button-danger-color: var(--gm-error);
+  --button-toolbar: var(--gm-ink);
+
+  /* Shadows & Overlays: nothing on the page casts one; what floats over
+     it (a menu, a dialog) does */
+  --shadow-color: rgb(0 0 0 / 12%);
+  --shadow-color-heavy: rgb(0 0 0 / 20%);
+  --card-shadow: none;
+  --overlay-backdrop: rgb(0 0 0 / 45%);
+  --overlay-heavy: rgb(0 0 0 / 45%);
+
+  /* Selection */
+  --selected-background: var(--gm-selected);
+  --selected-border: var(--gm-selected-line);
+  --selected-color: var(--gm-ink);
+  --switch-on: var(--gm-accent);
+  --switch-on-border: var(--gm-accent);
+  --icon-violet: var(--gm-accent);
+
+  /* Labels */
+  --label-gray: var(--gm-bg);
+
+  /* Status */
+  --color-danger: var(--gm-error);
+  --color-success: var(--gm-accent);
+  --urgent: var(--gm-orange);
+  --color-accent: var(--gm-accent);
+  --color-accent-strong: var(--gm-accent);
+
+  /* Alerts */
+  --alert-success-bg: var(--gm-selected);
+  --alert-success-border: var(--gm-selected-line);
+  --alert-success-color: var(--gm-accent);
+  --alert-danger-bg: color-mix(in srgb, var(--gm-error) 9%, var(--gm-card));
+  --alert-danger-border: color-mix(in srgb, var(--gm-error) 35%, var(--gm-card));
+  --alert-danger-color: var(--gm-error);
+
+  /* Highlights and the editor's marks: each hue let into the card, so
+     they hold on the paper and in the dark alike */
+  --hl-blue: color-mix(in srgb, var(--gm-blue) 12%, var(--gm-card));
+  --hl-gray: var(--gm-bg);
+  --hl-green: color-mix(in srgb, var(--gm-accent) 12%, var(--gm-card));
+  --hl-orange: color-mix(in srgb, var(--gm-orange) 12%, var(--gm-card));
+  --hl-purple: color-mix(in srgb, var(--gm-purple) 12%, var(--gm-card));
+  --hl-red: color-mix(in srgb, var(--gm-error) 10%, var(--gm-card));
+  --hl-slate: var(--gm-bg);
+  --hl-yellow: color-mix(in srgb, var(--gm-star) 14%, var(--gm-card));
+  --mark-yellow: color-mix(in srgb, var(--gm-star) 26%, var(--gm-card));
+  --mark-green: color-mix(in srgb, var(--gm-accent) 24%, var(--gm-card));
+  --mark-red: color-mix(in srgb, var(--gm-error) 18%, var(--gm-card));
+  --mark-purple: color-mix(in srgb, var(--gm-purple) 22%, var(--gm-card));
+  --mark-orange: color-mix(in srgb, var(--gm-orange) 22%, var(--gm-card));
+  --mark-citation: var(--gm-bg);
+  --mark-gray: color-mix(in srgb, var(--gm-line) 45%, var(--gm-card));
+  --search-highlight: color-mix(in srgb, var(--gm-star) 32%, var(--gm-card));
+  --search-highlight-current: color-mix(in srgb, var(--gm-star) 62%, var(--gm-card));
+
+  /* Calendar entries. An all-day event is the selected wash a step
+     deeper, ruled in the accent let into the line; a task is a hollow,
+     the page's colour inside the plain line; a dot is the accent. */
+  --calendar-chip: var(--gm-bg);
+  --calendar-allday: color-mix(in srgb, var(--gm-accent) 20%, var(--gm-card));
+  --calendar-allday-color: var(--gm-ink);
+  --calendar-allday-dot: var(--gm-accent);
+  --calendar-task: var(--gm-bg);
+  --calendar-task-color: var(--gm-ink);
+  --calendar-task-icon: var(--gm-muted);
+  --calendar-chip-border: color-mix(in srgb, var(--gm-accent) 30%, var(--gm-line));
+  --calendar-holiday: color-mix(in srgb, var(--gm-blue) 20%, var(--gm-card));
+  --calendar-dot: var(--gm-accent);
+
+  /* Tables: the head has no ground of its own, only its small capitals */
+  --background-table-header: transparent;
+
+  /* Folder list */
+  --folder-menu-icon-color: var(--gm-line-strong);
+  --folder-count-color: var(--gm-muted);
+
+  /* The bar's rule */
+  --nav-rule: var(--gm-line);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --gm-bg: var(--gb-dark);
+    --gm-card: var(--gb-dark1);
+    --gm-ink: color-mix(in srgb, var(--gb-light1) 88%, var(--gb-dark));
+    --gm-muted: var(--gb-light4);
+    --gm-line: var(--gb-dark2);
+    --gm-accent: var(--gb-bright-aqua);
+    --gm-accent-ink: var(--gb-dark);
+    --gm-star: #fabd2f;
+    --gm-error: #fb4934;
+    --gm-orange: var(--gb-bright-orange);
+    --gm-blue: var(--gb-bright-blue);
+    --gm-purple: var(--gb-bright-purple);
+
+    --gm-tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23282828' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+
+    --shadow-color: rgb(0 0 0 / 30%);
+    --shadow-color-heavy: rgb(0 0 0 / 40%);
+  }
+}
+
+/* ==========================================================================
+ Type: the device's own face, as Booklist sets it, and headings in bold
+========================================================================== */
+
+body {
+  font-family: var(--gm-font);
+}
+
+h1 {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* A small label in spaced capitals: a table's head, a field's name */
+.table th,
+.form-compact .form-group > label,
+.setting-label,
+.form-label {
+  color: var(--gm-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+ The bar: a card across the top of the page, ruled along its foot, and
+ the open tab is the page showing through it. The rule runs up over the
+ tab and round its flared corners; how it is drawn, and why every part
+ of it is a border, is told in theme-matcha-paper.css, whose rules these
+ are.
+========================================================================== */
+
+.navbar {
+  position: relative;
+}
+
+.navbar::before {
+  border-bottom: 1px solid var(--nav-rule);
+  bottom: 0;
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+}
+
+.navbar > .container {
+  display: flow-root;
+}
+
+.nav-scroll-container {
+  margin-bottom: -1px;
+  padding-bottom: 1px;
+}
+
+.navbar .active {
+  border: 1px solid var(--nav-rule);
+  border-bottom: 0;
+  box-shadow: none;
+  margin: -1px -1px -1px;
+}
+
+.navbar .active::before,
+.navbar .active::after {
+  background: none;
+  border-bottom: 1px solid var(--nav-rule);
+  bottom: 1px;
+  box-shadow: 0 0 0 var(--radius-lg) var(--background-body);
+  box-sizing: border-box;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.navbar .active::before {
+  border-bottom-right-radius: var(--radius-lg);
+  border-right: 1px solid var(--nav-rule);
+  clip-path: inset(1px -1px -1px 1px);
+}
+
+.navbar .active::after {
+  border-bottom-left-radius: var(--radius-lg);
+  border-left: 1px solid var(--nav-rule);
+  clip-path: inset(1px 1px -1px -1px);
+}
+
+/* The open page's name is in the ink; the rest wait in the muted, and
+   come up to the ink under the pointer */
+.navbar a:hover,
+.navbar .active > a,
+.account-button:hover {
+  color: var(--gm-ink);
+}
+
+.navbar .active > a {
+  font-weight: 600;
+}
+
+/* ==========================================================================
+ Cards: the lighter ground inside the line
+========================================================================== */
+
+.card {
+  border: 1px solid var(--gm-line);
+}
+
+/* On a phone the cards run edge to edge on a page of their own colour
+   (base-app.css), so there is no edge to rule */
+@media (max-width: 991.98px) {
+  body:not([data-page="home"]) .card {
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+/* ==========================================================================
+ Links: a name in a list is in the ink, and takes the accent under the
+ pointer, as a book's title does. Links in running text keep the accent.
+========================================================================== */
+
+.table td a,
+.list-group-item a,
+.folder-link,
+.card .list-group a,
+.notes-list .note-title-link {
+  color: var(--gm-ink);
+}
+
+.table td a:hover,
+.list-group-item a:hover,
+.folder-link:hover,
+.notes-list .note-title-link:hover {
+  color: var(--gm-accent);
+}
+
+/* ==========================================================================
+ Tables and lists: a head in small capitals over the full line, the rows
+ under it ruled in the soft one, and a breath of the accent under the
+ pointer
+========================================================================== */
+
+.table th {
+  border-bottom-color: var(--gm-line);
+  border-top: 0;
+}
+
+.table th button,
+.table th .btn-sort {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.table td,
+.list-group-item,
+.list-group-item:first-child {
+  border-color: var(--gm-line-soft);
+}
+
+@media (hover: hover) {
+  .table tbody tr:hover td {
+    background: var(--gm-hover);
+  }
+}
+
+.btn-sort {
+  color: var(--gm-muted);
+}
+
+.btn-sort:hover,
+.btn-sort.active {
+  color: var(--gm-ink);
+}
+
+/* ==========================================================================
+ Buttons: the card's colour inside the line. The one that finishes the
+ job is filled with the accent; the one that destroys is worded in red.
+========================================================================== */
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-success {
+  background: var(--gm-accent);
+  border-color: var(--gm-accent);
+  color: var(--gm-accent-ink);
+  font-weight: 600;
+}
+
+.btn-danger {
+  background: var(--gm-card);
+  border-color: var(--gm-line);
+  color: var(--gm-error);
+}
+
+.square-button,
+.square-button:hover {
+  color: var(--gm-ink);
+}
+
+.square-button.add-button,
+.folders .card-title .square-button {
+  color: var(--gm-muted);
+}
+
+.square-button.add-button:hover,
+.folders .card-title .square-button:hover {
+  color: var(--gm-accent);
+}
+
+/* A button that is on (a filter in force) is filled with the accent, as
+   Booklist's Filter button is */
+.toggle-active,
+.square-button.toggle-active,
+.toolbar button.toggle-active,
+.toolbar a.toggle-active {
+  background: var(--gm-accent);
+  border: 1px solid var(--gm-accent);
+  color: var(--gm-accent-ink);
+  font-weight: 600;
+}
+
+.toggle-active .icon-list-filter {
+  color: inherit;
+}
+
+.bulk-count {
+  background: var(--gm-ink);
+  border-color: var(--gm-ink);
+  color: var(--gm-bg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.pagination-row a {
+  color: var(--gm-ink);
+}
+
+/* ==========================================================================
+ Fields: a hollow in the card. The focus ring takes the border's place,
+ drawn over it, not around it.
+========================================================================== */
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: -2px;
+}
+
+.filter-input::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--gm-muted);
+  opacity: 0.7;
+}
+
+/* Tick boxes and radio buttons drawn here, not by the browser: the
+   page's colour inside the line, the accent when ticked */
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--gm-bg) center / 0.875rem no-repeat;
+  border: 1px solid var(--gm-line-strong);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  flex: none;
+  height: 1.25rem;
+  margin: 0;
+  padding: 0;
+  vertical-align: -0.25rem;
+  width: 1.25rem;
+}
+
+input[type="radio"] {
+  border-radius: 50%;
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--gm-accent);
+  background-image: var(--gm-tick);
+  border-color: var(--gm-accent);
+}
+
+input[type="radio"]:checked {
+  background: var(--gm-accent);
+  border-color: var(--gm-accent);
+  box-shadow: inset 0 0 0 0.25rem var(--gm-bg);
+}
+
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  outline-offset: 2px;
+}
+
+/* A switch: a hollow track, filled with the accent when on */
+.switch {
+  background: var(--gm-bg);
+  border-color: var(--gm-line-strong);
+}
+
+.switch-knob {
+  background: var(--gm-card);
+  border-color: var(--gm-line-strong);
+}
+
+.switch.is-on .switch-knob {
+  background: var(--gm-accent-ink);
+  border-color: var(--gm-accent-ink);
+}
+
+/* ==========================================================================
+ Menus
+========================================================================== */
+
+.dropdown-menu {
+  border-radius: var(--radius-md);
+  box-shadow: 0 0.25rem 1rem var(--shadow-color);
+}
+
+.dropdown-menu li {
+  border-top-color: var(--gm-line-soft);
+}
+
+.dropdown-menu li:hover,
+.dropdown-item:hover,
+.dropdown-menu li > a:hover,
+.account-dropdown li:hover,
+.account-dropdown .dropdown-item:hover {
+  background: var(--gm-hover);
+}
+
+.dropdown-menu .dropdown-item.active,
+.dropdown-menu .dropdown-item.active:hover,
+.dropdown-menu li.active > a {
+  font-weight: 600;
+}
+
+/* ==========================================================================
+ Dialogs: a card with rounder corners and no rules across it, the
+ heading and the buttons set off by space alone, as Booklist's are
+========================================================================== */
+
+.modal-content,
+.confirm-modal-dialog {
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 2rem var(--shadow-color-heavy);
+}
+
+.modal-header,
+.confirm-modal-header {
+  border-bottom: 0;
+  padding: 1.25rem 1.25rem 0;
+}
+
+.modal-title,
+.confirm-modal-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.modal-body,
+.confirm-modal-content {
+  padding: 1.25rem;
+}
+
+.modal-footer,
+.confirm-modal-actions {
+  border-top: 0;
+  padding: 0.25rem 1.25rem 1.25rem;
+}
+
+.modal-header button:hover,
+.confirm-modal-close:hover {
+  background: var(--gm-bg);
+}
+
+.reminders,
+.guests {
+  border-top-color: var(--gm-line-soft);
+}
+
+/* ==========================================================================
+ Lists: the name that a row is about is in the semibold, as a book's
+ title is, and what stands beside it is quieter
+========================================================================== */
+
+.tasks-col-title a,
+.note-title a,
+.fav-title a,
+.contacts .list-group-item a {
+  font-weight: 600;
+}
+
+.tasks-col-title a.text-completed {
+  color: var(--gm-quiet);
+  font-weight: 400;
+}
+
+.tasks-table .tasks-col-due,
+.tasks-table .tasks-col-due a {
+  font-variant-numeric: tabular-nums;
+}
+
+.task-date-link,
+.table td.created,
+.table td.updated {
+  color: var(--gm-muted);
+}
+
+/* Priority flags in the theme's own red and gold, and the low ones quiet */
+tr.priority-highest .btn-priority,
+i.priority-highest {
+  color: var(--gm-error);
+}
+
+tr.priority-high .btn-priority,
+i.priority-high {
+  color: var(--gm-star);
+}
+
+tr.priority-low .btn-priority,
+i.priority-low,
+tr.priority-lowest .btn-priority,
+i.priority-lowest {
+  color: var(--gm-quiet);
+}
+
+/* ==========================================================================
+ Home
+========================================================================== */
+
+/* On the page itself, not in a card, a field is the card's colour */
+.search-input,
+.search-engine-btn,
+.weather-indicator {
+  background: var(--gm-card);
+}
+
+/* A folder of favorites is headed in the small capitals, and its links
+   are in the ink until the pointer is on them */
+.folder-name {
+  color: var(--gm-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.folder-name:hover {
+  color: var(--gm-accent);
+}
+
+.folder .card-title {
+  margin-bottom: 0.5rem;
+}
+
+.home-link {
+  color: var(--gm-ink);
+}
+
+.home-link:hover {
+  color: var(--gm-accent);
+  text-decoration: none;
+}
+
+/* ==========================================================================
+ Calendar: the weekdays in the small capitals, the month's name in bold,
+ and today a disc of the accent
+========================================================================== */
+
+.fc .fc-toolbar-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: var(--gm-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  background-color: var(--gm-accent);
+  box-shadow: none;
+  color: var(--gm-accent-ink);
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background: var(--gm-ink);
+  border-color: var(--gm-ink);
+  color: var(--gm-bg);
+}
+
+/* ==========================================================================
+ Settings: the sections are a card of their own beside the page's cards,
+ in place of a rail joined to one large body, and the open one is a pill
+ as the open folder is
+========================================================================== */
+
+@media (min-width: 992px) {
+  .section:has(> .section-nav) {
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .section-nav {
+    background: var(--gm-card);
+    border: 1px solid var(--gm-line);
+    border-radius: var(--radius-lg);
+    flex-basis: 12rem;
+  }
+
+  .section-nav ul {
+    margin: 0.75rem;
+  }
+
+  .section-nav a {
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    margin-right: 0;
+  }
+
+  .section-nav a:hover {
+    background: var(--gm-hover);
+  }
+
+  .section-nav .active a {
+    background: var(--gm-selected);
+    border-color: var(--gm-selected-line);
+    font-weight: 600;
+  }
+
+  .section-nav .active a::before,
+  .section-nav .active a::after {
+    content: none;
+  }
+
+  .section-body {
+    background: none;
+    border-radius: 0;
+    padding: 0;
+  }
+}
+
+.section-body .table-container {
+  border-color: var(--gm-line);
+}
+
+/* ==========================================================================
+ Phone
+========================================================================== */
+
+@media (max-width: 991.98px) {
+  /* A drawer casts its shadow only while it is open; shut, it stands
+     just off the screen, and its shadow fell along the screen's edge */
+  .nav-drawer:not(.drawer-open),
+  [data-drawer]:not(.drawer-open) {
+    box-shadow: none;
+  }
+
+  /* In the bar at the foot of the task list a filter that is on is its
+     icon in the accent on the selected wash, not a filled button */
+  .tasks-tools .square-button.toggle-active {
+    color: var(--gm-accent);
+  }
+
+  /* In the menu the open page is the selected wash, its name in the
+     semibold */
+  .nav-drawer .active a {
+    font-weight: 600;
+  }
+}

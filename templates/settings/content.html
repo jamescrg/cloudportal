@@ -25,6 +25,8 @@
                                         Hojicha
                                     {% elif theme_base == "auto" %}
                                         Auto
+                                    {% elif theme_base == "genmaicha" %}
+                                        Genmaicha
                                     {% else %}
                                         Matcha
                                     {% endif %}
@@ -52,37 +54,45 @@
                                        href="#"
                                        @click.prevent="$el.closest('form').querySelector('[name=theme]').value='auto'; $el.closest('form').submit();">Auto</a>
                                 </li>
+                                <li {% if theme_base == "genmaicha" %}class="active"{% endif %}>
+                                    <a class="dropdown-item"
+                                       href="#"
+                                       @click.prevent="$el.closest('form').querySelector('[name=theme]').value='genmaicha'; $el.closest('form').submit();">Genmaicha</a>
+                                </li>
                             </ul>
                         </div>
                     </form>
                 </td>
             </tr>
-            <tr>
-                <td class="setting-label">Atmosphere</td>
-                <td class="setting-control">
-                    {% comment %}
-                    A switch: on, the theme takes its atmospheric variant
-                    (Matcha Lavender, Matcha Paper Sage, Hojicha Steam, or the one of those
-                    the device's light or dark calls for, under Auto) with
-                    the gradient wash and the weather.
-                    {% endcomment %}
-                    <form action="{% url 'settings-theme-atmosphere' %}"
-                          method="post"
-                          class="atmosphere-form">
-                        {% csrf_token %}
-                        <input type="hidden"
-                               name="atmosphere"
-                               value="{% if theme_variant %}off{% else %}on{% endif %}">
-                        <button type="submit"
-                                class="switch{% if theme_variant %} is-on{% endif %}"
-                                role="switch"
-                                aria-checked="{% if theme_variant %}true{% else %}false{% endif %}"
-                                aria-label="Atmosphere">
-                            <span class="switch-knob"></span>
-                        </button>
-                    </form>
-                </td>
-            </tr>
+            {# Genmaicha is flat paper and has no atmosphere to turn on #}
+            {% if theme_base != "genmaicha" %}
+                <tr>
+                    <td class="setting-label">Atmosphere</td>
+                    <td class="setting-control">
+                        {% comment %}
+                        A switch: on, the theme takes its atmospheric variant
+                        (Matcha Lavender, Matcha Paper Sage, Hojicha Steam, or the one of those
+                        the device's light or dark calls for, under Auto) with
+                        the gradient wash and the weather.
+                        {% endcomment %}
+                        <form action="{% url 'settings-theme-atmosphere' %}"
+                              method="post"
+                              class="atmosphere-form">
+                            {% csrf_token %}
+                            <input type="hidden"
+                                   name="atmosphere"
+                                   value="{% if theme_variant %}off{% else %}on{% endif %}">
+                            <button type="submit"
+                                    class="switch{% if theme_variant %} is-on{% endif %}"
+                                    role="switch"
+                                    aria-checked="{% if theme_variant %}true{% else %}false{% endif %}"
+                                    aria-label="Atmosphere">
+                                <span class="switch-knob"></span>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endif %}
         </table>
     </div>
 {% endblock subcontent %}
